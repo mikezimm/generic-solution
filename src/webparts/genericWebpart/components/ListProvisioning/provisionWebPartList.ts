@@ -22,7 +22,7 @@ import { timeViewsFull } from './viewsChildList'; //Import view arrays for Time 
 
 import { TMTDefaultProjectItems, TMTTestTimeItems, IAnyArray } from './ItemsWebPart'; // Import items to create in the list
 
-export async function provisionTheList( listName : string, listDefinition: 'Projects' | 'TrackMyTime' , webURL: string ): Promise<IServiceLog[]>{
+export async function provisionTheList( listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
     let createTheseFields : IMyFieldTypes[] = [];
@@ -40,14 +40,14 @@ export async function provisionTheList( listName : string, listDefinition: 'Proj
         additionalSettings: { EnableVersioning: true, MajorVersionLimit: 50, OnQuickLaunch: true },
       };
 
-    if (listDefinition === 'Projects') {
-        theList.desc = 'Projects list for TrackMyTime Webpart';
+    if (listDefinition === 'ParentListTitle') {
+        theList.desc = 'ParentListTitle list for this Webpart';
         createTheseFields = TMTProjectFields();
         createTheseViews = projectViews;
         createTheseItems = TMTDefaultProjectItems;
 
-    } else if (listDefinition === 'TrackMyTime') {
-        theList.desc = 'TrackMyTime list for TrackMyTime Webpart';
+    } else if (listDefinition === 'ChildListTitle') {
+        theList.desc = 'ChildListTitle list for this Webpart';
         createTheseFields = TMTTimeFields();
         createTheseViews = timeViewsFull;
 
@@ -86,7 +86,7 @@ export async function provisionTheList( listName : string, listDefinition: 'Proj
     let result3 = null;
 
     let createItems: boolean = false;
-    if (listDefinition === 'Projects') {
+    if (listDefinition === 'ParentListTitle') {
         //Auto create new items
         createItems = true;
 
@@ -100,7 +100,7 @@ export async function provisionTheList( listName : string, listDefinition: 'Proj
 
     if ( createItems === true ) {
         result3 = await addTheseItemsToList(theList, thisWeb, createTheseItems, true, true);
-        if (listDefinition === 'Projects') {
+        if (listDefinition === 'ParentListTitle') {
             alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
         } else {
             alert(`All Test Data present and accounted for!  Don't forget to clear it before you start using this webpart for real!`);

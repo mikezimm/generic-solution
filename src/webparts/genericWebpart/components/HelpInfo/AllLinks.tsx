@@ -49,6 +49,7 @@ export const baseMyRepos = 'https://github.com/mikezimm/';
 export const gitRepoTrackMyTime = createRepoLinks( baseMyRepos + 'TrackMyTime7', '_blank', 'TrackMyTime7' );
 export const gitRepoPivotTiles = createRepoLinks( baseMyRepos + 'Pivot-Tiles','_blank', 'Pivot-Tiles' );
 export const gitRepoSocialiis = createRepoLinks( baseMyRepos + 'Social-iis-7','_blank', 'Social-iis-7' );
+export const gitRepoInfoIisWebpart = createRepoLinks( baseMyRepos + 'InfoIis','_blank', 'Info-iis' );
 export const gitRepoGenericWebpart = createRepoLinks( baseMyRepos + 'GenericWebpart','_blank', 'Info-iis' );
 
 
