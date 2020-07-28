@@ -1,0 +1,142 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+.chartsPage {
+
+    padding-left: 30px;
+    padding-right: 30px;
+
+    .chartW45 {
+      width: 45%;
+    }
+
+    .chartW33 {
+      width: 30%;
+    }
+ 
+    .chartW33 {
+      width: 30%;
+    }
+ 
+    .chartW100 {
+      width: 100%;
+    }
+
+    .mainBar{
+        padding-top: 10px;
+    }
+
+    .toggleDetailsBar {
+        margin-top: 20px;
+        padding-bottom: 0px;
+    }
+
+    .showDetailToggles {
+        transition:all 0.4s ease;
+        //transition:height 0.4s ease;
+        //transition:padding-bottom 0.4s ease;
+        //transition:transform 0.4s ease;
+        transform:scaleY(1);
+        transform-origin:top;
+        height:90px;
+        margin-bottom: 20px;
+        //max-height: 100px;
+        overflow: hidden;
+        padding-bottom: 20px;
+        background: lightgray;
+
+    }
+
+    .hideDetailToggles {
+        transition:all 0.4s ease;
+        //transition:height 0.4s ease;
+        //transition:padding-bottom 0.4s ease;
+        //transition:transform 0.4s ease;
+        height:0;
+        overflow: hidden;
+        padding-bottom: 0px;
+        transform:scaleY(1);
+        color: white;
+        background: none;
+    }
+
+
+}
+
+//Copied from InfoPane.module.scss so it can be more stand alone.
+.infoPane {
+
+
+    .infoTable {
+  
+      tr {
+        padding-top: 0px;
+      }
+  
+      tr :hover {
+        background-color: lightgray;
+        transition:all 0.4s ease;
+      }
+  
+      th {
+        @extend .headerPadding;
+        color: black;
+        background-color: lightgray;
+        border: none;
+      }
+  
+      td {
+        @extend .cellPadding;
+      }
+  
+    }
+
+    .infoTableTHRed {
+      @extend .infoTable;
+      th {
+        color: red;
+      }
+  
+    }
+
+    .cellPadding {
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+
+    .headerPadding {
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+    
+
+    .iColNam{
+      font-weight: bolder;
+      padding-left: 10px;
+      padding-right: 20px;
+    }
+  
+    .iColNamU {
+      @extend .iColNam;
+      color: red;
+    } 
+  
+    .iColNamV {
+      @extend .iColNam;
+      color: green;
+    } 
+  
+    .iColNamH {
+      @extend .iColNam;
+      color: blue;
+    } 
+  
+    .infoPane {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+}

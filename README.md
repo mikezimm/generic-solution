@@ -1,6 +1,8 @@
 ## generic-solution
 
-This is where you include your WebPart documentation.
+The purpose of this repo is to create generic component files and libraries that can be re-used more easily in other SPFx projects.
+
+
 
 ### Building the code
 
@@ -10,6 +12,17 @@ npm i
 npm i -g gulp
 gulp
 ```
+
+## Installation steps
+```
+yo @microsoft/sharepoint --skip-install
+npm install
+npm install @pnp/sp @pnp/graph --save
+npm install @pnp/spfx-controls-react --save --save-exact
+npm install @pnp/spfx-property-controls
+npm install --save office-ui-fabric-react
+npm install webpack-bundle-analyzer --save-dev
+
 
 This package produces the following:
 
