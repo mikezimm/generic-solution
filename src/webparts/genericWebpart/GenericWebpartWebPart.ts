@@ -73,8 +73,7 @@ export interface IGenericWebpartWebPartProps {
 
 export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGenericWebpartWebPartProps> {
 
-  
-  /***
+/***
  *          .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
  *         .8P  Y8. 888o  88   `88'   888o  88   `88'   `~~88~~' 
  *         88    88 88V8o 88    88    88V8o 88    88       88    
