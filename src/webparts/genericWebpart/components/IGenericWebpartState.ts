@@ -2,7 +2,7 @@ import { IFormFields, IProjectFormFields } from './fields/fieldDefinitions';
 
 import { ITheTime } from '../../../services/dateServices';
 
-import { IUser, IPivot, IMyPivots, IMyIcons, IMyFonts, ILink, IChartSeries, ICharNote } from './IReUsableInterfaces';
+import { IUser, IPivot, IMyPivots, IMyIcons, IMyFonts, ILink, IChartSeries, ICharNote, IMyProgress } from './IReUsableInterfaces';
 
 import { ISelectedUser, } from './Charts/charts';
 
@@ -131,6 +131,7 @@ import { ISelectedUser, } from './Charts/charts';
   
     formEntry: ISaveEntry;
   
+    progress:  IMyProgress;
     // 7 - TBD
   
     // 9 - Other web part options

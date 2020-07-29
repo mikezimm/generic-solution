@@ -30,6 +30,8 @@ export interface IGenericWebpartProps {
   childListTitle: string;
   childListWeb: string;
 
+  onlyActiveParents: boolean;
+
   // 3 - General how accurate do you want this to be
 
   // 4 - Info Options

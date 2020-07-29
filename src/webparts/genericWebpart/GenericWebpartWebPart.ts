@@ -51,6 +51,8 @@ export interface IGenericWebpartWebPartProps {
   childListConfirmed: boolean;
   parentListFieldTitles: string;
 
+  onlyActiveParents: boolean;
+
   // 3 - General how accurate do you want this to be
 
   // 4 - Info Options
@@ -148,6 +150,8 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         childListTitle: this.properties.childListTitle,
         childListWeb: this.properties.childListWeb,
 
+        onlyActiveParents: this.properties.onlyActiveParents,
+
         // 3 - General how accurate do you want this to be
 
         // 4 - Info Options
@@ -197,7 +201,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
   private CreateChildList(oldVal: any): any {
 
     let listName = this.properties.childListTitle ? this.properties.childListTitle : 'ChildListTitle';
-    let listCreated = provisionTheList( listName , 'ChildListTitle', this.context.pageContext.web.absoluteUrl, this.setProgress.bind(this));
+    let listCreated = provisionTheList( listName , 'ChildListTitle', this.context.pageContext.web.absoluteUrl, null);
     
     if ( listCreated ) { 
       this.properties.childListTitle = listName;
@@ -209,7 +213,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
   private CreateParentList(oldVal: any): any {
 
     let listName = this.properties.parentListTitle ? this.properties.parentListTitle : 'ParentListTitle';
-    let listCreated = provisionTheList( listName , 'ParentListTitle', this.context.pageContext.web.absoluteUrl, this.setProgress.bind(this));
+    let listCreated = provisionTheList( listName , 'ParentListTitle', this.context.pageContext.web.absoluteUrl, null);
     
     if ( listCreated ) { 
       this.properties.parentListTitle= listName;
