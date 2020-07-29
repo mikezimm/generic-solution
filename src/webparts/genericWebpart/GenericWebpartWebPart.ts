@@ -25,6 +25,7 @@ import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
 
 import { provisionTheList } from './components/ListProvisioning/provisionWebPartList';
 
+import { IMyProgress } from './components/IReUsableInterfaces';
 
 export interface IGenericWebpartWebPartProps {
 
@@ -57,7 +58,7 @@ export interface IGenericWebpartWebPartProps {
   // 5 - UI Defaults
 
   // 6 - User Feedback:
-
+  progress:  IMyProgress;
   // 7 - TBD
 
   // 9 - Other web part options
@@ -154,7 +155,8 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         // 5 - UI Defaults
 
         // 6 - User Feedback:
-
+        progress: this.properties.progress,
+        
         // 7 - TBD
 
         // 9 - Other web part options
