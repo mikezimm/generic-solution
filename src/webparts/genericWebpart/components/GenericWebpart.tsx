@@ -152,8 +152,8 @@ export default class GenericWebpart extends React.Component<IGenericWebpartProps
 public constructor(props:IGenericWebpartProps){
   super(props);
 
-  let parentWeb = this.cleanURL(this.props.parentListWeb ? this.props.parentListWeb : props.pageContext.web.absoluteUrl);
-  let childWeb = this.cleanURL(this.props.childListWeb ? this.props.childListWeb : props.pageContext.web.absoluteUrl);
+  let parentWeb = null; //this.cleanURL(this.props.parentListWeb ? this.props.parentListWeb : props.pageContext.web.absoluteUrl);
+  let childWeb = null; //this.cleanURL(this.props.childListWeb ? this.props.childListWeb : props.pageContext.web.absoluteUrl);
 
   this.state = { 
 
@@ -263,6 +263,7 @@ public constructor(props:IGenericWebpartProps){
   public componentDidUpdate(prevProps){
 
     let rebuildPart = false;
+    console.log('DIDUPDATE setting Progress:', this.props.progress);
     if (this.props.progress !== prevProps.progress) {  rebuildPart = true ; }
 
     if (rebuildPart === true) {
@@ -272,9 +273,23 @@ public constructor(props:IGenericWebpartProps){
 
   public render(): React.ReactElement<IGenericWebpartProps> {
    
-    console.log('GenericWebpart props:', this.props);
+    console.log('RENDER setting Progress:', this.props.progress);
 
-    let myProgress = this.state.progress == null ? null : <ProgressIndicator label={this.state.progress} description={this.state.progress.description} percentComplete={this.state.progress.percentComplete} progressHidden={this.state.progress.progressHidden}/>;
+    //This is where we need to look....
+//    let myProgress = this.state.progress == null ? null : <ProgressIndicator label={this.state.progress} description={this.state.progress.description} percentComplete={this.state.progress.percentComplete} progressHidden={this.state.progress.progressHidden}/>;
+
+/*
+    let label = this.state.progress.;
+    let description = ;
+    let percentComplete = ;
+    let progressHidden = ;
+*/
+
+    let myProgress = this.state.progress == null ? null : <ProgressIndicator 
+      label={this.state.progress.label} 
+      description={this.state.progress.description} 
+      percentComplete={this.state.progress.percentComplete} 
+      progressHidden={this.state.progress.progressHidden}/>;
 
     return (
       <div className={ styles.genericWebpart }>

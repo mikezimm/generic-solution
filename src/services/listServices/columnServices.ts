@@ -69,7 +69,6 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
 
     alert('Need to check for checkForKnownColumnIssues here');
 
-
     for ( let step of steps ) {
 
         let i = 0;
@@ -112,7 +111,7 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                         statusLog = notify(statusLog, 'Checked Field', err, step, f,  null);
                     }
 
-                    console.log('newTryField tested: ', foundField );
+                    //console.log('newTryField tested: ', foundField );
 
                 } catch (e) {
                     // if any of the fields does not exist, raise an exception in the console log

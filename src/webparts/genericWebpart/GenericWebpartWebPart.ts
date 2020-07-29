@@ -92,7 +92,18 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     public onInit():Promise<void> {
       return super.onInit().then(_ => {
         // other init code may be present
-  
+
+        let mess = 'onInit - ONINIT: ' + new Date().toLocaleTimeString();
+
+        this.properties.progress = {
+          label: 'ONINIT',
+          description: mess,
+          percentComplete: 0,
+          progressHidden: false,
+        };
+
+        console.log(mess);
+
         //https://stackoverflow.com/questions/52010321/sharepoint-online-full-width-page
         if ( window.location.href &&  
           window.location.href.toLowerCase().indexOf("layouts/15/workbench.aspx") > 0 ) {
@@ -123,6 +134,11 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     }
 
   public render(): void {
+
+
+    let progress = this.properties.progress;
+    console.log('this.properties.progress:',this.properties.progress);
+
     const element: React.ReactElement<IGenericWebpartProps> = React.createElement(
       GenericWebpart,
       {
@@ -136,7 +152,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         today: makeTheTimeObject(''),
 
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
-        WebpartElement:this.domElement,
+        WebpartElement: this.domElement,
 
         // 1 - Analytics options
         useListAnalytics: this.properties.useListAnalytics,
@@ -159,7 +175,15 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         // 5 - UI Defaults
 
         // 6 - User Feedback:
-        progress: this.properties.progress ? this.properties.progress : null,
+        /*
+        progress: {
+          label: '',
+          description: '',
+          percentComplete: 0,
+          progressHidden: true,
+        },
+        */
+        progress: progress,
         // 7 - TBD
 
         // 9 - Other web part options
@@ -201,7 +225,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
   private CreateChildList(oldVal: any): any {
 
     let listName = this.properties.childListTitle ? this.properties.childListTitle : 'ChildListTitle';
-    let listCreated = provisionTheList( listName , 'ChildListTitle', this.context.pageContext.web.absoluteUrl, null);
+    let listCreated = provisionTheList( listName , 'ChildListTitle', this.context.pageContext.web.absoluteUrl, this.setProgress.bind(this));
     
     if ( listCreated ) { 
       this.properties.childListTitle = listName;
@@ -213,7 +237,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
   private CreateParentList(oldVal: any): any {
 
     let listName = this.properties.parentListTitle ? this.properties.parentListTitle : 'ParentListTitle';
-    let listCreated = provisionTheList( listName , 'ParentListTitle', this.context.pageContext.web.absoluteUrl, null);
+    let listCreated = provisionTheList( listName , 'ParentListTitle', this.context.pageContext.web.absoluteUrl, this.setProgress.bind(this));
     
     if ( listCreated ) { 
       this.properties.parentListTitle= listName;
@@ -223,13 +247,16 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
   } 
 
   private setProgress(progress: IMyProgress){
+    progress.label += ' - at ' + new Date().toLocaleTimeString();
+    console.log('setting Progress:', progress);
     this.properties.progress = progress;
 
   }
 
   private async UpdateTitles(): Promise<boolean> {
 
-    const list = sp.web.lists.getByTitle("Parents");
+    let listName = this.properties.parentListTitle ? this.properties.parentListTitle : 'ParentListTitle';
+    const list = sp.web.lists.getByTitle(listName);
     const r = await list.fields();
 
     //2020-05-13:  Remove Active since it's replaced with StatusTMT which is not applicable here
@@ -278,9 +305,10 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
      */
     let updateOnThese = [
       'setSize','setTab','otherTab','setTab','otherTab','setTab','otherTab','setTab','otherTab',
-      'parentListFieldTitles','progress',
+      'parentListFieldTitles','progress','UpdateTitles',
     ];
     //alert('props updated');
+    console.log('onPropertyPaneFieldChanged:', propertyPath, oldValue, newValue);
     if (updateOnThese.indexOf(propertyPath) > -1 ) {
       this.properties[propertyPath] = newValue;   
       this.context.propertyPane.refresh();
