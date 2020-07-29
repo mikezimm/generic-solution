@@ -1,6 +1,13 @@
 
 import { IGenericWebpartProps } from './IGenericWebpartProps';
 
+export interface IMyProgress {
+  label: string;
+  description: string;
+  percentComplete?: number;
+  progressHidden?: boolean;
+}
+
 export interface IPivot {
     headerText: string;
     itemKey: string;

@@ -72,7 +72,7 @@ import { IGenericWebpartWebPartProps } from '../../webparts/genericWebpart/Gener
     */
 
 export class IntroPage {
-  public getPropertyPanePage(webPartProps: IGenericWebpartWebPartProps, _onClickCreateParent, _onClickCreateChild, _onClickUpdateTitles ): IPropertyPanePage {
+  public getPropertyPanePage(webPartProps: IGenericWebpartWebPartProps, _onClickCreateParent, _onClickCreateChild, _onClickUpdateTitles, setProgress ): IPropertyPanePage {
     return <IPropertyPanePage>
     { // <page1>
       header: {

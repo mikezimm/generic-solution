@@ -3,6 +3,8 @@ import { ITheTime } from '../../../services/dateServices';
 import { PageContext } from '@microsoft/sp-page-context';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 
+import { IMyProgress } from './IReUsableInterfaces';
+
 export interface IGenericWebpartProps {
  
   // 0 - Context
@@ -35,7 +37,8 @@ export interface IGenericWebpartProps {
   // 5 - UI Defaults
 
   // 6 - User Feedback:
-
+  progress: IMyProgress;
+  
   // 7 - TBD
 
   // 9 - Other web part options

@@ -22,7 +22,9 @@ import { timeViewsFull } from './viewsChildList'; //Import view arrays for Time 
 
 import { TMTDefaultProjectItems, TMTTestTimeItems, IAnyArray } from './ItemsWebPart'; // Import items to create in the list
 
-export async function provisionTheList( listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string ): Promise<IServiceLog[]>{
+import { IMyProgress } from '../IReUsableInterfaces';
+
+export async function provisionTheList( listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
     let createTheseFields : IMyFieldTypes[] = [];
@@ -77,10 +79,29 @@ export async function provisionTheList( listName : string, listDefinition: 'Pare
 
     alert('Still need to check:  Set Title in onCreate,  changesFinal - hidding original fields and setting and why Hours calculated is single line of text');
 
-    let result = await addTheseFields(['create','changesFinal'], theList, ensuredList, currentFields, createTheseFields, alertMe, consoleLog );
+    let progress : IMyProgress = {
+        label: 'Adding fields to list: ' + theList.title,
+        description: 'Checking for fields',
+        percentComplete: 0,
+        progressHidden: false,
+    };
+
+    setProgress(progress);
+
+    let result = await addTheseFields(['create','changesFinal'], theList, ensuredList, currentFields, createTheseFields, setProgress, alertMe, consoleLog );
 
     //let testViews = projectViews;
     //alert('adding Views');
+
+    progress = {
+        label: 'Adding fields to list: ' + theList.title,
+        description: 'Checking for views',
+        percentComplete: 0,
+        progressHidden: false,
+    };
+
+    setProgress(progress);
+
     let result2 = await addTheseViews(['create'],  theList, ensuredList, currentViews, createTheseViews, alertMe, consoleLog);
 
     let result3 = null;
@@ -99,6 +120,15 @@ export async function provisionTheList( listName : string, listDefinition: 'Pare
     }
 
     if ( createItems === true ) {
+        progress = {
+            label: 'Adding items to list: ' + theList.title,
+            description: 'Checking for items',
+            percentComplete: 0,
+            progressHidden: false,
+        };
+    
+        setProgress(progress);
+
         result3 = await addTheseItemsToList(theList, thisWeb, createTheseItems, true, true);
         if (listDefinition === 'ParentListTitle') {
             alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
@@ -108,6 +138,15 @@ export async function provisionTheList( listName : string, listDefinition: 'Pare
 
 
       }
+
+      progress = {
+        label: '',
+        description: '',
+        percentComplete: 0,
+        progressHidden: true,
+    };
+
+    setProgress(progress);
 
     return statusLog;
 

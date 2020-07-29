@@ -25,6 +25,7 @@ import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
 
 import { provisionTheList } from './components/ListProvisioning/provisionWebPartList';
 
+import { IMyProgress } from './components/IReUsableInterfaces';
 
 export interface IGenericWebpartWebPartProps {
 
@@ -57,6 +58,7 @@ export interface IGenericWebpartWebPartProps {
   // 5 - UI Defaults
 
   // 6 - User Feedback:
+  progress: IMyProgress;
 
   // 7 - TBD
 
@@ -153,7 +155,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         // 5 - UI Defaults
 
         // 6 - User Feedback:
-
+        progress: this.properties.progress ? this.properties.progress : null,
         // 7 - TBD
 
         // 9 - Other web part options
@@ -195,7 +197,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
   private CreateChildList(oldVal: any): any {
 
     let listName = this.properties.childListTitle ? this.properties.childListTitle : 'ChildListTitle';
-    let listCreated = provisionTheList( listName , 'ChildListTitle', this.context.pageContext.web.absoluteUrl);
+    let listCreated = provisionTheList( listName , 'ChildListTitle', this.context.pageContext.web.absoluteUrl, this.setProgress.bind(this));
     
     if ( listCreated ) { 
       this.properties.childListTitle = listName;
@@ -207,7 +209,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
   private CreateParentList(oldVal: any): any {
 
     let listName = this.properties.parentListTitle ? this.properties.parentListTitle : 'ParentListTitle';
-    let listCreated = provisionTheList( listName , 'ParentListTitle', this.context.pageContext.web.absoluteUrl);
+    let listCreated = provisionTheList( listName , 'ParentListTitle', this.context.pageContext.web.absoluteUrl, this.setProgress.bind(this));
     
     if ( listCreated ) { 
       this.properties.parentListTitle= listName;
@@ -216,6 +218,10 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     return "Finished";  
   } 
 
+  private setProgress(progress: IMyProgress){
+    this.properties.progress = progress;
+
+  }
 
   private async UpdateTitles(): Promise<boolean> {
 
@@ -257,7 +263,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
       this.CreateParentList.bind(this),
       this.CreateChildList.bind(this),
       this.UpdateTitles.bind(this),
-
+      this.setProgress.bind(this),
       );
   }
 
@@ -268,7 +274,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
      */
     let updateOnThese = [
       'setSize','setTab','otherTab','setTab','otherTab','setTab','otherTab','setTab','otherTab',
-      'parentListFieldTitles'
+      'parentListFieldTitles','progress',
     ];
     //alert('props updated');
     if (updateOnThese.indexOf(propertyPath) > -1 ) {

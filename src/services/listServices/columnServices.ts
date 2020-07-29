@@ -22,6 +22,9 @@ import { IListInfo, IMyListInfo, IServiceLog, notify } from './listTypes';
 
 import { getHelpfullError } from '../ErrorHandler';
 
+import { IMyProgress } from '../../webparts/genericWebpart/components/IReUsableInterfaces';
+
+
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/fields";
@@ -58,7 +61,7 @@ function checkForKnownColumnIssues(){
  * @param consoleLog - used for logging and testing
  * @param skipTry - was used prior to adding 'currentFields' so you wouldn't have to 'try' adding/checking if column existed before creating it.
  */
-export async function addTheseFields( steps : changes[], myList: IMyListInfo, ensuredList, currentFields , fieldsToAdd: IMyFieldTypes[], alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IFieldLog[]>{
+export async function addTheseFields( steps : changes[], myList: IMyListInfo, ensuredList, currentFields , fieldsToAdd: IMyFieldTypes[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IFieldLog[]>{
 
     let statusLog : IFieldLog[] = [];
 
@@ -66,13 +69,26 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
 
     alert('Need to check for checkForKnownColumnIssues here');
 
+
     for ( let step of steps ) {
+
+        let i = 0;
+        let n = fieldsToAdd.length;
 
         for (let f of fieldsToAdd) {
             //console.log(step + ' trying adding column:', f);
-
+            i++;
             let foundField = skipTry === true ? true : false;
             let skipTryField : boolean;
+
+            let progress : IMyProgress = {
+                label: 'Adding fields to list: ' + myList.title,
+                description: 'Field ' + i + ' of ' + n + ' : ' + f.name,
+                percentComplete: i/n,
+                progressHidden: false,
+            };
+
+            setProgress(progress);
 
             if ( step !== 'create' && step !== 'setForm' && f[step] != null ) {
                 //Skip trying field because it's not having anything done to it
