@@ -287,6 +287,10 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
   *                                                                                
   */
 
+  protected get disableReactivePropertyChanges(): boolean {
+    // Set this to true if you don't want the reactive behavior.
+    return false;
+  }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     return propertyPaneBuilder.getPropertyPaneConfiguration(
