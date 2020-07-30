@@ -9,6 +9,9 @@ import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICh
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
+import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/provisionList';
+import ProvisionLists from './ListProvisioning/provisionList';
+
 
 export default class GenericWebpart extends React.Component<IGenericWebpartProps, IGenericWebpartState> {
 
@@ -186,6 +189,10 @@ public constructor(props:IGenericWebpartProps){
         parentListName: this.props.parentListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
         childListName: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
       
+        parentListConfirmed: false,
+        childListConfirmed: false,
+
+
         // 3 - General how accurate do you want this to be
       
         // 4 - Info Options
@@ -243,10 +250,7 @@ public constructor(props:IGenericWebpartProps){
         searchCount: 0,
         searchWhere: '',
   
-        
-
-
-  }
+  };
 }
 
   /***
@@ -275,6 +279,31 @@ public constructor(props:IGenericWebpartProps){
    
     console.log('RENDER setting Progress:', this.props.progress);
 
+
+    const provisionPage = <div>
+    <ProvisionLists 
+        pageContext={ this.props.pageContext }
+        showPane={true}
+        allLoaded={false}
+        //parentProps: IGenericWebpartProps;
+        //parentState: IGenericWebpartState;
+
+        // 2 - Source and destination list information
+
+        parentListWeb={this.state.parentListWeb}
+        parentListTitle={this.state.parentListName}
+        parentListConfirmed={this.state.parentListConfirmed}
+
+        childListWeb={this.state.childListWeb}
+        childListTitle={this.state.childListName}
+        childListConfirmed={this.state.childListConfirmed}
+
+    ></ProvisionLists>
+  </div>;
+
+
+
+
     //This is where we need to look....
 //    let myProgress = this.state.progress == null ? null : <ProgressIndicator label={this.state.progress} description={this.state.progress.description} percentComplete={this.state.progress.percentComplete} progressHidden={this.state.progress.progressHidden}/>;
 
@@ -285,28 +314,25 @@ public constructor(props:IGenericWebpartProps){
     let progressHidden = ;
 */
 
-    let myProgress = this.state.progress == null ? null : <ProgressIndicator 
-      label={this.state.progress.label} 
-      description={this.state.progress.description} 
-      percentComplete={this.state.progress.percentComplete} 
-      progressHidden={this.state.progress.progressHidden}/>;
+    let ootbComponent = <div className={ styles.genericWebpart }>
+    <div className={ styles.container }>
 
-    return (
-      <div className={ styles.genericWebpart }>
-        <div className={ styles.container }>
-        <div>{ myProgress }</div>
-          <div className={ styles.row }>
-            <div className={ styles.column }>
-              <span className={ styles.title }>Welcome to SharePoint!</span>
-              <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p>
-              <p className={ styles.description }>{escape(this.props.description)}</p>
-              <a href="https://aka.ms/spfx" className={ styles.button }>
-                <span className={ styles.label }>Learn more</span>
-              </a>
-            </div>
+        <div className={ styles.row }>
+          <div className={ styles.column }>
+            <span className={ styles.title }>Welcome to SharePoint!</span>
+            <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p>
+            <p className={ styles.description }>{escape(this.props.description)}</p>
+            <a href="https://aka.ms/spfx" className={ styles.button }>
+              <span className={ styles.label }>Learn more</span>
+            </a>
           </div>
         </div>
       </div>
+    </div>;
+
+
+    return (
+      provisionPage
     );
   }
 

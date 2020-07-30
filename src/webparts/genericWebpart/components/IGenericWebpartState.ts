@@ -108,6 +108,9 @@ import { ISelectedUser, } from './Charts/charts';
   
     parentListName: string;  // Static Name of list (for URL) - used for links and determined by first returned item
     childListName: string;  // Static Name of list (for URL) - used for links and determined by first returned item
+
+    parentListConfirmed: boolean;
+    childListConfirmed: boolean;
   
     // 3 - General how accurate do you want this to be
   
