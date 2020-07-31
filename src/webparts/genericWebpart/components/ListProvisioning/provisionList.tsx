@@ -234,10 +234,6 @@ public constructor(props:IProvisionListsProps){
             </ul>
             </div>
 
-
-
-
-
             thisPage = <div><div>{ disclaimers }</div>
                 <div> { provisionButtons } </div>
                 <div> { myProgress } </div>
