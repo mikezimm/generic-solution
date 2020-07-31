@@ -29,7 +29,7 @@
     ]
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts", "src/webparts/genericWebpart/components/ListProvisioning/listView.tsx"
   ],
   "exclude": [
     "node_modules",
