@@ -11,6 +11,8 @@ import { MyFieldDef, changes, cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, c
 
 import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, MyOperator, BeginsWith } from './viewTypes';
 
+import { IMyProgress } from '../../webparts/genericWebpart/components/IReUsableInterfaces';
+
 import { IListInfo, IMyListInfo, IServiceLog, notify, getXMLObjectFromString } from './listTypes';
 
 import { doesObjectExistInArray } from '../arrayServices';
@@ -166,15 +168,34 @@ export function buildFieldWhereTag ( thisWhere ) {
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
 
-export async function addTheseViews( steps : changes[], myList: IMyListInfo, ensuredList, currentViews , viewsToAdd: IMyView[], alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IViewLog[]>{
+export async function addTheseViews( steps : changes[], myList: IMyListInfo, ensuredList, currentViews , viewsToAdd: IMyView[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IViewLog[]>{
 
     let statusLog : IViewLog[] = [];
 
     const listViews = ensuredList.list.views;
     
+      /**
+    * @param progressHidden 
+    * @param current : current index of progress
+    * @param ofThese : total count of items in progress
+    * @param color : color of label like red, yellow, green, null
+    * @param icon : Fabric Icon name if desired
+    * @param logLabel : short label of item used for displaying in list
+    * @param label : longer label used in Progress Indicator and hover card
+    * @param description 
+   */
+
+    setProgress(false, "V", 0, 0 , '', '', myList.title, 'Adding VIEWS to list: ' + myList.title, 'Checking for VIEWS' );
+
     //let returnArray: [] = [];
 
+    let iV = 0;
+    let nV = viewsToAdd.length;
+
     for (let v of viewsToAdd) {
+        iV++;
+
+        setProgress(false, "V", iV, nV , '', '', v.Title, 'Adding views to list: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 198' );
 
         /**
          * Build view settings schema
@@ -240,6 +261,8 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
             if (v.groups != null) {
                 if ( v.groups.fields.length > 2) {
                     alert('You are trying to GroupBy more than 2 fields!: ' + v.groups.fields.length);
+                    setProgress(false, "E", iV, nV , '', '', v.Title, 'GroupBy error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 264' );
+
                 } else if (v.groups.fields != null && v.groups.fields.length > 0 ) {
                     if (v.groups.collapse === true ) { viewGroupByXML += ' Collapse="TRUE"'; }
                     if (v.groups.collapse === false ) { viewGroupByXML += ' Collapse="FALSE"'; }
@@ -273,9 +296,11 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
             if (v.orders != null) {
                 if ( v.orders.length > 2 ) {
                     alert('You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length);
+                    setProgress(false, "E", iV, nV , '', '', v.Title, '2 Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 299' );
 
                 } else if ( v.orders.length === 0 ) {
                     alert('You have view.orders object with no fields to order by!');
+                    setProgress(false, "E", iV, nV , '', '', v.Title, 'No Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 303' );
 
                 } else {
 
@@ -311,6 +336,7 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
                 //Go through each item and add the <Or> or <And> Tags around them
                 let hasPreviousAnd = false;
                 let previousAnd = '';
+
                 for (let i in viewWhereArray ) {
                     let thisClause = i === '0' ? '' : v.wheres[i].clause;
                     let thisFieldWhere = viewWhereArray[i];
@@ -318,6 +344,7 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
                     if ( viewWhereArray.length === 0 ) {
                         //You need to have something in here for it to work.
                         alert('Field was skipped because there wasn\'t a valid \'Where\' : ' + v.wheres[i].field );
+                        setProgress(false, "E", iV, nV , '', '', v.Title, 'Invalid Where: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 347' );
 
                     } else if ( viewWhereArray.length === 1 ) {
                         viewWhereXML = thisFieldWhere;
@@ -325,6 +352,7 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
                     } else if ( hasPreviousAnd === true && thisClause === 'Or' ) {
                         //In UI, you can't have an OR after an AND... , it works but will not work editing the view through UI then.
                         alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);
+                        setProgress(false, "E", iV, nV , '', '', v.Title, 'Can\'t do Or after And: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 355' );
 
                     } else {
                         //console.log( 'thisClause, thisFieldWhere', thisClause, thisFieldWhere );
@@ -337,6 +365,7 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
                                 
                             } else {
                                 alert('Can\'t wrap this in clause because there is not any existing field to compare to ' + thisFieldWhere );
+                                setProgress(false, "E", iV, nV , '', '', v.Title, 'Can\'t Compare field: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 368' );
                                 viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
                             }
 
@@ -421,9 +450,11 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
                 if (errMessage.indexOf('missing a column') > -1) {
                     let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
                     statusLog = notify(statusLog,  v, 'Creating View', 'Create',err, null);
+                    setProgress(false, "E", iV, nV , '', '', v.Title, 'Field does not exist: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 453' );
                 } else {
                     let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
                     statusLog = notify(statusLog, v, 'Creating View', 'Create', err, null);
+                    setProgress(false, "E", iV, nV , '', '', v.Title, 'Unknown error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 457' );
                 }
             }
 
@@ -435,8 +466,8 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
 
 
     }  //END: for (let f of fieldsToAdd) {
-    alert('Added views to list:' );
-    console.log('addTheseViews', statusLog);
+    //alert('Added views to list:' );
+    //console.log('addTheseViews', statusLog);
     return(statusLog);
 
 }

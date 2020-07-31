@@ -95,13 +95,6 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
 
         let mess = 'onInit - ONINIT: ' + new Date().toLocaleTimeString();
 
-        this.properties.progress = {
-          label: 'ONINIT',
-          description: mess,
-          percentComplete: 0,
-          progressHidden: false,
-        };
-
         console.log(mess);
 
         //https://stackoverflow.com/questions/52010321/sharepoint-online-full-width-page

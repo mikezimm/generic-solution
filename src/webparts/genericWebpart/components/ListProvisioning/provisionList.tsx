@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Link, ILinkProps } from 'office-ui-fabric-react';
 
-import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
+import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 //import { sp } from '@pnp/sp';
@@ -22,6 +22,8 @@ import { IButtonProps, ISingleButtonProps, IButtonState } from "../createButtons
 import { PageContext } from '@microsoft/sp-page-context';
 
 import { Panel, PanelType, ActionButton } from "office-ui-fabric-react";
+
+import MyLogList from './listView';
 
 export interface IProvisionListsProps {
     // 0 - Context
@@ -45,11 +47,21 @@ export interface IProvisionListsProps {
 
 }
 
+export interface IMyHistory {
+    count: number;
+    errors: IMyProgress[];
+    columns: IMyProgress[];
+    views: IMyProgress[];
+    items: IMyProgress[];
+}
+
 export interface IProvisionListsState {
     allLoaded: boolean;
 
     progress: IMyProgress;
-    history: IMyProgress[];
+    history: IMyHistory;
+
+    currentList: string;
     
     // 2 - Source and destination list information
 
@@ -65,7 +77,17 @@ export interface IProvisionListsState {
 
 export default class ProvisionLists extends React.Component<IProvisionListsProps, IProvisionListsState> {
 
+private clearHistory() {
+    let history: IMyHistory = {
+        count: 0,
+        errors: [],
+        columns: [],
+        views: [],
+        items: [],
+    };
+    return history;
 
+}
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
@@ -80,9 +102,11 @@ export default class ProvisionLists extends React.Component<IProvisionListsProps
 public constructor(props:IProvisionListsProps){
     super(props);
     this.state = { 
+
+        currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
         progress: null,
-        history: [],
+        history: this.clearHistory(),
 
         parentListTitle: this.props.parentListTitle,
         parentListWeb: this.props.parentListWeb,
@@ -143,7 +167,7 @@ public constructor(props:IProvisionListsProps){
     public render(): React.ReactElement<IProvisionListsProps> {
 
         if ( this.props.showPane ) {
-            console.log('provisionList.tsx', this.props, this.state);
+            //console.log('provisionList.tsx', this.props, this.state);
 
 /***
  *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
@@ -155,6 +179,7 @@ public constructor(props:IProvisionListsProps){
  *                                                                                     
  *                                                                                     
  */
+
 
             let thisPage = null;
             let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
@@ -168,7 +193,6 @@ public constructor(props:IProvisionListsProps){
                 label: "Create Child List", buttonOnClick: this.CreateChildList.bind(this),
             }];
 
-
             let provisionButtons = <div style={{ paddingTop: '20px' }}>
                     <ButtonCompound
                     buttons={buttons} horizontal={true}
@@ -176,14 +200,56 @@ public constructor(props:IProvisionListsProps){
                 </div>;
             
             let myProgress = this.state.progress == null ? null : <ProgressIndicator 
-            label={this.state.progress.label} 
-            description={this.state.progress.description} 
-            percentComplete={this.state.progress.percentComplete} 
-            progressHidden={this.state.progress.progressHidden}/>;
+                label={this.state.progress.label} 
+                description={this.state.progress.description} 
+                percentComplete={this.state.progress.percentComplete} 
+                progressHidden={this.state.progress.progressHidden}/>;
+
+            const stackListTokens: IStackTokens = { childrenGap: 10 };
+
+            let showHistory = this.state.history.count > 0 ? true : false;
+
+            let errorList = <MyLogList 
+                title={ 'Errors'}           items={ this.state.history.errors }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let fieldList = <MyLogList 
+                title={ 'Columns'}           items={ this.state.history.columns }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let viewList = <MyLogList 
+                title={ 'Views'}           items={ this.state.history.views }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let itemList = <MyLogList 
+                title={ 'Items'}           items={ this.state.history.items }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let disclaimers = <ul>
+                <li>Still need to check:  Set Title in onCreate,  changesFinal - hidding original fields and setting and why Hours calculated is single line of text</li>
+                <li></li>
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+
+
+
 
             thisPage = <div>Hi!  This is the ProvisionList pane!
                 <div> { provisionButtons } </div>
                 <div> { myProgress } </div>
+                <div> {  } </div>
+                <div> <h2>{ this.state.currentList }</h2> </div>
+                <div>
+                <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
+                    { errorList }
+                    { fieldList }  
+                    { viewList }  
+                    { itemList }  
+                </Stack>
+                </div>
+
             </div>;
 
 /***
@@ -224,7 +290,10 @@ public constructor(props:IProvisionListsProps){
 
   private CreateChildList(oldVal: any): any {
 
+    this.setState({ currentList: 'Child list: ' + this.state.childListTitle, history: this.clearHistory(),  });
+
     let listName = this.state.childListTitle ? this.state.childListTitle : 'ChildListTitle';
+
     let listCreated = provisionTheList( listName , 'ChildListTitle', this.props.pageContext.web.absoluteUrl, this.setProgress.bind(this));
     
     if ( listCreated ) { 
@@ -238,6 +307,8 @@ public constructor(props:IProvisionListsProps){
   } 
 
   private CreateParentList(oldVal: any): any {
+
+    this.setState({ currentList: 'Parent list: ' + this.state.parentListTitle, history: this.clearHistory(),  });
 
     let listName = this.state.parentListTitle ? this.state.parentListTitle : 'ParentListTitle';
     let listCreated = provisionTheList( listName , 'ParentListTitle', this.props.pageContext.web.absoluteUrl, this.setProgress.bind(this));
@@ -253,12 +324,55 @@ public constructor(props:IProvisionListsProps){
     return "Finished";  
   } 
 
-  private setProgress(progress: IMyProgress){
-    progress.label += ' - at ' + new Date().toLocaleTimeString();
-    console.log('setting Progress:', progress);
+   /**
+    * 
+    * @param progressHidden 
+    * @param list : list you want to add this to 'E' | 'C' | 'V' | 'I'
+    * @param current : current index of progress
+    * @param ofThese : total count of items in progress
+    * @param color : color of label like red, yellow, green, null
+    * @param icon : Fabric Icon name if desired
+    * @param logLabel : short label of item used for displaying in list
+    * @param label : longer label used in Progress Indicator and hover card
+    * @param description 
+    */
+  private setProgress(progressHidden: boolean, list: 'E' | 'C' | 'V' | 'I', current: number , ofThese: number, color: string, icon: string, logLabel: string, label: string, description: string, ref: string = null ){
+    let thisTime = new Date().toLocaleTimeString();
+    const percentComplete = ofThese !== 0 ? current/ofThese : 0;
 
-    let history: IMyProgress[] = this.state.history;
-    history.push(progress);
+    logLabel = current > 0 ? current + '/' + ofThese + ' - ' + logLabel : logLabel ;
+    let progress: IMyProgress = {
+        ref: ref,
+        time: thisTime,
+        logLabel: logLabel,
+        label: label + '- at ' + thisTime,
+        description: description,
+        percentComplete: percentComplete,
+        progressHidden: progressHidden,
+        color: color,
+        icon: icon,
+      };
+
+    //console.log('setting Progress:', progress);
+
+    let history: IMyHistory = this.state.history;
+    //let newHistory = null;
+    
+
+    if ( history === null ){
+
+    } else {
+        history.count ++;
+        if ( list === 'E') {
+            history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
+        } else if ( list === 'C') {
+            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+        } else if ( list === 'V') {
+            history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
+        } else if ( list === 'I') {
+            history.items = history.items.length === 0 ? [progress] : [progress].concat(history.items);
+        }
+    }
 
     this.setState({
         progress: progress,

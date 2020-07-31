@@ -77,35 +77,9 @@ export async function provisionTheList( listName : string, listDefinition: 'Pare
 
     console.log(theList.title + ' list fields and views', currentFields, currentViews);
 
-    alert('Still need to check:  Set Title in onCreate,  changesFinal - hidding original fields and setting and why Hours calculated is single line of text');
-
-    let progress : IMyProgress = {
-        label: 'Adding FIELDS to list: ' + theList.title,
-        description: 'Checking for FIELDS',
-        percentComplete: 0,
-        progressHidden: false,
-    };
-
-    setProgress(progress);
-    /*
-*/
     let result = await addTheseFields(['create','changesFinal'], theList, ensuredList, currentFields, createTheseFields, setProgress, alertMe, consoleLog );
 
-    //let testViews = projectViews;
-    //alert('adding Views');
-
-    progress = {
-        label: 'Adding VIEWS to list: ' + theList.title,
-        description: 'Checking for VIEWS',
-        percentComplete: 0,
-        progressHidden: false,
-    };
-
-    setProgress(progress);
-    /*
-    */
-
-    let result2 = await addTheseViews(['create'],  theList, ensuredList, currentViews, createTheseViews, alertMe, consoleLog);
+    let result2 = await addTheseViews(['create'],  theList, ensuredList, currentViews, createTheseViews, setProgress, alertMe, consoleLog);
 
     let result3 = null;
 
@@ -124,17 +98,7 @@ export async function provisionTheList( listName : string, listDefinition: 'Pare
 
     if ( createItems === true ) {
               
-        progress = {
-            label: 'Adding ITEMS to list: ' + theList.title,
-            description: 'Checking for ITEMS',
-            percentComplete: 0,
-            progressHidden: false,
-        };
-    
-        setProgress(progress);
-        /*
-        */
-        result3 = await addTheseItemsToList(theList, thisWeb, createTheseItems, true, true);
+        result3 = await addTheseItemsToList(theList, thisWeb, createTheseItems, setProgress, true, true);
         if (listDefinition === 'ParentListTitle') {
             alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
         } else {

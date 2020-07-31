@@ -67,27 +67,39 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
 
     const listFields = ensuredList.list.fields;
 
-    alert('Need to check for checkForKnownColumnIssues here');
+    //alert('Need to check for checkForKnownColumnIssues here');
+
+      /**
+    * @param progressHidden 
+    * @param current : current index of progress
+    * @param ofThese : total count of items in progress
+    * @param color : color of label like red, yellow, green, null
+    * @param icon : Fabric Icon name if desired
+    * @param logLabel : short label of item used for displaying in list
+    * @param label : longer label used in Progress Indicator and hover card
+    * @param description 
+   */
+
+    setProgress(false, "C", 0, 0 , '', '', myList.title, 'Adding FIELDS to list: ' + myList.title, 'Checking for FIELDS', 'Start ~ 83' );
 
     for ( let step of steps ) {
 
+        //https://stackoverflow.com/a/6121234
+        let fieldsToDo = step ==='create' ? fieldsToAdd : fieldsToAdd.filter(x => x[step] != null);
         let i = 0;
-        let n = fieldsToAdd.length;
+        let n = fieldsToDo.length;
 
-        for (let f of fieldsToAdd) {
+        if (n > 0 ) {
+            setProgress(false, "C", 0, n , '', '', '##### ' + step, 'Adding FIELDS to list: ' + myList.title, 'Checking for FIELDS', step + ' ~ 93' );
+        }
+
+        for (let f of fieldsToDo) {
             //console.log(step + ' trying adding column:', f);
             i++;
             let foundField = skipTry === true ? true : false;
             let skipTryField : boolean;
 
-            let progress : IMyProgress = {
-                label: 'Adding fields to list: ' + myList.title,
-                description: 'Field ' + i + ' of ' + n + ' : ' + f.name,
-                percentComplete: i/n,
-                progressHidden: false,
-            };
-
-            setProgress(progress);
+            setProgress(false, "C", i, n , '', '', f.name, 'Adding fields to list (' + step +'): ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name , step + ' fieldsToDo ~ 93' );
 
             if ( step !== 'create' && step !== 'setForm' && f[step] != null ) {
                 //Skip trying field because it's not having anything done to it
@@ -109,6 +121,7 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                         foundField = false;
                         let err = `The ${myList.title} list does not have this column yet:  ${checkField}`;
                         statusLog = notify(statusLog, 'Checked Field', err, step, f,  null);
+                        
                     }
 
                     //console.log('newTryField tested: ', foundField );
@@ -242,6 +255,8 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                 }
                 foundField = true;
                 statusLog = notify(statusLog, 'Created Field', 'Complete', step, f, actualField);
+                setProgress(false, "C", i, n , '', '', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
+
             }
 
             
@@ -251,6 +266,7 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                 if ( thisField[step] != null ) {
                     const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
                     statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);
+                    setProgress(false, "C", i, n , '', '', f.name, 'Updated Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' other ~ 269' );
                 }
 
             } else if ( foundField === true ) {
@@ -258,16 +274,19 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                     if ( thisField.showNew === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
                         statusLog = notify(statusLog, 'setShowNew Field', 'Complete',step, f, setDisp);
+                        setProgress(false, "C", i, n , '', '', f.name, 'setShowNew Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showNew ~ 277' );
                     }
 
                     if ( thisField.showEdit === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInEditForm(thisField.showEdit);
                         statusLog = notify(statusLog, 'setShowEdit Field', 'Complete', step, f, setDisp);
+                        setProgress(false, "C", i, n , '', '', f.name, 'setShowEdit Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showEdit ~ 283' );
                     }
 
                     if ( thisField.showDisplay === false || thisField.showNew === true ) {
                         const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInDisplayForm(thisField.showDisplay);
                         statusLog = notify(statusLog, 'setShowDisplay Field', 'Complete', step, f, setDisp);
+                        setProgress(false, "C", i, n , '', '', f.name, 'setShowDisplay Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showDisplay ~ 289' );
                     }
                 } //END: if ( step === 'create' || step === 'setForm' ) {
 
@@ -275,6 +294,7 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
                     if (thisField.onCreateChanges) {
                         const createChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
                         statusLog = notify(statusLog, 'onCreateChanges Field', 'update===' + JSON.stringify(thisField.onCreateChanges), step, f, createChanges);
+                        setProgress(false, "C", i, n , '', '', f.name, 'onCreateChanges Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' onCreateChanges ~ 297' );
                     } //END: if (thisField.onCreateChanges) {
 
                 }
@@ -284,8 +304,7 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
         }  //END: for (let f of fieldsToAdd) {
     }  //END: for ( let step of steps ) {
 
-    alert('Added columns to list:' );
-    console.log('addTheseFields', statusLog);
+    //console.log('addTheseFields', statusLog);
     return(statusLog);
 
 }

@@ -777,6 +777,8 @@ export function TMTProjectFields() {
 
 export function TMTTimeFields() {
     let theseFields: IMyFieldTypes[] = TMTFields('TrackMyTime');
+    console.log('theseFields', theseFields);
+    
     return theseFields;
 }
 

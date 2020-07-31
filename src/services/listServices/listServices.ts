@@ -38,15 +38,32 @@ export interface IListLog extends IServiceLog {
  * @param consoleLog 
  * @param alwaysCreateNew - currently no functionality to use this but long term intent would be to check if item exists first, then only add if it does not exist.
  */
-export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsToAdd: any[], alertMe: boolean, consoleLog: boolean, alwaysCreateNew = true ): Promise<IListLog[]>{
+export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsToAdd: any[], setProgress: any, alertMe: boolean, consoleLog: boolean, alwaysCreateNew = true ): Promise<IListLog[]>{
 
     let statusLog : IListLog[] = [];
     console.log('Starting addTheseItemsToList', ItemsToAdd);
+
+    
+      /**
+    * @param progressHidden 
+    * @param current : current index of progress
+    * @param ofThese : total count of items in progress
+    * @param color : color of label like red, yellow, green, null
+    * @param icon : Fabric Icon name if desired
+    * @param logLabel : short label of item used for displaying in list
+    * @param label : longer label used in Progress Indicator and hover card
+    * @param description 
+   */
+
+    setProgress(false, "I", 0, 0 , '', '', myList.title, 'Adding ITEMS to list: ' + myList.title, 'Checking for ITEMS' );
 
     let list = thisWeb.lists.getByTitle(myList.title);
     const entityTypeFullName = await list.getListItemEntityTypeFullName();
 
     let batch = thisWeb.createBatch();
+
+    let i = 0;
+    let n = ItemsToAdd.length;
 
     for (let item of ItemsToAdd) {
     //, Category1: { results: ['Training']}
@@ -55,6 +72,7 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
         // Removed try/catch per https://github.com/pnp/pnpjs/issues/1275#issuecomment-658578589
         list.items.inBatch(batch).add( item , entityTypeFullName).then(b => {
             statusLog = notify(statusLog, 'Created Item', 'Batched', null, null, null, thisItem );
+            setProgress(false, "I", i, n , '', '', item[0], 'Batching Items: ' + myList.title, 'Batching Item ' + i + ' of ' + n + ' ' + item[0], 'Add item ~ 75');
         });
     }
 
