@@ -236,7 +236,7 @@ public constructor(props:IProvisionListsProps){
 
 
 
-            thisPage = <div>Hi!  This is the ProvisionList pane!
+            thisPage = <div><div>{ disclaimers }</div>
                 <div> { provisionButtons } </div>
                 <div> { myProgress } </div>
                 <div> {  } </div>
