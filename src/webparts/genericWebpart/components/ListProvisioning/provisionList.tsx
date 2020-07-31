@@ -225,13 +225,15 @@ public constructor(props:IProvisionListsProps){
                 title={ 'Items'}           items={ this.state.history.items }
                 descending={false}          titles={null}            ></MyLogList>;
 
-            let disclaimers = <ul>
-                <li>Still need to check:  Set Title in onCreate,  changesFinal - hidding original fields and setting and why Hours calculated is single line of text</li>
-                <li></li>
-                <li></li>
-                <li></li>
+            let disclaimers = <div>
+                <h2>Disclaimers.... still need to work on</h2>
+            <ul>
+                <li>Set Title in onCreate</li>
+                <li>changesFinal - hidding original fields and setting and why Hours calculated is single line of text</li>
                 <li></li>
             </ul>
+            </div>
+
 
 
 
