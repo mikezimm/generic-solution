@@ -8,7 +8,7 @@ import { changes, IMyFieldTypes } from '../../../../services/listServices/column
 
 import { IMyView,  } from '../../../../services/listServices/viewTypes'; //Import view arrays for Time list
 
-import { addTheseItemsToList } from '../../../../services/listServices/listServices';
+import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../services/listServices/listServices';
 
 import { IFieldLog, addTheseFields } from '../../../../services/listServices/columnServices'; //Import view arrays for Time list
 
@@ -97,8 +97,24 @@ export async function provisionTheList( listName : string, listDefinition: 'Pare
     }
 
     if ( createItems === true ) {
-              
-        result3 = await addTheseItemsToList(theList, thisWeb, createTheseItems, setProgress, true, true);
+
+        setProgress(false, "I", 0, 0 , '', '', theList.title, 'Adding ITEMS to list: ' + theList.title, 'Checking for ITEMS', 'Add items ~ 101' );
+        let createThisBatch : IAnyArray = [];
+        //https://www.sitepoint.com/community/t/for-loop-through-array-and-group-every-x-number-of-items/97966
+        let totalItems = createTheseItems.length;
+        let chunk = 3;
+
+        if ( totalItems <= 50 ) {
+            result3 = await addTheseItemsToList(theList, thisWeb, createTheseItems, setProgress, true, true);
+        } else {
+            for (var i=0; i < totalItems; i += chunk) {
+                createThisBatch = createTheseItems.slice(i, i+chunk);
+                result3 = await addTheseItemsToListInBatch(theList, thisWeb, createThisBatch, setProgress, true, true);
+            }
+        }
+
+
+
         if (listDefinition === 'ParentListTitle') {
             alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
         } else {

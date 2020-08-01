@@ -30,8 +30,8 @@
     
 
 
-    if (result.indexOf('does not exist on type \'SP.Data.ProjectsListItem\'') > -1 && result.indexOf('The property') > -1 ) {
-      if ( friendlyMessage != null ) { friendlyMessage += ' AND '; }
+    if (result.indexOf('does not exist on type \'SP.Data.') > -1 &&  result.indexOf('ListItem\'') > -1  && result.indexOf('The property') > -1 ) {
+      if ( friendlyMessage != null ) { friendlyMessage += ' AND '; } else { friendlyMessage = ''; }
       friendlyMessage += 'Column: ' + result.split('\'')[1] + ' does not exist on list!';
     }
 

@@ -232,7 +232,7 @@ public constructor(props:IProvisionListsProps){
                 <li>changesFinal - hidding original fields and setting and why Hours calculated is single line of text</li>
                 <li></li>
             </ul>
-            </div>
+            </div>;
 
             thisPage = <div><div>{ disclaimers }</div>
                 <div> { provisionButtons } </div>
