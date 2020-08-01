@@ -87,7 +87,7 @@ export async function addTheseItemsToListNoBatch( myList: IMyListInfo, thisWeb, 
     //, Category1: { results: ['Training']}
         let thisItem = stringifyKeyValue(item, 0, '===');
         i ++;
-
+        if ( !item.Title ) { item.Title = 'Unknown error'; }
         try {
             delete item.compareArrays;
             await list.items.add( item , entityTypeFullName).then(b => {
@@ -97,10 +97,16 @@ export async function addTheseItemsToListNoBatch( myList: IMyListInfo, thisWeb, 
 
         } catch (e) {
             let errMessage = getHelpfullError(e, alertMe, consoleLog);
-            if (errMessage.indexOf('missing a column') > -1) {
+
+            let missingColumn = false;
+            if ( errMessage.indexOf('missing a column') > -1 ) { missingColumn = true; }
+            if ( errMessage.indexOf('does not exist on list') > -1 ) { missingColumn = true; }
+            if ( errMessage.indexOf('does not exist on type') > -1 ) { missingColumn = true; }
+
+            if ( missingColumn ) {
                 let err = `The ${myList.title} list does not have a column yet:  ${thisItem}`;
                 statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);
-                setProgress(false, "E", i, totalItems , '', '', item.Title + ' Missing column', 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 89');
+                setProgress(false, "E", i, totalItems , '', '', item.Title + ' Missing column', 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 89\n' + err);
             } else {
                 let err = errMessage;
                 statusLog = notify(statusLog, 'Problem processing item', err, null, null, null, null);
@@ -179,11 +185,11 @@ export async function addTheseItemsToListInBatch( myList: IMyListInfo, thisWeb, 
         if (errMessage.indexOf('missing a column') > -1) {
             let err = `The ${myList.title} list does not have XYZ or TBD yet:  ${'thisItem'}`;
             statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);
-            setProgress(false, "E", i, n , '', '', 'Missing column', 'Batching Items: ' + myList.title, 'Batching Item ' + i + ' of ' + n + ' item', 'Add item ~ 90');
+            setProgress(false, "E", i, n , '', '', 'Missing column', 'Batching Items: ' + myList.title, 'Batching Item ' + i + ' of ' + n + ' item', 'Add item ~ 90+ \n' + err);
         } else {
             let err = errMessage;
             statusLog = notify(statusLog, 'Problem processing Batch', err, null, null, null, null);
-            setProgress(false, "E", i, n , '', '', 'Missing column', 'Batching Items: ' + myList.title, 'Batching Item ' + i + ' of ' + n + '  item', 'Add item ~ 94');
+            setProgress(false, "E", i, n , '', '', 'Missing column', 'Batching Items: ' + myList.title, 'Batching Item ' + i + ' of ' + n + '  item', 'Add item ~ 94+ \n' + err);
         }
     }
 

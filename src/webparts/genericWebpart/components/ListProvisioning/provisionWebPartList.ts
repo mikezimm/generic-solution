@@ -24,7 +24,9 @@ import { TMTDefaultProjectItems, TMTTestTimeItems, IAnyArray } from './ItemsWebP
 
 import { IMyProgress } from '../IReUsableInterfaces';
 
-export async function provisionTheList( listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
+export type IValidTemplate = 100 | 101;
+
+export async function provisionTheList( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
     let createTheseFields : IMyFieldTypes[] = [];
@@ -37,7 +39,7 @@ export async function provisionTheList( listName : string, listDefinition: 'Pare
     let theList = {
         title: listName,
         desc: 'Update List Description below',
-        template: 100,
+        template: template,
         enableContentTypes: true,
         additionalSettings: { EnableVersioning: true, MajorVersionLimit: 50, OnQuickLaunch: true },
       };

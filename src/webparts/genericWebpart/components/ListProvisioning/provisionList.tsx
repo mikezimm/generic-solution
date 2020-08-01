@@ -7,7 +7,7 @@ import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 //import { sp } from '@pnp/sp';
 
-import { provisionTheList } from './provisionWebPartList';
+import { provisionTheList, IValidTemplate } from './provisionWebPartList';
 
 import { IGenericWebpartProps } from '../IGenericWebpartProps';
 import { IGenericWebpartState } from '../IGenericWebpartState';
@@ -25,10 +25,14 @@ import { Panel, PanelType, ActionButton } from "office-ui-fabric-react";
 
 import MyLogList from './listView';
 
+import * as links from '../HelpInfo/AllLinks';
+
 export interface IProvisionListsProps {
     // 0 - Context
     
     pageContext: PageContext;
+
+    allowOtherSites: boolean; //default is local only.  Set to false to allow provisioning lists on other sites.
 
     showPane: boolean;
     allLoaded: boolean;
@@ -40,10 +44,14 @@ export interface IProvisionListsProps {
     parentListTitle: string;
     parentListWeb: string;
     parentListConfirmed: boolean;
+    parentListTemplate: IValidTemplate;
+    //parentListURL: string;
   
     childListTitle: string;
     childListWeb: string;
     childListConfirmed: boolean;
+    childListTemplate: IValidTemplate;
+    //childListURL: string;
 
 }
 
@@ -56,6 +64,9 @@ export interface IMyHistory {
 }
 
 export interface IProvisionListsState {
+
+    allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning lists on other sites.
+
     allLoaded: boolean;
 
     progress: IMyProgress;
@@ -68,10 +79,12 @@ export interface IProvisionListsState {
     parentListTitle: string;
     parentListWeb: string;
     parentListConfirmed: boolean;
-  
+    parentListURL: string;
+
     childListTitle: string;
     childListWeb: string;
     childListConfirmed: boolean;
+    childListURL: string;
 
 }
 
@@ -101,20 +114,30 @@ private clearHistory() {
 
 public constructor(props:IProvisionListsProps){
     super(props);
+
+    let parentListWeb = this.props.allowOtherSites ?  this.props.parentListWeb : this.props.pageContext.web.absoluteUrl;
+    let childListWeb = this.props.allowOtherSites ?  this.props.childListWeb : this.props.pageContext.web.absoluteUrl;
+
+    let parentListName = this.props.parentListTitle ? this.props.parentListTitle : 'ParentListTitle';
+    let childListName = this.props.childListTitle ? this.props.childListTitle : 'ChildListTitle';
+
     this.state = { 
 
+        allowOtherSites: this.props.allowOtherSites,
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
         progress: null,
         history: this.clearHistory(),
 
-        parentListTitle: this.props.parentListTitle,
-        parentListWeb: this.props.parentListWeb,
+        parentListTitle: parentListName,
+        parentListWeb:  parentListWeb,
         parentListConfirmed: this.props.parentListConfirmed,
-      
-        childListTitle: this.props.childListTitle,
-        childListWeb: this.props.childListWeb,
+        parentListURL:  parentListWeb + ( this.props.parentListTemplate === 100 ? '/Lists/' : '') + parentListName,
+
+        childListTitle: childListName,
+        childListWeb: childListWeb,
         childListConfirmed: this.props.childListConfirmed,
+        childListURL:  childListWeb + ( this.props.childListTemplate === 100 ? '/Lists/' : '') + childListName,
 
     };
 
@@ -198,16 +221,26 @@ public constructor(props:IProvisionListsProps){
                     buttons={buttons} horizontal={true}
                     />
                 </div>;
-            
+
+            console.log('this.state', this.state);
+
+            let parentLink = this.state.parentListConfirmed ? links.createLink( this.state.parentListURL, '_blank',  this.state.parentListTitle ) : null; 
+            let childLink = this.state.childListConfirmed ? links.createLink( this.state.childListURL, '_blank',  this.state.childListTitle ) : null; 
+
+            const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
+
+            let provisionButtonRow = <Stack horizontal={true} wrap={true} horizontalAlign={"start"} verticalAlign= {"center"} tokens={stackProvisionTokens}>{/* Stack for Buttons and Fields */}
+                    { provisionButtons }
+                    { parentLink }
+                    { childLink }
+                </Stack>;
+
             let myProgress = this.state.progress == null ? null : <ProgressIndicator 
                 label={this.state.progress.label} 
                 description={this.state.progress.description} 
                 percentComplete={this.state.progress.percentComplete} 
                 progressHidden={this.state.progress.progressHidden}/>;
 
-            const stackListTokens: IStackTokens = { childrenGap: 10 };
-
-            let showHistory = this.state.history.count > 0 ? true : false;
 
             let errorList = <MyLogList 
                 title={ 'Errors'}           items={ this.state.history.errors }
@@ -227,15 +260,18 @@ public constructor(props:IProvisionListsProps){
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
-            <ul>
-                <li>Set Title in onCreate</li>
-                <li>changesFinal - hidding original fields and setting and why Hours calculated is single line of text</li>
-                <li></li>
-            </ul>
+                <ul>
+                    <li>Set Title in onCreate</li>
+                    <li>changesFinal - hidding original fields and setting and why Hours calculated is single line of text</li>
+                    <li>enable localOnly</li>
+                </ul>
             </div>;
 
+            const stackListTokens: IStackTokens = { childrenGap: 10 };
+
             thisPage = <div><div>{ disclaimers }</div>
-                <div> { provisionButtons } </div>
+                <div> { provisionButtonRow } </div>
+                <div style={{ height:30} }> {  } </div>
                 <div> { myProgress } </div>
                 <div> {  } </div>
                 <div> <h2>{ this.state.currentList }</h2> </div>
@@ -292,12 +328,13 @@ public constructor(props:IProvisionListsProps){
 
     let listName = this.state.childListTitle ? this.state.childListTitle : 'ChildListTitle';
 
-    let listCreated = provisionTheList( listName , 'ChildListTitle', this.props.pageContext.web.absoluteUrl, this.setProgress.bind(this));
+    let listCreated = provisionTheList( this.props.childListTemplate, listName , 'ChildListTitle', this.state.childListWeb, this.setProgress.bind(this));
     
     if ( listCreated ) { 
         this.setState({
             childListTitle: listName,
             childListConfirmed: true,
+            currentList: 'Working on: ' + listName,
         });
     }
 
@@ -309,13 +346,14 @@ public constructor(props:IProvisionListsProps){
     this.setState({ currentList: 'Parent list: ' + this.state.parentListTitle, history: this.clearHistory(),  });
 
     let listName = this.state.parentListTitle ? this.state.parentListTitle : 'ParentListTitle';
-    let listCreated = provisionTheList( listName , 'ParentListTitle', this.props.pageContext.web.absoluteUrl, this.setProgress.bind(this));
+    let listCreated = provisionTheList( this.props.parentListTemplate, listName , 'ParentListTitle', this.state.parentListWeb, this.setProgress.bind(this));
     
     if ( listCreated ) { 
 
         this.setState({
             parentListTitle: listName,
             parentListConfirmed: true,
+            currentList: 'Working on: ' + listName,
         });
 
     }

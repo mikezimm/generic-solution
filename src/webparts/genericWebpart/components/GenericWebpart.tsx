@@ -282,6 +282,7 @@ public constructor(props:IGenericWebpartProps){
 
     const provisionPage = <div>
     <ProvisionLists 
+        allowOtherSites={ false }
         pageContext={ this.props.pageContext }
         showPane={true}
         allLoaded={false}
@@ -293,10 +294,12 @@ public constructor(props:IGenericWebpartProps){
         parentListWeb={this.state.parentListWeb}
         parentListTitle={this.state.parentListName}
         parentListConfirmed={this.state.parentListConfirmed}
+        parentListTemplate={ 100 }
 
         childListWeb={this.state.childListWeb}
         childListTitle={this.state.childListName}
         childListConfirmed={this.state.childListConfirmed}
+        childListTemplate={ 100 }
 
     ></ProvisionLists>
   </div>;

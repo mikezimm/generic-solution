@@ -16,10 +16,11 @@ export interface IMyLogListProps {
     titles: [];
     items: IMyProgress[];
     descending: boolean;
+    maxChars?: number;
 }
 
 export interface IMyLogListState {
-    
+  maxChars?: number;
 }
 
 const stackFormRowTokens: IStackTokens = { childrenGap: 10 };
@@ -59,6 +60,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
     constructor(props: IMyLogListProps) {
         super(props);
         this.state = {
+          maxChars: this.props.maxChars ? this.props.maxChars : 20,
         };
     }
         
@@ -108,7 +110,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
             let actionCell = <div><span className={ styles.nowWrapping }>
               { itemIcon }
-              { h.logLabel }</span>              
+              { h.logLabel.length > this.state.maxChars ? h.logLabel.slice(0,this.state.maxChars) + '...' : h.logLabel }</span>
             </div>;
 
             let normalIcon = <Icon iconName="Info" className={iconClassInfo} />;
@@ -119,6 +121,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
                   <div>{ h.ref }</div>
                   <div><br/></div>
                   <div>{ h.time }</div>
+                  <div>{ h.logLabel }</div>
                   <div>{ h.label }</div>
                   <div>{ h.description }</div>
                 </div>
@@ -145,7 +148,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
 //        let logTable = itemRows === null ? <div>Nothing to show</div> : <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
         let logTable = <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
-            <tr><th>Item</th><th>Details</th></tr>
+            <tr><th>Item</th><th>Info</th></tr>
             { itemRows }
         </table>;
 
