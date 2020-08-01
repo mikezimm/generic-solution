@@ -20,12 +20,12 @@ import { doesObjectExistInArray, compareArrays, ICompareResult, stringifyKeyValu
 
 import { IListInfo, IMyListInfo, IServiceLog, notify } from './listTypes';
 
-import { IAnyArray } from  '../../webparts/genericWebpart/components/ListProvisioning/ItemsWebPart';
-
 import { getHelpfullError } from '../ErrorHandler';
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
+
+export type IAnyArray = any[];
 
 export interface IListLog extends IServiceLog {
     list?: string;

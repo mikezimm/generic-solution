@@ -23,7 +23,7 @@ import { sp } from '@pnp/sp';
 
 import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
 
-import { provisionTheList } from './components/ListProvisioning/provisionWebPartList';
+import { provisionTheList } from './components/ListProvisioning/ListsTMT/provisionWebPartList';
 
 import { IMyProgress } from './components/IReUsableInterfaces';
 

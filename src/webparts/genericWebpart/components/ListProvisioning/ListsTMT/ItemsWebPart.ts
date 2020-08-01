@@ -1,7 +1,8 @@
 
 import { sp } from '@pnp/sp';
 
-export type IAnyArray = any[];
+
+import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
 export const SampleComments = 'This item was created for sample purposes.  Please delete me before using!';
 

@@ -7,17 +7,17 @@ import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 //import { sp } from '@pnp/sp';
 
-import { provisionTheList, IValidTemplate } from './provisionWebPartList';
+import { provisionTheList, IValidTemplate } from '../ListsTMT/provisionWebPartList';
 
-import { IGenericWebpartProps } from '../IGenericWebpartProps';
-import { IGenericWebpartState } from '../IGenericWebpartState';
+import { IGenericWebpartProps } from '../../IGenericWebpartProps';
+import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionList.module.scss';
-import { IMyProgress } from '../IReUsableInterfaces';
+import { IMyProgress } from '../../IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
-import ButtonCompound from '../createButtons/ICreateButtons';
-import { IButtonProps, ISingleButtonProps, IButtonState } from "../createButtons/ICreateButtons";
+import ButtonCompound from '../../createButtons/ICreateButtons';
+import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
 
 import { PageContext } from '@microsoft/sp-page-context';
 
@@ -25,7 +25,7 @@ import { Panel, PanelType, ActionButton } from "office-ui-fabric-react";
 
 import MyLogList from './listView';
 
-import * as links from '../HelpInfo/AllLinks';
+import * as links from '../../HelpInfo/AllLinks';
 
 export interface IProvisionListsProps {
     // 0 - Context

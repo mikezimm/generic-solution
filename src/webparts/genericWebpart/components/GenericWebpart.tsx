@@ -9,8 +9,8 @@ import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICh
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
-import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/provisionList';
-import ProvisionLists from './ListProvisioning/provisionList';
+import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/component/provisionListComponent';
+import ProvisionLists from './ListProvisioning/component/provisionListComponent';
 
 
 export default class GenericWebpart extends React.Component<IGenericWebpartProps, IGenericWebpartState> {
@@ -158,7 +158,7 @@ public constructor(props:IGenericWebpartProps){
   let parentWeb = null; //this.cleanURL(this.props.parentListWeb ? this.props.parentListWeb : props.pageContext.web.absoluteUrl);
   let childWeb = null; //this.cleanURL(this.props.childListWeb ? this.props.childListWeb : props.pageContext.web.absoluteUrl);
 
-  this.state = { 
+  this.state = {
 
         // 0 - Context
         description: 'string',
@@ -166,7 +166,7 @@ public constructor(props:IGenericWebpartProps){
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
         WebpartHeight: this.props.WebpartElement.getBoundingClientRect().height ,
         WebpartWidth:  this.props.WebpartElement.getBoundingClientRect().width - 50 ,
-                  
+
         //pivots?: IMyPivots;
         pivots: this.createPivotData(this.props.onlyActiveParents),
 
@@ -276,9 +276,8 @@ public constructor(props:IGenericWebpartProps){
   }
 
   public render(): React.ReactElement<IGenericWebpartProps> {
-   
-    console.log('RENDER setting Progress:', this.props.progress);
 
+    console.log('RENDER setting Progress:', this.props.progress);
 
     const provisionPage = <div>
     <ProvisionLists 

@@ -2,29 +2,52 @@ import { Web } from "@pnp/sp/presets/all";
 
 import { sp, Views, IViews } from "@pnp/sp/presets/all";
 
-import { IListInfo, IMyListInfo, IServiceLog } from '../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
-import { changes, IMyFieldTypes } from '../../../../services/listServices/columnTypes'; //Import view arrays for Time list
+import { changes, IMyFieldTypes } from '../../../../../services/listServices/columnTypes'; //Import view arrays for Time list
 
-import { IMyView,  } from '../../../../services/listServices/viewTypes'; //Import view arrays for Time list
+import { IMyView,  } from '../../../../../services/listServices/viewTypes'; //Import view arrays for Time list
 
-import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../services/listServices/listServices';
+import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
 
-import { IFieldLog, addTheseFields } from '../../../../services/listServices/columnServices'; //Import view arrays for Time list
+import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
 
-import { IViewLog, addTheseViews } from '../../../../services/listServices/viewServices'; //Import view arrays for Time list
+import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
-import { TMTProjectFields, TMTTimeFields} from './columnsWebPart'; //Import column arrays (one file because both lists use many of same columns)
+import { TMTProjectFields, TMTTimeFields} from '../ListsTMT/columnsWebPart'; //Import column arrays (one file because both lists use many of same columns)
 
 import { projectViews} from './viewsParentList';  //Import view arrays for Project list
 
 import { timeViewsFull } from './viewsChildList'; //Import view arrays for Time list
 
-import { TMTDefaultProjectItems, TMTTestTimeItems, IAnyArray } from './ItemsWebPart'; // Import items to create in the list
+import { TMTDefaultProjectItems, TMTTestTimeItems, } from './ItemsWebPart'; // Import items to create in the list
 
-import { IMyProgress } from '../IReUsableInterfaces';
+import { IAnyArray } from  '../../../../../services/listServices/listServices';
+
+import { IMyProgress } from '../../IReUsableInterfaces';
 
 export type IValidTemplate = 100 | 101;
+
+
+export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
+
+    return null;
+}
+
+export interface IMakeThisList {
+
+    title: string;
+    desc: string;
+    template: number;
+    enableContentTypes: boolean;
+    additionalSettings: { 
+        EnableVersioning: boolean;
+        MajorVersionLimit: number;
+        OnQuickLaunch: boolean;
+     };
+
+
+}
 
 export async function provisionTheList( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 
@@ -115,26 +138,14 @@ export async function provisionTheList( template: IValidTemplate , listName : st
             }
         }
 
-
-
         if (listDefinition === 'ParentListTitle') {
             alert(`Oh... One more thing... We created a few generic Projects under the EVERYONE Category to get you started.  Just refresh the page and click on that heading to see them.`);
         } else {
             alert(`All Test Data present and accounted for!  Don't forget to clear it before you start using this webpart for real!`);
         }
 
-
       }
-      /*
-      progress = {
-        label: '',
-        description: '',
-        percentComplete: 0,
-        progressHidden: true,
-    };
 
-    setProgress(progress);
-    */
     return statusLog;
 
 }
