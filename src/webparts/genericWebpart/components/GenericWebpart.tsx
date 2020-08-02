@@ -263,10 +263,10 @@ public constructor(props:IGenericWebpartProps){
 
 
 public componentDidMount() {
-  this.getListDefinitions();
+  this.getListDefinitions( 'state');
 }
 
-public async getListDefinitions() {
+public async getListDefinitions( doThis: 'props' | 'state') {
 
   //This only needs to be async if you are generating sample list items based on the current user.
   //If not, just create the allLists onInit
@@ -279,14 +279,17 @@ public async getListDefinitions() {
       email: r['Email'] , //Single person column
       id: r['Id'] , //
       Id: r['Id'] , //
-      ID: r['Id'] , //        
+      ID: r['Id'] , //
       isSiteAdmin: r['IsSiteAdmin'],
       LoginName: r['LoginName'],
       Name: r['LoginName'],
     };
 
-    let parentList : IMakeThisList = defineTheList( 100 , this.state.parentListName, 'ParentListTitle' , this.state.parentListWeb, currentUser );
-    let childList : IMakeThisList = defineTheList( 100 , this.state.childListName, 'ChildListTitle' , this.state.childListWeb, currentUser );
+    let parentName =  doThis === 'state' ? this.state.parentListName : this.props.parentListTitle;
+    let childName =  doThis === 'state' ? this.state.childListName : this.props.childListTitle;
+
+    let parentList : IMakeThisList = defineTheList( 100 , parentName, 'ParentListTitle' , this.state.parentListWeb, currentUser );
+    let childList : IMakeThisList = defineTheList( 100 , childName, 'ChildListTitle' , this.state.childListWeb, currentUser );
 
     this.setState({  
       currentUser: currentUser,
@@ -317,6 +320,9 @@ public async getListDefinitions() {
     console.log('DIDUPDATE setting Progress:', this.props.progress);
     if (this.props.progress !== prevProps.progress) {  rebuildPart = true ; }
 
+    if ( prevProps.parentListTitle != this.props.parentListTitle || prevProps.childListTitle != this.props.childListTitle ) {
+      this.getListDefinitions('props');
+    }
     if (rebuildPart === true) {
       this._updateStateOnPropsChange({});
     }
