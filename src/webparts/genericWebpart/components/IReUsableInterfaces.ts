@@ -34,8 +34,8 @@ export interface ILink {
   }
   
   export interface IUser {
-    title: string;
-    Title: string;
+    title?: string;
+    Title?: string;
     initials?: string;  //Single person column
     email?: string;  //Single person column
     id?: any;

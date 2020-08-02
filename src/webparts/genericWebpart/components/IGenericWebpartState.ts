@@ -6,6 +6,8 @@ import { IUser, IPivot, IMyPivots, IMyIcons, IMyFonts, ILink, IChartSeries, ICha
 
 import { ISelectedUser, } from './Charts/charts';
 
+import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
+
   export interface IUserSummary { 
     title: string; 
     Id: string; 
@@ -100,6 +102,7 @@ import { ISelectedUser, } from './Charts/charts';
     };
   
     // 2 - Source and destination list information
+    allLists?: IMakeThisList[];
     parentListURL?: string; //Get from list item
     childListURL?: string; //Get from list item
   

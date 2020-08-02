@@ -23,7 +23,7 @@ import { sp } from '@pnp/sp';
 
 import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
 
-import { provisionTheList } from './components/ListProvisioning/ListsTMT/provisionWebPartList';
+import { defineTheList } from './components/ListProvisioning/ListsTMT/defineThisList';
 
 import { IMyProgress } from './components/IReUsableInterfaces';
 
@@ -127,7 +127,6 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     }
 
   public render(): void {
-
 
     let progress = this.properties.progress;
     console.log('this.properties.progress:',this.properties.progress);

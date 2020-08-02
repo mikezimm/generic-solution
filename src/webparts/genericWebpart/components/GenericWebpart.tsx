@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { sp, Views, IViews } from "@pnp/sp/presets/all";
+
 import styles from './GenericWebpart.module.scss';
 import { IGenericWebpartProps } from './IGenericWebpartProps';
 import { IGenericWebpartState } from './IGenericWebpartState';
@@ -10,7 +12,11 @@ import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICh
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/component/provisionListComponent';
+import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
 import ProvisionLists from './ListProvisioning/component/provisionListComponent';
+
+import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
+import { analyticsList } from 'GenericWebpartWebPartStrings';
 
 
 export default class GenericWebpart extends React.Component<IGenericWebpartProps, IGenericWebpartState> {
@@ -155,8 +161,8 @@ export default class GenericWebpart extends React.Component<IGenericWebpartProps
 public constructor(props:IGenericWebpartProps){
   super(props);
 
-  let parentWeb = null; //this.cleanURL(this.props.parentListWeb ? this.props.parentListWeb : props.pageContext.web.absoluteUrl);
-  let childWeb = null; //this.cleanURL(this.props.childListWeb ? this.props.childListWeb : props.pageContext.web.absoluteUrl);
+  let parentWeb = this.cleanURL(this.props.parentListWeb ? this.props.parentListWeb : props.pageContext.web.absoluteUrl);
+  let childWeb = this.cleanURL(this.props.childListWeb ? this.props.childListWeb : props.pageContext.web.absoluteUrl);
 
   this.state = {
 
@@ -166,6 +172,8 @@ public constructor(props:IGenericWebpartProps){
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
         WebpartHeight: this.props.WebpartElement.getBoundingClientRect().height ,
         WebpartWidth:  this.props.WebpartElement.getBoundingClientRect().width - 50 ,
+
+        currentUser: null,
 
         //pivots?: IMyPivots;
         pivots: this.createPivotData(this.props.onlyActiveParents),
@@ -253,6 +261,45 @@ public constructor(props:IGenericWebpartProps){
   };
 }
 
+
+public componentDidMount() {
+  this.getListDefinitions();
+}
+
+public async getListDefinitions() {
+
+  //This only needs to be async if you are generating sample list items based on the current user.
+  //If not, just create the allLists onInit
+  sp.web.currentUser.get().then((r) => {
+
+    let currentUser : IUser = {
+      title: r['Title'] , //
+      Title: r['Title'] , //
+      initials: r['Title'].split(" ").map((n)=>n[0]).join(""), //Single person column
+      email: r['Email'] , //Single person column
+      id: r['Id'] , //
+      Id: r['Id'] , //
+      ID: r['Id'] , //        
+      isSiteAdmin: r['IsSiteAdmin'],
+      LoginName: r['LoginName'],
+      Name: r['LoginName'],
+    };
+
+    let parentList : IMakeThisList = defineTheList( 100 , this.state.parentListName, 'ParentListTitle' , this.state.parentListWeb, currentUser );
+    let childList : IMakeThisList = defineTheList( 100 , this.state.childListName, 'ChildListTitle' , this.state.childListWeb, currentUser );
+
+    this.setState({  
+      currentUser: currentUser,
+      allLists: [parentList, childList ],
+    });
+
+  }).catch((e) => {
+    console.log('ERROR:  catch sp.web.currentUser:', e);
+  });
+
+}
+
+//        
   /***
  *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
  *         88  `8D   `88'   88  `8D      88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'     
@@ -285,6 +332,8 @@ public constructor(props:IGenericWebpartProps){
         pageContext={ this.props.pageContext }
         showPane={true}
         allLoaded={false}
+        currentUser = {this.state.currentUser }
+        lists = { this.state.allLists }
         //parentProps: IGenericWebpartProps;
         //parentState: IGenericWebpartState;
 
@@ -303,18 +352,6 @@ public constructor(props:IGenericWebpartProps){
     ></ProvisionLists>
   </div>;
 
-
-
-
-    //This is where we need to look....
-//    let myProgress = this.state.progress == null ? null : <ProgressIndicator label={this.state.progress} description={this.state.progress.description} percentComplete={this.state.progress.percentComplete} progressHidden={this.state.progress.progressHidden}/>;
-
-/*
-    let label = this.state.progress.;
-    let description = ;
-    let percentComplete = ;
-    let progressHidden = ;
-*/
 
     let ootbComponent = <div className={ styles.genericWebpart }>
     <div className={ styles.container }>

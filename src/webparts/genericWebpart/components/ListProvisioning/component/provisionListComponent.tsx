@@ -1,18 +1,15 @@
 import * as React from 'react';
 
-import { Link, ILinkProps } from 'office-ui-fabric-react';
-
 import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
-import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 //import { sp } from '@pnp/sp';
 
-import { provisionTheList, IValidTemplate } from '../ListsTMT/provisionWebPartList';
+import { provisionTheList, IValidTemplate } from './provisionWebPartList';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionList.module.scss';
-import { IMyProgress } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser } from '../../IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -21,11 +18,11 @@ import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButt
 
 import { PageContext } from '@microsoft/sp-page-context';
 
-import { Panel, PanelType, ActionButton } from "office-ui-fabric-react";
-
 import MyLogList from './listView';
 
 import * as links from '../../HelpInfo/AllLinks';
+
+import { IMakeThisList } from './provisionWebPartList';
 
 export interface IProvisionListsProps {
     // 0 - Context
@@ -39,7 +36,11 @@ export interface IProvisionListsProps {
     parentProps?: IGenericWebpartProps;
     parentState?: IGenericWebpartState;
 
+    currentUser: IUser;
+
     // 2 - Source and destination list information
+
+    lists: IMakeThisList[];
 
     parentListTitle: string;
     parentListWeb: string;
@@ -75,16 +76,7 @@ export interface IProvisionListsState {
     currentList: string;
     
     // 2 - Source and destination list information
-
-    parentListTitle: string;
-    parentListWeb: string;
-    parentListConfirmed: boolean;
-    parentListURL: string;
-
-    childListTitle: string;
-    childListWeb: string;
-    childListConfirmed: boolean;
-    childListURL: string;
+    lists: IMakeThisList[];
 
 }
 
@@ -115,12 +107,6 @@ private clearHistory() {
 public constructor(props:IProvisionListsProps){
     super(props);
 
-    let parentListWeb = this.props.allowOtherSites ?  this.props.parentListWeb : this.props.pageContext.web.absoluteUrl;
-    let childListWeb = this.props.allowOtherSites ?  this.props.childListWeb : this.props.pageContext.web.absoluteUrl;
-
-    let parentListName = this.props.parentListTitle ? this.props.parentListTitle : 'ParentListTitle';
-    let childListName = this.props.childListTitle ? this.props.childListTitle : 'ChildListTitle';
-
     this.state = { 
 
         allowOtherSites: this.props.allowOtherSites,
@@ -129,15 +115,7 @@ public constructor(props:IProvisionListsProps){
         progress: null,
         history: this.clearHistory(),
 
-        parentListTitle: parentListName,
-        parentListWeb:  parentListWeb,
-        parentListConfirmed: this.props.parentListConfirmed,
-        parentListURL:  parentListWeb + ( this.props.parentListTemplate === 100 ? '/Lists/' : '') + parentListName,
-
-        childListTitle: childListName,
-        childListWeb: childListWeb,
-        childListConfirmed: this.props.childListConfirmed,
-        childListURL:  childListWeb + ( this.props.childListTemplate === 100 ? '/Lists/' : '') + childListName,
+        lists: this.props.lists,
 
     };
 
@@ -167,12 +145,9 @@ public constructor(props:IProvisionListsProps){
 
   public componentDidUpdate(prevProps){
 
-    let rebuildTiles = false;
-    /*
-    if (rebuildTiles === true) {
-      this._updateStateOnPropsChange({});
+    if ( prevProps.lists != this.props.lists ) {
+        this._updateStateOnPropsChange({});
     }
-    */
 
   }
 
@@ -189,7 +164,7 @@ public constructor(props:IProvisionListsProps){
 
     public render(): React.ReactElement<IProvisionListsProps> {
 
-        if ( this.props.showPane ) {
+        if ( this.state.lists && this.state.lists.length > 0 ) {
             //console.log('provisionList.tsx', this.props, this.state);
 
 /***
@@ -207,32 +182,30 @@ public constructor(props:IProvisionListsProps){
             let thisPage = null;
             let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
 
+            let createButtonOnClicks = [
+                this.CreateList_0.bind(this),
+                this.CreateList_1.bind(this),
+                this.CreateList_2.bind(this),
+            ];
 
-            const buttons: ISingleButtonProps[] =
-            [{  disabled: false,  checked: true, primary: false,
-                label: "Create Parent List", buttonOnClick: this.CreateParentList.bind(this),
-            },{ 
-                disabled: false,  checked: true, primary: false,
-                label: "Create Child List", buttonOnClick: this.CreateChildList.bind(this),
-            }];
+            const buttons: ISingleButtonProps[] = this.state.lists.map (( thelist, index ) => {
+                return {     disabled: false,  checked: true, primary: false,
+                    label: "Create " + this.state.lists[index].title + " List", buttonOnClick: createButtonOnClicks[index], };
+            });
 
-            let provisionButtons = <div style={{ paddingTop: '20px' }}>
-                    <ButtonCompound
-                    buttons={buttons} horizontal={true}
-                    />
-                </div>;
+            let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
 
-            console.log('this.state', this.state);
+            //console.log('this.state', this.state);
 
-            let parentLink = this.state.parentListConfirmed ? links.createLink( this.state.parentListURL, '_blank',  this.state.parentListTitle ) : null; 
-            let childLink = this.state.childListConfirmed ? links.createLink( this.state.childListURL, '_blank',  this.state.childListTitle ) : null; 
+            let listLinks = this.state.lists.map( mapThisList => (
+                mapThisList.confirmed ? links.createLink( mapThisList.listURL, '_blank',  mapThisList.title ) : null ));
 
             const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
 
             let provisionButtonRow = <Stack horizontal={true} wrap={true} horizontalAlign={"start"} verticalAlign= {"center"} tokens={stackProvisionTokens}>{/* Stack for Buttons and Fields */}
                     { provisionButtons }
-                    { parentLink }
-                    { childLink }
+                    { listLinks }
+                    {  }
                 </Stack>;
 
             let myProgress = this.state.progress == null ? null : <ProgressIndicator 
@@ -305,7 +278,9 @@ public constructor(props:IProvisionListsProps){
             
         } else {
             console.log('provisionList.tsx return null');
-            return ( null );
+            return (  <div className={ styles.infoPane }>
+                <h2>There are no lists to provision</h2>
+            </div> );
         }
 
     }   //End Public Render
@@ -322,43 +297,46 @@ public constructor(props:IProvisionListsProps){
    *                                                                                                         
    */
 
-  private CreateChildList(oldVal: any): any {
+  private CreateList_0(oldVal: any): any {
+    let mapThisList: IMakeThisList = this.state.lists[0];
+    this.CreateThisList(mapThisList, 0 );
+  }
 
-    this.setState({ currentList: 'Child list: ' + this.state.childListTitle, history: this.clearHistory(),  });
+  private CreateList_1(oldVal: any): any {
+    let mapThisList: IMakeThisList = this.state.lists[1];
+    this.CreateThisList(mapThisList, 1 );
+  }
+  
+  private CreateList_2(oldVal: any): any {
+    let mapThisList: IMakeThisList = this.state.lists[2];
+    this.CreateThisList(mapThisList, 2 );
+  }
 
-    let listName = this.state.childListTitle ? this.state.childListTitle : 'ChildListTitle';
+  private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
 
-    let listCreated = provisionTheList( this.props.childListTemplate, listName , 'ChildListTitle', this.state.childListWeb, this.setProgress.bind(this));
+    this.setState({ currentList: mapThisList + ' list: ' + mapThisList.title, history: this.clearHistory(), });
+
+    let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
+    let listCreated = provisionTheList( mapThisList, this.setProgress.bind(this), this.markComplete.bind(this));
+    
+    let stateLists = this.state.lists;
+    stateLists[listNo].confirmed = true;
     
     if ( listCreated ) { 
         this.setState({
-            childListTitle: listName,
-            childListConfirmed: true,
             currentList: 'Working on: ' + listName,
+            lists: stateLists,
         });
     }
-
     return "Finished";  
   } 
 
-  private CreateParentList(oldVal: any): any {
 
-    this.setState({ currentList: 'Parent list: ' + this.state.parentListTitle, history: this.clearHistory(),  });
-
-    let listName = this.state.parentListTitle ? this.state.parentListTitle : 'ParentListTitle';
-    let listCreated = provisionTheList( this.props.parentListTemplate, listName , 'ParentListTitle', this.state.parentListWeb, this.setProgress.bind(this));
-    
-    if ( listCreated ) { 
-
-        this.setState({
-            parentListTitle: listName,
-            parentListConfirmed: true,
-            currentList: 'Working on: ' + listName,
-        });
-
-    }
-    return "Finished";  
-  } 
+  private markComplete() {
+    this.setState({
+        currentList: this.state.currentList.replace('Working on','Finished building'),
+    });
+  }
 
    /**
     * 
@@ -416,5 +394,23 @@ public constructor(props:IProvisionListsProps){
     });
 
   }
+
+  
+/***
+ *         db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b 
+ *         88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'     
+ *         88    88 88oodD' 88   88 88ooo88    88    88ooooo      `8bo.      88    88ooo88    88    88ooooo 
+ *         88    88 88~~~   88   88 88~~~88    88    88~~~~~        `Y8b.    88    88~~~88    88    88~~~~~ 
+ *         88b  d88 88      88  .8D 88   88    88    88.          db   8D    88    88   88    88    88.     
+ *         ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      `8888Y'    YP    YP   YP    YP    Y88888P 
+ *                                                                                                          
+ *                                                                                                          
+ */
+
+    private _updateStateOnPropsChange(params: any ): void {
+        this.setState({
+            lists: this.props.lists,
+        });
+    }
 
 }
