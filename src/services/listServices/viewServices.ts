@@ -168,7 +168,7 @@ export function buildFieldWhereTag ( thisWhere ) {
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
 
-export async function addTheseViews( steps : changes[], myList: IMyListInfo, ensuredList, currentViews , viewsToAdd: IMyView[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IViewLog[]>{
+export async function addTheseViews( steps : changes[], readOnly: boolean, myList: IMyListInfo, ensuredList, currentViews , viewsToAdd: IMyView[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IViewLog[]>{
 
     let statusLog : IViewLog[] = [];
 
@@ -374,14 +374,11 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
                             viewWhereXML = thisFieldWhere;
 
                         }
-        
                     }
 
                     if ( thisClause === 'And') { hasPreviousAnd = true ; previousAnd = thisFieldWhere; }
 
                 }
-
-
             }
 
 
@@ -406,7 +403,6 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
             if (viewOrderByXML != '') { viewQueryXML += '<OrderBy>' + viewOrderByXML + '</OrderBy>';}
 
 
-
     /***
      *     .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      db    db d888888b d88888b db   d8b   db 
      *    d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          88    88   `88'   88'     88   I8I   88 
@@ -422,48 +418,50 @@ export async function addTheseViews( steps : changes[], myList: IMyListInfo, ens
             /**
              * Available options:  https://github.com/koltyakov/sp-metadata/blob/baf1162394caba1222947f223ed78c76b4a72255/docs/SP/EntityTypes/View.md
              */
-            try {
-                //console.log('BEFORE CREATE VIEW:  viewQueryXML', viewQueryXML);
-                let createViewProps = { 
-                    RowLimit: v.RowLimit == null ? 30 : v.RowLimit,
-                    TabularView: v.TabularView !== false ? true : false,
-                };
 
-                if ( viewQueryXML != '' ) { createViewProps["ViewQuery"] = viewQueryXML; }
+            if ( readOnly === false ) {
 
-                //createViewProps["ViewQuery"] = "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>";
-                const result = await listViews.add(v.Title, false, createViewProps );
-
-                statusLog = notify(statusLog, v, 'Creating View', 'Create', null, null);
-
-                let viewXML = result.data.ListViewXml;
-
-                let ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
-                //console.log('ViewFieldsXML', ViewFieldsXML);
-                viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
-
-                await result.view.setViewXml(viewXML);
-
-            } catch (e) {
-                // if any of the fields does not exist, raise an exception in the console log
-                let errMessage = getHelpfullError(e);
-                if (errMessage.indexOf('missing a column') > -1) {
-                    let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
-                    statusLog = notify(statusLog,  v, 'Creating View', 'Create',err, null);
-                    setProgress(false, "E", iV, nV , '', '', v.Title, 'Field does not exist: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 453' );
-                } else {
-                    let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
-                    statusLog = notify(statusLog, v, 'Creating View', 'Create', err, null);
-                    setProgress(false, "E", iV, nV , '', '', v.Title, 'Unknown error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 457' );
+                try {
+                    //console.log('BEFORE CREATE VIEW:  viewQueryXML', viewQueryXML);
+                    let createViewProps = { 
+                        RowLimit: v.RowLimit == null ? 30 : v.RowLimit,
+                        TabularView: v.TabularView !== false ? true : false,
+                    };
+    
+                    if ( viewQueryXML != '' ) { createViewProps["ViewQuery"] = viewQueryXML; }
+    
+                    //createViewProps["ViewQuery"] = "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>";
+                    const result = await listViews.add(v.Title, false, createViewProps );
+    
+                    statusLog = notify(statusLog, v, 'Creating View', 'Create', null, null);
+    
+                    let viewXML = result.data.ListViewXml;
+    
+                    let ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
+                    //console.log('ViewFieldsXML', ViewFieldsXML);
+                    viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
+    
+                    await result.view.setViewXml(viewXML);
+    
+                } catch (e) {
+                    // if any of the fields does not exist, raise an exception in the console log
+                    let errMessage = getHelpfullError(e);
+                    if (errMessage.indexOf('missing a column') > -1) {
+                        let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
+                        statusLog = notify(statusLog,  v, 'Creating View', 'Create',err, null);
+                        setProgress(false, "E", iV, nV , '', '', v.Title, 'Field does not exist: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 453' );
+                    } else {
+                        let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
+                        statusLog = notify(statusLog, v, 'Creating View', 'Create', err, null);
+                        setProgress(false, "E", iV, nV , '', '', v.Title, 'Unknown error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 457' );
+                    }
                 }
+    
+                /**
+                 * Add response, comments, alerts
+                 */
             }
-
-            /**
-             * Add response, comments, alerts
-             */
-
         }
-
 
     }  //END: for (let f of fieldsToAdd) {
     //alert('Added views to list:' );

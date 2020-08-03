@@ -287,9 +287,11 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
     let parentName =  doThis === 'state' ? this.state.parentListName : this.props.parentListTitle;
     let childName =  doThis === 'state' ? this.state.childListName : this.props.childListTitle;
+    let parentListWeb = doThis === 'state' ? this.state.parentListWeb : this.props.parentListWeb;
+    let childListWeb = doThis === 'state' ? this.state.childListWeb : this.props.childListWeb;
 
-    let parentList : IMakeThisList = defineTheList( 100 , parentName, 'ParentListTitle' , this.state.parentListWeb, currentUser );
-    let childList : IMakeThisList = defineTheList( 100 , childName, 'ChildListTitle' , this.state.childListWeb, currentUser );
+    let parentList : IMakeThisList = defineTheList( 100 , parentName, 'ParentListTitle' , parentListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
+    let childList : IMakeThisList = defineTheList( 100 , childName, 'ChildListTitle' , childListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
 
     this.setState({  
       currentUser: currentUser,
@@ -320,7 +322,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     console.log('DIDUPDATE setting Progress:', this.props.progress);
     if (this.props.progress !== prevProps.progress) {  rebuildPart = true ; }
 
-    if ( prevProps.parentListTitle != this.props.parentListTitle || prevProps.childListTitle != this.props.childListTitle ) {
+    if ( prevProps.parentListTitle != this.props.parentListTitle || prevProps.childListTitle != this.props.childListTitle || prevProps.parentListWeb != this.props.parentListWeb || prevProps.childListWeb != this.props.childListWeb ) {
       this.getListDefinitions('props');
     }
     if (rebuildPart === true) {
@@ -335,28 +337,15 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     const provisionPage = <div>
     <ProvisionLists 
         allowOtherSites={ false }
+        alwaysReadOnly = { false }
         pageContext={ this.props.pageContext }
         showPane={true}
         allLoaded={false}
         currentUser = {this.state.currentUser }
         lists = { this.state.allLists }
-        //parentProps: IGenericWebpartProps;
-        //parentState: IGenericWebpartState;
 
-        // 2 - Source and destination list information
-
-        parentListWeb={this.state.parentListWeb}
-        parentListTitle={this.state.parentListName}
-        parentListConfirmed={this.state.parentListConfirmed}
-        parentListTemplate={ 100 }
-
-        childListWeb={this.state.childListWeb}
-        childListTitle={this.state.childListName}
-        childListConfirmed={this.state.childListConfirmed}
-        childListTemplate={ 100 }
-
-    ></ProvisionLists>
-  </div>;
+      ></ProvisionLists>
+    </div>;
 
 
     let ootbComponent = <div className={ styles.genericWebpart }>

@@ -32,7 +32,7 @@ function getRandomChance(def: number, chanceOther: number, min: number, max: num
 
     let result = def;
     let thisChance = getRandomInt(1,100);
-    console.log('getRandomChance', thisChance);
+    //console.log('getRandomChance', thisChance);
     if ( thisChance <= chanceOther ) {
         //Get a randomized number instead of default
         return getRandomInt(min,max);

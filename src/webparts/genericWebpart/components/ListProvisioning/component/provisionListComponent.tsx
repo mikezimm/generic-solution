@@ -2,7 +2,8 @@ import * as React from 'react';
 
 import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
 
-//import { sp } from '@pnp/sp';
+import { sp } from "@pnp/sp";
+import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import { provisionTheList, IValidTemplate } from './provisionWebPartList';
 
@@ -24,35 +25,24 @@ import * as links from '../../HelpInfo/AllLinks';
 
 import { IMakeThisList } from './provisionWebPartList';
 
+import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+
 export interface IProvisionListsProps {
     // 0 - Context
     
     pageContext: PageContext;
 
-    allowOtherSites: boolean; //default is local only.  Set to false to allow provisioning lists on other sites.
+    allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning lists on other sites.
+    alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
 
     showPane: boolean;
     allLoaded: boolean;
-    parentProps?: IGenericWebpartProps;
-    parentState?: IGenericWebpartState;
 
     currentUser: IUser;
 
     // 2 - Source and destination list information
 
     lists: IMakeThisList[];
-
-    parentListTitle: string;
-    parentListWeb: string;
-    parentListConfirmed: boolean;
-    parentListTemplate: IValidTemplate;
-    //parentListURL: string;
-  
-    childListTitle: string;
-    childListWeb: string;
-    childListConfirmed: boolean;
-    childListTemplate: IValidTemplate;
-    //childListURL: string;
 
 }
 
@@ -67,6 +57,7 @@ export interface IMyHistory {
 export interface IProvisionListsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning lists on other sites.
+    alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
 
     allLoaded: boolean;
 
@@ -81,6 +72,7 @@ export interface IProvisionListsState {
 }
 
 export default class ProvisionLists extends React.Component<IProvisionListsProps, IProvisionListsState> {
+
 
 private clearHistory() {
     let history: IMyHistory = {
@@ -107,15 +99,18 @@ private clearHistory() {
 public constructor(props:IProvisionListsProps){
     super(props);
 
+    let theLists = this.props.lists;
+
     this.state = { 
 
-        allowOtherSites: this.props.allowOtherSites,
+        allowOtherSites: this.props.allowOtherSites === true ? true : false,
+        alwaysReadOnly: this.props.alwaysReadOnly === true ? true : false,
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
         progress: null,
         history: this.clearHistory(),
 
-        lists: this.props.lists,
+        lists: theLists,
 
     };
 
@@ -128,7 +123,7 @@ public constructor(props:IProvisionListsProps){
   }
 
   public componentDidMount() {
-    
+    this._updateStateOnPropsChange('state');
   }
 
 
@@ -146,7 +141,7 @@ public constructor(props:IProvisionListsProps){
   public componentDidUpdate(prevProps){
 
     if ( prevProps.lists != this.props.lists ) {
-        this._updateStateOnPropsChange({});
+        this._updateStateOnPropsChange('props');
     }
 
   }
@@ -189,8 +184,20 @@ public constructor(props:IProvisionListsProps){
             ];
 
             const buttons: ISingleButtonProps[] = this.state.lists.map (( thelist, index ) => {
-                return {     disabled: false,  checked: true, primary: false,
-                    label: "Create " + this.state.lists[index].title + " List", buttonOnClick: createButtonOnClicks[index], };
+                let theLabel = null;
+                if ( thelist.webExists ) {
+                    if ( this.isListReadOnly(thelist) === false ) {
+                        theLabel = "Create " + thelist.title + " List";
+                    } else {
+                        theLabel = "Verify " + thelist.title + " List";
+                    }
+                } else {
+                    theLabel = thelist.title + ' web does not exist!';
+                }
+
+
+                return {     disabled: !thelist.webExists,  checked: true, primary: false,
+                    label: theLabel, buttonOnClick: createButtonOnClicks[index], };
             });
 
             let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
@@ -198,7 +205,7 @@ public constructor(props:IProvisionListsProps){
             //console.log('this.state', this.state);
 
             let listLinks = this.state.lists.map( mapThisList => (
-                mapThisList.confirmed ? links.createLink( mapThisList.listURL, '_blank',  mapThisList.title ) : null ));
+                mapThisList.confirmed ? links.createLink( mapThisList.listURL, '_blank',  'Go to: ' + mapThisList.title ) : null ));
 
             const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
 
@@ -216,27 +223,27 @@ public constructor(props:IProvisionListsProps){
 
 
             let errorList = <MyLogList 
-                title={ 'Errors'}           items={ this.state.history.errors }
+                title={ 'Error'}           items={ this.state.history.errors }
                 descending={false}          titles={null}            ></MyLogList>;
 
             let fieldList = <MyLogList 
-                title={ 'Columns'}           items={ this.state.history.columns }
+                title={ 'Column'}           items={ this.state.history.columns }
                 descending={false}          titles={null}            ></MyLogList>;
 
             let viewList = <MyLogList 
-                title={ 'Views'}           items={ this.state.history.views }
+                title={ 'View'}           items={ this.state.history.views }
                 descending={false}          titles={null}            ></MyLogList>;
 
             let itemList = <MyLogList 
-                title={ 'Items'}           items={ this.state.history.items }
+                title={ 'Item'}           items={ this.state.history.items }
                 descending={false}          titles={null}            ></MyLogList>;
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
                 <ul>
+                    <li><mark><b>If you update web urls in property pane, refresh the page before continuing</b></mark></li>
                     <li>Set Title in onCreate</li>
                     <li>changesFinal - hidding original fields and setting and why Hours calculated is single line of text</li>
-                    <li>enable localOnly</li>
                 </ul>
             </div>;
 
@@ -317,25 +324,45 @@ public constructor(props:IProvisionListsProps){
     this.setState({ currentList: mapThisList + ' list: ' + mapThisList.title, history: this.clearHistory(), });
 
     let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
-    let listCreated = provisionTheList( mapThisList, this.setProgress.bind(this), this.markComplete.bind(this));
+
+    let readOnly: boolean  = this.isListReadOnly(mapThisList);
+
+    let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this));
     
     let stateLists = this.state.lists;
     stateLists[listNo].confirmed = true;
     
+    let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
+
     if ( listCreated ) { 
         this.setState({
-            currentList: 'Working on: ' + listName,
+            currentList: workingMessage + listName,
             lists: stateLists,
         });
     }
     return "Finished";  
   } 
 
+  private isListReadOnly (mapThisList) {
 
+    let readOnly = true;
+    if ( this.state.alwaysReadOnly === false ) {                //First test, only allow updates if the state is explicitly set so alwaysReadOnly === false
+        if (mapThisList.onCurrentSite === true ) {
+            readOnly = false;                                   //If list is on current site, then allow writing (readonly = false)
+        } else if ( this.state.allowOtherSites === true ) {
+            readOnly = false;                                   //Else If you explicitly tell it to allowOtherSites, then allow writing (readonly = false)
+        }
+    }
+
+    return readOnly;
+
+  }
   private markComplete() {
+
     this.setState({
-        currentList: this.state.currentList.replace('Working on','Finished building'),
+        currentList: 'Finished ' + this.state.currentList,
     });
+
   }
 
    /**
@@ -407,9 +434,36 @@ public constructor(props:IProvisionListsProps){
  *                                                                                                          
  */
 
-    private _updateStateOnPropsChange(params: any ): void {
+    private _updateStateOnPropsChange(doThis: 'props' | 'state' ): void {
+
+        let testLists = doThis === 'props' ? this.props.lists : this.state.lists;
+        if ( testLists ) {
+            if ( testLists.length > 0 ) {
+                for ( let i in testLists ) {
+                    this.checkThisWeb(parseInt(i,10), doThis);
+                }
+            }
+        }
+    }
+
+    private checkThisWeb(index: number, doThis: 'props' | 'state' ){
+        let testLists = doThis === 'props' ? this.props.lists : this.state.lists;
+        const thisWeb = Web(testLists[index].webURL);
+        thisWeb.lists.get().then((response) => {
+            this.updateListWebStatus(index,true);
+
+        }).catch((e) => {
+            let errMessage = getHelpfullError(e, true, true);
+            console.log('checkThisWeb', errMessage);
+            this.updateListWebStatus(index,false);
+        });
+    }
+
+    private updateListWebStatus(index: number,result: boolean ) {
+        let stateLists = this.state.lists ? this.state.lists : this.props.lists;
+        stateLists[index].webExists = result;
         this.setState({
-            lists: this.props.lists,
+            lists: stateLists,
         });
     }
 

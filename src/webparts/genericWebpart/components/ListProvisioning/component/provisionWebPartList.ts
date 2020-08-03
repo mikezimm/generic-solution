@@ -36,10 +36,12 @@ export interface IMakeThisList {
     autoItemCreate: boolean;
     alternateItemCreateMessage?: string;
     confirmed: boolean;
-
+    onCurrentSite: boolean;
+    webExists: boolean;
+    listExists: boolean;
 
 }
-export async function provisionTheList( makeThisList:  IMakeThisList, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
+export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
     let alertMe = false;
@@ -47,13 +49,15 @@ export async function provisionTheList( makeThisList:  IMakeThisList, setProgres
 
     let createItems: boolean = false;
 
-    if ( makeThisList.autoItemCreate === true ) {
-        createItems = true;
-    } else {
-        //let confirmItems = confirm("We created your list, do you want us to create some sample Time entries so you can see how it looks?")
-        if (confirm("Do you want us to: \n\nCreate some sample list items \n\nso you can see how it looks?")) {
-            //You pressed Ok, add items
+    if ( readOnly === false  ) {
+        if ( makeThisList.autoItemCreate === true ) {
             createItems = true;
+        } else {
+            //let confirmItems = confirm("We created your list, do you want us to create some sample Time entries so you can see how it looks?")
+            if (confirm("Do you want us to: \n\nCreate some sample list items \n\nso you can see how it looks?")) {
+                //You pressed Ok, add items
+                createItems = true;
+            }
         }
     }
 
@@ -76,13 +80,13 @@ export async function provisionTheList( makeThisList:  IMakeThisList, setProgres
 
     console.log(makeThisList.title + ' list fields and views', currentFields, currentViews);
 
-    let result = await addTheseFields(['create','changesFinal'], makeThisList, ensuredList, currentFields, makeThisList.createTheseFields, setProgress, alertMe, consoleLog );
+    let result = await addTheseFields(['create','changesFinal'], readOnly, makeThisList, ensuredList, currentFields, makeThisList.createTheseFields, setProgress, alertMe, consoleLog );
 
-    let result2 = await addTheseViews(['create'],  makeThisList, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
+    let result2 = await addTheseViews(['create'], readOnly, makeThisList, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
 
     let result3 = null;
 
-    if ( createItems === true ) {
+    if ( createItems === true && readOnly === false ) {
 
         setProgress(false, "I", 0, 0 , '', '', makeThisList.title, 'Adding ITEMS to list: ' + makeThisList.title, 'Checking for ITEMS', 'Add items ~ 101' );
         let createThisBatch : IAnyArray = [];
@@ -100,8 +104,12 @@ export async function provisionTheList( makeThisList:  IMakeThisList, setProgres
         }
     }
     
-    if ( makeThisList.alternateItemCreateMessage ) {
+    if ( readOnly === true  ) {
+        alert( 'Your list has been checked... scroll down to see the results :)' );
+
+    } else if ( makeThisList.alternateItemCreateMessage ) {
         alert( makeThisList.alternateItemCreateMessage );
+
     } else {
         alert(`Your  list is all ready to go!`);
     }

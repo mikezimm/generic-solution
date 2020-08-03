@@ -15,7 +15,16 @@ export type IValidTemplate = 100 | 101;
 
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, currentUser: IUser ) {
+export function defineTheList ( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, currentUser: IUser, pageURL: string ) {
+
+    if ( webURL.length > 0 && webURL.lastIndexOf('/') != webURL.length -1 ) { webURL += '/'; }
+    if ( pageURL.length > 0 && pageURL.lastIndexOf('/') != pageURL.length -1 ) { pageURL += '/'; }
+
+    let test1 = webURL == '' ? true : false;
+    let test2 = webURL.toLowerCase().indexOf(pageURL.toLowerCase()) > -1 ? true : false;
+    let test3 = pageURL.toLowerCase().indexOf(webURL.toLowerCase()) > -1 ? true : false;
+
+    let test4 = test1 || test2 || test3 ? true : false;
 
     let makeThisList:  IMakeThisList = {
 
@@ -36,6 +45,9 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
         autoItemCreate: false,
         listURL: webURL + ( template === 100 ? 'Lists/' : '') + listName,
         confirmed: false,
+        onCurrentSite: test4,
+        webExists: false,
+        listExists: false,
     
     };
 

@@ -250,7 +250,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
      */
     let updateOnThese = [
       'setSize','setTab','otherTab','setTab','otherTab','setTab','otherTab','setTab','otherTab',
-      'parentListFieldTitles','progress','UpdateTitles','parentListTitle','childListTitle',
+      'parentListFieldTitles','progress','UpdateTitles','parentListTitle','childListTitle','parentListWeb','childListWeb'
     ];
     //alert('props updated');
     console.log('onPropertyPaneFieldChanged:', propertyPath, oldValue, newValue);

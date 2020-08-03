@@ -61,7 +61,7 @@ function checkForKnownColumnIssues(){
  * @param consoleLog - used for logging and testing
  * @param skipTry - was used prior to adding 'currentFields' so you wouldn't have to 'try' adding/checking if column existed before creating it.
  */
-export async function addTheseFields( steps : changes[], myList: IMyListInfo, ensuredList, currentFields , fieldsToAdd: IMyFieldTypes[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IFieldLog[]>{
+export async function addTheseFields( steps : changes[], readOnly: boolean, myList: IMyListInfo, ensuredList, currentFields , fieldsToAdd: IMyFieldTypes[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IFieldLog[]>{
 
     let statusLog : IFieldLog[] = [];
 
@@ -145,161 +145,163 @@ export async function addTheseFields( steps : changes[], myList: IMyListInfo, en
             //onCreateChanges?: IFieldCreationProperties;  //Properties you want changed right after creating field (like update Title so it's matches calculated column titles)
             let actualField : IFieldAddResult = null;
 
-            if ( step === 'create' && foundField === false) {
-                if (thisField.xml) {
-                    actualField = await listFields.createFieldAsXml(thisField.xml);
+            if ( readOnly === false ) {
 
-                } else {
-
-                    switch ( f.fieldType.type ){
-                        case cText.type :
-                            actualField = await listFields.addText( thisField.name,
-                                thisField.maxLength ? thisField.maxLength : 255,
-                                thisField.onCreateProps );
-                            break ;
-
-                        case cMText.type :
-                            actualField = await listFields.addMultilineText(thisField.name,
-                                thisField.numberOfLines ? thisField.numberOfLines : 6,
-                                thisField.richText ? thisField.richText : false,
-                                thisField.restrictedMode ? thisField.restrictedMode : false,
-                                thisField.appendOnly ? thisField.appendOnly : false,
-                                thisField.allowHyperlink ? thisField.allowHyperlink : false,
-                                thisField.onCreateProps);
-
-                            break ;
-
-                        case cNumb.type :
-                            actualField = await listFields.addNumber(thisField.name,
-                                thisField.minValue ? thisField.minValue : minInfinity,
-                                thisField.maxValue ? thisField.maxValue : maxInfinity,
-                                thisField.onCreateProps);
-                            break ;
-
-                        case cURL.type :
-                            actualField = await listFields.addUrl(thisField.name,
-                                thisField.displayFormat ? thisField.displayFormat : UrlFieldFormatType.Hyperlink,
-                                thisField.onCreateProps);
-                            break ;
-
-                        case cChoice.type :
-                            actualField = await listFields.addChoice(thisField.name, thisField.choices,
-                                thisField.format ? thisField.format : ChoiceFieldFormatType.Dropdown,
-                                thisField.fillIn ? thisField.fillIn : false,
-                                thisField.onCreateProps);
-                            break ;
-
-                        case cMChoice.type :
-                                actualField = await listFields.addMultiChoice(thisField.name, thisField.choices,
+                if ( step === 'create' && foundField === false) {
+                    if (thisField.xml) {
+                        actualField = await listFields.createFieldAsXml(thisField.xml);
+    
+                    } else {
+    
+                        switch ( f.fieldType.type ){
+                            case cText.type :
+                                actualField = await listFields.addText( thisField.name,
+                                    thisField.maxLength ? thisField.maxLength : 255,
+                                    thisField.onCreateProps );
+                                break ;
+    
+                            case cMText.type :
+                                actualField = await listFields.addMultilineText(thisField.name,
+                                    thisField.numberOfLines ? thisField.numberOfLines : 6,
+                                    thisField.richText ? thisField.richText : false,
+                                    thisField.restrictedMode ? thisField.restrictedMode : false,
+                                    thisField.appendOnly ? thisField.appendOnly : false,
+                                    thisField.allowHyperlink ? thisField.allowHyperlink : false,
+                                    thisField.onCreateProps);
+    
+                                break ;
+    
+                            case cNumb.type :
+                                actualField = await listFields.addNumber(thisField.name,
+                                    thisField.minValue ? thisField.minValue : minInfinity,
+                                    thisField.maxValue ? thisField.maxValue : maxInfinity,
+                                    thisField.onCreateProps);
+                                break ;
+    
+                            case cURL.type :
+                                actualField = await listFields.addUrl(thisField.name,
+                                    thisField.displayFormat ? thisField.displayFormat : UrlFieldFormatType.Hyperlink,
+                                    thisField.onCreateProps);
+                                break ;
+    
+                            case cChoice.type :
+                                actualField = await listFields.addChoice(thisField.name, thisField.choices,
+                                    thisField.format ? thisField.format : ChoiceFieldFormatType.Dropdown,
                                     thisField.fillIn ? thisField.fillIn : false,
                                     thisField.onCreateProps);
                                 break ;
-
-                        case cUser.type :
-                            actualField = await listFields.addUser(thisField.name,
-                                thisField.selectionMode ?  thisField.selectionMode : FieldUserSelectionMode.PeopleOnly,
-                                thisField.onCreateProps);
-                            break ;
-
-                        case cMUser.type :
-                            let fieldName = thisField.name;
-                            let fieldTitle = thisField.title ? thisField.title : thisField.Title ? thisField.Title : thisField.onCreateProps.Title ? thisField.onCreateProps.Title : fieldName;
-                            let fieldGroup = thisField.onCreateProps.Group ? thisField.onCreateProps.Group : '';
-                            let fieldDesc = thisField.onCreateProps.Description ? thisField.onCreateProps.Description : '';
-                            let fieldSelectMode = thisField.selectionMode;
-                            let thisSchema = '<Field DisplayName="' + fieldTitle + '" Type="UserMulti"';
-                            thisSchema += ' Required="FALSE" StaticName="' + fieldName + '" Name="' + fieldName + '"';
-                            thisSchema += ' UserSelectionMode="' + fieldSelectMode + '"';
-                            thisSchema += ' Group="' + fieldGroup + '"';
-                            thisSchema += ' Description="' + fieldDesc + '"';
-                            thisSchema += ' EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionScope="0" Mult="TRUE" Sortable="FALSE"/>';
-                            // ^^^^ I think ShowField=ImnName shows field as skype jellybean; ShowField=Name shows account name ; ShowField="EMail" shows email address
-                            // ^^^^ EnforceUniqueValues & Sortable need to be false for Multi-select fields.
-
-                            actualField = await listFields.createFieldAsXml(thisSchema);
-
-                            break ;
-
-                        case cCalcN.type || cCalcT.type :
-                            actualField = await listFields.addCalculated(thisField.name,
-                                thisField.formula,
-                                thisField.dateFormat ? thisField.dateFormat : DateTimeFieldFormatType.DateOnly,
-                                f.fieldType.type === 'Number'? FieldTypes.Number : FieldTypes.Text,  //FieldTypes.Number is used for Calculated Link columns
-                                thisField.onCreateProps);
-                            break ;
-
-                        case cDate.type :
-                            actualField = await listFields.addDateTime(thisField.name,
-                                thisField.displayFormat ? thisField.displayFormat : DateTimeFieldFormatType.DateOnly,
-                                thisField.calendarType ? thisField.calendarType : CalendarType.Gregorian,
-                                thisField.friendlyDisplayFormat ? thisField.friendlyDisplayFormat : DateTimeFieldFriendlyFormatType.Disabled,
-                                thisField.onCreateProps);
-                            break ;
-
-                        case cBool.type :
-                            actualField = await listFields.addBoolean( thisField.name, thisField.onCreateProps );
-                            break ;
-
-                        case cCurr.type :
-                            actualField = await listFields.addCurrency(thisField.name,
-                                thisField.minValue ? thisField.minValue : minInfinity,
-                                thisField.maxValue ? thisField.maxValue : maxInfinity,
-                                thisField.currencyLocalId ? thisField.currencyLocalId : maxInfinity,
-                                thisField.onCreateProps);
-                            break ;
-
-                        default :   // stuff
-                            alert('Didn\'t find field type for ' + thisField.name + ':  ' + JSON.stringify(thisField.fieldType));
-                            break ;
+    
+                            case cMChoice.type :
+                                    actualField = await listFields.addMultiChoice(thisField.name, thisField.choices,
+                                        thisField.fillIn ? thisField.fillIn : false,
+                                        thisField.onCreateProps);
+                                    break ;
+    
+                            case cUser.type :
+                                actualField = await listFields.addUser(thisField.name,
+                                    thisField.selectionMode ?  thisField.selectionMode : FieldUserSelectionMode.PeopleOnly,
+                                    thisField.onCreateProps);
+                                break ;
+    
+                            case cMUser.type :
+                                let fieldName = thisField.name;
+                                let fieldTitle = thisField.title ? thisField.title : thisField.Title ? thisField.Title : thisField.onCreateProps.Title ? thisField.onCreateProps.Title : fieldName;
+                                let fieldGroup = thisField.onCreateProps.Group ? thisField.onCreateProps.Group : '';
+                                let fieldDesc = thisField.onCreateProps.Description ? thisField.onCreateProps.Description : '';
+                                let fieldSelectMode = thisField.selectionMode;
+                                let thisSchema = '<Field DisplayName="' + fieldTitle + '" Type="UserMulti"';
+                                thisSchema += ' Required="FALSE" StaticName="' + fieldName + '" Name="' + fieldName + '"';
+                                thisSchema += ' UserSelectionMode="' + fieldSelectMode + '"';
+                                thisSchema += ' Group="' + fieldGroup + '"';
+                                thisSchema += ' Description="' + fieldDesc + '"';
+                                thisSchema += ' EnforceUniqueValues="FALSE" ShowField="ImnName" UserSelectionScope="0" Mult="TRUE" Sortable="FALSE"/>';
+                                // ^^^^ I think ShowField=ImnName shows field as skype jellybean; ShowField=Name shows account name ; ShowField="EMail" shows email address
+                                // ^^^^ EnforceUniqueValues & Sortable need to be false for Multi-select fields.
+    
+                                actualField = await listFields.createFieldAsXml(thisSchema);
+    
+                                break ;
+    
+                            case cCalcN.type || cCalcT.type :
+                                actualField = await listFields.addCalculated(thisField.name,
+                                    thisField.formula,
+                                    thisField.dateFormat ? thisField.dateFormat : DateTimeFieldFormatType.DateOnly,
+                                    f.fieldType.type === 'Number'? FieldTypes.Number : FieldTypes.Text,  //FieldTypes.Number is used for Calculated Link columns
+                                    thisField.onCreateProps);
+                                break ;
+    
+                            case cDate.type :
+                                actualField = await listFields.addDateTime(thisField.name,
+                                    thisField.displayFormat ? thisField.displayFormat : DateTimeFieldFormatType.DateOnly,
+                                    thisField.calendarType ? thisField.calendarType : CalendarType.Gregorian,
+                                    thisField.friendlyDisplayFormat ? thisField.friendlyDisplayFormat : DateTimeFieldFriendlyFormatType.Disabled,
+                                    thisField.onCreateProps);
+                                break ;
+    
+                            case cBool.type :
+                                actualField = await listFields.addBoolean( thisField.name, thisField.onCreateProps );
+                                break ;
+    
+                            case cCurr.type :
+                                actualField = await listFields.addCurrency(thisField.name,
+                                    thisField.minValue ? thisField.minValue : minInfinity,
+                                    thisField.maxValue ? thisField.maxValue : maxInfinity,
+                                    thisField.currencyLocalId ? thisField.currencyLocalId : maxInfinity,
+                                    thisField.onCreateProps);
+                                break ;
+    
+                            default :   // stuff
+                                alert('Didn\'t find field type for ' + thisField.name + ':  ' + JSON.stringify(thisField.fieldType));
+                                break ;
+                        }
                     }
+                    foundField = true;
+                    statusLog = notify(statusLog, 'Created Field', 'Complete', step, f, actualField);
+                    setProgress(false, "C", i, n , '', '', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
                 }
-                foundField = true;
-                statusLog = notify(statusLog, 'Created Field', 'Complete', step, f, actualField);
-                setProgress(false, "C", i, n , '', '', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
+                    
+                if ( step !== 'setForm' && step !== 'create' ) { // Will do changes1, changes2, changes3 and changesFinal
+                    //Loop through other types of changes
 
-            }
-
-            
-            if ( step !== 'setForm' && step !== 'create' ) { // Will do changes1, changes2, changes3 and changesFinal
-                //Loop through other types of changes
-
-                if ( thisField[step] != null ) {
-                    const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
-                    statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);
-                    setProgress(false, "C", i, n , '', '', f.name, 'Updated Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' other ~ 269' );
-                }
-
-            } else if ( foundField === true ) {
-                if ( step === 'create' || step === 'setForm' ) {
-                    if ( thisField.showNew === false || thisField.showNew === true ) {
-                        const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
-                        statusLog = notify(statusLog, 'setShowNew Field', 'Complete',step, f, setDisp);
-                        setProgress(false, "C", i, n , '', '', f.name, 'setShowNew Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showNew ~ 277' );
+                    if ( thisField[step] != null ) {
+                        const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
+                        statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);
+                        setProgress(false, "C", i, n , '', '', f.name, 'Updated Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' other ~ 269' );
                     }
 
-                    if ( thisField.showEdit === false || thisField.showNew === true ) {
-                        const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInEditForm(thisField.showEdit);
-                        statusLog = notify(statusLog, 'setShowEdit Field', 'Complete', step, f, setDisp);
-                        setProgress(false, "C", i, n , '', '', f.name, 'setShowEdit Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showEdit ~ 283' );
+                } else if ( foundField === true ) {
+                    if ( step === 'create' || step === 'setForm' ) {
+                        if ( thisField.showNew === false || thisField.showNew === true ) {
+                            const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
+                            statusLog = notify(statusLog, 'setShowNew Field', 'Complete',step, f, setDisp);
+                            setProgress(false, "C", i, n , '', '', f.name, 'setShowNew Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showNew ~ 277' );
+                        }
+
+                        if ( thisField.showEdit === false || thisField.showNew === true ) {
+                            const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInEditForm(thisField.showEdit);
+                            statusLog = notify(statusLog, 'setShowEdit Field', 'Complete', step, f, setDisp);
+                            setProgress(false, "C", i, n , '', '', f.name, 'setShowEdit Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showEdit ~ 283' );
+                        }
+
+                        if ( thisField.showDisplay === false || thisField.showNew === true ) {
+                            const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInDisplayForm(thisField.showDisplay);
+                            statusLog = notify(statusLog, 'setShowDisplay Field', 'Complete', step, f, setDisp);
+                            setProgress(false, "C", i, n , '', '', f.name, 'setShowDisplay Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showDisplay ~ 289' );
+                        }
+                    } //END: if ( step === 'create' || step === 'setForm' ) {
+
+                    if ( step === 'create') {
+                        if (thisField.onCreateChanges) {
+                            const createChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
+                            statusLog = notify(statusLog, 'onCreateChanges Field', 'update===' + JSON.stringify(thisField.onCreateChanges), step, f, createChanges);
+                            setProgress(false, "C", i, n , '', '', f.name, 'onCreateChanges Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' onCreateChanges ~ 297' );
+                        } //END: if (thisField.onCreateChanges) {
+
                     }
 
-                    if ( thisField.showDisplay === false || thisField.showNew === true ) {
-                        const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInDisplayForm(thisField.showDisplay);
-                        statusLog = notify(statusLog, 'setShowDisplay Field', 'Complete', step, f, setDisp);
-                        setProgress(false, "C", i, n , '', '', f.name, 'setShowDisplay Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showDisplay ~ 289' );
-                    }
-                } //END: if ( step === 'create' || step === 'setForm' ) {
+                }  //END:  if ( foundField === true ) {
 
-                if ( step === 'create') {
-                    if (thisField.onCreateChanges) {
-                        const createChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
-                        statusLog = notify(statusLog, 'onCreateChanges Field', 'update===' + JSON.stringify(thisField.onCreateChanges), step, f, createChanges);
-                        setProgress(false, "C", i, n , '', '', f.name, 'onCreateChanges Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' onCreateChanges ~ 297' );
-                    } //END: if (thisField.onCreateChanges) {
-
-                }
-
-            }  //END:  if ( foundField === true ) {
+            } //END:  if ( readOnly === false ) {
 
         }  //END: for (let f of fieldsToAdd) {
     }  //END: for ( let step of steps ) {

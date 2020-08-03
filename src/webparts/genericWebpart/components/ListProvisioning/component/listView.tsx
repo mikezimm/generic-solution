@@ -148,11 +148,11 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
 //        let logTable = itemRows === null ? <div>Nothing to show</div> : <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
         let logTable = <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
-            <tr><th>Item</th><th>Info</th></tr>
+            <tr><th>{ this.props.title }</th><th>Info</th></tr>
             { itemRows }
         </table>;
 
-        thisLog = <div className={ stylesInfo.infoPane }><h2>{this.props.title}</h2>
+        thisLog = <div className={ stylesInfo.infoPane }><h2>{this.props.title + 's'}</h2>
         { logTable }
         </div>;
 
