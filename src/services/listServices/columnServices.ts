@@ -99,7 +99,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
             let foundField = skipTry === true ? true : false;
             let skipTryField : boolean;
 
-            setProgress(false, "C", i, n , '', '', f.name, 'Adding fields to list (' + step +'): ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name , step + ' fieldsToDo ~ 93' );
+            setProgress(false, "C", i, n , '', '', f.name, 'Adding fields to list (' + step +'): ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name , step + ' fieldsToDo ~ 102' );
 
             if ( step !== 'create' && step !== 'setForm' && f[step] != null ) {
                 //Skip trying field because it's not having anything done to it

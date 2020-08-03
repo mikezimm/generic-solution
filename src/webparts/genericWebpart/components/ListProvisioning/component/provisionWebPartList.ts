@@ -62,7 +62,16 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     }
 
     const thisWeb = Web(makeThisList.webURL);
-    const ensuredList = await thisWeb.lists.ensure(makeThisList.title);
+
+    let ensuredList = null;
+    if ( readOnly === false ) {
+        ensuredList = await thisWeb.lists.ensure(makeThisList.title);
+
+    } else {
+        ensuredList = await thisWeb.lists.getByTitle(makeThisList.title);
+        
+    }
+
     const listFields = ensuredList.list.fields;
     const listViews = ensuredList.list.views;
 
