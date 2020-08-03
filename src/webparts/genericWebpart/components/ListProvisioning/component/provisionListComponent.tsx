@@ -194,8 +194,7 @@ public constructor(props:IProvisionListsProps){
                 } else {
                     theLabel = thelist.title + ' web does not exist!';
                 }
-
-
+                
                 return {     disabled: !thelist.webExists,  checked: true, primary: false,
                     label: theLabel, buttonOnClick: createButtonOnClicks[index], };
             });
