@@ -187,7 +187,14 @@ public constructor(props:IProvisionListsProps){
                 let theLabel = null;
                 if ( thelist.webExists ) {
                     if ( this.isListReadOnly(thelist) === false ) {
-                        theLabel = "Create " + thelist.title + " List";
+
+                        if ( thelist.confirmed === true ) {
+                            theLabel = "UPDATE " + thelist.title + " List";
+
+                        } else {
+                            theLabel = "Create " + thelist.title + " List";
+                        }
+
                     } else {
                         theLabel = "Verify " + thelist.title + " List";
                     }
@@ -200,8 +207,6 @@ public constructor(props:IProvisionListsProps){
             });
 
             let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
-
-            //console.log('this.state', this.state);
 
             let listLinks = this.state.lists.map( mapThisList => (
                 mapThisList.confirmed ? links.createLink( mapThisList.listURL, '_blank',  'Go to: ' + mapThisList.title ) : null ));
@@ -451,6 +456,7 @@ public constructor(props:IProvisionListsProps){
         const thisWeb = Web(testLists[index].webURL);
         thisWeb.lists.get().then((response) => {
             this.updateListWebStatus(index,true);
+            this.checkThisList(index,doThis);
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
@@ -467,4 +473,26 @@ public constructor(props:IProvisionListsProps){
         });
     }
 
+    
+    private checkThisList(index: number, doThis: 'props' | 'state' ){
+        let testLists = doThis === 'props' ? this.props.lists : this.state.lists;
+        const thisWeb = Web(testLists[index].webURL);
+        thisWeb.lists.getByTitle(testLists[index].title).get().then((response) => {
+            this.updateListStatus(index,true);
+
+        }).catch((e) => {
+            let errMessage = getHelpfullError(e, true, true);
+            console.log('checkThisList', errMessage);
+            this.updateListStatus(index,false);
+        });
+    }
+
+    private updateListStatus(index: number,result: boolean ) {
+        let stateLists = this.state.lists ? this.state.lists : this.props.lists;
+        stateLists[index].confirmed = result;
+        stateLists[index].listExists = result; 
+        this.setState({
+            lists: stateLists,
+        });
+    }
 }
