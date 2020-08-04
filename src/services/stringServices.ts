@@ -36,3 +36,25 @@ export function camelize(str,firstCap: boolean) {
 //Sample to convert to arrow function
 //const sum1 = function(list, prop){ return list.reduce( function(a, b){ return a + b[prop];}, 0);}
 //const sum2 = (list,prop) =>  { return list.reduce((a,b) => {return (a+ b[prop])}, 0);}
+
+export function cleanURL(originalURL: String) {
+
+    let newURL = originalURL.toLowerCase();
+    if ( newURL.indexOf('/sitepages/') > 0 ) { return newURL.substring(0, newURL.indexOf('/sitepages/') + 1) ; }
+    if ( newURL.indexOf('/lists/') > 0 ) { return newURL.substring(0, newURL.indexOf('/lists/') + 1) ; }
+    if ( newURL.indexOf('/siteassets/') > 0 ) { return newURL.substring(0, newURL.indexOf('/siteassets/') + 1) ; }
+    if ( newURL.indexOf('/_layouts/') > 0 ) { return newURL.substring(0, newURL.indexOf('/_layouts/') + 1) ; }
+    if ( newURL.indexOf('/documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/documents/') + 1) ; }
+    if ( newURL.indexOf('/shared documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/shared documents/') + 1) ; }
+    if ( newURL.indexOf('/shared%20documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/shared%20documents/') + 1) ; }
+    if ( newURL.indexOf('/forms/') > 0 ) { 
+      newURL = newURL.substring(0, newURL.indexOf('/forms/'));
+      newURL = newURL.substring(0, newURL.indexOf('/') + 1);
+      return newURL;
+    }
+    if ( newURL.indexOf('/pages/') > 0 ) { return newURL.substring(0, newURL.indexOf('/pages/') + 1) ; }
+    if ( newURL.substring(newURL.length -1) !== '/' ) { return newURL + '/'; }
+    
+    return newURL;
+
+  }

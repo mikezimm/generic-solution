@@ -13,6 +13,7 @@ The purpose of this repo is to create generic component files and libraries that
 
 
 ## List Provisioning - Steps to reuse code
+05. GenericWebpart call in main webpart.ts, be sure to always pass a valid webURL for lists down to react component!
 10. protected getPropertyPaneConfiguration(:  Only include lists to be provisioned
 20. protected onPropertyPaneFieldChanged(:  update updateOnThese
 30. private CreateChildList: update ChildListTitle value

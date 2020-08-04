@@ -141,6 +141,7 @@ public constructor(props:IProvisionListsProps){
   public componentDidUpdate(prevProps){
 
     if ( prevProps.lists != this.props.lists ) {
+
         this._updateStateOnPropsChange('props');
     }
 
@@ -185,10 +186,11 @@ public constructor(props:IProvisionListsProps){
 
             const buttons: ISingleButtonProps[] = this.state.lists.map (( thelist, index ) => {
                 let theLabel = null;
+                let isDisabled = !thelist.webExists;
                 if ( thelist.webExists ) {
                     if ( this.isListReadOnly(thelist) === false ) {
 
-                        if ( thelist.confirmed === true ) {
+                        if ( thelist.listExists === true ) {
                             theLabel = "UPDATE " + thelist.title + " List";
 
                         } else {
@@ -196,20 +198,26 @@ public constructor(props:IProvisionListsProps){
                         }
 
                     } else {
-                        theLabel = "Verify " + thelist.title + " List";
+                        if ( thelist.listExists === true ) {
+                            theLabel = "Verify " + thelist.title + " List";
+
+                        } else {
+                            theLabel = "Can't verify " + thelist.title + " List";
+                            isDisabled = true;
+                        }
                     }
                 } else {
                     theLabel = thelist.title + ' web does not exist!';
                 }
                 
-                return {     disabled: !thelist.webExists,  checked: true, primary: false,
+                return {     disabled: isDisabled,  checked: true, primary: false,
                     label: theLabel, buttonOnClick: createButtonOnClicks[index], };
             });
 
             let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
 
             let listLinks = this.state.lists.map( mapThisList => (
-                mapThisList.confirmed ? links.createLink( mapThisList.listURL, '_blank',  'Go to: ' + mapThisList.title ) : null ));
+                mapThisList.listExists ? links.createLink( mapThisList.listURL, '_blank',  'Go to: ' + mapThisList.title ) : null ));
 
             const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
 
@@ -335,7 +343,7 @@ public constructor(props:IProvisionListsProps){
     let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this));
     
     let stateLists = this.state.lists;
-    stateLists[listNo].confirmed = true;
+    stateLists[listNo].listExists = true;
     
     let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
 
@@ -440,57 +448,54 @@ public constructor(props:IProvisionListsProps){
  */
 
     private _updateStateOnPropsChange(doThis: 'props' | 'state' ): void {
+        console.log('_updateStateOnPropsChange:', doThis, this.props );
+        let testLists : IMakeThisList[] = [];
+        if ( doThis === 'props' ) {
+            if ( this.props.lists ) { testLists = JSON.parse(JSON.stringify(this.props.lists)) ; }
 
-        let testLists = doThis === 'props' ? this.props.lists : this.state.lists;
-        if ( testLists ) {
-            if ( testLists.length > 0 ) {
-                for ( let i in testLists ) {
-                    this.checkThisWeb(parseInt(i,10), doThis);
-                }
+        } else {
+            if ( this.state.lists ) { testLists = JSON.parse(JSON.stringify(this.state.lists)) ; }
+        } 
+
+        if ( testLists.length > 0 ) {
+            for ( let i in testLists ) {
+                this.checkThisWeb(parseInt(i,10), testLists);
             }
         }
     }
 
-    private checkThisWeb(index: number, doThis: 'props' | 'state' ){
-        let testLists = doThis === 'props' ? this.props.lists : this.state.lists;
+    private checkThisWeb(index: number, testLists : IMakeThisList[] ){
         const thisWeb = Web(testLists[index].webURL);
+        testLists[index].webExists = false;
+        testLists[index].listExists = false;
         thisWeb.lists.get().then((response) => {
-            this.updateListWebStatus(index,true);
-            this.checkThisList(index,doThis);
+            testLists[index].webExists = true;
+            this.checkThisList(index, testLists, thisWeb);
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisWeb', errMessage);
-            this.updateListWebStatus(index,false);
+            this.updateStateLists(index, testLists);
         });
     }
-
-    private updateListWebStatus(index: number,result: boolean ) {
-        let stateLists = this.state.lists ? this.state.lists : this.props.lists;
-        stateLists[index].webExists = result;
-        this.setState({
-            lists: stateLists,
-        });
-    }
-
     
-    private checkThisList(index: number, doThis: 'props' | 'state' ){
-        let testLists = doThis === 'props' ? this.props.lists : this.state.lists;
-        const thisWeb = Web(testLists[index].webURL);
+    private checkThisList(index: number, testLists : IMakeThisList[], thisWeb: any ){
+        //const thisWeb = Web(testLists[index].webURL);
         thisWeb.lists.getByTitle(testLists[index].title).get().then((response) => {
-            this.updateListStatus(index,true);
+            testLists[index].listExists = true;
+            this.updateStateLists(index,testLists);
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisList', errMessage);
-            this.updateListStatus(index,false);
+            this.updateStateLists(index, testLists);
         });
     }
 
-    private updateListStatus(index: number,result: boolean ) {
-        let stateLists = this.state.lists ? this.state.lists : this.props.lists;
-        stateLists[index].confirmed = result;
-        stateLists[index].listExists = result; 
+    private updateStateLists(index: number, testLists : IMakeThisList[] ) {
+        let stateLists = this.state.lists;
+        if (stateLists === undefined ) { stateLists = this.props.lists ; }
+        stateLists[index] = testLists[index];
         this.setState({
             lists: stateLists,
         });

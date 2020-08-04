@@ -18,6 +18,8 @@ import ProvisionLists from './ListProvisioning/component/provisionListComponent'
 import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
 import { analyticsList } from 'GenericWebpartWebPartStrings';
 
+import { cleanURL } from '../../../services/stringServices';
+
 
 export default class GenericWebpart extends React.Component<IGenericWebpartProps, IGenericWebpartState> {
 
@@ -124,27 +126,6 @@ export default class GenericWebpart extends React.Component<IGenericWebpartProps
 
   }
 
-  private cleanURL(originalURL: String) {
-
-    let newURL = originalURL.toLowerCase();
-    if ( newURL.indexOf('/sitepages/') > 0 ) { return newURL.substring(0, newURL.indexOf('/sitepages/') + 1) ; }
-    if ( newURL.indexOf('/lists/') > 0 ) { return newURL.substring(0, newURL.indexOf('/lists/') + 1) ; }
-    if ( newURL.indexOf('/siteassets/') > 0 ) { return newURL.substring(0, newURL.indexOf('/siteassets/') + 1) ; }
-    if ( newURL.indexOf('/_layouts/') > 0 ) { return newURL.substring(0, newURL.indexOf('/_layouts/') + 1) ; }
-    if ( newURL.indexOf('/documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/documents/') + 1) ; }
-    if ( newURL.indexOf('/shared documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/shared documents/') + 1) ; }
-    if ( newURL.indexOf('/shared%20documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/shared%20documents/') + 1) ; }
-    if ( newURL.indexOf('/forms/') > 0 ) { 
-      newURL = newURL.substring(0, newURL.indexOf('/forms/'));
-      newURL = newURL.substring(0, newURL.indexOf('/') + 1);
-      return newURL;
-    }
-    if ( newURL.indexOf('/pages/') > 0 ) { return newURL.substring(0, newURL.indexOf('/pages/') + 1) ; }
-    if ( newURL.substring(newURL.length) !== '/' ) { return newURL + '/'; }
-
-    return newURL;
-
-  }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -161,8 +142,8 @@ export default class GenericWebpart extends React.Component<IGenericWebpartProps
 public constructor(props:IGenericWebpartProps){
   super(props);
 
-  let parentWeb = this.cleanURL(this.props.parentListWeb ? this.props.parentListWeb : props.pageContext.web.absoluteUrl);
-  let childWeb = this.cleanURL(this.props.childListWeb ? this.props.childListWeb : props.pageContext.web.absoluteUrl);
+  let parentWeb = cleanURL(this.props.parentListWeb);
+  let childWeb = cleanURL(this.props.childListWeb);
 
   this.state = {
 
@@ -196,10 +177,6 @@ public constructor(props:IGenericWebpartProps){
       
         parentListName: this.props.parentListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
         childListName: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
-      
-        parentListConfirmed: false,
-        childListConfirmed: false,
-
 
         // 3 - General how accurate do you want this to be
       
@@ -290,12 +267,19 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     let parentListWeb = doThis === 'state' ? this.state.parentListWeb : this.props.parentListWeb;
     let childListWeb = doThis === 'state' ? this.state.childListWeb : this.props.childListWeb;
 
+    parentListWeb = cleanURL(parentListWeb);
+    childListWeb = cleanURL(childListWeb);
+
     let parentList : IMakeThisList = defineTheList( 100 , parentName, 'ParentListTitle' , parentListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
     let childList : IMakeThisList = defineTheList( 100 , childName, 'ChildListTitle' , childListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
 
+    let theLists : IMakeThisList[] = [];
+    if ( parentList ) { theLists.push( parentList ); }
+    if ( childList ) { theLists.push( childList ); }
+
     this.setState({  
       currentUser: currentUser,
-      allLists: [parentList, childList ],
+      allLists: theLists,
     });
 
   }).catch((e) => {
@@ -324,6 +308,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
     if ( prevProps.parentListTitle != this.props.parentListTitle || prevProps.childListTitle != this.props.childListTitle || prevProps.parentListWeb != this.props.parentListWeb || prevProps.childListWeb != this.props.childListWeb ) {
       this.getListDefinitions('props');
+      rebuildPart = true ;
     }
     if (rebuildPart === true) {
       this._updateStateOnPropsChange({});

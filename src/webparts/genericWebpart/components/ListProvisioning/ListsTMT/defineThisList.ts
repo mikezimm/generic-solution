@@ -13,19 +13,31 @@ import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartL
 
 export type IValidTemplate = 100 | 101;
 
+import { cleanURL } from '../../../../../services/stringServices';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, currentUser: IUser, pageURL: string ) {
 
-    if ( webURL.length > 0 && webURL.lastIndexOf('/') != webURL.length -1 ) { webURL += '/'; }
+    //Sometimes the webURL is undefined  (when props are empty)
+    pageURL = pageURL.toLowerCase();
+    if ( webURL ) { 
+        let webLastIndexOf = webURL.lastIndexOf('/');
+        if ( webURL.length > 0 && webLastIndexOf != webURL.length -1 ) { webURL += '/'; } 
+    }
     if ( pageURL.length > 0 && pageURL.lastIndexOf('/') != pageURL.length -1 ) { pageURL += '/'; }
 
-    let test1 = webURL == '' ? true : false;
-    let test2 = webURL.toLowerCase().indexOf(pageURL.toLowerCase()) > -1 ? true : false;
-    let test3 = pageURL.toLowerCase().indexOf(webURL.toLowerCase()) > -1 ? true : false;
+    let isListOnThisWeb = false;
 
-    let test4 = test1 || test2 || test3 ? true : false;
+    if ( webURL === '' ) {
+        isListOnThisWeb = true;
 
+    } else if ( webURL === undefined ) {
+        isListOnThisWeb = true;
+
+    } else if ( pageURL === webURL ) {
+        isListOnThisWeb = true;
+    }
+    
     let makeThisList:  IMakeThisList = {
 
         title: listName,
@@ -45,7 +57,7 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
         autoItemCreate: false,
         listURL: webURL + ( template === 100 ? 'Lists/' : '') + listName,
         confirmed: false,
-        onCurrentSite: test4,
+        onCurrentSite: isListOnThisWeb,
         webExists: false,
         listExists: false,
     
@@ -70,5 +82,6 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
     //let listResult = await provisionTheList( makeThisList, setProgress );
 
     return makeThisList;
+
 }
 

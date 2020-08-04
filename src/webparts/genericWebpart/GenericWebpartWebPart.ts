@@ -44,11 +44,9 @@ export interface IGenericWebpartWebPartProps {
   createVerifyLists: boolean;
   parentListTitle: string;
   parentListWeb: string;
-  parentListConfirmed: boolean;
 
   childListTitle: string;
   childListWeb: string;
-  childListConfirmed: boolean;
   parentListFieldTitles: string;
 
   onlyActiveParents: boolean;
@@ -131,6 +129,11 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     let progress = this.properties.progress;
     console.log('this.properties.progress:',this.properties.progress);
 
+    //Be sure to always pass down an actual URL if the webpart prop is empty at this point.
+    //If it's undefined, null or '', get current page context value
+    let parentWeb = this.properties.parentListWeb && this.properties.parentListWeb != '' ? this.properties.parentListWeb : this.context.pageContext.web.absoluteUrl;
+    let childWeb = this.properties.childListWeb && this.properties.childListWeb != '' ? this.properties.childListWeb : this.context.pageContext.web.absoluteUrl;
+
     const element: React.ReactElement<IGenericWebpartProps> = React.createElement(
       GenericWebpart,
       {
@@ -153,10 +156,10 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
       
         // 2 - Source and destination list information
         parentListTitle: this.properties.parentListTitle,
-        parentListWeb: this.properties.parentListWeb,
+        parentListWeb: parentWeb,
       
         childListTitle: this.properties.childListTitle,
-        childListWeb: this.properties.childListWeb,
+        childListWeb: childWeb,
 
         onlyActiveParents: this.properties.onlyActiveParents,
 

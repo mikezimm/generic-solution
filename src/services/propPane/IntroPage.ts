@@ -128,14 +128,6 @@ export class IntroPage {
              onClick: _onClickCreateChild
             }),
 */
-            PropertyPaneLabel('Parent List', {
-              text: webPartProps.parentListConfirmed ? 'Checking for ' + webPartProps.parentListTitle : 'Verify or Create your Parent list!'
-            }),
-
-            PropertyPaneLabel('Child List', {
-              text: webPartProps.childListConfirmed ? 'Checking for ' + webPartProps.childListTitle : 'Verify or Create your Child list!'
-            }),
-
             
             PropertyPaneButton('UpdateTitles',
             {  
