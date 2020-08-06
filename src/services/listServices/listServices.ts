@@ -35,7 +35,7 @@ export interface IListLog extends IServiceLog {
 export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsToAdd: any[], setProgress: any, alertMe: boolean, consoleLog: boolean, alwaysCreateNew = true ): Promise<IListLog[]>{
     let statusLog : IListLog[] = [];
 
-    setProgress(false, "I", 0, 0 , '', '', myList.title, 'Adding ITEMS to list: ' + myList.title, 'Checking for ITEMS', 'Add items ~ 101' );
+    setProgress(false, "I", 0, 0 , '', 'TimePicker', myList.title, 'Adding ITEMS to list: ' + myList.title, 'Checking for ITEMS', 'Add items ~ 38' );
     let createThisBatch : IAnyArray = [];
     //https://www.sitepoint.com/community/t/for-loop-through-array-and-group-every-x-number-of-items/97966
     let totalItems = ItemsToAdd.length;
@@ -92,7 +92,7 @@ export async function addTheseItemsToListNoBatch( myList: IMyListInfo, thisWeb, 
             delete item.compareArrays;
             await list.items.add( item , entityTypeFullName).then(b => {
                 statusLog = notify(statusLog, 'Created Item', 'No-batch', null, null, null, thisItem );
-                setProgress(false, "I", i, totalItems , '', '',  item.Title, 'Items: ' + myList.title, 'Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 80');
+                setProgress(false, "I", i, totalItems , 'darkgreen', 'CheckMark',  item.Title, 'Items: ' + myList.title, 'Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 95');
             });
 
         } catch (e) {
@@ -106,11 +106,11 @@ export async function addTheseItemsToListNoBatch( myList: IMyListInfo, thisWeb, 
             if ( missingColumn ) {
                 let err = `The ${myList.title} list does not have a column yet:  ${thisItem}`;
                 statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);
-                setProgress(false, "E", i, totalItems , '', '', item.Title + ' Missing column', 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 89\n' + err);
+                setProgress(false, "E", i, totalItems , 'darkred', 'ErrorBadge', item.Title + ' Missing column', 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 109\n' + err);
             } else {
                 let err = errMessage;
                 statusLog = notify(statusLog, 'Problem processing item', err, null, null, null, null);
-                setProgress(false, "E", i, totalItems , '', '', item.Title, 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + '  item', 'Add item ~ 93 + \n' + err);
+                setProgress(false, "E", i, totalItems , 'darkred', 'ErrorBadge', item.Title, 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + '  item', 'Add item ~ 113 + \n' + err);
             }
         }
 

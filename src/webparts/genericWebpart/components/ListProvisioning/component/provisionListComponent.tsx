@@ -255,8 +255,6 @@ public constructor(props:IProvisionListsProps){
                 <ul>
                     <li><mark><b>If you update web urls in property pane, refresh the page before continuing</b></mark></li>
                     <li>Set Title in onCreate</li>
-                    <li>changesFinal - hidding not working</li>
-                    <li>changesFinal - Hours calculated is single line of text</li>
                 </ul>
             </div>;
 
@@ -483,6 +481,7 @@ public constructor(props:IProvisionListsProps){
         //const thisWeb = Web(testLists[index].webURL);
         thisWeb.lists.getByTitle(testLists[index].title).get().then((response) => {
             testLists[index].listExists = true;
+            testLists[index].listExistedB4 = true;   
             this.updateStateLists(index,testLists);
 
         }).catch((e) => {

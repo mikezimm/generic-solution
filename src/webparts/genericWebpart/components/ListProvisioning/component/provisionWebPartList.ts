@@ -39,6 +39,7 @@ export interface IMakeThisList {
     onCurrentSite: boolean;
     webExists: boolean;
     listExists: boolean;
+    listExistedB4: boolean;
 
 }
 export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
@@ -103,13 +104,13 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
     let result = await addTheseFields(['create','changesFinal'], readOnly, makeThisList, ensuredList, currentFields, makeThisList.createTheseFields, setProgress, alertMe, consoleLog );
 
-    let result2 = await addTheseViews(['create'], readOnly, makeThisList, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
+    let result2 = await addTheseViews( makeThisList.listExistedB4 , readOnly, makeThisList, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
 
     let result3 = null;
 
     if ( createItems === true && readOnly === false ) {
 
-        setProgress(false, "I", 0, 0 , '', '', makeThisList.title, 'Adding ITEMS to list: ' + makeThisList.title, 'Checking for ITEMS', 'Add items ~ 101' );
+        //setProgress(false, "I", 0, 0 , '', 'TimePicker', makeThisList.title, 'Adding ITEMS to list: ' + makeThisList.title, 'Checking for ITEMS', 'Add items ~ 112' );
         let createThisBatch : IAnyArray = [];
         //https://www.sitepoint.com/community/t/for-loop-through-array-and-group-every-x-number-of-items/97966
         let totalItems = makeThisList.createTheseItems.length;

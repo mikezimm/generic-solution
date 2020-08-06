@@ -44,6 +44,14 @@ export const stdViewFields = [ootbID, StatusTMT, ootbTitle, Category1, Category2
 export const stdTimeViewFields = ['Edit', ootbID, ootbTitle, User, StartTime, Hours, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter];
 export const TimeRecentUpdatesFields = spliceCopyArray ( stdTimeViewFields, null, null, 2, [ootbModified, ootbEditor ] );
 
+export const TimeAllItemsView : IMyView = {
+    Title: 'All Items',
+    iFields: 	stdTimeViewFields,
+    wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
+            ],
+    orders: [ {field: ootbModified, asc: false} ],
+};
+
 export const TimeByCreatedView : IMyView = {
     Title: 'By Created Date',
     iFields: 	stdTimeViewFields,
@@ -161,7 +169,8 @@ export const VerifyActivityView : IMyView = {
 };
 
 export const timeViewsFull : IMyView[] = [ 
-	createRecentUpdatesView(TimeRecentUpdatesFields),
+    TimeAllItemsView,
+    createRecentUpdatesView(TimeRecentUpdatesFields),
 	TimeByCreatedView, TimeByEntryModeView, //Grouped By Views
 	TimeByUserView, TimeYourUserEntries, //User Centric Views
 	TimeStoriesView, 

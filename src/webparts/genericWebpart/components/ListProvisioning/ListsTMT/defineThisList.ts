@@ -60,6 +60,7 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
         onCurrentSite: isListOnThisWeb,
         webExists: false,
         listExists: false,
+        listExistedB4: false,
     
     };
 
