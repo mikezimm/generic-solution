@@ -35,7 +35,7 @@
 
     if (result.indexOf('One or more column references are not allowed, because the columns are defined as a data type that is not supported in formulas.') > -1 ) { friendlyMessage = 'You may be trying to use a Hidden or Non-Existant column in a calculated column.'; }
     
-
+    if (result.indexOf('The formula refers to a column that does not exist.') > -1 ) { friendlyMessage = 'Check the formula for spelling mistakes and missing or hidden columns'; }
 
     if (result.indexOf('does not exist on type') > -1 &&  result.indexOf('ListItem\'') > -1  && result.indexOf('The property') > -1 ) {
       if ( friendlyMessage != null ) { friendlyMessage += ' AND '; } else { friendlyMessage = ''; }

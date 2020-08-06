@@ -36,7 +36,6 @@ const iconClassAction = mergeStyles({
 
 const iconClassInfo = mergeStyles({
   fontSize: 18,
-  color: "blue",
   //margin: '0px 2px',
   paddingRight: '10px',
   verticalAlign: 'bottom',
@@ -106,19 +105,32 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
         let itemRows = logItems.length === 0 ? null : logItems.map( h => { 
 
-            let itemIcon = h.icon ? <Icon iconName={h.icon} className={iconClassAction} /> : null;
+            //let itemIcon = h.icon ? <Icon iconName={h.icon} className={iconClassAction} /> : null;
+            let itemIcon = null;
 
             let actionCell = <div><span className={ styles.nowWrapping }>
               { itemIcon }
               { h.logLabel.length > this.state.maxChars ? h.logLabel.slice(0,this.state.maxChars) + '...' : h.logLabel }</span>
             </div>;
 
-            let normalIcon = <Icon iconName="Info" className={iconClassInfo} />;
+            let iconStyles: any = { root: {
+              color: h.color ? h.color : "blue",
+            }};
+            let ref: any = h.ref;
+
+            if  ( ref != null && ref.indexOf('\n') > 0 ) {
+              //Remove left padding:  https://stackoverflow.com/a/13939142
+              ref = <ul style={{paddingLeft:15}}>{
+                ref.replace('-- FULL ERROR', '\n-- FULL ERROR').split('\n').map( x => { return <li style={{paddingLeft:0}}>{x}</li>; } )
+                }</ul>
+            }
+
+            let normalIcon = <Icon iconName={ h.icon ? h.icon : "Info"} className={iconClassInfo} styles = {iconStyles}/>;
 
             const onRenderHoverCard = (item: any): JSX.Element => {
               return <div className={styles.hoverCard} style={{padding: 30}}>
                 <div>
-                  <div>{ h.ref }</div>
+                  <div>{ ref }</div>
                   <div><br/></div>
                   <div>{ h.time }</div>
                   <div>{ h.logLabel }</div>

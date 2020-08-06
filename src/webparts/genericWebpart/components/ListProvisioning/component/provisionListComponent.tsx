@@ -257,7 +257,6 @@ public constructor(props:IProvisionListsProps){
                     <li>Set Title in onCreate</li>
                     <li>changesFinal - hidding not working</li>
                     <li>changesFinal - Hours calculated is single line of text</li>
-                    <li>When in read only, does not get lists and views in correct type to verify</li>
                 </ul>
             </div>;
 

@@ -532,6 +532,7 @@ export const OriginalHours : INumberField = {
     },
     changesFinal: {
         Hidden: true, //This needs to be hidden later because it's used in a calculated column.
+        Title: 'OriginalHours*'
     },
 };
 
@@ -569,6 +570,7 @@ export const OriginalStart : IDateTimeField = {
     },
     changesFinal: {
         Hidden: true, //This needs to be hidden later because it's used in a calculated column.
+        Title: 'OriginalStart*'
     },
 };
 
@@ -582,6 +584,7 @@ export const OriginalEnd : IDateTimeField = {
     },
     changesFinal: {
         Hidden: true, //This needs to be hidden later because it's used in a calculated column.
+        Title: 'OriginalEnd*'
     },
 };
 
@@ -631,6 +634,10 @@ export const KeyChanges : ICalculatedField = {
         Group: thisColumnGroup,
         Description: 'Calculates if significant changes were made after item was created.',
     },
+    changesFinal: {
+        Title: 'KeyChanges*',
+        Hidden: true,
+    }
 };
 
 export const MinutesChanged : ICalculatedField = {
@@ -642,8 +649,9 @@ export const MinutesChanged : ICalculatedField = {
         Group: thisColumnGroup,
         Description: 'Total Minutes that were adjusted since creating the item.',
     },
-    onCreateChanges: {
-        Title: 'Minutes Changed',
+    changesFinal: {
+        Title: 'Minutes Changed*',
+        Hidden: true,
     }
     
 };
