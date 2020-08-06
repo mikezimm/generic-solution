@@ -171,9 +171,15 @@ export function buildFieldWhereTag ( thisWhere ) {
 export async function addTheseViews( steps : changes[], readOnly: boolean, myList: IMyListInfo, ensuredList, currentViews , viewsToAdd: IMyView[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IViewLog[]>{
 
     let statusLog : IViewLog[] = [];
-
-    const listViews = ensuredList.list.views;
     
+    let listViews = null;
+
+    if (readOnly === false ) {
+        listViews = ensuredList.list.views;
+    } else { 
+        listViews = ensuredList.views;
+    }
+
       /**
     * @param progressHidden 
     * @param current : current index of progress

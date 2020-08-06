@@ -255,7 +255,8 @@ public constructor(props:IProvisionListsProps){
                 <ul>
                     <li><mark><b>If you update web urls in property pane, refresh the page before continuing</b></mark></li>
                     <li>Set Title in onCreate</li>
-                    <li>changesFinal - hidding original fields and setting and why Hours calculated is single line of text</li>
+                    <li>changesFinal - hidding not working</li>
+                    <li>changesFinal - Hours calculated is single line of text</li>
                     <li>When in read only, does not get lists and views in correct type to verify</li>
                 </ul>
             </div>;

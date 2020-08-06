@@ -771,13 +771,13 @@ export function TMTProjectFields() {
 
     let theseFields: IMyFieldTypes[] = TMTFields('Projects');
 
-    console.log('theseFields', theseFields);
+    console.log('TMTProjectFields', theseFields);
     return theseFields;
 }
 
 export function TMTTimeFields() {
     let theseFields: IMyFieldTypes[] = TMTFields('TrackMyTime');
-    console.log('theseFields', theseFields);
+    console.log('TMTTimeFields', theseFields);
     
     return theseFields;
 }

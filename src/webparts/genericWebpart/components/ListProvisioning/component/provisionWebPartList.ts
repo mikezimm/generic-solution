@@ -61,20 +61,6 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         }
     }
 
-    const thisWeb = Web(makeThisList.webURL);
-
-    let ensuredList = null;
-    if ( readOnly === false ) {
-        ensuredList = await thisWeb.lists.ensure(makeThisList.title);
-
-    } else {
-        ensuredList = await thisWeb.lists.getByTitle(makeThisList.title);
-        
-    }
-
-    const listFields = ensuredList.list.fields;
-    const listViews = ensuredList.list.views;
-
     let fieldsToGet = makeThisList.createTheseFields.map ( thisField => {
         return thisField.name;
     });
@@ -83,9 +69,35 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
     console.log('fieldFilter:', fieldFilter);
 
-    const  currentFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter(fieldFilter).get();
+    const thisWeb = Web(makeThisList.webURL);
 
-    const  currentViews = await listViews.get();
+    let ensuredList = null;
+    let listFields = null;
+    let listViews = null;
+    let currentFields = null;
+    let currentViews = null;
+
+    if ( readOnly === false ) {
+        ensuredList = await thisWeb.lists.ensure(makeThisList.title);
+        console.log('ensuredList:', readOnly, ensuredList );
+        listFields = ensuredList.list.fields;   //Get the fields object from the list
+        listViews = ensuredList.list.views;     //Get the views object from the list
+
+        currentFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter(fieldFilter).get();
+        currentViews = await listViews.get();
+        
+        console.log('currentFields:', readOnly, currentFields );
+        console.log('currentViews:', readOnly, currentViews );
+
+    } else {
+        ensuredList = await thisWeb.lists.getByTitle(makeThisList.title);
+        console.log('ensuredList:', readOnly, ensuredList );
+        currentFields = await ensuredList.fields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter(fieldFilter).get();
+        currentViews = await ensuredList.views.get();
+        console.log('currentFields:', readOnly, currentFields );
+        console.log('currentViews:', readOnly, currentViews );
+    }
+
 
     console.log(makeThisList.title + ' list fields and views', currentFields, currentViews);
 

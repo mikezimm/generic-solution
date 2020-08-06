@@ -65,7 +65,14 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
 
     let statusLog : IFieldLog[] = [];
 
-    const listFields = ensuredList.list.fields;
+    let listFields = null;
+
+    if (readOnly === false ) {
+        listFields = ensuredList.list.fields;
+    } else { 
+        listFields = ensuredList.fields;
+    }
+    
 
     //alert('Need to check for checkForKnownColumnIssues here');
 
@@ -101,12 +108,17 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
 
             setProgress(false, "C", i, n , '', '', f.name, 'Adding fields to list (' + step +'): ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name , step + ' fieldsToDo ~ 102' );
 
-            if ( step !== 'create' && step !== 'setForm' && f[step] != null ) {
+            if (readOnly === true ) { 
+                foundField = false;//
+                skipTryField = false;
+
+            } else if ( step !== 'create' && step !== 'setForm' && f[step] != null ) {
                 //Skip trying field because it's not having anything done to it
                 foundField = false;//
                 skipTryField = false;
             } else { skipTryField = skipTry; }
 
+            let foundFieldIndex = null;
             if ( skipTryField != true ) {
                 try {
 
@@ -115,7 +127,8 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
 
                     //Assuming that if I'm creating a column, it's an object with .name value.
                     let checkField = f.name ;
-                    if ( doesObjectExistInArray(currentFields, 'StaticName', checkField ) ) {
+                    foundFieldIndex = doesObjectExistInArray(currentFields, 'StaticName', checkField );
+                    if ( foundFieldIndex ) {
                         foundField = true;
                     } else {
                         foundField = false;
@@ -137,6 +150,23 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                         statusLog = notify(statusLog, 'Checked Field', err, step, f, null);
                     }
                 }
+            }
+
+            if (readOnly === true || foundField === true) { 
+                if (foundField === true ) { 
+
+                    let verifyField : any = checkIfFieldMatches( f, currentFields[foundFieldIndex] );
+                    if ( verifyField === true ) {
+                        setProgress(false, "C", i, n , '', '', f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' checked ~ 160' );
+                    } else {
+                        setProgress(false, "E", i, n , '', '', f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' checked ~ 162 ' + verifyField );
+                    }
+
+
+                } else { //Log that field was not found
+                    setProgress(false, "E", i, n , '', '', 'Col: ' + f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' checked ~ 167' );
+                }
+
             }
 
             //Have to do this in order for TS not to throw error
@@ -311,5 +341,62 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
 
 }
 
+function checkIfFieldMatches( definition : IMyFieldTypes, actual : any ){
 
+    console.log('checkIfFieldMatches definition:',definition);
+    console.log('checkIfFieldMatches actual:',actual);
+
+    let result = '';
+    if ( definition.fieldType.type !== actual['odata.type'] ) { result += `\nType is ${actual['odata.type']}, expected ${definition.fieldType.type}`; }
+
+    let indexed = checkValueOnFieldObject(definition, 'Indexed', actual.Indexed );
+    if ( indexed !== true ) { result = indexed === 'Not Found' && actual.Indexed === false ? result : result += `\nIndexed is ${actual.Indexed}, expected ${indexed}`; }
+
+    let required = checkValueOnFieldObject(definition, 'Required', actual.Required );
+    if ( required !== true ) { result = required === 'Not Found' && actual.Required === false ? result : result += `\nRequired is ${actual.Required}, expected ${required}`; }
+
+    let hidden = checkValueOnFieldObject(definition, 'Hidden', actual.Hidden );
+    if ( hidden !== true ) { result = hidden === 'Not Found' && actual.Hidden === false ? result : result += `\nHidden is ${actual.Hidden}, expected ${hidden}`; }
+
+    let title = checkValueOnFieldObject(definition, 'Title', actual.Title );
+    if ( title !== true ) {
+        if ( title === 'Not Found' && actual.Title !== actual.StaticName) {
+            result += `\nTitle is ${actual.Title}, expected ${actual.StaticName}`;
+        }
+    }
+
+    let formula = checkValueOnFieldObject(definition, 'formula', actual.Formula );  //Note formula is lowerCase on object, ProperCase on actual field.
+    if ( formula !== true ) {
+        if ( formula === 'Not Found' && actual.Formula ) {
+            result += `\Formula is ${actual.Formula}, expected Nothing`;
+        }
+    }
+
+    return result === '' ? true : result;
+
+    //Skip these for now
+    let group = checkValueOnFieldObject(definition, 'Group', actual.Group );
+    if ( group !== true ) { result += `Group is ${actual.Group}, expected ${group}`; }
+
+    let description = checkValueOnFieldObject(definition, 'Description', actual.Description );
+    if ( description !== true ) { result += `Description is ${actual.Description}, expected ${description}`; }
+
+    
+    return result === '' ? true : result;
+
+}
+
+function checkValueOnFieldObject( definition : IMyFieldTypes, key: string, value: any) {
+
+    if ( definition[key] !== undefined ) { return definition[key] === value ? true : definition[key] ;}
+    else if ( definition.onCreateProps !== undefined && definition.onCreateProps[key] !== undefined  ) { return definition.onCreateProps[key] === value ? true : definition.onCreateProps[key] ;}
+    else if ( definition.onCreateChanges !== undefined && definition.onCreateChanges[key] !== undefined  ) { return definition.onCreateChanges[key] === value ? true : definition.onCreateChanges[key] ;}
+    else if ( definition.changesFinal !== undefined && definition.changesFinal[key] !== undefined  ) { return definition.changesFinal[key] === value ? true : definition.changesFinal[key] ;}
+    else if ( definition.changes1 !== undefined && definition.changes1[key] !== undefined  ) { return definition.changes1[key] === value ? true : definition.changes1[key] ;}
+    else if ( definition.changes2 !== undefined && definition.changes2[key] !== undefined  ) { return definition.changes2[key] === value ? true : definition.changes2[key] ;}
+    else if ( definition.changes3 !== undefined && definition.changes3[key] !== undefined  ) { return definition.changes3[key] === value ? true : definition.changes3[key] ;}
+
+    return 'Not Found';
+
+}
 
