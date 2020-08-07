@@ -36,10 +36,16 @@ export interface IWPart {
     solutionGUId?: string;
     groupId?: string;
     group: string;
+    version: string;
+    isInternal: boolean;
+    searchString: string;
+    tags: string[];
+    meta: string[];
 
     officeFabricIconFontName: string;
 
     parentAlias: string;
+    parentIndex: number;
 
     desc?: string;
     template?: IValidTemplate;
@@ -60,7 +66,7 @@ export interface IWPart {
 
 
 //export async function provisionTestPage( makeThisPage:  IWPart, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableWebParts( setProgress: any, markComplete: any ): Promise<IWPart[]>{
+export async function allAvailableWebParts( addThesePartsToState: any, setProgress: any, markComplete: any ): Promise<IWPart[]>{
 
     let webPartDefs : IWPart[] = [];
 
@@ -75,14 +81,13 @@ export async function allAvailableWebParts( setProgress: any, markComplete: any 
 
     // create a ClientWebPart instance from the definition
     const part = ClientsideWebpart.fromComponentDef(partDef[0]);
-    console.log('part:', part);
 
     for (let i in partDefs ) {
 
         let thisManifest = JSON.parse(partDefs[i].Manifest);
         //let entries: any = getAllPreConfiguredEntries(thisManifest);
         //let theseEntries : any = getAllPreConfiguredEntries(thisManifest);
-        webPartDefs = getAllPreConfiguredEntries(webPartDefs, thisManifest);
+        webPartDefs = getAllPreConfiguredEntries(webPartDefs, thisManifest, i );
         //webPartDefs.splice(webPartDefs.length, 0, theseEntries );
 
 
@@ -90,17 +95,29 @@ export async function allAvailableWebParts( setProgress: any, markComplete: any 
     }
 
     console.log('webPartDefs', webPartDefs);
+    let result = await addThesePartsToState(webPartDefs);
 
-    return webPartDefs;
+    return result;
 }
 
-function getAllPreConfiguredEntries(webPartDefs : IWPart[], thisManifest) {
+function getAllPreConfiguredEntries(webPartDefs : IWPart[], thisManifest, parentIndex) {
 
-    console.log('thisManifest', thisManifest);
+//    console.log('thisManifest', thisManifest);
 
-    let baseManifest = makeBaseManifest (thisManifest);
+    let baseManifest = makeBaseManifest (thisManifest, parentIndex) ;
+
+    if ( parentIndex == 60  ) {
+        console.log('Hi!');
+    }
 
     if ( !thisManifest.preconfiguredEntries ) {
+        baseManifest.alias = thisManifest.alias ? thisManifest.alias : thisManifest.title;
+        baseManifest.name = thisManifest.name;
+        baseManifest.title = thisManifest.title ? thisManifest.title : thisManifest.alias;
+        baseManifest.desc = thisManifest.description;
+        baseManifest.version = thisManifest.version;
+        baseManifest.searchString = buildSearchStringFromDef(baseManifest);
+
         webPartDefs.push(baseManifest);
 
     } else {
@@ -120,24 +137,169 @@ function getAllPreConfiguredEntries(webPartDefs : IWPart[], thisManifest) {
             let theseProperties = JSON.parse(JSON.stringify(allPreConfigProps[e]['properties']));
 
             newManifest.keys = theseKeys;
-            newManifest.alias = thisEntry.title ? thisEntry.title['en-US'] : 'Unknown';
-            newManifest.group = thisEntry.group ? thisEntry.group['en-US'] : 'Unknown';
-            newManifest.desc = thisEntry.desc ? thisEntry.desc['en-US'] : 'Unknown';
-            newManifest.title = thisEntry.title ? thisEntry.title['en-US'] : 'Unknown';
-            newManifest.groupId = thisEntry.groupId ? thisEntry.groupId : 'Unknown';
+            newManifest.alias = getWPKeyValue( 'alias', thisEntry, thisManifest, allPreConfigProps.length );
+            newManifest.group = getWPKeyValue( 'group', thisEntry, thisManifest, allPreConfigProps.length );
+            newManifest.desc = getWPKeyValue( 'description', thisEntry, thisManifest, allPreConfigProps.length );
+            newManifest.title = getWPKeyValue( 'title', thisEntry, thisManifest, allPreConfigProps.length );
+            newManifest.groupId = getWPKeyValue( 'groupId', thisEntry, thisManifest, allPreConfigProps.length );
+            newManifest.version = getWPKeyValue( 'version', thisEntry, thisManifest, allPreConfigProps.length );
+
             newManifest.officeFabricIconFontName = thisEntry.officeFabricIconFontName ? thisEntry.officeFabricIconFontName : 'Unknown';
+
+            newManifest.searchString = buildSearchStringFromDef(newManifest);
+
+            let tags : string[] = [];
+            let meta : string[] = [];
+
+            tags = addItemToArrayIfItDoesNotExist(tags, newManifest.alias);
             
+            tags = addItemToArrayIfItDoesNotExist(tags, newManifest.componentType);
+            meta = addItemToArrayIfItDoesNotExist(meta, newManifest.componentType);
+
+            tags = addItemToArrayIfItDoesNotExist(tags, newManifest.parentAlias);
+            tags = addItemToArrayIfItDoesNotExist(tags, newManifest.group);
+            tags = addItemToArrayIfItDoesNotExist(tags, newManifest.officeFabricIconFontName);
+
+            
+            if ( newManifest.supportsFullBleed ) { tags = addItemToArrayIfItDoesNotExist(tags, 'FullBleed'); }
+            if ( newManifest.supportsThemeVariants ) { tags = addItemToArrayIfItDoesNotExist(tags, 'Themes'); }
+
+            if ( newManifest.hiddenFromToolbox ) { 
+                tags = addItemToArrayIfItDoesNotExist(tags, 'Hidden');
+                meta = addItemToArrayIfItDoesNotExist(meta, 'Hidden');
+             }
+
+
+            tags = addItemToArrayIfItDoesNotExist(tags, newManifest.isInternal ? 'Internal' : 'External');
+            meta = addItemToArrayIfItDoesNotExist(meta, newManifest.isInternal ? 'Internal' : 'External');
+
+            if ( newManifest.disabledOnClassicSharepoint == false ) { 
+                tags = addItemToArrayIfItDoesNotExist(tags, 'Classic'); 
+                meta = addItemToArrayIfItDoesNotExist(meta, 'Classic'); 
+            }
+
+
+            if ( newManifest.useFallbackWhenPropertiesUpdatedExternally == false ) { tags = addItemToArrayIfItDoesNotExist(tags, 'FallBack'); }
+
+            if ( newManifest.supportedHosts ) {
+                for (let h of newManifest.supportedHosts ) {
+                    tags = addItemToArrayIfItDoesNotExist(tags, h);
+                    meta = addItemToArrayIfItDoesNotExist(meta, h);               
+                }
+            }
+            newManifest.tags = tags;
+            newManifest.meta = meta;
+
             webPartDefs.push(newManifest);
 
         }
 
     }
 
+    webPartDefs.sort((a, b) => (a.alias > b.alias) ? 1 : -1);
+
     return webPartDefs;
 
 }
 
-function makeBaseManifest (thisManifest) {
+export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
+
+    if ( arr.indexOf(item) < 0 ) { arr.push(item); }
+    return arr;
+
+}
+
+function buildSearchStringFromDef (newManifest : IWPart) {
+
+    let result = '';
+    let delim = '|||';
+
+    if ( newManifest.title ) { result += 'title=' + newManifest.title + delim ; }
+    if ( newManifest.alias ) { result += 'alias=' + newManifest.alias + delim ; }
+    if ( newManifest.partId ) { result += 'partId=' + newManifest.partId + delim ; }
+    if ( newManifest.group ) { result += 'group=' + newManifest.group + delim ; }
+    if ( newManifest.groupId ) { result += 'groupId=' + newManifest.groupId + delim ; }
+    if ( result.indexOf(newManifest.parentAlias) < 0 ) { result += 'parent=' + newManifest.parentAlias + delim ; }
+    if ( newManifest.isInternal ) { result += 'isInternal' + delim ; } else { { result += 'isExternal' + delim ; }}
+    if ( newManifest.isolatedDomain ) { result += 'isolatedDomain' + delim ; }
+    if ( newManifest.solution ) { result += 'solution=' + newManifest.solution + delim ; }
+    if ( newManifest.disabledOnClassicSharepoint ) { result += 'noClassic' + delim ; }
+
+    if ( newManifest.hiddenFromToolbox ) { result += 'isHidden' + delim ; }
+
+    if ( newManifest.searchablePropertyNames ) { result += 'isSearchable' + delim ; }
+    if ( newManifest.supportsThemeVariants ) { result += 'Themes' + delim ; }
+    if ( newManifest.template ) { result += 'template=' + newManifest.template + delim ; }
+    if ( newManifest.componentType ) { result += 'type=' + newManifest.componentType + delim ; }
+    if ( newManifest.desc ) { result += 'desc=' + newManifest.desc.substring(0,50) + delim ; }
+
+    result = result.toLowerCase();
+
+    return result;
+
+}
+/**
+ * 
+ * The purpose of this function is to find an appropriate value on the entry if it's not directly available.
+ * For example, if the manifest does not have a value, then look at preConfiguredEntries
+ * 
+ * @param key 
+ * @param thisEntry 
+ * @param thisManifest 
+ * @param allPreConfigPropsLength 
+ */
+function getWPKeyValue ( key: string, thisEntry, thisManifest, allPreConfigPropsLength ) {
+
+    let keyValue = 'Unknown ' + key;
+
+
+    if ( thisEntry[key] ) { 
+        keyValue = getDefaultOrEnUS( thisEntry[key]);
+
+    } else if (key === 'alias') {
+
+        keyValue = getDefaultOrEnUS( thisEntry[key]);
+        if (!keyValue) { keyValue = getDefaultOrEnUS( thisEntry['title']);  }
+        if (!keyValue) { keyValue = getDefaultOrEnUS( thisManifest[key] , '*');  }
+        if (!keyValue) { keyValue = getDefaultOrEnUS( thisManifest['title']);  }
+
+    } else if ( key === 'title' ) {
+        keyValue = getDefaultOrEnUS( thisEntry[key]);
+        if (!keyValue) { keyValue = getDefaultOrEnUS( thisEntry['alias']);  }
+        if (!keyValue) { keyValue = getDefaultOrEnUS( thisManifest[key] , '*');  }
+        if (!keyValue) { keyValue = getDefaultOrEnUS( thisManifest['alias']);  }
+
+    } else if ( key === 'desc' ) {
+        keyValue = getDefaultOrEnUS( thisEntry[key]);
+        if (!keyValue) { keyValue = getDefaultOrEnUS( thisEntry['description']);  }
+        if (!keyValue) { keyValue = getDefaultOrEnUS( thisManifest[key] , '*');  }
+        if (!keyValue) { keyValue = getDefaultOrEnUS( thisManifest['description']);  }
+
+
+    } else if ( key === 'groupId' || key === 'group' ) {
+        keyValue = 'Unexpected ' + keyValue;
+
+    }
+
+    return keyValue;
+}
+
+function getDefaultOrEnUS(thisItemKey, posSuffix = '') {
+
+    let result : any = false;
+
+    if ( thisItemKey === undefined || thisItemKey === null ) {
+
+    } else {
+        if ( thisItemKey['default'] ) { result = thisItemKey['default'] + posSuffix; }
+        else if ( thisItemKey['en-US'] ) { result = thisItemKey['en-US'] + posSuffix; }
+        else if ( thisItemKey ) { result = thisItemKey + posSuffix ; }
+    }
+
+    return result;
+
+}
+function makeBaseManifest (thisManifest, parentIndex) {
 
     let preconfiguredCount = thisManifest.preconfiguredEntries ? thisManifest.preconfiguredEntries.length : 0;
     let copyManifest = JSON.parse(JSON.stringify(thisManifest));
@@ -148,6 +310,13 @@ function makeBaseManifest (thisManifest) {
         desc: '',
         name: '',
         parentAlias: copyManifest.alias,
+        parentIndex: parentIndex,
+        version: '',
+        isInternal: copyManifest.isInternal,
+        searchString: '',
+        tags: [],
+        meta: [],
+
         partId: copyManifest.id ,
         group: null,
         officeFabricIconFontName: '',

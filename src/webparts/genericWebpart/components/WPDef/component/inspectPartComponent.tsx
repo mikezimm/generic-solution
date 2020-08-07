@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
+import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
@@ -16,7 +17,8 @@ import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/lis
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
-import styles from './provisionPage.module.scss';
+import styles from './inspectPart.module.scss';
+
 import { IMyProgress, IUser } from '../../IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
@@ -30,7 +32,7 @@ import MyLogList from './listView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
-import { IWPart } from './inspectPartFunction';
+import { IWPart, addItemToArrayIfItDoesNotExist } from './inspectPartFunction';
 
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
@@ -58,6 +60,7 @@ export interface IMyHistory {
     columns: IMyProgress[];
     views: IMyProgress[];
     items: IMyProgress[];
+
 }
 
 export interface IInspectPartsState {
@@ -70,9 +73,13 @@ export interface IInspectPartsState {
     history: IMyHistory;
 
     currentPage: string;
+    searchCount: number;
     
+    searchedParts: IWPart[];
+    first20SearchedParts: IWPart[];
     // 2 - Source and destination list information
     parts: IWPart[];
+    meta: string[];
 
 }
 
@@ -113,7 +120,10 @@ public constructor(props:IInspectPartsProps){
         allLoaded: false,
 
         parts: [],
-
+        meta: [],
+        searchedParts: [],
+        first20SearchedParts: [],
+        searchCount: 0,
     };
 
     // because our event handler needs access to the component, bind 
@@ -203,34 +213,51 @@ public constructor(props:IInspectPartsProps){
                 percentComplete={this.state.progress.percentComplete} 
                 progressHidden={this.state.progress.progressHidden}/>;
 
-
             let partList = <MyLogList 
-                title={ 'Page'}           items={ this.state.history.errors }
+                title={ 'WebPart'}           items={ this.state.searchedParts }
                 descending={false}          titles={null}            ></MyLogList>;
 
+            /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
+            let searchBox =           
+            <div className={[styles.floatLeft, styles.padLeft20 ].join(' ')} >
+              <SearchBox
+                className={styles.searchBox}
+                styles={{ root: { maxWidth: 300 } }}
+                placeholder="Search"
+                onSearch={ this.searchForItems.bind(this) }
+                onFocus={ () => console.log('this.state',  this.state) }
+                onBlur={ () => console.log('onBlur called') }
+                onChange={ this.searchForItems.bind(this) }
+              />
+              <div className={styles.searchStatus}>
+                { 'Searching about ' + this.state.searchCount + ' parts' }
+                { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
+              </div>
+            </div>;
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
                 <ul>
                     <li><mark><b>If you update web urls in property pane, refresh the page before continuing</b></mark></li>
+                    <li>Meta Tags: { this.state.meta.join(', ') }</li>
                 </ul>
             </div>;
 
             const stackPageTokens: IStackTokens = { childrenGap: 10 };
 
-            thisPage = <div><div>{ disclaimers }</div>
-                <div> { provisionButtonRow } </div>
+            thisPage = <div className={styles.partDefs}>
+
+                <div><div>{ disclaimers }</div>
+                <div> { searchBox } </div>                
                 <div style={{ height:30} }> {  } </div>
                 <div> { myProgress } </div>
-                <div> {  } </div>
-                <div> <h2>{ this.state.currentPage }</h2> </div>
                 <div>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                     { partList }
                 </Stack>
                 </div>
 
-            </div>;
+            </div></div>;
 
 /***
  *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -244,15 +271,15 @@ public constructor(props:IInspectPartsProps){
  */
 
             return (
-                <div className={ styles.infoPane }>
+                <div className={ styles.partDefs }>
                     { thisPage }
                 </div>
             );
             
         } else {
             console.log('provisionPage.tsx return null');
-            return (  <div className={ styles.infoPane }>
-                <h2>There are no parts to provision</h2>
+            return (  <div className={ styles.partDefs }>
+                <h2>There are no parts to see</h2>
             </div> );
         }
 
@@ -260,20 +287,37 @@ public constructor(props:IInspectPartsProps){
 
 
     private getPartDefs() {
-        let allWebParts : any = allAvailableWebParts( this.setProgress.bind(this), this.markComplete.bind(this) );
-        
-        this.setState({
-            parts: allWebParts,
-        });
+        let result : any = allAvailableWebParts( this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+
     }
 
-  private markComplete() {
+    private addThesePartsToState( allWebParts ) {
 
-    this.setState({
-        currentPage: 'Finished ' + this.state.currentPage,
-    });
+        let meta: string[] = [];
+        for ( let p of allWebParts ) {
+            if ( p.meta ) {
+                for ( let x of p.meta ) {
+                    meta = addItemToArrayIfItDoesNotExist( meta, x );
+                }
+            }
+        }
 
-  }
+        this.setState({
+            parts: allWebParts,
+            meta: meta,
+            searchedParts: allWebParts,
+            searchCount: allWebParts.length,
+        });
+        return true;
+    }
+
+    private markComplete() {
+
+        this.setState({
+            currentPage: 'Finished ' + this.state.currentPage,
+        });
+
+    }
 
    /**
     * 
@@ -331,6 +375,45 @@ public constructor(props:IInspectPartsProps){
     });
 
   }
+
+  
+  public searchForItems = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+ 
+    console.log('searchForItems: e',e);
+
+    console.log('searchForItems: item', item);
+    console.log('searchForItems: this', this);
+          /*
+    */
+
+    let searchItems : IWPart[] = this.state.parts;
+    let searchCount = searchItems.length;
+
+    let newFilteredParts : IWPart[] = [];
+
+    for (let thisSearcPart of searchItems) {
+
+      let searchString = thisSearcPart.searchString;
+      if(searchString.indexOf(item.toLowerCase()) > -1) {
+        newFilteredParts.push(thisSearcPart);
+      }
+    }
+
+    console.log('Searched for:' + item);
+    console.log('and found these parts:', newFilteredParts);
+    searchCount = newFilteredParts.length;
+
+    this.setState({
+      searchedParts: newFilteredParts,
+      searchCount: searchCount,
+    });
+
+
+    return ;
+    
+  } //End searchForItems
 
   
 /***
