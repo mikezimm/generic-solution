@@ -2,9 +2,6 @@ import * as React from 'react';
 
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
-import { IProjectOptions } from '../webparts/genericWebpart/components/IGenericWebpartState';
-
-
 export const ColoredLine = ({ color, height }) => ( <hr style={{ color: color, backgroundColor: color, height: height }}/> );
 
 export const defProjectIconStyle = {

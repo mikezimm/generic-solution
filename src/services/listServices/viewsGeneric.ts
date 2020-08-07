@@ -29,12 +29,12 @@ import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, oo
 
 //SHARED Columns
 import {Leader, Team, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, StatusTMT, StatusNumber, StatusText,
-    DueDateTMT, CompletedDateTMT, CompletedByTMT, CCList, CCEmail} from '../../webparts/genericWebpart/components/ListProvisioning/columnsWebPart';
+    DueDateTMT, CompletedDateTMT, CompletedByTMT, CCList, CCEmail} from '../../webparts/genericWebpart/components/ListProvisioning/ListsTMT/columnsWebPart';
 
 //PROJECT columns
 import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc, OptionsTMT, OptionsTMTCalc,
     EffectiveStatus, IsOpen,
-    ProjectEditOptions, HistoryTMT, TimeTarget} from '../../webparts/genericWebpart/components/ListProvisioning/columnsWebPart';
+    ProjectEditOptions, HistoryTMT, TimeTarget} from '../../webparts/genericWebpart/components/ListProvisioning/ListsTMT/columnsWebPart';
 //let checks = StepChecks(0,5);  //Project
 
 /**

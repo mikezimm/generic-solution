@@ -72,7 +72,7 @@ import { IGenericWebpartWebPartProps } from '../../webparts/genericWebpart/Gener
     */
 
 export class IntroPage {
-  public getPropertyPanePage(webPartProps: IGenericWebpartWebPartProps, _onClickCreateParent, _onClickCreateChild, _onClickUpdateTitles, setProgress ): IPropertyPanePage {
+  public getPropertyPanePage(webPartProps: IGenericWebpartWebPartProps, _onClickUpdateTitles ): IPropertyPanePage {
     return <IPropertyPanePage>
     { // <page1>
       header: {
@@ -109,33 +109,25 @@ export class IntroPage {
             PropertyPaneLabel('Notice', {
               text: ''
             }),
-
+/*
             PropertyPaneButton('CreateParentList',  
             {  
              text: "Create/Verify Parents List",
              buttonType: PropertyPaneButtonType.Primary,
              onClick: _onClickCreateParent
             }),
-
+*/
             PropertyPaneLabel('Notice', {
               text: ''
             }),
-
+/*
             PropertyPaneButton('CreateChildList',
             {  
              text: "Create/Verify Child List",  
              buttonType: PropertyPaneButtonType.Primary,
              onClick: _onClickCreateChild
             }),
-            
-            PropertyPaneLabel('Parent List', {
-              text: webPartProps.parentListConfirmed ? 'Checking for ' + webPartProps.parentListTitle : 'Verify or Create your Parent list!'
-            }),
-
-            PropertyPaneLabel('Child List', {
-              text: webPartProps.childListConfirmed ? 'Checking for ' + webPartProps.childListTitle : 'Verify or Create your Child list!'
-            }),
-
+*/
             
             PropertyPaneButton('UpdateTitles',
             {  

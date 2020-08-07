@@ -7,38 +7,38 @@ import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
-    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '../../../../services/listServices/columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '../../../../../services/listServices/columnTypes';
 
-import { MyFieldDef, } from '../../../../services/listServices/columnTypes';
+import { MyFieldDef, } from '../../../../../services/listServices/columnTypes';
     
 import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
-	cMText, cText, cNumb, cURL, cUser, cMUser, minInfinity, maxInfinity } from '../../../../services/listServices/columnTypes';
+	cMText, cText, cNumb, cURL, cUser, cMUser, minInfinity, maxInfinity } from '../../../../../services/listServices/columnTypes';
 	
-import { IMyView, } from '../../../../services/listServices/viewTypes';
-import { Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from '../../../../services/listServices/viewTypes';
+import { IMyView, } from '../../../../../services/listServices/viewTypes';
+import { Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from '../../../../../services/listServices/viewTypes';
 
-import { spliceCopyArray } from '../../../../services/arrayServices';
+import { spliceCopyArray } from '../../../../../services/arrayServices';
 
 //Standard Queries
-import { queryValueCurrentUser, queryValueToday } from '../../../../services/listServices/viewTypes';
+import { queryValueCurrentUser, queryValueToday } from '../../../../../services/listServices/viewTypes';
 
-import { testAlertsView, createRecentUpdatesView } from '../../../../services/listServices/viewsGeneric';
+import { testAlertsView, createRecentUpdatesView } from '../../../../../services/listServices/viewsGeneric';
 
 /**
  * For Importing columns, it's best to create one view file per list and only import the columns from that list :
  */
 
 //Imported but not used so that intellisense can prevent duplicate named columns.
-import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '../../../../services/listServices/columnsOOTB';
+import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '../../../../../services/listServices/columnsOOTB';
 
 //SHARED Columns
 import {Leader, Team, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, StatusTMT, StatusNumber, StatusText,
-    DueDateTMT, CompletedDateTMT, CompletedByTMT, CCList, CCEmail} from './columnsWebPart';
+    DueDateTMT, CompletedDateTMT, CompletedByTMT, CCList, CCEmail} from '../ListsTMT/columnsWebPart';
 
 //PROJECT columns
 import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc, OptionsTMT, OptionsTMTCalc,
     EffectiveStatus, IsOpen,
-    ProjectEditOptions, HistoryTMT, TimeTarget} from './columnsWebPart';
+    ProjectEditOptions, HistoryTMT, TimeTarget} from '../ListsTMT/columnsWebPart';
 //let checks = StepChecks(0,5);  //Project
 
 export const stdViewFields = [ootbID, Active, StatusTMT, SortOrder, ootbTitle, Everyone, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team];

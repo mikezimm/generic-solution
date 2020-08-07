@@ -1,4 +1,6 @@
 import * as React from 'react';
+import { sp, Views, IViews } from "@pnp/sp/presets/all";
+
 import styles from './GenericWebpart.module.scss';
 import { IGenericWebpartProps } from './IGenericWebpartProps';
 import { IGenericWebpartState } from './IGenericWebpartState';
@@ -8,6 +10,15 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from './IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
+
+import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/component/provisionListComponent';
+import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
+import ProvisionLists from './ListProvisioning/component/provisionListComponent';
+
+import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
+import { analyticsList } from 'GenericWebpartWebPartStrings';
+
+import { cleanURL } from '../../../services/stringServices';
 
 
 export default class GenericWebpart extends React.Component<IGenericWebpartProps, IGenericWebpartState> {
@@ -115,27 +126,6 @@ export default class GenericWebpart extends React.Component<IGenericWebpartProps
 
   }
 
-  private cleanURL(originalURL: String) {
-
-    let newURL = originalURL.toLowerCase();
-    if ( newURL.indexOf('/sitepages/') > 0 ) { return newURL.substring(0, newURL.indexOf('/sitepages/') + 1) ; }
-    if ( newURL.indexOf('/lists/') > 0 ) { return newURL.substring(0, newURL.indexOf('/lists/') + 1) ; }
-    if ( newURL.indexOf('/siteassets/') > 0 ) { return newURL.substring(0, newURL.indexOf('/siteassets/') + 1) ; }
-    if ( newURL.indexOf('/_layouts/') > 0 ) { return newURL.substring(0, newURL.indexOf('/_layouts/') + 1) ; }
-    if ( newURL.indexOf('/documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/documents/') + 1) ; }
-    if ( newURL.indexOf('/shared documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/shared documents/') + 1) ; }
-    if ( newURL.indexOf('/shared%20documents/') > 0 ) { return newURL.substring(0, newURL.indexOf('/shared%20documents/') + 1) ; }
-    if ( newURL.indexOf('/forms/') > 0 ) { 
-      newURL = newURL.substring(0, newURL.indexOf('/forms/'));
-      newURL = newURL.substring(0, newURL.indexOf('/') + 1);
-      return newURL;
-    }
-    if ( newURL.indexOf('/pages/') > 0 ) { return newURL.substring(0, newURL.indexOf('/pages/') + 1) ; }
-    if ( newURL.substring(newURL.length) !== '/' ) { return newURL + '/'; }
-
-    return newURL;
-
-  }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -152,10 +142,10 @@ export default class GenericWebpart extends React.Component<IGenericWebpartProps
 public constructor(props:IGenericWebpartProps){
   super(props);
 
-  let parentWeb = null; //this.cleanURL(this.props.parentListWeb ? this.props.parentListWeb : props.pageContext.web.absoluteUrl);
-  let childWeb = null; //this.cleanURL(this.props.childListWeb ? this.props.childListWeb : props.pageContext.web.absoluteUrl);
+  let parentWeb = cleanURL(this.props.parentListWeb);
+  let childWeb = cleanURL(this.props.childListWeb);
 
-  this.state = { 
+  this.state = {
 
         // 0 - Context
         description: 'string',
@@ -163,7 +153,9 @@ public constructor(props:IGenericWebpartProps){
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
         WebpartHeight: this.props.WebpartElement.getBoundingClientRect().height ,
         WebpartWidth:  this.props.WebpartElement.getBoundingClientRect().width - 50 ,
-                  
+
+        currentUser: null,
+
         //pivots?: IMyPivots;
         pivots: this.createPivotData(this.props.onlyActiveParents),
 
@@ -185,7 +177,7 @@ public constructor(props:IGenericWebpartProps){
       
         parentListName: this.props.parentListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
         childListName: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
-      
+
         // 3 - General how accurate do you want this to be
       
         // 4 - Info Options
@@ -243,12 +235,60 @@ public constructor(props:IGenericWebpartProps){
         searchCount: 0,
         searchWhere: '',
   
-        
-
-
-  }
+  };
 }
 
+
+public componentDidMount() {
+  this.getListDefinitions( 'state');
+}
+
+public async getListDefinitions( doThis: 'props' | 'state') {
+
+  //This only needs to be async if you are generating sample list items based on the current user.
+  //If not, just create the allLists onInit
+  sp.web.currentUser.get().then((r) => {
+
+    let currentUser : IUser = {
+      title: r['Title'] , //
+      Title: r['Title'] , //
+      initials: r['Title'].split(" ").map((n)=>n[0]).join(""), //Single person column
+      email: r['Email'] , //Single person column
+      id: r['Id'] , //
+      Id: r['Id'] , //
+      ID: r['Id'] , //
+      isSiteAdmin: r['IsSiteAdmin'],
+      LoginName: r['LoginName'],
+      Name: r['LoginName'],
+    };
+
+    let parentName =  doThis === 'state' ? this.state.parentListName : this.props.parentListTitle;
+    let childName =  doThis === 'state' ? this.state.childListName : this.props.childListTitle;
+    let parentListWeb = doThis === 'state' ? this.state.parentListWeb : this.props.parentListWeb;
+    let childListWeb = doThis === 'state' ? this.state.childListWeb : this.props.childListWeb;
+
+    parentListWeb = cleanURL(parentListWeb);
+    childListWeb = cleanURL(childListWeb);
+
+    let parentList : IMakeThisList = defineTheList( 100 , parentName, 'ParentListTitle' , parentListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
+    let childList : IMakeThisList = defineTheList( 100 , childName, 'ChildListTitle' , childListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
+
+    let theLists : IMakeThisList[] = [];
+    if ( parentList ) { theLists.push( parentList ); }
+    if ( childList ) { theLists.push( childList ); }
+
+    this.setState({  
+      currentUser: currentUser,
+      allLists: theLists,
+    });
+
+  }).catch((e) => {
+    console.log('ERROR:  catch sp.web.currentUser:', e);
+  });
+
+}
+
+//        
   /***
  *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
  *         88  `8D   `88'   88  `8D      88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'     
@@ -266,47 +306,52 @@ public constructor(props:IGenericWebpartProps){
     console.log('DIDUPDATE setting Progress:', this.props.progress);
     if (this.props.progress !== prevProps.progress) {  rebuildPart = true ; }
 
+    if ( prevProps.parentListTitle != this.props.parentListTitle || prevProps.childListTitle != this.props.childListTitle || prevProps.parentListWeb != this.props.parentListWeb || prevProps.childListWeb != this.props.childListWeb ) {
+      this.getListDefinitions('props');
+      rebuildPart = true ;
+    }
     if (rebuildPart === true) {
       this._updateStateOnPropsChange({});
     }
   }
 
   public render(): React.ReactElement<IGenericWebpartProps> {
-   
+
     console.log('RENDER setting Progress:', this.props.progress);
 
-    //This is where we need to look....
-//    let myProgress = this.state.progress == null ? null : <ProgressIndicator label={this.state.progress} description={this.state.progress.description} percentComplete={this.state.progress.percentComplete} progressHidden={this.state.progress.progressHidden}/>;
+    const provisionPage = <div>
+    <ProvisionLists 
+        allowOtherSites={ false }
+        alwaysReadOnly = { false }
+        pageContext={ this.props.pageContext }
+        showPane={true}
+        allLoaded={false}
+        currentUser = {this.state.currentUser }
+        lists = { this.state.allLists }
 
-/*
-    let label = this.state.progress.;
-    let description = ;
-    let percentComplete = ;
-    let progressHidden = ;
-*/
+      ></ProvisionLists>
+    </div>;
 
-    let myProgress = this.state.progress == null ? null : <ProgressIndicator 
-      label={this.state.progress.label} 
-      description={this.state.progress.description} 
-      percentComplete={this.state.progress.percentComplete} 
-      progressHidden={this.state.progress.progressHidden}/>;
 
-    return (
-      <div className={ styles.genericWebpart }>
-        <div className={ styles.container }>
-        <div>{ myProgress }</div>
-          <div className={ styles.row }>
-            <div className={ styles.column }>
-              <span className={ styles.title }>Welcome to SharePoint!</span>
-              <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p>
-              <p className={ styles.description }>{escape(this.props.description)}</p>
-              <a href="https://aka.ms/spfx" className={ styles.button }>
-                <span className={ styles.label }>Learn more</span>
-              </a>
-            </div>
+    let ootbComponent = <div className={ styles.genericWebpart }>
+    <div className={ styles.container }>
+
+        <div className={ styles.row }>
+          <div className={ styles.column }>
+            <span className={ styles.title }>Welcome to SharePoint!</span>
+            <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p>
+            <p className={ styles.description }>{escape(this.props.description)}</p>
+            <a href="https://aka.ms/spfx" className={ styles.button }>
+              <span className={ styles.label }>Learn more</span>
+            </a>
           </div>
         </div>
       </div>
+    </div>;
+
+
+    return (
+      provisionPage
     );
   }
 

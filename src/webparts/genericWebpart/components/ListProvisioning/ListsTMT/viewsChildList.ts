@@ -7,19 +7,19 @@ import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
-    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '../../../../services/listServices/columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '../../../../../services/listServices/columnTypes';
 
-import { MyFieldDef, } from '../../../../services/listServices/columnTypes';
+import { MyFieldDef, } from '../../../../../services/listServices/columnTypes';
 
-import { IMyView, } from '../../../../services/listServices/viewTypes';
+import { IMyView, } from '../../../../../services/listServices/viewTypes';
 
-import { Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from '../../../../services/listServices/viewTypes';
+import { Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from '../../../../../services/listServices/viewTypes';
 
 //Standard Queries
-import { queryValueCurrentUser, queryValueToday } from '../../../../services/listServices/viewTypes';
+import { queryValueCurrentUser, queryValueToday } from '../../../../../services/listServices/viewTypes';
 
 //Imported but not used so that intellisense can prevent duplicate named columns.
-import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '../../../../services/listServices/columnsOOTB';
+import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '../../../../../services/listServices/columnsOOTB';
 
 //SHARED Columns
 import {Leader, Team, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, StatusTMT, StatusNumber, StatusText,
@@ -35,14 +35,22 @@ import { Activity, DeltaT, Comments, User, StartTime, EndTime, OriginalStart, Or
     Hours, Days, Minutes, KeyChanges, SourceProject, SourceProjectRef, Settings, Location, EntryType } from './columnsWebPart';
 
 	
-import { testAlertsView, createRecentUpdatesView } from '../../../../services/listServices/viewsGeneric';
+import { testAlertsView, createRecentUpdatesView } from '../../../../../services/listServices/viewsGeneric';
 
-import { spliceCopyArray } from '../../../../services/arrayServices';
+import { spliceCopyArray } from '../../../../../services/arrayServices';
 
 export const stdViewFields = [ootbID, StatusTMT, ootbTitle, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team ];
 
 export const stdTimeViewFields = ['Edit', ootbID, ootbTitle, User, StartTime, Hours, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter];
 export const TimeRecentUpdatesFields = spliceCopyArray ( stdTimeViewFields, null, null, 2, [ootbModified, ootbEditor ] );
+
+export const TimeAllItemsView : IMyView = {
+    Title: 'All Items',
+    iFields: 	stdTimeViewFields,
+    wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
+            ],
+    orders: [ {field: ootbModified, asc: false} ],
+};
 
 export const TimeByCreatedView : IMyView = {
     Title: 'By Created Date',
@@ -161,7 +169,8 @@ export const VerifyActivityView : IMyView = {
 };
 
 export const timeViewsFull : IMyView[] = [ 
-	createRecentUpdatesView(TimeRecentUpdatesFields),
+    TimeAllItemsView,
+    createRecentUpdatesView(TimeRecentUpdatesFields),
 	TimeByCreatedView, TimeByEntryModeView, //Grouped By Views
 	TimeByUserView, TimeYourUserEntries, //User Centric Views
 	TimeStoriesView, 

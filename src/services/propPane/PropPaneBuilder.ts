@@ -15,10 +15,10 @@ import {
 */
 
 export class PropertyPaneBuilder {
-  public getPropertyPaneConfiguration(webPartProps, _onClickCreateProject, _onClickCreateTime, _onClickUpdateTitles, setProgress): IPropertyPaneConfiguration {
+  public getPropertyPaneConfiguration(webPartProps,  _onClickUpdateTitles): IPropertyPaneConfiguration {
     return <IPropertyPaneConfiguration>{
       pages: [
-        introPage.getPropertyPanePage(webPartProps, _onClickCreateProject, _onClickCreateTime, _onClickUpdateTitles, setProgress),
+        introPage.getPropertyPanePage(webPartProps,  _onClickUpdateTitles),
 //        webPartSettingsPage.getPropertyPanePage(webPartProps),
 
       ]

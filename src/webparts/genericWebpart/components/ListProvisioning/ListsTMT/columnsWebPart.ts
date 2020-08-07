@@ -7,15 +7,15 @@ import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
-    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '../../../../services/listServices/columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '../../../../../services/listServices/columnTypes';
 
 import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
-    cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity } from '../../../../services/listServices/columnTypes';
+    cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity } from '../../../../../services/listServices/columnTypes';
 
 //import { statusChoices, defStatus }  from '../../webparts/genericWebpart/components/GenericWebpart';
 
 //Imported but not used so that intellisense can prevent duplicate named columns.
-import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '../../../../services/listServices/columnsOOTB';
+import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '../../../../../services/listServices/columnsOOTB';
 
 /***
  *     .d8b.  d8888b. d8888b.       d888b  d8888b.  .d88b.  db    db d8888b.      d8b   db  .d8b.  .88b  d88. d88888b 
@@ -532,6 +532,7 @@ export const OriginalHours : INumberField = {
     },
     changesFinal: {
         Hidden: true, //This needs to be hidden later because it's used in a calculated column.
+        Title: 'OriginalHours*'
     },
 };
 
@@ -569,6 +570,7 @@ export const OriginalStart : IDateTimeField = {
     },
     changesFinal: {
         Hidden: true, //This needs to be hidden later because it's used in a calculated column.
+        Title: 'OriginalStart*'
     },
 };
 
@@ -582,6 +584,7 @@ export const OriginalEnd : IDateTimeField = {
     },
     changesFinal: {
         Hidden: true, //This needs to be hidden later because it's used in a calculated column.
+        Title: 'OriginalEnd*'
     },
 };
 
@@ -631,6 +634,10 @@ export const KeyChanges : ICalculatedField = {
         Group: thisColumnGroup,
         Description: 'Calculates if significant changes were made after item was created.',
     },
+    changesFinal: {
+        Title: 'KeyChanges*',
+        Hidden: true,
+    }
 };
 
 export const MinutesChanged : ICalculatedField = {
@@ -642,8 +649,9 @@ export const MinutesChanged : ICalculatedField = {
         Group: thisColumnGroup,
         Description: 'Total Minutes that were adjusted since creating the item.',
     },
-    onCreateChanges: {
-        Title: 'Minutes Changed',
+    changesFinal: {
+        Title: 'Minutes Changed*',
+        Hidden: true,
     }
     
 };
@@ -771,12 +779,14 @@ export function TMTProjectFields() {
 
     let theseFields: IMyFieldTypes[] = TMTFields('Projects');
 
-    console.log('theseFields', theseFields);
+    console.log('TMTProjectFields', theseFields);
     return theseFields;
 }
 
 export function TMTTimeFields() {
     let theseFields: IMyFieldTypes[] = TMTFields('TrackMyTime');
+    console.log('TMTTimeFields', theseFields);
+    
     return theseFields;
 }
 

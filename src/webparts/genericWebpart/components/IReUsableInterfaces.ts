@@ -2,10 +2,16 @@
 import { IGenericWebpartProps } from './IGenericWebpartProps';
 
 export interface IMyProgress {
+
+  time: string;
+  logLabel: string;
   label: string;
   description: string;
   percentComplete?: number;
   progressHidden?: boolean;
+  icon?: string;
+  color?: string;
+  ref?: string;
 }
 
 export interface IPivot {
@@ -28,8 +34,8 @@ export interface ILink {
   }
   
   export interface IUser {
-    title: string;
-    Title: string;
+    title?: string;
+    Title?: string;
     initials?: string;  //Single person column
     email?: string;  //Single person column
     id?: any;

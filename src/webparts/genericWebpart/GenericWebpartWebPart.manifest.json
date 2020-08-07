@@ -21,7 +21,9 @@
     "description": { "default": "genericWebpart description" },
     "officeFabricIconFontName": "Page",
     "properties": {
-      "description": "genericWebpart"
+      "description": "genericWebpart",
+      "parentListTitle": "ParentListTitle",
+      "childListTitle": "ChildListTitle"
     }
   }]
 }

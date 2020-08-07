@@ -1,7 +1,8 @@
 
 import { sp } from '@pnp/sp';
 
-export type IAnyArray = any[];
+
+import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
 export const SampleComments = 'This item was created for sample purposes.  Please delete me before using!';
 
@@ -31,7 +32,7 @@ function getRandomChance(def: number, chanceOther: number, min: number, max: num
 
     let result = def;
     let thisChance = getRandomInt(1,100);
-    console.log('getRandomChance', thisChance);
+    //console.log('getRandomChance', thisChance);
     if ( thisChance <= chanceOther ) {
         //Get a randomized number instead of default
         return getRandomInt(min,max);

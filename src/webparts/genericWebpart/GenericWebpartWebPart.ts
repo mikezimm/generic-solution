@@ -23,7 +23,7 @@ import { sp } from '@pnp/sp';
 
 import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
 
-import { provisionTheList } from './components/ListProvisioning/provisionWebPartList';
+import { defineTheList } from './components/ListProvisioning/ListsTMT/defineThisList';
 
 import { IMyProgress } from './components/IReUsableInterfaces';
 
@@ -44,11 +44,9 @@ export interface IGenericWebpartWebPartProps {
   createVerifyLists: boolean;
   parentListTitle: string;
   parentListWeb: string;
-  parentListConfirmed: boolean;
 
   childListTitle: string;
   childListWeb: string;
-  childListConfirmed: boolean;
   parentListFieldTitles: string;
 
   onlyActiveParents: boolean;
@@ -95,13 +93,6 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
 
         let mess = 'onInit - ONINIT: ' + new Date().toLocaleTimeString();
 
-        this.properties.progress = {
-          label: 'ONINIT',
-          description: mess,
-          percentComplete: 0,
-          progressHidden: false,
-        };
-
         console.log(mess);
 
         //https://stackoverflow.com/questions/52010321/sharepoint-online-full-width-page
@@ -135,9 +126,13 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
 
   public render(): void {
 
-
     let progress = this.properties.progress;
     console.log('this.properties.progress:',this.properties.progress);
+
+    //Be sure to always pass down an actual URL if the webpart prop is empty at this point.
+    //If it's undefined, null or '', get current page context value
+    let parentWeb = this.properties.parentListWeb && this.properties.parentListWeb != '' ? this.properties.parentListWeb : this.context.pageContext.web.absoluteUrl;
+    let childWeb = this.properties.childListWeb && this.properties.childListWeb != '' ? this.properties.childListWeb : this.context.pageContext.web.absoluteUrl;
 
     const element: React.ReactElement<IGenericWebpartProps> = React.createElement(
       GenericWebpart,
@@ -161,10 +156,10 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
       
         // 2 - Source and destination list information
         parentListTitle: this.properties.parentListTitle,
-        parentListWeb: this.properties.parentListWeb,
+        parentListWeb: parentWeb,
       
         childListTitle: this.properties.childListTitle,
-        childListWeb: this.properties.childListWeb,
+        childListWeb: childWeb,
 
         onlyActiveParents: this.properties.onlyActiveParents,
 
@@ -209,50 +204,6 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
   }
 
 
-
-
-  /***
-   *          .o88b. d8888b. d88888b  .d8b.  d888888b d88888b      db      d888888b .d8888. d888888b .d8888. 
-   *         d8P  Y8 88  `8D 88'     d8' `8b `~~88~~' 88'          88        `88'   88'  YP `~~88~~' 88'  YP 
-   *         8P      88oobY' 88ooooo 88ooo88    88    88ooooo      88         88    `8bo.      88    `8bo.   
-   *         8b      88`8b   88~~~~~ 88~~~88    88    88~~~~~      88         88      `Y8b.    88      `Y8b. 
-   *         Y8b  d8 88 `88. 88.     88   88    88    88.          88booo.   .88.   db   8D    88    db   8D 
-   *          `Y88P' 88   YD Y88888P YP   YP    YP    Y88888P      Y88888P Y888888P `8888Y'    YP    `8888Y' 
-   *                                                                                                         
-   *                                                                                                         
-   */
-
-  private CreateChildList(oldVal: any): any {
-
-    let listName = this.properties.childListTitle ? this.properties.childListTitle : 'ChildListTitle';
-    let listCreated = provisionTheList( listName , 'ChildListTitle', this.context.pageContext.web.absoluteUrl, this.setProgress.bind(this));
-    
-    if ( listCreated ) { 
-      this.properties.childListTitle = listName;
-      this.properties.childListConfirmed= true;
-    }
-    return "Finished";  
-  } 
-
-  private CreateParentList(oldVal: any): any {
-
-    let listName = this.properties.parentListTitle ? this.properties.parentListTitle : 'ParentListTitle';
-    let listCreated = provisionTheList( listName , 'ParentListTitle', this.context.pageContext.web.absoluteUrl, this.setProgress.bind(this));
-    
-    if ( listCreated ) { 
-      this.properties.parentListTitle= listName;
-      this.properties.parentListConfirmed= true;
-    }
-    return "Finished";  
-  } 
-
-  private setProgress(progress: IMyProgress){
-    progress.label += ' - at ' + new Date().toLocaleTimeString();
-    console.log('setting Progress:', progress);
-    this.properties.progress = progress;
-
-  }
-
   private async UpdateTitles(): Promise<boolean> {
 
     let listName = this.properties.parentListTitle ? this.properties.parentListTitle : 'ParentListTitle';
@@ -291,10 +242,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     return propertyPaneBuilder.getPropertyPaneConfiguration(
       this.properties,
-      this.CreateParentList.bind(this),
-      this.CreateChildList.bind(this),
       this.UpdateTitles.bind(this),
-      this.setProgress.bind(this),
       );
   }
 
@@ -305,7 +253,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
      */
     let updateOnThese = [
       'setSize','setTab','otherTab','setTab','otherTab','setTab','otherTab','setTab','otherTab',
-      'parentListFieldTitles','progress','UpdateTitles',
+      'parentListFieldTitles','progress','UpdateTitles','parentListTitle','childListTitle','parentListWeb','childListWeb'
     ];
     //alert('props updated');
     console.log('onPropertyPaneFieldChanged:', propertyPath, oldValue, newValue);
