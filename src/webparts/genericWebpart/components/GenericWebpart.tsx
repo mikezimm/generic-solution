@@ -23,6 +23,8 @@ import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/co
 import { defineThePage } from './PageProvisioning/FinancePages/defineThisPage';
 import ProvisionPages from './PageProvisioning/component/provisionPageComponent';
 
+import InspectParts from './WPDef/component/inspectPartComponent';
+
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
 
 
@@ -355,6 +357,18 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     ></ProvisionPages>
   </div>;
 
+
+const inspectPartsPage = <div>
+<InspectParts 
+    allowOtherSites={ false }
+    pageContext={ this.props.pageContext }
+    showPane={true}
+    allLoaded={false}
+    currentUser = {this.state.currentUser }
+
+  ></InspectParts>
+</div>;
+
     let ootbComponent = <div className={ styles.genericWebpart }>
     <div className={ styles.container }>
 
@@ -373,7 +387,11 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
 
     return (
-      provisionPagesPage
+      <div>
+          { provisionPagesPage }
+          { inspectPartsPage }
+      </div>
+       
     );
   }
 

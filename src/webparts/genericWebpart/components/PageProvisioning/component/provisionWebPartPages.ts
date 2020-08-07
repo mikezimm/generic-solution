@@ -91,8 +91,8 @@ export async function provisionTestPage( makeThisPage:  IMakeThisPage, setProgre
     // we add that part to a new section
 
     var doThese = [];
-    for (var i = 0; i <= 40; i++) {
-        doThese.push(i.toString());
+    for (var x = 0; x <= 40; x++) {
+        doThese.push(x.toString());
     }
 
     let compInfo : string[]= [];
@@ -108,13 +108,13 @@ export async function provisionTestPage( makeThisPage:  IMakeThisPage, setProgre
     console.log('compInfo', compInfo);
     let controlInfo = compInfo.join('</br>');
     page3.addVerticalSection().addControl(new ClientsideText(controlInfo));
-    for (let i in partDefs ) {
-        if ( doThese.indexOf(i) > -1) {
-            let thisManifest = JSON.parse(partDefs[i].Manifest);
+    for (let d in partDefs ) {
+        if ( doThese.indexOf(d) > -1) {
+            let thisManifest = JSON.parse(partDefs[d].Manifest);
             let theseProps = thisManifest.preconfiguredEntries[0].properties;
             console.log( 'part: ' + thisManifest.alias, theseProps);
             
-            const thisPart = ClientsideWebpart.fromComponentDef(partDefs[i]);
+            const thisPart = ClientsideWebpart.fromComponentDef(partDefs[d]);
             try {
                 const section2 = page3.addSection().addControl(thisPart);
             } catch (e) {
