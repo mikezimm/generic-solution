@@ -8,6 +8,11 @@ import { ISelectedUser, } from './Charts/charts';
 
 import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
 
+import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
+
+
+
+
   export interface IUserSummary { 
     title: string; 
     Id: string; 
@@ -103,6 +108,8 @@ import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList
   
     // 2 - Source and destination list information
     allLists?: IMakeThisList[];
+    allPages?: IMakeThisPage[];
+
     parentListURL?: string; //Get from list item
     childListURL?: string; //Get from list item
   

@@ -11,11 +11,21 @@ import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICh
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
+//These are for provisionLists
 import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/component/provisionListComponent';
 import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
 import ProvisionLists from './ListProvisioning/component/provisionListComponent';
 
 import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
+
+//These are for provisionPages
+import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/component/provisionPageComponent';
+import { defineThePage } from './PageProvisioning/FinancePages/defineThisPage';
+import ProvisionPages from './PageProvisioning/component/provisionPageComponent';
+
+import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
+
+
 import { analyticsList } from 'GenericWebpartWebPartStrings';
 
 import { cleanURL } from '../../../services/stringServices';
@@ -319,7 +329,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
     console.log('RENDER setting Progress:', this.props.progress);
 
-    const provisionPage = <div>
+    const provisionListPage = <div>
     <ProvisionLists 
         allowOtherSites={ false }
         alwaysReadOnly = { false }
@@ -332,6 +342,18 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       ></ProvisionLists>
     </div>;
 
+  const provisionPagesPage = <div>
+  <ProvisionPages 
+      allowOtherSites={ false }
+      alwaysReadOnly = { false }
+      pageContext={ this.props.pageContext }
+      showPane={true}
+      allLoaded={false}
+      currentUser = {this.state.currentUser }
+      pages = { this.state.allPages }
+
+    ></ProvisionPages>
+  </div>;
 
     let ootbComponent = <div className={ styles.genericWebpart }>
     <div className={ styles.container }>
@@ -351,7 +373,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
 
     return (
-      provisionPage
+      provisionPagesPage
     );
   }
 

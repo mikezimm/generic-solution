@@ -519,8 +519,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
             //List existed before.... do update?
 
             let updateList = false;
-            if ( readOnly === false && listExistedB4 === true && errMess !== '' ) { updateList = true }
-            if ( listExistedB4 === false && errMess !== '' && iV === 1 ) { updateList = true }  //This should be default view... update it if needed         
+            if ( readOnly === false && listExistedB4 === true && errMess !== '' ) { updateList = true; }
+            if ( listExistedB4 === false && errMess !== '' && iV === 1 ) { updateList = true; }  //This should be default view... update it if needed         
 
             if ( updateList ) {
 
