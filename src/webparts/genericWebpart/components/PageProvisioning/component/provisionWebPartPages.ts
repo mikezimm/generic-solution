@@ -48,7 +48,64 @@ export interface IMakeThisPage {
 
 
 //export async function provisionTestPage( makeThisPage:  IMakeThisPage, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function provisionTestPage( makeThisPage:  IMakeThisPage, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
+    export async function provisionTestPage( makeThisPage:  IMakeThisPage, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
+
+        let statusLog : IServiceLog[] = [];
+    
+        let extra = getRandomInt(1,10);
+        makeThisPage.title += extra;
+        makeThisPage.title += extra;
+    
+        // this will be a ClientsidePageComponent array
+        // this can be cached on the client in production scenarios
+        const partDefs = await sp.web.getClientsideWebParts();
+        console.log('partDefs:', partDefs);
+        // find the definition we want, here by id
+        //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
+        //ff5f0cc8-b7e7-4e75-b46c-c0091483d2c2
+        const partDef = partDefs.filter(c => c.Name === "TrackMyTime7");
+        //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
+    
+    
+    
+        console.log('provisionTestPage' , makeThisPage.title);
+        alert('Building page ' + makeThisPage.title);
+                    //export declare type ClientsidePageLayoutType = "Article" | "Home" | "SingleWebPartAppPage" | "RepostPage";
+        // use the web factory to create a page in a specific web
+        const page3 = await CreateClientsidePage(Web("https://mcclickster.sharepoint.com/sites/Templates/Testing"), makeThisPage.title, makeThisPage.title, makeThisPage.pageLayout );
+    
+        // add two columns with factor 6 - this is a two column layout as the total factor in a section should add up to 12
+        const section1 = page3.addSection();
+    
+        // we add that part to a new section
+    
+            for (let d in partDef ) {
+
+                const thisPart = ClientsideWebpart.fromComponentDef(partDef[d]);
+                thisPart.setProperties<{ timeTrackListTitle: string, pivotFormat: string }>({
+                    timeTrackListTitle: "PNPTest",
+                    pivotFormat: "tabs"
+
+                });
+    
+                try {
+                    const section2 = page3.addSection().addControl(thisPart);
+                } catch (e) {
+                    alert(e);
+                }
+
+        }
+    
+        const vertSection = page3.addVerticalSection();
+    
+        // you must publish the new page
+        await page3.save();
+    
+        return statusLog;
+    }
+
+//export async function provisionTestPage( makeThisPage:  IMakeThisPage, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
+export async function provisionTestPageWorks( makeThisPage:  IMakeThisPage, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
 
@@ -63,7 +120,7 @@ export async function provisionTestPage( makeThisPage:  IMakeThisPage, setProgre
     // find the definition we want, here by id
     //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
     //ff5f0cc8-b7e7-4e75-b46c-c0091483d2c2
-    const partDef = partDefs.filter(c => c.Name === "Weather");
+    const partDef = partDefs.filter(c => c.Name === "TrackMyTime7");
     //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
 
 
@@ -91,7 +148,7 @@ export async function provisionTestPage( makeThisPage:  IMakeThisPage, setProgre
     // we add that part to a new section
 
     var doThese = [];
-    for (var x = 0; x <= 40; x++) {
+    for (var x = 47; x <= 50; x++) {
         doThese.push(x.toString());
     }
 
@@ -115,6 +172,15 @@ export async function provisionTestPage( makeThisPage:  IMakeThisPage, setProgre
             console.log( 'part: ' + thisManifest.alias, theseProps);
             
             const thisPart = ClientsideWebpart.fromComponentDef(partDefs[d]);
+
+            if ( d === '49' ) {
+                thisPart.setProperties<{ term: string, limit: number, displayHeader: boolean, title?: string, }>({
+                    term: "@AutolivInc",
+                    limit: 2,
+                    displayHeader: true,
+                });
+            }
+
             try {
                 const section2 = page3.addSection().addControl(thisPart);
             } catch (e) {
