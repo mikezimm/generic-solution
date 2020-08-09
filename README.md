@@ -38,6 +38,8 @@ npm install --save office-ui-fabric-react
 npm install webpack-bundle-analyzer --save-dev
 ```
 
+After installing webpack analyzer, be sure to update the gulpfile.js so it actually builds the map.
+
 ### Building the code
 ```bash
 git clone the repo
