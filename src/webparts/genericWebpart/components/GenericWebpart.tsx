@@ -1,6 +1,14 @@
 import * as React from 'react';
 import { sp, Views, IViews } from "@pnp/sp/presets/all";
 
+// For Pivot VVVV
+import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
+import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
+import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
+// For Pivot ^^^^
+
+import { Icon } from 'office-ui-fabric-react/lib/Icon';
+
 import styles from './GenericWebpart.module.scss';
 import { IGenericWebpartProps } from './IGenericWebpartProps';
 import { IGenericWebpartState } from './IGenericWebpartState';
@@ -10,12 +18,26 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from './IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
+import InfoPage from './HelpInfo/infoPages';
 
+
+//These are for provisionLists
 import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/component/provisionListComponent';
 import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
 import ProvisionLists from './ListProvisioning/component/provisionListComponent';
 
 import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
+
+//These are for provisionPages
+import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/component/provisionPageComponent';
+import { defineThePage } from './PageProvisioning/FinancePages/defineThisPage';
+import ProvisionPages from './PageProvisioning/component/provisionPageComponent';
+
+import InspectParts from './WPDef/component/inspectPartComponent';
+
+import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
+
+
 import { analyticsList } from 'GenericWebpartWebPartStrings';
 
 import { cleanURL } from '../../../services/stringServices';
@@ -42,85 +64,32 @@ export default class GenericWebpart extends React.Component<IGenericWebpartProps
 
   }
 
-  private createPivotData(onlyActiveProjects:boolean){
+  private createPivotData(testForSomething:boolean){
     // Using https://stackoverflow.com/questions/3103962/converting-html-string-into-dom-elements
     let pivots : IMyPivots = {
-      projects: 
+      heading1: 
         [
-          { headerText: "Yours",
-            filter: "your",
-            itemKey: "your",
-            data: "Projects where you are the Leader",
+          { headerText: "Lists",
+            filter: "lists",
+            itemKey: "lists",
+            data: "Provision Lists",
             lastIndex: null,
           },
-          { headerText: "Your Team",
-            filter: "team",
-            itemKey: "team",
-            data: "Projects where you are in the Team",
+          { headerText: "Pages",
+            filter: "pages",
+            itemKey: "pages",
+            data: "Provision Pages",
             lastIndex: null,
           },
-          { headerText: "Everyone",
-            filter: "everyone",
-            itemKey: "everyone",
-            data: "Projects where Everyone is marked Yes - overrides other categories",
-            lastIndex: null,
-          },
-          { headerText: "Others",
-            filter: "otherPeople",
-            itemKey: "otherPeople",
-            data: "Projects where you are not the Leader, nor in the team, and not marked Everyone",
-            lastIndex: null,
-          },
-        ]
-      ,
-      history: 
-        [
-          { headerText: "Yours",
-            filter: "your",
-            itemKey: "your",
-            data: "History where you are the User",
-            lastIndex: null,
-          },
-          { headerText: "Your Team",
-            filter: "team",
-            itemKey: "team",
-            data: "History where you are part of the Team, but not the User",
-            lastIndex: null,
-          },
-          { headerText: "Everyone",
-            filter: "everyone",
-            itemKey: "everyone",
-            data: "Currently not in use",
-            lastIndex: null,
-          },
-          { headerText: "Others",
-            filter: "otherPeople",
-            itemKey: "otherPeople",
-            data: "History where you are not the Leader, nor in the team, and not marked Everyone",
+          { headerText: "WebParts",
+            filter: "webparts",
+            itemKey: "webparts",
+            data: "Get webpart definitions",
             lastIndex: null,
           },
         ]
       ,
     };
-
-    pivots.projects.push(
-      { headerText: "Parking lot",
-      filter: "parkingLot",
-      itemKey: "parkingLot",
-      data: "Projects on hold or in parking lot",
-      lastIndex: null,
-    });
-
-    if ( !onlyActiveProjects ) { 
-      pivots.projects.push(
-        { headerText: "Closed",
-        filter: "closed",
-        itemKey: "closed",
-        data: "Completed or Cancelled projects",
-        lastIndex: null,
-      }
-      );
-    }
 
     return pivots;
 
@@ -157,7 +126,7 @@ public constructor(props:IGenericWebpartProps){
         currentUser: null,
 
         //pivots?: IMyPivots;
-        pivots: this.createPivotData(this.props.onlyActiveParents),
+        pivots: this.createPivotData(false),
 
         //fields?: IFormFields; //List of field defininitions for making form fields
       
@@ -317,45 +286,100 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
   public render(): React.ReactElement<IGenericWebpartProps> {
 
-    console.log('RENDER setting Progress:', this.props.progress);
+      console.log('RENDER setting Progress:', this.props.progress);
 
-    const provisionPage = <div>
-    <ProvisionLists 
-        allowOtherSites={ false }
-        alwaysReadOnly = { false }
-        pageContext={ this.props.pageContext }
-        showPane={true}
-        allLoaded={false}
-        currentUser = {this.state.currentUser }
-        lists = { this.state.allLists }
+      const provisionListPage = <div>
+      <ProvisionLists 
+          allowOtherSites={ false }
+          alwaysReadOnly = { false }
+          pageContext={ this.props.pageContext }
+          showPane={true}
+          allLoaded={false}
+          currentUser = {this.state.currentUser }
+          lists = { this.state.allLists }
 
-      ></ProvisionLists>
-    </div>;
+        ></ProvisionLists>
+      </div>;
+
+      const provisionPagesPage = <div>
+      <ProvisionPages 
+          allowOtherSites={ false }
+          alwaysReadOnly = { false }
+          pageContext={ this.props.pageContext }
+          showPane={true}
+          allLoaded={false}
+          currentUser = {this.state.currentUser }
+          pages = { this.state.allPages }
+
+        ></ProvisionPages>
+      </div>;
 
 
-    let ootbComponent = <div className={ styles.genericWebpart }>
-    <div className={ styles.container }>
+      const inspectPartsPage = <div>
+      <InspectParts 
+          allowOtherSites={ false }
+          pageContext={ this.props.pageContext }
+          showPane={true}
+          allLoaded={false}
+          currentUser = {this.state.currentUser }
 
-        <div className={ styles.row }>
-          <div className={ styles.column }>
-            <span className={ styles.title }>Welcome to SharePoint!</span>
-            <p className={ styles.subTitle }>Customize SharePoint experiences using Web Parts.</p>
-            <p className={ styles.description }>{escape(this.props.description)}</p>
-            <a href="https://aka.ms/spfx" className={ styles.button }>
-              <span className={ styles.label }>Learn more</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>;
+        ></InspectParts>
+      </div>;
 
+      const infoPage = <div>
+      <InfoPage 
+          allLoaded={ true }
+          showInfo={ true }
+          parentProps= { this.props }
+          parentState= { this.state }
+      ></InfoPage>
+      </div>;
+
+      const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
+        root: { marginTop: 10 },
+      };
+
+
+      let MyPivot = <Pivot aria-label="Provision Options">
+        <PivotItem headerText="Lists">
+              { provisionListPage }
+        </PivotItem>
+        <PivotItem headerText="Pages">
+            { provisionPagesPage }
+        </PivotItem>
+        <PivotItem headerText="WebParts">
+            { inspectPartsPage }
+        </PivotItem>
+        <PivotItem headerText="---------------------------------"></PivotItem>
+        <PivotItem headerText="Help" className={ styles.pivotRight}>
+            { infoPage }
+        </PivotItem>
+
+        <PivotItem headerText="Test" onRenderItemLink={this._customRenderer}></PivotItem>
+      
+
+      </Pivot>;
 
     return (
-      provisionPage
+      <div>
+          { MyPivot }
+      </div>
+
     );
   }
 
-  
+  //This does not work either to float right button/tab
+    private _customRenderer(
+      link: IPivotItemProps,
+      defaultRenderer: (link: IPivotItemProps) => JSX.Element,
+    ): JSX.Element {
+      return (
+        <span style={{ float: 'right' }}>
+          {defaultRenderer({ ...link, itemIcon: undefined })}
+          <Icon iconName={'Info'} style={{ color: 'red' }} />
+        </span>
+      );
+    }
 
   /***
    *         db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b 

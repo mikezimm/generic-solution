@@ -28,7 +28,7 @@ export interface IInfoPageProps {
     allLoaded: boolean;
     parentProps: IGenericWebpartProps;
     parentState: IGenericWebpartState;
-    toggleDebug: any;
+    //toggleDebug: any;
 
 }
 
@@ -168,21 +168,13 @@ public constructor(props:IInfoPageProps){
 
             const stackButtonTokensBody: IStackTokens = { childrenGap: 40 };
 
-            let toggleDebug = <Toggle label="" 
-            onText={ 'Debug colors' } 
-            offText={ 'Default colors' } 
-            onChange={this.props.toggleDebug.bind(this)} 
-            checked={this.props.parentState.debugColors}
-            styles={{ root: { width: 160, paddingTop: 13, paddingLeft: 20, } }}
-            />;
-
             const ColoredLine = ({ color }) => ( <hr style={{ color: color, backgroundColor: color, height: 1 }}/> );
 
             return (
                 <div className={ styles.infoPane }>
                     <Stack padding={20} horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
                         { pageChoices }
-                        { toggleDebug }
+
                     </Stack>
                     { thisPage }
                     <ColoredLine color="gray" />

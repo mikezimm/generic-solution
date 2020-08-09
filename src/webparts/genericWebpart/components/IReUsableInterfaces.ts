@@ -23,8 +23,9 @@ export interface IPivot {
   }
   
   export interface IMyPivots {
-    projects: IPivot[];
-    history: IPivot[];
+    heading1: IPivot[];
+    heading2?: IPivot[];
+    heading3?: IPivot[];
   }
 
   

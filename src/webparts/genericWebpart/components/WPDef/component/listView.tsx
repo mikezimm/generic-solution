@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { IMyProgress } from '../../IReUsableInterfaces';
+import { IWPart } from './inspectPartFunction';
 import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
@@ -14,7 +15,7 @@ import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 export interface IMyLogListProps {
     title: string;
     titles: [];
-    items: IMyProgress[];
+    items: IWPart[];
     descending: boolean;
     maxChars?: number;
 }
@@ -59,7 +60,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
     constructor(props: IMyLogListProps) {
         super(props);
         this.state = {
-          maxChars: this.props.maxChars ? this.props.maxChars : 20,
+          maxChars: this.props.maxChars ? this.props.maxChars : 50,
         };
     }
         
@@ -101,41 +102,50 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
       if ( this.props.items != null) {
 
-        let logItems : IMyProgress[] = this.props.items;
+        let logItems : IWPart[] = this.props.items;
 
         let itemRows = logItems.length === 0 ? null : logItems.map( h => { 
 
             //let itemIcon = h.icon ? <Icon iconName={h.icon} className={iconClassAction} /> : null;
             let itemIcon = null;
 
+            let group = !h.group ? null : <div><span className={ styles.nowWrapping }>
+              { h.group.length > 15 ? h.group.slice(0,15) + '...' : h.group }</span>
+          </div>;
+
             let actionCell = <div><span className={ styles.nowWrapping }>
-              { itemIcon }
-              { h.logLabel.length > this.state.maxChars ? h.logLabel.slice(0,this.state.maxChars) + '...' : h.logLabel }</span>
+                { itemIcon }
+                { h.title.length > this.state.maxChars ? h.title.slice(0,this.state.maxChars) + '...' : h.title }</span>
+            </div>;
+
+            let description = !h.desc ? null : <div><span className={ styles.nowWrapping }>
+                { h.desc.length > 50 ? h.desc.slice(0,50) + '...' : h.desc }</span>
             </div>;
 
             let iconStyles: any = { root: {
-              color: h.color ? h.color : "blue",
+              //color: h.color ? h.color : "blue",
             }};
-            let ref: any = h.ref;
 
-            if  ( ref != null && ref.indexOf('\n') > 0 ) {
-              //Remove left padding:  https://stackoverflow.com/a/13939142
-              ref = <ul style={{paddingLeft:15}}>{
-                ref.replace('-- FULL ERROR', '\n-- FULL ERROR').split('\n').map( x => { return <li style={{paddingLeft:0}}>{x}</li>; } )
-                }</ul>;
-            }
+            let normalIcon = <Icon iconName={ h.officeFabricIconFontName ? h.officeFabricIconFontName : "Info"} className={iconClassInfo} styles = {iconStyles}/>;
+            let keys = h.keys ? <div><h3>Properties</h3><ul> { h.keys.map(k => <li>{ k }</li>) } </ul></div> : null;
 
-            let normalIcon = <Icon iconName={ h.icon ? h.icon : "Info"} className={iconClassInfo} styles = {iconStyles}/>;
+            let supported = h.supportedHosts ? <div><h3>Supported Hosts</h3><ul> { h.supportedHosts.map(k => <li>{ k }</li>) } </ul></div> : null;
 
             const onRenderHoverCard = (item: any): JSX.Element => {
-              return <div className={styles.hoverCard} style={{padding: 30}}>
+              return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
                 <div>
-                  <div>{ ref }</div>
-                  <div><br/></div>
-                  <div>{ h.time }</div>
-                  <div>{ h.logLabel }</div>
-                  <div>{ h.label }</div>
-                  <div>{ h.description }</div>
+                  <div>{  }</div>
+                  <div></div>
+                  <div>Type: { h.componentType }</div>
+                  <div>Alias: { h.alias } Parent: { h.parentAlias }</div>
+                  <div>Description: { h.desc }</div>
+                  <div>Id: { h.partId }</div>
+                  <div>Group: { h.group }</div>
+                  <div><h3>Tags:</h3>{ h.tags.join() }</div>
+                  <div>{ supported }</div>
+                  <div>{ keys }</div>
+                  <div></div>
+                  <div>Search String: { h.searchString }</div>
                 </div>
               </div>;
             };
@@ -153,14 +163,16 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             </div>;
 
             return <tr>
+              <td> { group } </td>
               <td className={ styles.nowWrapping }> {  actionCell  }</td>
               <td>{detailsCard}</td>
+              <td> { description } </td>
             </tr>; 
         });
 
 //        let logTable = itemRows === null ? <div>Nothing to show</div> : <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
         let logTable = <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
-            <tr><th>{ this.props.title }</th><th>Info</th></tr>
+            <tr><th>Group</th><th>{ this.props.title }</th><th>Icon</th><th>Description</th></tr>
             { itemRows }
         </table>;
 
