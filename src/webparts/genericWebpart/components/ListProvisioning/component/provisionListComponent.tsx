@@ -253,8 +253,8 @@ public constructor(props:IProvisionListsProps){
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
                 <ul>
-                    <li><mark><b>If you update web urls in property pane, refresh the page before continuing</b></mark></li>
                     <li>Set Title in onCreate</li>
+                    <li>Create columns fields and views for other common lists</li>
                 </ul>
             </div>;
 

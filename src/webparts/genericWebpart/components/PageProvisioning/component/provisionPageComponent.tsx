@@ -293,10 +293,10 @@ public constructor(props:IProvisionPagesProps){
                 descending={false}          titles={null}            ></MyLogList>;
 
             let disclaimers = <div>
-                <h2>Disclaimers.... still need to work on</h2>
+                <h3>Next Steps</h3>
                 <ul>
-                    <li><mark><b>If you update web urls in property pane, refresh the page before continuing</b></mark></li>
-                    <li>Set Title in onCreate</li>
+                    <li>Build typed objects for specific webparts and page layouts</li>
+                    <li>Set webpart properties for common ootb components</li>
                 </ul>
             </div>;
 
