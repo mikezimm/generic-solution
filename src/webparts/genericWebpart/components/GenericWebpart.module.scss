@@ -2,8 +2,18 @@
 
 .genericWebpart {
 
+  
+  //  This moves the "Help" Pivot to the far right
+    .topPivots *[data-content="Help"]  {
+      background-color:  red#c2c2c2 ;
+      color: #212121;
+      transition: all 0.3s ease;
+      float:  right !important;
+    }
+
+
   .container {
-    max-width: 700px;
+    max-width: 90%;
     margin: 0px auto;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
   }
@@ -330,9 +340,6 @@
     transform:scaleY(0);
   }
 
-  .pivotRight {
-    float: right
-  }
 
   .floatRight {
     //width: 1200px;
