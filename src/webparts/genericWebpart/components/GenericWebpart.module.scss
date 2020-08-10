@@ -5,10 +5,18 @@
   
   //  This moves the "Help" Pivot to the far right
     .topPivots *[data-content="Help"]  {
-      background-color:  red#c2c2c2 ;
+      float:  right !important;
+    }
+
+    //  This does not seem to do anything
+    .topPivots .ms-Pivot-link :hover  {
+      background-color:  darkgray ;
       color: #212121;
       transition: all 0.3s ease;
-      float:  right !important;
+    }
+
+    .pivotRightPad {
+      padding-right: 60px;
     }
 
 
@@ -138,34 +146,6 @@
     padding-right: 30px;
   }
 
-  
-  .chartHeight150{
-    height: 151px;
-    width: 100%;
-  
-  }
-
-  .chartHeight300{
-    height: 300px;
-    width: 100%;
-  
-  }
-
-  .chartHeight400{
-    height: 400px;
-    width: 100%;
-  
-  }
-
-  .chartHeight500{
-    height: 500px;
-    width: 100%;
-  
-  }
-
-  .chartPadding{
-    padding: 20px;
-  }
 
   .pivotLabel {
     padding-bottom: 10px;
@@ -293,9 +273,6 @@
     //text-align: right;
   }
 
-  .pivotRightPad {
-    padding-right: 60px;
-  }
   .quickTabsCat {
     @extend .floatRight;
     display: inline-block;

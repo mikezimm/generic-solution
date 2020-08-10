@@ -12,52 +12,77 @@
     .chartW33 {
       width: 30%;
     }
- 
+
     .chartW33 {
       width: 30%;
     }
- 
+
     .chartW100 {
       width: 100%;
     }
 
-    .mainBar{
-        padding-top: 10px;
-    }
+  .chartHeight150{
+    height: 151px;
+    width: 100%;
+  }
 
-    .toggleDetailsBar {
-        margin-top: 20px;
-        padding-bottom: 0px;
-    }
+  .chartHeight300{
+    height: 300px;
+    width: 100%;
+  }
 
-    .showDetailToggles {
-        transition:all 0.4s ease;
-        //transition:height 0.4s ease;
-        //transition:padding-bottom 0.4s ease;
-        //transition:transform 0.4s ease;
-        transform:scaleY(1);
-        transform-origin:top;
-        height:90px;
-        margin-bottom: 20px;
-        //max-height: 100px;
-        overflow: hidden;
-        padding-bottom: 20px;
-        background: lightgray;
+  .chartHeight400{
+    height: 400px;
+    width: 100%;
+  }
 
-    }
+  .chartHeight500{
+    height: 500px;
+    width: 100%;
+  }
 
-    .hideDetailToggles {
-        transition:all 0.4s ease;
-        //transition:height 0.4s ease;
-        //transition:padding-bottom 0.4s ease;
-        //transition:transform 0.4s ease;
-        height:0;
-        overflow: hidden;
-        padding-bottom: 0px;
-        transform:scaleY(1);
-        color: white;
-        background: none;
-    }
+  .chartPadding{
+    padding: 20px;
+  }
+
+
+  .mainBar{
+      padding-top: 10px;
+  }
+
+  .toggleDetailsBar {
+      margin-top: 20px;
+      padding-bottom: 0px;
+  }
+
+  .showDetailToggles {
+      transition:all 0.4s ease;
+      //transition:height 0.4s ease;
+      //transition:padding-bottom 0.4s ease;
+      //transition:transform 0.4s ease;
+      transform:scaleY(1);
+      transform-origin:top;
+      height:90px;
+      margin-bottom: 20px;
+      //max-height: 100px;
+      overflow: hidden;
+      padding-bottom: 20px;
+      background: lightgray;
+
+  }
+
+  .hideDetailToggles {
+      transition:all 0.4s ease;
+      //transition:height 0.4s ease;
+      //transition:padding-bottom 0.4s ease;
+      //transition:transform 0.4s ease;
+      height:0;
+      overflow: hidden;
+      padding-bottom: 0px;
+      transform:scaleY(1);
+      color: white;
+      background: none;
+  }
 
 
 }
