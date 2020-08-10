@@ -350,19 +350,19 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         <PivotItem headerText="WebParts">
             { inspectPartsPage }
         </PivotItem>
-        <PivotItem headerText="---------------------------------"></PivotItem>
-        <PivotItem headerText="Help" className={ styles.pivotRight}>
+        <PivotItem headerText="Help">
             { infoPage }
         </PivotItem>
-
-        <PivotItem headerText="Test" onRenderItemLink={this._customRenderer}></PivotItem>
-      
 
       </Pivot>;
 
     return (
-      <div>
+      <div className={ styles.genericWebpart }>
+      <div className={ styles.container }>
+      <div className={ styles.topPivots }>
           { MyPivot }
+      </div>
+      </div>
       </div>
 
     );
@@ -374,8 +374,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       defaultRenderer: (link: IPivotItemProps) => JSX.Element,
     ): JSX.Element {
       return (
-        <span style={{ float: 'right' }}>
-          {defaultRenderer({ ...link, itemIcon: undefined })}
+        <span>
+          {defaultRenderer({ ...link, itemIcon: undefined, })}
           <Icon iconName={'Info'} style={{ color: 'red' }} />
         </span>
       );
