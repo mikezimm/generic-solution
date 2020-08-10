@@ -128,6 +128,8 @@ public constructor(props:IInfoAboutMeProps){
                 {/* 3 files to update version number:  package-solution.json, package-lock.json, package.json*/}
                 <table className={styles.infoTable}>
                     <tr><th>Date</th><th>Version</th><th>Focus</th><th>Notes</th></tr>
+                    <tr><td>2020-08-09</td><td>{'1.1.0.0'}</td><td>Contents added</td><td>Nothing special</td></tr>
+                    <tr><td>2020-08-07</td><td>{'1.0.0.0'}</td><td>Web Parts and Pages start</td><td>Nothing special</td></tr>
                     <tr><td>2020-07-27</td><td>{'1.0.0.0'}</td><td>Intial Build</td><td>Nothing special</td></tr>
                 </table>
             </div>;

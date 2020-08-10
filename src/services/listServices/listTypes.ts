@@ -125,4 +125,86 @@ export interface IListInfo {
     ServerTemplateCanCreateFolders: boolean;
     TemplateFeatureId: string;
     Title: string;
+    UniquePerms?: boolean;
+    searchString: string;
+}
+
+export interface IContentsListInfo {
+
+  //Minimum Props
+  //AllowContentTypes: boolean;
+  ContentTypesEnabled: boolean;
+  BaseTemplate: number;
+  BaseType: number;
+
+  EntityTypeName: string;   //"Projects83List"
+  Title: string;
+  Hidden: boolean;
+  Id: string;
+  Description: string;
+
+  ItemCount: number;
+  Created: string;
+  LastItemDeletedDate: string;
+  LastItemModifiedDate: string;
+  LastItemUserModifiedDate: string;
+
+  meta?: string[];
+
+  ParentWebPath: {
+    DecodedUrl: string;
+  };
+  ParentWebUrl: string;
+
+  //Versioning
+  EnableRequestSignOff: boolean;
+  EnableVersioning: boolean;
+  MajorVersionLimit: number;
+  MajorWithMinorVersionsLimit: number;
+  DraftVersionVisibility: number;
+  ForceCheckout: boolean;
+  EnableModeration: boolean;
+
+  //Advanced Settings
+  ServerTemplateCanCreateFolders: boolean;
+  EnableAttachments: boolean;
+  NoCrawl: boolean;
+
+  //Custom info
+  UniquePerms?: boolean;
+  searchString: string;
+
+  //Backend Info
+  odataEtag: string; //""121""
+  odataId: string; //odata.id: "https://mcclickster.sharepoint.com/sites/Templates/Testing/_api/Web/Lists(guid'd6f45bb5-57d9-436a-a62a-ac9bd2fbffec')"
+  ListItemEntityTypeFullName: string;  //:  "SP.Data.Projects83ListItem"
+
+  ImagePath: {
+      DecodedUrl: string;
+  };
+
+  ImageUrl: string;
+  IrmEnabled: boolean;
+  IrmExpire: boolean;
+  IrmReject: boolean;
+  IsApplicationList: boolean;
+  IsCatalog: boolean;
+  IsPrivate: boolean;
+
+
+
+
+  TemplateFeatureId: string;
+
+  //Unknown Props
+  HasExternalDataSource: boolean;
+  ExemptFromBlockDownloadOfNonViewableFiles?: boolean;
+  FileSavePostProcessingEnabled?: boolean;
+  ParserDisabled: boolean;
+
+  ListExperienceOptions: number;
+  MultipleDataList: boolean;
+
+
+
 }

@@ -26,6 +26,8 @@ import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/co
 import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
 import ProvisionLists from './ListProvisioning/component/provisionListComponent';
 
+import InspectContents from './Contents/contentsComponent';
+
 import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
 
 //These are for provisionPages
@@ -314,7 +316,6 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         ></ProvisionPages>
       </div>;
 
-
       const inspectPartsPage = <div>
       <InspectParts 
           allowOtherSites={ false }
@@ -335,6 +336,17 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       ></InfoPage>
       </div>;
 
+      const contentsPage = <div>
+        <InspectContents
+          allowOtherSites={ false }
+          pageContext={ this.props.pageContext }
+          showPane={true}
+          allLoaded={false}
+          currentUser = {this.state.currentUser }
+          webURL = { this.state.parentListWeb }
+        ></InspectContents>
+      </div>;
+
       const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
         root: { marginTop: 10 },
       };
@@ -350,6 +362,10 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         <PivotItem headerText="WebParts">
             { inspectPartsPage }
         </PivotItem>
+        <PivotItem headerText="Contents">
+            { contentsPage }
+        </PivotItem>
+
         <PivotItem headerText="Help">
             { infoPage }
         </PivotItem>
