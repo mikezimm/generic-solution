@@ -144,10 +144,22 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
           return <tr>
             <td> { L.Title } </td>
-            <td   className={ styles.nowWrapping }> { L.EntityTypeName }</td>
-            <td>  {detailsCard}</td>
+            <td className={ styles.nowWrapping }> { L.EntityTypeName }</td>
             <td> { L.Description.length > this.state.maxChars ? L.Description.slice(0,this.state.maxChars) + '...' : L.Description } </td>
-          </tr>; 
+            <td> { L.ItemCount } </td>
+
+            <td className={ styles.nowWrapping }> { L.Created } </td>
+            <td> { L.LastItemModifiedDate } </td>
+            <td> { L.MajorVersionLimit } </td>
+            <td> { 'Perm' } </td>
+            <td> { L.NoCrawl } </td>
+            <td> { L.ContentTypesEnabled } </td>
+            <td> { L.BaseTemplate } </td>
+            <td> { 'Oth' } </td>
+            <td>  { detailsCard }</td>
+
+          </tr>;
+
         });
 
 
@@ -167,8 +179,19 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             <tr>
               <th>Title</th>
               <th>Name</th>
-              <th>More</th>
               <th>Description</th>
+              <th>Items</th>
+              <th>Created</th>
+              <th>Updated</th>
+              <th>Vers</th>
+              <th>Perms</th>
+              <th>Search</th>
+              <th>CT</th>  
+              <th>Exceptions</th>
+              <th>Base</th>
+              <th>Other</th>
+              <th>More</th>
+
             </tr>
             { itemRows }
         </table>;

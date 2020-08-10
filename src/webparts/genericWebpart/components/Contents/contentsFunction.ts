@@ -15,6 +15,8 @@ import { IMyView,  } from '../../../../services/listServices/viewTypes'; //Impor
 
 import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../services/listServices/listServices';
 
+import { makeSmallTimeObject, ITheTime} from '../../../../services/dateServices';
+
 import { IFieldLog, addTheseFields } from '../../../../services/listServices/columnServices'; //Import view arrays for Time list
 
 import { IViewLog, addTheseViews } from '../../../../services/listServices/viewServices'; //Import view arrays for Time list
@@ -38,6 +40,9 @@ export async function allAvailableLists( webURL: string, addTheseListsToState: a
     console.log(allLists);
 
     for (let i in allLists ) {
+
+        allLists[i].Created = makeSmallTimeObject(allLists[i].Created).dayYYYYMMDD;
+        allLists[i].LastItemModifiedDate = makeSmallTimeObject(allLists[i].LastItemModifiedDate).daysAgo.toString() + ' days';
         allLists[i].meta = buildMetaFromList(allLists[i]);
         allLists[i].searchString = buildSearchStringFromList(allLists[i]);
 
@@ -53,8 +58,13 @@ function buildMetaFromList( theList: IContentsListInfo ) {
     meta = addItemToArrayIfItDoesNotExist(meta, theList.Hidden ? 'Hidden': 'Visible');
     meta = addItemToArrayIfItDoesNotExist(meta, theList.ForceCheckout ? 'CheckOut': '');
     meta = addItemToArrayIfItDoesNotExist(meta, theList.NoCrawl ? 'NoSearch': '');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount > 5000 ? 'MaxItems': theList.ItemCount > 1000 ? 'WarnItems':'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount > 5000 ? 'MaxItems': '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount > 1000 ? 'LotsOfItems':'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount === 0 ? 'Empty': 'NotEmpty');    
     meta = addItemToArrayIfItDoesNotExist(meta, theList.EnableVersioning ? 'NoVersions':'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.LastItemModifiedDate > '100' ? 'Old':'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.MajorVersionLimit > 100 ? 'Versioning':'');
+    // meta = addItemToArrayIfItDoesNotExist(meta, theList. > 100 ? 'Versioning':'');
 
     return meta;
 }
