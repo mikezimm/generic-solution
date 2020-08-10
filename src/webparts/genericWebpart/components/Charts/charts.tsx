@@ -12,7 +12,6 @@ import * as strings from 'GenericWebpartWebPartStrings';
 
 import { ChartControl, ChartType } from '@pnp/spfx-controls-react/lib/ChartControl';
 
-import styles from '../GenericWebpart.module.scss';
 import stylesC from './chartsPage.module.scss';
 
 export interface ISelectedUser { key: string | number | undefined; text: string; }
@@ -194,7 +193,7 @@ export function create1TallSeriesCharts(series: IChartSeries, thisType: ChartTyp
     let r = Math.random().toString(36).substring(7);
   
     return (
-      <div className={ chartClass == null ? styles.chartHeight400 : chartClass }>
+      <div className={ chartClass == null ? stylesC.chartHeight400 : chartClass }>
           <ChartControl 
           ref={ r }
           type={ thisType }
