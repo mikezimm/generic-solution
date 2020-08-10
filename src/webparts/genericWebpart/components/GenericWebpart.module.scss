@@ -5,9 +5,6 @@
   
   //  This moves the "Help" Pivot to the far right
     .topPivots *[data-content="Help"]  {
-      background-color:  red#c2c2c2 ;
-      color: #212121;
-      transition: all 0.3s ease;
       float:  right !important;
     }
 
