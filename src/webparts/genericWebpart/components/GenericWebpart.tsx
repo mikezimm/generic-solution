@@ -344,6 +344,13 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           allLoaded={false}
           currentUser = {this.state.currentUser }
           webURL = { this.state.parentListWeb }
+          advanced = { true }
+          railsOff = { true }
+
+          WebpartHeight = { this.state.WebpartHeight }
+          WebpartWidth = { this.state.WebpartWidth }
+                  //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+
         ></InspectContents>
       </div>;
 

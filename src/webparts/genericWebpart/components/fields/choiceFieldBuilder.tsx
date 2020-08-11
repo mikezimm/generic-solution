@@ -14,6 +14,33 @@ import styles from '../GenericWebpart.module.scss';
 
 import { IFieldDef } from './fieldDefinitions';
 
+export function createAdvancedContentChoices( selectedKey: string, _onChange){
+
+  let options : IChoiceGroupOption[] = [];
+  let choiceSpacer = '\u00A0\u00A0';
+  let spacer4x = choiceSpacer + choiceSpacer + choiceSpacer + choiceSpacer;
+  let spacer3x = choiceSpacer + choiceSpacer + choiceSpacer;
+  options.push(  {key: 'normal', text: 'Normal' + spacer3x });
+  options.push(  {key: 'advanced', text: 'Advanced' + spacer3x });
+  options.push(  {key: 'crazy', text: 'Crazy' + spacer3x });
+
+  return (
+    
+    <ChoiceGroup
+      // className = "inlineflex" //This didn't do anything
+      //className="defaultChoiceGroup" //This came with the example but does not seem to do anything
+      //https://github.com/OfficeDev/office-ui-fabric-react/issues/8079#issuecomment-479136073
+      styles={{ flexContainer: { display: "flex" , paddingLeft: 30} }}
+      selectedKey={ selectedKey }
+      options={options}
+      onChange={_onChange}
+      label='' 
+      required={true}
+    />
+  );
+}
+
+
 /*
 Entry Type Choices need to match these:  \src\services\propPane\WebPartSettingsPage.ts
 

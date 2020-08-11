@@ -129,6 +129,21 @@ export interface IListInfo {
     searchString: string;
 }
 
+export interface IContentsLists {
+  tabs: string[];
+  lists: {
+    all: IContentsListInfo[];
+    searched: IContentsListInfo[];
+//    hidden: IContentsListInfo[];
+//    visible: IContentsListInfo[];
+//    maxItems: IContentsListInfo[];
+//    empty: IContentsListInfo[];
+//    notEmpty: IContentsListInfo[];
+//    noVersions: IContentsListInfo[];
+//    infVersions: IContentsListInfo[];
+  };
+}
+
 export interface IContentsListInfo {
 
   //Minimum Props

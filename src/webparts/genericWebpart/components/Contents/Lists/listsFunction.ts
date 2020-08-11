@@ -7,22 +7,24 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
 
-import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
-import { changes, IMyFieldTypes } from '../../../../services/listServices/columnTypes'; //Import view arrays for Time list
+import { changes, IMyFieldTypes } from '../../../../../services/listServices/columnTypes'; //Import view arrays for Time list
 
-import { IMyView,  } from '../../../../services/listServices/viewTypes'; //Import view arrays for Time list
+import { IMyView,  } from '../../../../../services/listServices/viewTypes'; //Import view arrays for Time list
 
-import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../services/listServices/listServices';
+import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
 
-import { makeSmallTimeObject, ITheTime} from '../../../../services/dateServices';
+import { makeSmallTimeObject, ITheTime} from '../../../../../services/dateServices';
 
-import { IFieldLog, addTheseFields } from '../../../../services/listServices/columnServices'; //Import view arrays for Time list
+import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
 
-import { IViewLog, addTheseViews } from '../../../../services/listServices/viewServices'; //Import view arrays for Time list
+import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
-import { IAnyArray } from  '../../../../services/listServices/listServices';
+import { IAnyArray } from  '../../../../../services/listServices/listServices';
 import { mergeAriaAttributeValues } from "office-ui-fabric-react";
+
+import { pivCats } from './listsComponent';
 
 export type IValidTemplate = 100 | 101;
 
@@ -34,9 +36,9 @@ export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allAvailableLists( webURL: string, addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
 
-    let allLists : IContentsListInfo[] = [];
+    let contentsLists : IContentsLists = null;
 
-    allLists = await sp.web.lists.get();
+    let allLists : IContentsListInfo[] = await sp.web.lists.get();
     console.log(allLists);
 
     for (let i in allLists ) {
@@ -48,22 +50,35 @@ export async function allAvailableLists( webURL: string, addTheseListsToState: a
 
     }
 
+    contentsLists = {
+        tabs: [],
+        lists : {
+            all: allLists,
+            searched: allLists,
+        }
+    };
     addTheseListsToState(allLists);
     return allLists;
+
 }
 
 function buildMetaFromList( theList: IContentsListInfo ) {
     let meta: string[] = [];
 
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.Hidden ? 'Hidden': 'Visible');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.ForceCheckout ? 'CheckOut': '');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.NoCrawl ? 'NoSearch': '');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount > 5000 ? 'MaxItems': '');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount > 1000 ? 'LotsOfItems':'');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount === 0 ? 'Empty': 'NotEmpty');    
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.EnableVersioning ? 'NoVersions':'');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.LastItemModifiedDate > '100' ? 'Old':'');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.MajorVersionLimit > 100 ? 'Versioning':'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.Hidden ? pivCats.hidden.title: pivCats.visible.title);
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.ForceCheckout ? pivCats.checkout.title: '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.NoCrawl ? pivCats.noSearch.title: '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount > 5000 ? pivCats.max.title: '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount > 1000 ? pivCats.lots.title:'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount === 0 ? pivCats.empty.title: pivCats.notEmpty.title);    
+    meta = addItemToArrayIfItDoesNotExist(meta, !theList.EnableVersioning ? pivCats.noVersions.title:'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.LastItemModifiedDate > '100' ? pivCats.old.title:'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.MajorVersionLimit > 100 ? pivCats.versions.title:'');
+
+    let libraryTemplates = [101, 116, 119,];
+    let listTemplates = [100, 106];
+    let isLibrary = libraryTemplates.indexOf(theList.BaseTemplate) > -1 ? pivCats.libraries : pivCats.lists ;
+    meta = addItemToArrayIfItDoesNotExist(meta, isLibrary.title );
     // meta = addItemToArrayIfItDoesNotExist(meta, theList. > 100 ? 'Versioning':'');
 
     return meta;

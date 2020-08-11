@@ -1,39 +1,31 @@
 import * as React from 'react';
+import { sp, Views, IViews } from "@pnp/sp/presets/all";
 
-import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
-import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
+// For Pivot VVVV
+import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
+import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
+import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
+// For Pivot ^^^^
 
-import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
-
-import "@pnp/sp/webs";
-
-import { IValidTemplate, allAvailableLists } from './contentsFunction';
-import { addItemToArrayIfItDoesNotExist } from './contentsFunction';
-
-import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../services/listServices/listTypes'; //Import view arrays for Time list
-
-import { IGenericWebpartProps } from '../IGenericWebpartProps';
-import { IGenericWebpartState } from '../IGenericWebpartState';
-import styles from './contents.module.scss';
-
-import { IMyProgress, IUser } from '../IReUsableInterfaces';
-
-import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
-
-import ButtonCompound from '../createButtons/ICreateButtons';
-import { IButtonProps, ISingleButtonProps, IButtonState } from "../createButtons/ICreateButtons";
+import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
 import { PageContext } from '@microsoft/sp-page-context';
 
-import MyLogList from './listView';
+import styles from './contents.module.scss';
 
-import * as links from '../HelpInfo/AllLinks';
+import { escape } from '@microsoft/sp-lodash-subset';
 
+import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../IReUsableInterfaces';
 
+import InspectLists from './Lists/listsComponent';
 
-import { getHelpfullError, } from '../../../../services/ErrorHandler';
-import { getRandomInt } from '../ListProvisioning/ListsTMT/ItemsWebPart';
+//import { analyticsList } from 'InspectContentsWebPartStrings';
+
+import { cleanURL } from '../../../../services/stringServices';
+
+import { pivotOptionsGroup, } from '../../../../services/propPane';
+ 
+import { doesObjectExistInArray } from '../../../../services/arrayServices';
 
 export interface IInspectContentsProps {
     // 0 - Context
@@ -47,18 +39,20 @@ export interface IInspectContentsProps {
     allLoaded: boolean;
 
     currentUser: IUser;
+    advanced: boolean;
+    railsOff: boolean;
+
+    WebpartHeight: number;
+    WebpartWidth: number;
 
     // 2 - Source and destination list information
 
 }
 
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    columns: IMyProgress[];
-    views: IMyProgress[];
-    items: IMyProgress[];
-
+export interface IPickedList {
+    title: string;
+    name: string;
+    guid: string;
 }
 
 export interface IInspectContentsState {
@@ -66,419 +60,210 @@ export interface IInspectContentsState {
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
 
     webURL?: string;
+    tab?: string;
 
+    pickedList? : IPickedList;
     allLoaded: boolean;
-
-    progress: IMyProgress;
-    history: IMyHistory;
-
-    currentPage: string;
-    searchCount: number;
-    
-    searchedLists: IContentsListInfo[];
-    first20SearchedLists: IContentsListInfo[];
-    // 2 - Source and destination list information
-    lists: IContentsListInfo[];
-    meta: string[];
-
     advanced: boolean;
     railsOff: boolean;
+
+    WebpartHeight: number;
+    WebpartWidth: number;
 
 }
 
 export default class InspectContents extends React.Component<IInspectContentsProps, IInspectContentsState> {
 
-private clearHistory() {
-    let history: IMyHistory = {
-        count: 0,
-        errors: [],
-        columns: [],
-        views: [],
-        items: [],
-    };
-    return history;
 
-}
+    /***
+     *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
+     *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
+     *         8P      88    88 88V8o 88 `8bo.      88    88oobY' 88    88 8P         88    88    88 88oobY' 
+     *         8b      88    88 88 V8o88   `Y8b.    88    88`8b   88    88 8b         88    88    88 88`8b   
+     *         Y8b  d8 `8b  d8' 88  V888 db   8D    88    88 `88. 88b  d88 Y8b  d8    88    `8b  d8' 88 `88. 
+     *          `Y88P'  `Y88P'  VP   V8P `8888Y'    YP    88   YD ~Y8888P'  `Y88P'    YP     `Y88P'  88   YD 
+     *                                                                                                       
+     *                                                                                                       
+     */
 
-/***
- *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
- *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
- *         8P      88    88 88V8o 88 `8bo.      88    88oobY' 88    88 8P         88    88    88 88oobY' 
- *         8b      88    88 88 V8o88   `Y8b.    88    88`8b   88    88 8b         88    88    88 88`8b   
- *         Y8b  d8 `8b  d8' 88  V888 db   8D    88    88 `88. 88b  d88 Y8b  d8    88    `8b  d8' 88 `88. 
- *          `Y88P'  `Y88P'  VP   V8P `8888Y'    YP    88   YD ~Y8888P'  `Y88P'    YP     `Y88P'  88   YD 
- *                                                                                                       
- *                                                                                                       
- */
 
-public constructor(props:IInspectContentsProps){
+    public constructor(props:IInspectContentsProps){
     super(props);
 
-    this.state = { 
+    let parentWeb = cleanURL(this.props.webURL);
 
-        allowOtherSites: this.props.allowOtherSites === true ? true : false,
-        currentPage: 'Click Button to start',
-        progress: null,
-        history: this.clearHistory(),
-        allLoaded: false,
+    this.state = {
 
-        lists: [],
-        searchedLists: [],
-        first20SearchedLists: [],
-        searchCount: 0,
-        meta: [],
-
-        advanced: false,
-        railsOff: false,
+            //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+            WebpartHeight: this.props.WebpartHeight ,
+            WebpartWidth:  this.props.WebpartWidth ,
         
-    };
+            // 2 - Source and destination list information
+            webURL: parentWeb,
 
-    // because our event handler needs access to the component, bind 
-    //  the component to the function so it can get access to the
-    //  components properties (this.props)... otherwise "this" is undefined
-    // this.onLinkClick = this.onLinkClick.bind(this);
+            allLoaded: false,
 
+            advanced: true,
+            railsOff: true,
+
+            tab: 'Lists',
     
-  }
-
-  public componentDidMount() {
-    this._updateStateOnPropsChange();
-  }
-
-
-  /***
- *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
- *         88  `8D   `88'   88  `8D      88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'     
- *         88   88    88    88   88      88    88 88oodD' 88   88 88ooo88    88    88ooooo 
- *         88   88    88    88   88      88    88 88~~~   88   88 88~~~88    88    88~~~~~ 
- *         88  .8D   .88.   88  .8D      88b  d88 88      88  .8D 88   88    88    88.     
- *         Y8888D' Y888888P Y8888D'      ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P 
- *                                                                                         
- *                                                                                         
- */
-
-  public componentDidUpdate(prevProps){
-
-    if ( prevProps.webURL != this.props.webURL ) {
-
-        this._updateStateOnPropsChange();
+    };
     }
 
-  }
 
-/***
- *         d8888b. d88888b d8b   db d8888b. d88888b d8888b. 
- *         88  `8D 88'     888o  88 88  `8D 88'     88  `8D 
- *         88oobY' 88ooooo 88V8o 88 88   88 88ooooo 88oobY' 
- *         88`8b   88~~~~~ 88 V8o88 88   88 88~~~~~ 88`8b   
- *         88 `88. 88.     88  V888 88  .8D 88.     88 `88. 
- *         88   YD Y88888P VP   V8P Y8888D' Y88888P 88   YD 
- *                                                          
- *                                                          
- */
+    public componentDidMount() {
+
+    }
+
+
+    //        
+    /***
+     *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
+     *         88  `8D   `88'   88  `8D      88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'     
+     *         88   88    88    88   88      88    88 88oodD' 88   88 88ooo88    88    88ooooo 
+     *         88   88    88    88   88      88    88 88~~~   88   88 88~~~88    88    88~~~~~ 
+     *         88  .8D   .88.   88  .8D      88b  d88 88      88  .8D 88   88    88    88.     
+     *         Y8888D' Y888888P Y8888D'      ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P 
+     *                                                                                         
+     *                                                                                         
+     */
+
+    public componentDidUpdate(prevProps){
+
+        let rebuildPart = prevProps.webURL === this.props.webURL ? true : false;
+        if (rebuildPart === true) {
+        this._updateStateOnPropsChange({});
+        }
+    }
 
     public render(): React.ReactElement<IInspectContentsProps> {
 
+        const pickListMessage = <div>Please pick a list first</div>;
+        const noPageAvailable = <div>This feature is not yet available</div>;
 
-        let x = 1;
-        if ( x === 1 ) {
+        const listPage = <div>
+            <InspectLists 
+                pageContext = { this.props.pageContext }
+                currentUser = { this.props.currentUser }
+                allowOtherSites = { true }
+                allLoaded = { true }
+                pickedList = { this.state.pickedList }
+                pickThisList = { this.updatePickList.bind(this) }
+            ></InspectLists>
+        </div>;
 
-
-
-/***
- *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
- *              `~~88~~' 88   88   `88'   88'  YP      88  `8D d8' `8b 88' Y8b 88'     
- *                 88    88ooo88    88    `8bo.        88oodD' 88ooo88 88      88ooooo 
- *                 88    88~~~88    88      `Y8b.      88~~~   88~~~88 88  ooo 88~~~~~ 
- *                 88    88   88   .88.   db   8D      88      88   88 88. ~8~ 88.     
- *                 YP    YP   YP Y888888P `8888Y'      88      YP   YP  Y888P  Y88888P 
- *                                                                                     
- *                                                                                     
- */
-
-            console.log('renderStateLists', this.state.lists );
-
-            let thisPage = null;
-            let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
-           
-            const buttons: ISingleButtonProps[] =
-            [{  disabled: false,  checked: true, primary: false,
-                label: "GetLists", buttonOnClick: this.getListDefs.bind(this),
-            },];
-
-            let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
-
-            const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
-
-            let provisionButtonRow = <Stack horizontal={true} wrap={true} horizontalAlign={"start"} verticalAlign= {"center"} tokens={stackProvisionTokens}>{/* Stack for Buttons and Fields */}
-                    { provisionButtons }
-                    {  }
-                </Stack>;
-
-            let myProgress = this.state.progress == null ? null : <ProgressIndicator 
-                label={this.state.progress.label} 
-                description={this.state.progress.description} 
-                percentComplete={this.state.progress.percentComplete} 
-                progressHidden={this.state.progress.progressHidden}/>;
-
-            let listList = <MyLogList 
-                advanced= { this.state.advanced } railsOff= { this.state.railsOff }
-                title={ 'List'}           items={ this.state.searchedLists }
-                descending={false}          titles={null}            ></MyLogList>;
-
-            /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
-            let searchBox =           
-            <div className={[styles.floatLeft, styles.padLeft20 ].join(' ')} >
-              <SearchBox
-                className={styles.searchBox}
-                styles={{ root: { maxWidth: 300 } }}
-                placeholder="Search"
-                onSearch={ this.searchForItems.bind(this) }
-                onFocus={ () => console.log('this.state',  this.state) }
-                onBlur={ () => console.log('onBlur called') }
-                onChange={ this.searchForItems.bind(this) }
-              />
-              <div className={styles.searchStatus}>
-                { 'Searching about ' + this.state.searchCount + ' lists' }
-                { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
-              </div>
+        const columnsPage = <div>
+            { !this.state.pickedList ? pickListMessage : 
+                <InspectLists 
+                    pageContext = { this.props.pageContext }
+                    currentUser = { this.props.currentUser }
+                    allowOtherSites = { true }
+                    allLoaded = { true }
+                    pickedList = { this.state.pickedList }
+                    pickThisList = { this.updatePickList.bind(this) }
+                ></InspectLists> }
             </div>;
 
-            let disclaimers = <div>
-                <h2>Next steps</h2>
-                <ul>
-                    <li>Icons in first column for meta tags</li>
-                    <li>See if there are any other parts of the webpart def object that might be helpful</li>
-                </ul>
-            </div>;
+        const viewsPage = <div>
+                { noPageAvailable }
+        </div>;
 
-            const stackPageTokens: IStackTokens = { childrenGap: 10 };
+        const typesPage = <div>
+                { noPageAvailable }
+        </div>;
 
-            thisPage = <div className={styles.contents}>
+        const groupsPage = <div>
+                { noPageAvailable }
+        </div>;
 
-                <div><div>{ disclaimers }</div>
-                <div> { searchBox } </div>                
-                <div style={{ height:30} }> {  } </div>
-                <div> { myProgress } </div>
-                <div>
-                <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
-                    { listList }
-                </Stack>
-                </div>
-
-            </div></div>;
-
-/***
- *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
- *              88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
- *              88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
- *              88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
- *              88 `88. 88.        88    88b  d88 88 `88. 88  V888 
- *              88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
- *                                                                 
- *                                                                 
- */
-
-            return (
-                <div className={ styles.contents }>
-                    { thisPage }
-                </div>
-            );
-            
-        } else {
-            console.log('provisionPage.tsx return null');
-            return (  <div className={ styles.contents }>
-                <h2>There are no parts to see</h2>
-            </div> );
-        }
-
-    }   //End Public Render
+        const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
+            root: { marginTop: 10 },
+        };
 
 
-    private getListDefs() {
-        let result : any = allAvailableLists( this.state.webURL, this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let MyPivot = <Pivot 
+            aria-label="Contents Options"
+            linkSize= { pivotOptionsGroup.getPivSize('normal') }
+            linkFormat= { pivotOptionsGroup.getPivFormat('tabs') }
+        >
+            <PivotItem headerText="Lists">
+                { listPage }
+            </PivotItem>
+            <PivotItem headerText="Columns">
+                <h3>Columns</h3>
+                { columnsPage }
+            </PivotItem>
+            <PivotItem headerText="Views">
+                <h3>Views</h3>
+                { viewsPage }
+            </PivotItem>
+            <PivotItem headerText="Types">
+                <h3>Types</h3>
+                { typesPage }
+            </PivotItem>
+            <PivotItem headerText="Groups">
+                <h3>Groups</h3>
+                { groupsPage }
+            </PivotItem>
+        </Pivot>;
 
+        return (
+        <div className={ styles.contents }>
+        <div className={ styles.container }>
+            { MyPivot }
+        </div>
+        </div>
+
+        );
     }
 
-    private addThesePartsToState( allLists ) {
+  /***
+   *         db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b 
+   *         88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'     
+   *         88    88 88oodD' 88   88 88ooo88    88    88ooooo      `8bo.      88    88ooo88    88    88ooooo 
+   *         88    88 88~~~   88   88 88~~~88    88    88~~~~~        `Y8b.    88    88~~~88    88    88~~~~~ 
+   *         88b  d88 88      88  .8D 88   88    88    88.          db   8D    88    88   88    88    88.     
+   *         ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      `8888Y'    YP    YP   YP    YP    Y88888P 
+   *                                                                                                          
+   *                                                                                                          
+   */
 
-        /*
-        let meta: string[] = [];
-        for ( let p of allLists ) {
-            if ( p.meta ) {
-                for ( let x of p.meta ) {
-                    meta = addItemToArrayIfItDoesNotExist( meta, x );
-                }
-            }
-        }
-        */
+    private updatePickList  = (ev: React.FormEvent<HTMLInputElement>): void => {
+
+        //let itemID = (item.title + '|Splitme|' + item.activity);
+        let parent = ev.currentTarget.parentElement;
+        let buttonID = parent.id;
+
+        //2020-05-11:  Issue 44 Added so activity can have / or \ from partial URLs
+        buttonID = buttonID.replace(/forwardSSlash/gi, '\/');
+        buttonID = buttonID.replace(/backwardSSlash/gi, '\\');
+
+        let splitID = buttonID.split('|Splitme|');
+        let thisTab = splitID[0];
+        let thisId = splitID[1];
+        let thisTitle = splitID[2];
+        let thisName = splitID[3];
+
+        console.log('updatePickList:', ev );
+        console.log('splitID:', splitID );
+        
+        let thisList : IPickedList = {
+            title: thisTitle,
+            name: thisName,
+            guid: thisId,
+        };
 
         this.setState({
-            lists: allLists,
-            searchedLists: allLists,
-            searchCount: allLists.length,
+            pickedList: thisList,
+            tab: thisTab,
         });
-        return true;
     }
 
-    private markComplete() {
-
+    private _updateStateOnPropsChange(params: any ): void {
         this.setState({
-            currentPage: 'Finished ' + this.state.currentPage,
-        });
 
-    }
-
-   /**
-    * 
-    * @param progressHidden 
-    * @param page : page you want to add this to 'E' | 'C' | 'V' | 'I'
-    * @param current : current index of progress
-    * @param ofThese : total count of items in progress
-    * @param color : color of label like red, yellow, green, null
-    * @param icon : Fabric Icon name if desired
-    * @param logLabel : short label of item used for displaying in page
-    * @param label : longer label used in Progress Indicator and hover card
-    * @param description 
-    */
-  private setProgress(progressHidden: boolean, page: 'E' | 'C' | 'V' | 'I', current: number , ofThese: number, color: string, icon: string, logLabel: string, label: string, description: string, ref: string = null ){
-    let thisTime = new Date().toLocaleTimeString();
-    const percentComplete = ofThese !== 0 ? current/ofThese : 0;
-
-    logLabel = current > 0 ? current + '/' + ofThese + ' - ' + logLabel : logLabel ;
-    let progress: IMyProgress = {
-        ref: ref,
-        time: thisTime,
-        logLabel: logLabel,
-        label: label + '- at ' + thisTime,
-        description: description,
-        percentComplete: percentComplete,
-        progressHidden: progressHidden,
-        color: color,
-        icon: icon,
-      };
-
-    //console.log('setting Progress:', progress);
-
-    let history: IMyHistory = this.state.history;
-    //let newHistory = null;
-    
-
-    if ( history === null ){
-
-    } else {
-        history.count ++;
-        if ( page === 'E') {
-            history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
-        } else if ( page === 'C') {
-            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
-        } else if ( page === 'V') {
-            history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
-        } else if ( page === 'I') {
-            history.items = history.items.length === 0 ? [progress] : [progress].concat(history.items);
-        }
-    }
-
-    this.setState({
-        progress: progress,
-        history: history,
-    });
-
-  }
-
-  
-  public searchForItems = (item): void => {
-    //This sends back the correct pivot category which matches the category on the tile.
-    let e: any = event;
- 
-    console.log('searchForItems: e',e);
-
-    console.log('searchForItems: item', item);
-    console.log('searchForItems: this', this);
-          /*
-    */
-
-    let searchItems : IContentsListInfo[] = this.state.lists;
-    let searchCount = searchItems.length;
-
-    let newFilteredLists : IContentsListInfo[] = [];
-
-    for (let thisSearcPart of searchItems) {
-
-      let searchString = thisSearcPart.searchString;
-      if(searchString.indexOf(item.toLowerCase()) > -1) {
-        newFilteredLists.push(thisSearcPart);
-      }
-    }
-
-    console.log('Searched for:' + item);
-    console.log('and found these lists:', newFilteredLists);
-    searchCount = newFilteredLists.length;
-
-    this.setState({
-      searchedLists: newFilteredLists,
-      searchCount: searchCount,
-    });
-
-
-    return ;
-    
-  } //End searchForItems
-
-  
-/***
- *         db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b 
- *         88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'     
- *         88    88 88oodD' 88   88 88ooo88    88    88ooooo      `8bo.      88    88ooo88    88    88ooooo 
- *         88    88 88~~~   88   88 88~~~88    88    88~~~~~        `Y8b.    88    88~~~88    88    88~~~~~ 
- *         88b  d88 88      88  .8D 88   88    88    88.          db   8D    88    88   88    88    88.     
- *         ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      `8888Y'    YP    YP   YP    YP    Y88888P 
- *                                                                                                          
- *                                                                                                          
- */
-
-    private _updateStateOnPropsChange(): void {
-        this.getListDefs();
-    }
-
-    private checkThisWeb(index: number, testLists : IContentsListInfo[] ){
-        //const thisWeb = Web(testLists[index].webURL);
-        //testLists[index].webExists = false;
-        //testLists[index].pageExists = false;
-
-        /*
-        thisWeb.pages.get().then((response) => {
-            testLists[index].webExists = true;
-            this.checkThisPage(index, testLists, thisWeb);
-
-        }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
-            console.log('checkThisWeb', errMessage);
-            this.updateStatePages(index, testLists);
-        });
-    */
-
-    }
-    
-    private checkThisPage(index: number, testLists : IContentsListInfo[], thisWeb: any ){
-        //const thisWeb = Web(testLists[index].webURL);
-        thisWeb.lists.getByTitle(testLists[index].Title).get().then((response) => {
-            //testLists[index].pageExists = true;
-            //testLists[index].pageExistedB4 = true;   
-            this.updateStatePages(index,testLists);
-
-        }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
-            console.log('checkThisPage', errMessage);
-            this.updateStatePages(index, testLists);
         });
     }
 
-    private updateStatePages(index: number, testLists : IContentsListInfo[] ) {
-        let stateParts = this.state.lists;
-        //if (statePages === undefined ) { statePages = this.props.webURL ; }
-        this.setState({
-            lists: stateParts,
-        });
-    }
 }
