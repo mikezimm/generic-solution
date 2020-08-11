@@ -139,9 +139,9 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           
           let listInfo = '|Splitme|' + L.Id + '|Splitme|' + L.EntityTypeName  + '|Splitme|' + L.Title;
 
-          let gotoColumns = createIconButton('Pause', 'Columns', this.props.pickThisList.bind(this), 'Columns' + listInfo , columnsStyles );
-          let gotoViews = createIconButton('ChevronDown', 'Views', this.props.pickThisList.bind(this), 'Views' + listInfo, viewsStyles );
-          let gotoTypes = createIconButton('TypeScriptLanguage', 'Types', this.props.pickThisList.bind(this), 'Types' + listInfo, typesStyles );
+          let gotoColumns = createIconButton('Pause', 'Columns', this.props.pickThisList, 'Columns' + listInfo , columnsStyles );
+          let gotoViews = createIconButton('ChevronDown', 'Views', this.props.pickThisList, 'Views' + listInfo, viewsStyles );
+          let gotoTypes = createIconButton('TypeScriptLanguage', 'Types', this.props.pickThisList, 'Types' + listInfo, typesStyles );
 
           let itemIcon = null;
 

@@ -72,6 +72,8 @@ export interface IInspectContentsState {
 
 }
 
+export const contentsTabs = ['Lists','Columns','Views','Types','Groups'];
+
 export default class InspectContents extends React.Component<IInspectContentsProps, IInspectContentsState> {
 
 
@@ -131,7 +133,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     public componentDidUpdate(prevProps){
 
-        let rebuildPart = prevProps.webURL === this.props.webURL ? true : false;
+        let rebuildPart = prevProps.webURL === this.props.webURL ? false : true;
         if (rebuildPart === true) {
         this._updateStateOnPropsChange({});
         }
@@ -142,7 +144,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         const pickListMessage = <div>Please pick a list first</div>;
         const noPageAvailable = <div>This feature is not yet available</div>;
 
-        const listPage = <div>
+        const listPage = this.state.tab !== 'Lists' ? null : <div>
             <InspectLists 
                 pageContext = { this.props.pageContext }
                 currentUser = { this.props.currentUser }
@@ -155,14 +157,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
         const columnsPage = <div>
             { !this.state.pickedList ? pickListMessage : 
-                <InspectLists 
-                    pageContext = { this.props.pageContext }
-                    currentUser = { this.props.currentUser }
-                    allowOtherSites = { true }
-                    allLoaded = { true }
-                    pickedList = { this.state.pickedList }
-                    pickThisList = { this.updatePickList.bind(this) }
-                ></InspectLists> }
+                null }
             </div>;
 
         const viewsPage = <div>
@@ -186,6 +181,10 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             aria-label="Contents Options"
             linkSize= { pivotOptionsGroup.getPivSize('normal') }
             linkFormat= { pivotOptionsGroup.getPivFormat('tabs') }
+            selectedKey= { contentsTabs.indexOf(this.state.tab).toFixed() }
+            defaultSelectedKey= { contentsTabs.indexOf(this.state.tab).toFixed() }
+            onLinkClick={ this.updatePickList2.bind(this) }
+
         >
             <PivotItem headerText="Lists">
                 { listPage }
@@ -229,6 +228,16 @@ export default class InspectContents extends React.Component<IInspectContentsPro
    *                                                                                                          
    */
 
+    // public searchForItems = (item): void => {
+    // private updatePickList2  = (ev: React.FormEvent<HTMLInputElement>): void => {
+    private updatePickList2  = (item): void => {
+
+        let thisTab = item.props.headerText;
+        this.setState({
+            tab: thisTab,
+        });
+    }
+   
     private updatePickList  = (ev: React.FormEvent<HTMLInputElement>): void => {
 
         //let itemID = (item.title + '|Splitme|' + item.activity);
@@ -261,9 +270,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
     }
 
     private _updateStateOnPropsChange(params: any ): void {
-        this.setState({
-
-        });
+        console.log('_updateStateOnPropsChange');
     }
 
 }

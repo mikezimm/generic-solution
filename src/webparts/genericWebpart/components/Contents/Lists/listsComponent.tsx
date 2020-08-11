@@ -247,7 +247,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                 advanced = { this.state.advanced } railsOff= { this.state.railsOff }
                 title={ ''}           items={ this.state.searchedLists }
                 showDesc = { this.state.showDesc } 
-                pickThisList = { this.props.pickThisList.bind(this) }
+                pickThisList = { this.props.pickThisList }
                 descending={false}          titles={null}            ></MyLogList></div>;
 
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
