@@ -462,7 +462,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
       let searchString = thisSearcPart.searchString;
       let listMeta = thisSearcPart.meta;
 
-      if ( listMeta.indexOf(meta) > -1 ) {
+      if ( meta === undefined || meta == null || meta == '' || listMeta.indexOf(meta) > -1 ) {
         if( searchString.indexOf(text.toLowerCase()) > -1 ) {
             newFilteredLists.push(thisSearcPart);
           }
