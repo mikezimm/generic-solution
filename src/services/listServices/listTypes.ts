@@ -126,7 +126,22 @@ export interface IListInfo {
     TemplateFeatureId: string;
     Title: string;
     UniquePerms?: boolean;
-    searchString: string;
+
+}
+
+export interface IContentsLists {
+  tabs: string[];
+  lists: {
+    all: IContentsListInfo[];
+    searched: IContentsListInfo[];
+//    hidden: IContentsListInfo[];
+//    visible: IContentsListInfo[];
+//    maxItems: IContentsListInfo[];
+//    empty: IContentsListInfo[];
+//    notEmpty: IContentsListInfo[];
+//    noVersions: IContentsListInfo[];
+//    infVersions: IContentsListInfo[];
+  };
 }
 
 export interface IContentsListInfo {
@@ -148,8 +163,6 @@ export interface IContentsListInfo {
   LastItemDeletedDate: string;
   LastItemModifiedDate: string;
   LastItemUserModifiedDate: string;
-
-  meta?: string[];
 
   ParentWebPath: {
     DecodedUrl: string;
@@ -173,6 +186,12 @@ export interface IContentsListInfo {
   //Custom info
   UniquePerms?: boolean;
   searchString: string;
+  modifiedAge?: number;
+  createdAge?: number;
+  meta?: string[];
+  sort?: string;
+  group?: string;
+  groupLabel?: string;
 
   //Backend Info
   odataEtag: string; //""121""
@@ -190,9 +209,6 @@ export interface IContentsListInfo {
   IsApplicationList: boolean;
   IsCatalog: boolean;
   IsPrivate: boolean;
-
-
-
 
   TemplateFeatureId: string;
 

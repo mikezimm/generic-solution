@@ -2,25 +2,33 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { IMyProgress } from '../IReUsableInterfaces';
-import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../services/listServices/listTypes';
+import { IMyProgress } from '../../IReUsableInterfaces';
+import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
+
+import { createIconButton } from '../../createButtons/IconButton';
 
 import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
+import { createLink } from '../../HelpInfo/AllLinks';
 
-import styles from './listView.module.scss';
-import stylesInfo from '../HelpInfo/InfoPane.module.scss';
+
+import styles from '../listView.module.scss';
+import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
 export interface IMyLogListProps {
     title: string;
     titles: [];
+    webURL: string;
     items: IContentsListInfo[];
-    advanced: boolean;
+    showSettings: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     descending: boolean;
     maxChars?: number;
+    showDesc?: boolean;
+    pickThisList: any;
+
 }
 
 export interface IMyLogListState {
@@ -33,16 +41,16 @@ const iconClassAction = mergeStyles({
   fontSize: 18,
   fontWeight: "bolder",
   color: "black",
-  //margin: '0px 2px',
-  paddingRight: '10px',
+  margin: '5px',
   verticalAlign: 'bottom',
+  padding: '0px !important',
 });
 
 const iconClassInfo = mergeStyles({
   fontSize: 18,
-  //margin: '0px 2px',
-  paddingRight: '10px',
+  margin: '5px',
   verticalAlign: 'bottom',
+  padding: '0px !important',
 });
 
 
@@ -107,8 +115,36 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
         let logItems : IContentsListInfo[] = this.props.items;
 
+        let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
+        let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
+        let styleDesc = this.props.showDesc ? styles.showMe : styles.hideMe;
+
         let itemRows = logItems.length === 0 ? null : logItems.map( L => { 
 
+          let defButtonStyles = {
+            root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
+            icon: { 
+              fontSize: 14,
+              fontWeight: "900",
+              margin: '10px 5px',  //This puts the margin around the buttons
+              //color: '#00457e', //This will set icon color : 00457e
+           },
+          };
+
+          let columnsStyles = JSON.parse(JSON.stringify(defButtonStyles));
+          columnsStyles.root.color = 'red !important';
+
+          let viewsStyles = JSON.parse(JSON.stringify(defButtonStyles));
+          viewsStyles.root.color = 'blue !important';
+
+          let typesStyles = JSON.parse(JSON.stringify(defButtonStyles));
+          typesStyles.root.color = 'green !important';
+          
+          let listInfo = '|Splitme|' + L.Id + '|Splitme|' + L.EntityTypeName  + '|Splitme|' + L.Title;
+
+          let gotoColumns = createIconButton('Pause', 'Columns', this.props.pickThisList, 'Columns' + listInfo , columnsStyles );
+          let gotoViews = createIconButton('ChevronDown', 'Views', this.props.pickThisList, 'Views' + listInfo, viewsStyles );
+          let gotoTypes = createIconButton('TypeScriptLanguage', 'Types', this.props.pickThisList, 'Types' + listInfo, typesStyles );
 
           let itemIcon = null;
 
@@ -116,16 +152,20 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             //color: h.color ? h.color : "blue",
           }};
 
-          let normalIcon = <Icon iconName={ "Info"} className={iconClassInfo} styles = {iconStyles}/>;
+          let normalIcon = <Icon iconName={ "Info"} className={ iconClassInfo } styles = { iconStyles }/>;
           let keys = L.meta ? <div><h3>Properties</h3><ul> { L.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
 
           const onRenderHoverCard = (item: any): JSX.Element => {
+            let hoverFieldStyle = { fontWeight: 700};
             return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
               <div>
-                <div>Type: { L.BaseTemplate }</div>
-                <div>Description: { L.Description }</div>
-                <div>Id: { L.Id }</div>
-                <div>Search String: { L.searchString }</div>
+                <p><span style={hoverFieldStyle}>Title:</span> { L.Title }</p>
+                <p><span style={hoverFieldStyle}>Type:</span> { L.BaseTemplate }</p>
+                <p><span style={hoverFieldStyle}>Description:</span> { L.Description }</p>
+                <p><span style={hoverFieldStyle}>EntityName:</span> { L.EntityTypeName }</p>
+                <p><span style={hoverFieldStyle}>Id:</span> { L.Id }</p>
+                <p><br></br></p>
+                <p><span style={hoverFieldStyle}>Search String:</span> { L.searchString }</p>
               </div>
             </div>;
           };
@@ -142,16 +182,43 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             </HoverCard>
             </div>;
 
+//.logListView {
+//.listButtons {
+//.buttons{
+
+
+          let listSettingsURL = !this.props.showSettings ? L.EntityTypeName : createLink(this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + L.Id + ")", '_blank', L.EntityTypeName);
+          let listVersionURL = !this.props.showSettings ? L.MajorVersionLimit : createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + L.Id + ")", '_blank', L.MajorVersionLimit.toString() );
+          let listPermissionURL = !this.props.showSettings ? '' : createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + L.Id + "},doclib&List={" + L.Id + "}", '_blank', 'Perms');
+          let listAdvancedURL = !this.props.showSettings ? '-' : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + L.Id + ")", '_blank', 'Adv');
+
+          let listAdvancedCT = !this.props.showSettings ? L.ContentTypesEnabled : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + L.Id + ")", '_blank', 'CT');
+
+
+          let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes }  </div>;
+
           return <tr>
-            <td> { L.Title } </td>
-            <td   className={ styles.nowWrapping }> { L.EntityTypeName }</td>
-            <td>  {detailsCard}</td>
-            <td> { L.Description.length > this.state.maxChars ? L.Description.slice(0,this.state.maxChars) + '...' : L.Description } </td>
-          </tr>; 
+            <td className={ styles.nowWrapping }> { L.Title } </td>
+            <td className={ styles.nowWrapping }> { listSettingsURL }</td>
+            <td className={ styleDesc }> { L.Description.length > this.state.maxChars ? L.Description.slice(0,this.state.maxChars) + '...' : L.Description } </td>
+            <td> { L.ItemCount } </td>
+
+            <td className={ styles.nowWrapping }> { L.Created } </td>
+            <td> { L.LastItemModifiedDate } </td>
+            <td> { listVersionURL } </td>
+            <td> { listPermissionURL } </td>
+            <td> { L.NoCrawl } </td>
+            <td> { listAdvancedCT } </td>
+            <td> { listAdvancedURL } </td>
+            <td> { L.BaseTemplate } </td>
+            <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }> { other } </td>
+            <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
+
+          </tr>;
+
         });
 
-
-      
+    
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
  *                   88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
@@ -167,15 +234,29 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             <tr>
               <th>Title</th>
               <th>Name</th>
+              <th className={ styleDesc }>Description</th>
+              <th>Items</th>
+              <th>Created</th>
+              <th>Updated</th>
+              <th>Vers</th>
+              <th>Perms</th>
+              <th>Search</th>
+              <th>CT</th>  
+              <th>Exceptions</th>
+              <th>Base</th>
+              <th>Other</th>
               <th>More</th>
-              <th>Description</th>
+
             </tr>
             { itemRows }
         </table>;
 
-        thisLog = <div className={ stylesInfo.infoPaneTight }><h2>{this.props.title + 's'}</h2>
-        { logTable }
-        </div>;
+        let listTitle = this.props.title == '' ? null : <h2>{this.props.title + 's'}</h2>;
+
+        thisLog = <div style={{ paddingTop: 15}} className={ stylesInfo.infoPaneTight }>
+          { listTitle }
+          { logTable }
+          </div>;
 
         return (
           <div className={ styles.logListView }>
@@ -197,93 +278,3 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
     } 
 
 }
-
-//Loop through all items 
-
-/*
-        let itemRows = logItems.length === 0 ? null : logItems.map( h => { 
-
-            //let itemIcon = h.icon ? <Icon iconName={h.icon} className={iconClassAction} /> : null;
-            let itemIcon = null;
-
-            let group = !h.group ? null : <div><span className={ styles.nowWrapping }>
-              { h.group.length > 15 ? h.group.slice(0,15) + '...' : h.group }</span>
-          </div>;
-
-            let actionCell = <div><span className={ styles.nowWrapping }>
-                { itemIcon }
-                { h.title.length > this.state.maxChars ? h.title.slice(0,this.state.maxChars) + '...' : h.title }</span>
-            </div>;
-
-            let description = !h.desc ? null : <div><span className={ styles.nowWrapping }>
-                { h.desc.length > 50 ? h.desc.slice(0,50) + '...' : h.desc }</span>
-            </div>;
-
-            let iconStyles: any = { root: {
-              //color: h.color ? h.color : "blue",
-            }};
-
-            let normalIcon = <Icon iconName={ h.officeFabricIconFontName ? h.officeFabricIconFontName : "Info"} className={iconClassInfo} styles = {iconStyles}/>;
-            let keys = h.keys ? <div><h3>Properties</h3><ul> { h.keys.map(k => <li>{ k }</li>) } </ul></div> : null;
-
-            let supported = h.supportedHosts ? <div><h3>Supported Hosts</h3><ul> { h.supportedHosts.map(k => <li>{ k }</li>) } </ul></div> : null;
-
-            const onRenderHoverCard = (item: any): JSX.Element => {
-              return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
-                <div>
-                  <div>{  }</div>
-                  <div></div>
-                  <div>Type: { h.componentType }</div>
-                  <div>Alias: { h.alias } Parent: { h.parentAlias }</div>
-                  <div>Description: { h.desc }</div>
-                  <div>Id: { h.partId }</div>
-                  <div>Group: { h.group }</div>
-                  <div><h3>Tags:</h3>{ h.tags.join() }</div>
-                  <div>{ supported }</div>
-                  <div>{ keys }</div>
-                  <div></div>
-                  <div>Search String: { h.searchString }</div>
-                </div>
-              </div>;
-            };
-
-            let detailsCard = <div>
-              <HoverCard
-                cardDismissDelay={300}
-                type={HoverCardType.plain}
-                plainCardProps={{
-                  onRenderPlainCard: onRenderHoverCard,
-                  renderData: 'testRenderData'
-                }}>
-                { normalIcon }
-              </HoverCard>
-            </div>;
-
-            return <tr>
-              <td> { group } </td>
-              <td className={ styles.nowWrapping }> {  actionCell  }</td>
-              <td>{detailsCard}</td>
-              <td> { description } </td>
-            </tr>; 
-        });
-
-//        let logTable = itemRows === null ? <div>Nothing to show</div> : <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
-        let logTable = <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
-            <tr><th>Group</th><th>{ this.props.title }</th><th>Icon</th><th>Description</th></tr>
-            { itemRows }
-        </table>;
-
-        thisLog = <div className={ stylesInfo.infoPane }><h2>{this.props.title + 's'}</h2>
-        { logTable }
-        </div>;
-
-      }
-
-      
-        // <div className={ styles.container }></div>
-        return (
-          <div className={ styles.logListView }>
-              { thisLog }
-          </div>
-          );
-*/

@@ -5,6 +5,43 @@
 
 .logListView {
 
+
+  //https://stackoverflow.com/a/2248908
+  tr:hover td {
+    background-color: darkgray; color: #000;
+  }
+
+  .listButtons {
+
+    background-color: white !important;
+  /*  
+    td {
+      background-color: white !important;
+    }
+*/
+    .buttons{
+      //padding-right: 10px;
+      -webkit-font-smoothing: antialiased;
+      transition:all 0.3s ease;
+      border-radius: 5px;
+      :hover{
+        background-color: greenyellow;
+        transition:all 0.3s ease;
+        border-radius: 5px;
+      }
+    }
+  }
+
+
+
+  .showMe {
+    display: block
+  }
+
+  .hideMe {
+    display: none
+  }
+
     .fieldWithIconButton{
         position: relative;
       }
@@ -21,6 +58,7 @@
           font-weight: bold;
           margin-bottom: 5px;
         }
+
       }
     
       .toggleRow {

@@ -4,11 +4,49 @@
 
 .contents {
 
+    .toggleRed {
+      background-color: 'red'
+    }
+
+    .container {
+      max-width: 100%;
+      margin: 0px auto;
+      margin-top: 15px;
+      //box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    //  This moves the "Help" Pivot to the far right
+    .rightPivot *[data-content="Hidden"]  {
+      float:  right !important;
+    }
+
+    //  This moves the "Help" Pivot to the far right
+    .rightContents *[data-content="RailsOff"]  {
+      float:  right !important;
+    }
+
+
+    //  This moves the "Help" Pivot to the far right
+    .pageToggles {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
 
     .padLeft20 {
         padding-left: 20px;
       }
     
+/***
+ *         .d8888. d88888b  .d8b.  d8888b.  .o88b. db   db 
+ *         88'  YP 88'     d8' `8b 88  `8D d8P  Y8 88   88 
+ *         `8bo.   88ooooo 88ooo88 88oobY' 8P      88ooo88 
+ *           `Y8b. 88~~~~~ 88~~~88 88`8b   8b      88~~~88 
+ *         db   8D 88.     88   88 88 `88. Y8b  d8 88   88 
+ *         `8888Y' Y88888P YP   YP 88   YD  `Y88P' YP   YP 
+ *                                                         
+ *                                                         
+ */
+
       .showSearch {
         transition:all 0.4s ease;
         //transition:height 0.4s ease;
@@ -68,6 +106,21 @@
         //padding: 0px;
       }
     
+      .searchContainer {
+        //width: 1200px;
+        //max-width: 500px;
+        //width: 100%;
+        display: flex;
+        //justify-content: space-between;
+        //align-items: center makes items centered vertically
+        align-items: left;
+        vertical-align: middle;
+        //These did nothing to prevent the left icons from shifting on hover.
+        //border: 0px;
+        //margin: 0px;
+        //padding: 0px;
+      }
+
       .searchBox {
         //@extend .floatLeft;
         width: 100%;
