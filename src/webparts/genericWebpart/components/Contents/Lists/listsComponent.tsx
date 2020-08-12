@@ -77,6 +77,7 @@ export interface IInspectListsProps {
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
 
     allowRailsOff?: boolean;
+    allowSettings?: boolean;
 
     webURL?: string;
 
@@ -125,12 +126,12 @@ export interface IInspectListsState {
     allLists: IContentsListInfo[];
     meta: string[];
 
-    advanced: boolean;
-    railsOff: boolean;
+    allowSettings: boolean;  //property that determines if the related toggle is visible or not
+    allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
 
-    showDesc: boolean;
-    showSettings: boolean;
-    showRailsOff: boolean;
+    showDesc: boolean;      //property set by toggle to actually show or hide this content
+    showSettings: boolean;  //property set by toggle to actually show or hide this content
+    showRailsOff: boolean;  //property set by toggle to actually show or hide this content
 
 }
 
@@ -178,16 +179,17 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             webURL: this.props.webURL,
 
-            advanced: false,
-            railsOff: false,
+            allowSettings: this.props.allowSettings === true ? true : false,
+            allowRailsOff: this.props.allowRailsOff === true ? true : false,
 
             showDesc: false,
             showSettings: false,
+            showRailsOff: false,
 
             searchMeta: '',
             searchText: '',
 
-            showRailsOff: false,
+
         
         };
 
@@ -255,7 +257,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             let thisPage = null;
 
             let listList = <div className={ styles.floatLeft }><MyLogList 
-                showSettings = { this.state.showSettings } railsOff= { this.state.railsOff }
+                showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
                 title={ ''}           items={ this.state.searchedLists }
                 showDesc = { this.state.showDesc } 
                 webURL = { this.state.webURL }
@@ -299,7 +301,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
 
-            thisPage = <div className={styles.contents} style={{ paddingLeft: 20 }}><div><div>{ disclaimers }</div>
+            thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
 
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                      { searchBox } { toggles }

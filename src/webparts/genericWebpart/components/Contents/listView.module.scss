@@ -32,8 +32,6 @@
     }
   }
 
-
-
   .showMe {
     display: block
   }
@@ -42,38 +40,38 @@
     display: none
   }
 
-    .fieldWithIconButton{
-        position: relative;
-      }
+  .fieldWithIconButton{
+      position: relative;
+  }
+  
+  .hoverCard {
+    margin: 10px;
+    width: 200;
+    height: '100%';
+    display: 'flex';
+    align-items: 'center';
+    justify-content: 'center';
     
-      .hoverCard {
-        margin: 10px;
-        width: 200;
-        height: '100%';
-        display: 'flex';
-        align-items: 'center';
-        justify-content: 'center';
-        
-        .assignedTo {
-          font-weight: bold;
-          margin-bottom: 5px;
-        }
+    .assignedTo {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
 
-      }
-    
-      .toggleRow {
-        label {
-          font-weight: bold;
-        }
-      }
-    
-      .nowWrapping {
-        white-space: 'nowrap',
-      }
-      
-      .icon {
-        height: 18px;
-        line-height: 18px;
-      }
+  }
+
+  .toggleRow {
+    label {
+      font-weight: bold;
+    }
+  }
+
+  .nowWrapping {
+    white-space: 'nowrap',
+  }
+  
+  .icon {
+    height: 18px;
+    line-height: 18px;
+  }
       
 }
