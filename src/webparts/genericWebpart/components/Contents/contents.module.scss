@@ -34,7 +34,7 @@
 
     .padLeft20 {
         padding-left: 20px;
-      }
+    }
     
 /***
  *         .d8888. d88888b  .d8b.  d8888b.  .o88b. db   db 
@@ -47,50 +47,50 @@
  *                                                         
  */
 
-      .showSearch {
-        transition:all 0.4s ease;
-        //transition:height 0.4s ease;
-        //transition:padding-bottom 0.4s ease;
-        //transition:transform 0.4s ease;
-        transform:scaleY(1);
-        transform-origin:top;
-        height:50px;
-        //max-height: 100px;
-        overflow: hidden;
-        padding-bottom: 20px;
-      }
-    
-      .hideSearch {
-        transition:all 0.4s ease;
-        //transition:height 0.4s ease;
-        //transition:padding-bottom 0.4s ease;
-        //transition:transform 0.4s ease;
-        height:0;
-        overflow: hidden;
-        padding-bottom: 0px;
-        transform:scaleY(0);
-      }
-    
-      .floatRight {
-        //width: 1200px;
-        //max-width: 500px;
-        display: flex;
-        justify-content: space-between;
-        //align-items: center makes items centered vertically
-        align-items: center;
-      }
-    
-      .showErrorMessage {
-        display:"";
-        padding-left: 40px;
-        padding-bottom: 40px;
-      }
-    
-      .showErrorMessageNoPad {
-        display:"";
-        padding-bottom: 40px;
-      }
-    
+    .showSearch {
+      transition:all 0.4s ease;
+      //transition:height 0.4s ease;
+      //transition:padding-bottom 0.4s ease;
+      //transition:transform 0.4s ease;
+      transform:scaleY(1);
+      transform-origin:top;
+      height:50px;
+      //max-height: 100px;
+      overflow: hidden;
+      padding-bottom: 20px;
+    }
+
+    .hideSearch {
+      transition:all 0.4s ease;
+      //transition:height 0.4s ease;
+      //transition:padding-bottom 0.4s ease;
+      //transition:transform 0.4s ease;
+      height:0;
+      overflow: hidden;
+      padding-bottom: 0px;
+      transform:scaleY(0);
+    }
+
+    .floatRight {
+      //width: 1200px;
+      //max-width: 500px;
+      display: flex;
+      justify-content: space-between;
+      //align-items: center makes items centered vertically
+      align-items: center;
+    }
+
+    .showErrorMessage {
+      display:"";
+      padding-left: 40px;
+      padding-bottom: 40px;
+    }
+
+    .showErrorMessageNoPad {
+      display:"";
+      padding-bottom: 40px;
+    }
+      
     .floatLeft {
         //width: 1200px;
         //max-width: 500px;
@@ -104,35 +104,36 @@
         //border: 0px;
         //margin: 0px;
         //padding: 0px;
-      }
-    
-      .searchContainer {
-        //width: 1200px;
-        //max-width: 500px;
-        //width: 100%;
-        display: flex;
-        //justify-content: space-between;
-        //align-items: center makes items centered vertically
-        align-items: left;
-        vertical-align: middle;
-        //These did nothing to prevent the left icons from shifting on hover.
-        //border: 0px;
-        //margin: 0px;
-        //padding: 0px;
-      }
+    }
 
-      .searchBox {
-        //@extend .floatLeft;
-        width: 100%;
-        //padding-bottom: 20px;
-      }
+    .searchContainer {
+      //width: 1200px;
+      //max-width: 500px;
+      //width: 100%;
+      display: flex;
+      //justify-content: space-between;
+      //align-items: center makes items centered vertically
+      align-items: left;
+      vertical-align: middle;
+      //These did nothing to prevent the left icons from shifting on hover.
+      //border: 0px;
+      //margin: 0px;
+      //padding: 0px;
+    }
+
+    .searchBox {
+      //@extend .floatLeft;
+      width: 100%;
+      //padding-bottom: 20px;
+    }
+
+    .searchStatus {
+      @extend .floatRight;
+      display: inline-block;
+      white-space: nowrap;
+      padding-left: 60px;
+      padding-right: 60px;
+      //text-align: right;
+    }
     
-      .searchStatus {
-        @extend .floatRight;
-        display: inline-block;
-        white-space: nowrap;
-        padding-left: 60px;
-        padding-right: 60px;
-        //text-align: right;
-      }
 }

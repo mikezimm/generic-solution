@@ -39,9 +39,12 @@ export interface IInspectContentsProps {
     allLoaded: boolean;
 
     currentUser: IUser;
-    advanced: boolean;
+
+    allowSettings: boolean;
     allowRailsOff: boolean;
-    railsOff: boolean;
+
+    showSettings: boolean;  //property set by toggle to actually show or hide this content
+    showRailsOff: boolean;  //property set by toggle to actually show or hide this content
 
     WebpartHeight: number;
     WebpartWidth: number;
@@ -65,8 +68,12 @@ export interface IInspectContentsState {
 
     pickedList? : IPickedList;
     allLoaded: boolean;
-    advanced: boolean;
-    railsOff: boolean;
+
+    allowSettings: boolean;  //property that determines if the related toggle is visible or not
+    allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
+
+    showSettings: boolean;  //property set by toggle to actually show or hide this content
+    showRailsOff: boolean;  //property set by toggle to actually show or hide this content
 
     WebpartHeight: number;
     WebpartWidth: number;
@@ -95,7 +102,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     let parentWeb = cleanURL(this.props.webURL);
 
-    let railsMode = this.props.allowRailsOff && this.props.railsOff ? true : false ;
+    let railsMode = this.props.allowRailsOff && this.props.showRailsOff ? true : false ;
     this.state = {
 
             //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -107,8 +114,11 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
             allLoaded: false,
 
-            advanced: true,
-            railsOff: railsMode ,
+            allowSettings: this.props.allowSettings === true ? true : false,
+            allowRailsOff: this.props.allowRailsOff === true ? true : false,
+
+            showRailsOff: railsMode ,
+            showSettings: this.props.showSettings,
 
             tab: 'Lists',
     
@@ -154,7 +164,8 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allLoaded = { true }
                 pickedList = { this.state.pickedList }
                 pickThisList = { this.updatePickList.bind(this) }
-                allowRailsOff = { this.state.railsOff }
+                allowRailsOff = { this.state.allowRailsOff }
+                allowSettings = { this.state.allowSettings }
                 webURL = { this.state.webURL }
             ></InspectLists>
         </div>;
@@ -214,7 +225,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 { groupsPage }
             </PivotItem>
 
-            {  !this.state.railsOff ? null : 
+            {  !this.state.allowRailsOff ? null : 
             <PivotItem headerText="RailsOff">
                 <h3>RailsOff</h3>
                 { railsPage }
