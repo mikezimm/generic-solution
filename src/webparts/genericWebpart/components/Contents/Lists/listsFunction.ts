@@ -90,13 +90,6 @@ export async function allAvailableLists( webURL: string, addTheseListsToState: a
 
     }
 
-    contentsLists = {
-        tabs: [],
-        lists : {
-            all: allLists,
-            searched: allLists,
-        }
-    };
     addTheseListsToState(allLists);
     return allLists;
 
