@@ -21,6 +21,12 @@
     }
 
     //  This moves the "Help" Pivot to the far right
+    .rightContents *[data-content="RailsOff"]  {
+      float:  right !important;
+    }
+
+
+    //  This moves the "Help" Pivot to the far right
     .pageToggles {
       padding-top: 0;
       padding-bottom: 0;

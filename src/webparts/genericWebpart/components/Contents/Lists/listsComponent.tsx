@@ -281,7 +281,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
               </div>
             </div>;
 
-            let disclaimers = <div>
+        let disclaimers = <h3>Contents for { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+            
+            let xyz = <div>
                 <h3>Next steps</h3>
                 <ul>
                     <li>Icons in first column for meta tags</li>
@@ -297,7 +299,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
 
-            thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
+            thisPage = <div className={styles.contents} style={{ paddingLeft: 20 }}><div><div>{ disclaimers }</div>
 
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                      { searchBox } { toggles }
@@ -710,6 +712,10 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         let stackSettingTokens = { childrenGap: 20 };
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Fields */}
+                { createLink( this.state.webURL + "/_layouts/15/viewlsts.aspx" ,'_blank', 'Contents' )}                
+                { createLink( this.state.webURL + "/SiteAssets" ,'_blank', 'SiteAssets' )}
+                { createLink( this.state.webURL + "/SitePages" ,'_blank', 'SitePages' )}
+
                 { createLink( this.state.webURL + "/_layouts/15/settings.aspx" ,'_blank', 'Site Settings' )}
                 { createLink( this.state.webURL + "/_layouts/15/user.aspx" ,'_blank', 'Permissions' )}
                 { createLink( this.state.webURL + "/_layouts/15/prjsetng.aspx" ,'_blank', 'Title/Logo' )}

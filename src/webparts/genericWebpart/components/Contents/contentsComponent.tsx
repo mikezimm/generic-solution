@@ -185,7 +185,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         };
 
 
-        let MyPivot = <Pivot 
+        let MyPivot = <div style={{ paddingLeft: 10, paddingRight: 20 }}><Pivot 
             aria-label="Contents Options"
             linkSize= { pivotOptionsGroup.getPivSize('normal') }
             linkFormat= { pivotOptionsGroup.getPivFormat('tabs') }
@@ -219,17 +219,18 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 <h3>RailsOff</h3>
                 { railsPage }
             </PivotItem>
-            
+
              }
-        </Pivot>;
+        </Pivot></div>;
 
         return (
         <div className={ styles.contents }>
         <div className={ styles.container }>
+        <div className={ styles.rightContents }>
             { MyPivot }
         </div>
         </div>
-
+        </div>
         );
     }
 

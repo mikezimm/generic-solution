@@ -360,25 +360,28 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       };
 
 
-      let MyPivot = <Pivot aria-label="Provision Options">
-        <PivotItem headerText="Lists">
-              { provisionListPage }
-        </PivotItem>
-        <PivotItem headerText="Pages">
-            { provisionPagesPage }
-        </PivotItem>
-        <PivotItem headerText="WebParts">
-            { inspectPartsPage }
-        </PivotItem>
-        <PivotItem headerText="Contents">
-            { contentsPage }
-        </PivotItem>
+      let MyPivot = <div style={{ paddingLeft: 10, paddingRight: 20 }}>
+        <Pivot aria-label="Provision Options"
+          defaultSelectedIndex ={3}>
+            
+          <PivotItem headerText="Lists">
+                { provisionListPage }
+          </PivotItem>
+          <PivotItem headerText="Pages">
+              { provisionPagesPage }
+          </PivotItem>
+          <PivotItem headerText="WebParts">
+              { inspectPartsPage }
+          </PivotItem>
+          <PivotItem headerText="Contents">
+              { contentsPage }
+          </PivotItem>
 
-        <PivotItem headerText="Help">
-            { infoPage }
-        </PivotItem>
+          <PivotItem headerText="Help">
+              { infoPage }
+          </PivotItem>
 
-      </Pivot>;
+        </Pivot></div>;
 
     return (
       <div className={ styles.genericWebpart }>
