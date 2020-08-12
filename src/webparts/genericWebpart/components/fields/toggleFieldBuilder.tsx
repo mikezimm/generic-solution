@@ -8,7 +8,7 @@ import styles from '../GenericWebpart.module.scss';
 
 
 export interface IToggleItem {
-    label?: string;
+    label?: any;
     key: string;
     _onChange: any;
     checked: boolean;

@@ -11,6 +11,8 @@ import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
+import { createLink } from '../../HelpInfo/AllLinks';
+
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
@@ -18,8 +20,9 @@ import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 export interface IMyLogListProps {
     title: string;
     titles: [];
+    webURL: string;
     items: IContentsListInfo[];
-    advanced: boolean;
+    showSettings: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     descending: boolean;
     maxChars?: number;
@@ -112,7 +115,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
         let logItems : IContentsListInfo[] = this.props.items;
 
-        let styleAdvanced = this.props.advanced ? styles.showMe : styles.hideMe;
+        let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
         let styleDesc = this.props.showDesc ? styles.showMe : styles.hideMe;
 
@@ -153,12 +156,16 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           let keys = L.meta ? <div><h3>Properties</h3><ul> { L.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
 
           const onRenderHoverCard = (item: any): JSX.Element => {
+            let hoverFieldStyle = { fontWeight: 700};
             return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
               <div>
-                <div>Type: { L.BaseTemplate }</div>
-                <div>Description: { L.Description }</div>
-                <div>Id: { L.Id }</div>
-                <div>Search String: { L.searchString }</div>
+                <p><span style={hoverFieldStyle}>Title:</span> { L.Title }</p>
+                <p><span style={hoverFieldStyle}>Type:</span> { L.BaseTemplate }</p>
+                <p><span style={hoverFieldStyle}>Description:</span> { L.Description }</p>
+                <p><span style={hoverFieldStyle}>EntityName:</span> { L.EntityTypeName }</p>
+                <p><span style={hoverFieldStyle}>Id:</span> { L.Id }</p>
+                <p><br></br></p>
+                <p><span style={hoverFieldStyle}>Search String:</span> { L.searchString }</p>
               </div>
             </div>;
           };
@@ -180,21 +187,29 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 //.buttons{
 
 
-            let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes }  </div>;
+          let listSettingsURL = !this.props.showSettings ? L.EntityTypeName : createLink(this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + L.Id + ")", '_blank', L.EntityTypeName);
+          let listVersionURL = !this.props.showSettings ? L.MajorVersionLimit : createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + L.Id + ")", '_blank', L.MajorVersionLimit.toString() );
+          let listPermissionURL = !this.props.showSettings ? '' : createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + L.Id + "},doclib&List={" + L.Id + "}", '_blank', 'Perms');
+          let listAdvancedURL = !this.props.showSettings ? '-' : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + L.Id + ")", '_blank', 'Adv');
+
+          let listAdvancedCT = !this.props.showSettings ? L.ContentTypesEnabled : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + L.Id + ")", '_blank', 'CT');
+
+
+          let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes }  </div>;
 
           return <tr>
             <td className={ styles.nowWrapping }> { L.Title } </td>
-            <td className={ styles.nowWrapping }> { L.EntityTypeName }</td>
+            <td className={ styles.nowWrapping }> { listSettingsURL }</td>
             <td className={ styleDesc }> { L.Description.length > this.state.maxChars ? L.Description.slice(0,this.state.maxChars) + '...' : L.Description } </td>
             <td> { L.ItemCount } </td>
 
             <td className={ styles.nowWrapping }> { L.Created } </td>
             <td> { L.LastItemModifiedDate } </td>
-            <td> { L.MajorVersionLimit } </td>
-            <td> { 'Perm' } </td>
+            <td> { listVersionURL } </td>
+            <td> { listPermissionURL } </td>
             <td> { L.NoCrawl } </td>
-            <td> { L.ContentTypesEnabled } </td>
-            <td> { 'Exceptions' } </td>
+            <td> { listAdvancedCT } </td>
+            <td> { listAdvancedURL } </td>
             <td> { L.BaseTemplate } </td>
             <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }> { other } </td>
             <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
@@ -203,8 +218,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
         });
 
-
-      
+    
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
  *                   88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 

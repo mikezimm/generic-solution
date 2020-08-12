@@ -28,6 +28,33 @@ import { pivCats } from './listsComponent';
 
 export type IValidTemplate = 100 | 101;
 
+
+
+let SystLists = ["WorkflowTasks", "Style_x0020_Library",
+"SitePages", "SiteAssets", "ReusableContent", "Pages", "SearchConfigList", "OData__x005f_catalogs_x002f_masterpage", "OData__x005f_catalogs_x002f_design",
+"TeamSiteFooterQL1List", "TeamSiteFooterQL2List",
+"SiteCollectionImages", "SiteCollectionDocuments", "FormServerTemplates", "Reports_x0020_List", "PublishingImages",
+"AEInspiredTilesItemsList", "AEInspiredTilesAssetsList", "PublishedFeedList", "Workflow_x0020_TasksList", "AEGoalThermometerAssetsList", "AEMetroGridAssetsList", "AEMetroGridItemsList", "AEMetroGridPicLibList", "AESwipeGalleryAssetsList",
+"AESwipeGalleryDefaultImagesList", "Workflows", "Workflow_x0020_HistoryList", "OData__x005f_catalogs_x002f_fpdatasources", "IWConvertedForms", "Access_x0020_Requests"
+];
+
+let TempSysLists = ["OurGroupsList", "OurTilesList", "TemplateHistoryList", "Template_x0020_HistoryList",
+"TemplateReferenceList", "AE_x0020_KPI_x0020_ListList", "PnpPanelList",
+"SiteLaunchCheckListList", "EmailSettingsList", "YearView_x0020_ConfigurationList", "SubscribeList","ProjectsList","TrackMyTimeList"
+];
+
+let TempContLists = ["ActionRegisterList", "AgendasList", "AutoOnBoardList", "BringOnBoardList", "BudgetDeptList", "BudgetFiles", "CalendarDocs", "CalendarList", "CustomerComplaints", "CustRequirements", "Deliverables", "DeskInstructions",
+"Documents2", "Documents3", "Documents4", "Documents5", "Emails", "EventDocs", "EventsList", "FAQsList", "FinanceDocs2", "FinanceDocs3", "FinanceDocs4", "FinanceDocs5", "Itineraries", "LaunchThisSiteChecklistList", "ManufacturingRecords",
+"Media", "OurForms", "OurOnBoardingList", "OurPNsList", "OurTasksList", "OurWiki", "PartTrackerList", "Performance", "PresentationLinksList", "Presentations", "ProcessProductionEquipment", "ProjectOverviewList", "QualityRecords",
+"QualitySysReporting", "ReportFiles", "RequestsList", "RFQDocs2", "RFQDocs3", "RFQDocs4", "RFQDocs5", "SerialDocuments", "Shared_x0020_Documents", "SiteLaunchCheckListList", "SuggestionsList", "TasksList", "TimelineList", "ToolTrackerList",
+"TrainingRecords", "VehicleVolumesList", 
+"Smile1List", "Smile2List", "Smile3List", "Smile4List", "Smile5List", "Smile6List", "Smile7List", "Smile8List", "Smile9List", "Smile10List", "Smile11List", "Smile12List", 
+"Attachments00", "Attachments01", "Attachments02", "Attachments03", "Attachments04", "Attachments05", "Attachments06", "Attachments07", "Attachments08", "Attachments09",
+"Attachments10", "Attachments11", "Attachments12", "LessonsLearned", "ReadAcrossList", "YokotensList",
+"FilesYMCat","FilesYMCatU"
+];
+
+
 // Copied from WPDef component
 export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
     if ( item != '' && arr.indexOf(item) < 0 ) { arr.push(item); }
@@ -43,10 +70,23 @@ export async function allAvailableLists( webURL: string, addTheseListsToState: a
 
     for (let i in allLists ) {
 
+        let lastModified = makeSmallTimeObject(allLists[i].LastItemModifiedDate);
+        let created = makeSmallTimeObject(allLists[i].Created);
+
         allLists[i].Created = makeSmallTimeObject(allLists[i].Created).dayYYYYMMDD;
-        allLists[i].LastItemModifiedDate = makeSmallTimeObject(allLists[i].LastItemModifiedDate).daysAgo.toString() + ' days';
+
+        allLists[i].LastItemModifiedDate = lastModified.daysAgo.toString() + ' days';
+        allLists[i].modifiedAge = lastModified.daysAgo;
+        allLists[i].createdAge = created.daysAgo;
+
+        let sort = getListSort(allLists[i]);
+        allLists[i].sort = sort.sort;
+        allLists[i].group = sort.group;
+        allLists[i].groupLabel = sort.label;
+
         allLists[i].meta = buildMetaFromList(allLists[i]);
         allLists[i].searchString = buildSearchStringFromList(allLists[i]);
+
 
     }
 
@@ -62,6 +102,35 @@ export async function allAvailableLists( webURL: string, addTheseListsToState: a
 
 }
 
+function getListSort( theList: IContentsListInfo ) {
+
+    let thisSort = '0';
+    let thisLabel = 'Custom';
+
+    if ( SystLists.indexOf(theList.EntityTypeName) > -1 ) {
+        thisSort = '9';
+        thisLabel = 'System';
+
+    } else  if ( TempSysLists.indexOf(theList.EntityTypeName) > -1  ) {
+        thisSort = '6';
+        thisLabel = 'Template System';
+
+    } else  if ( TempContLists.indexOf(theList.EntityTypeName) > -1  ) {
+        thisSort = '3';
+        thisLabel = 'Template Content';
+
+    } 
+
+    let thisGroup = thisSort + '. ' + thisLabel;
+
+
+    return {
+        sort: thisSort,
+        label: thisLabel,
+        group: thisGroup,
+    };
+}
+
 function buildMetaFromList( theList: IContentsListInfo ) {
     let meta: string[] = [];
 
@@ -72,12 +141,18 @@ function buildMetaFromList( theList: IContentsListInfo ) {
     meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount > 1000 ? pivCats.lots.title:'');
     meta = addItemToArrayIfItDoesNotExist(meta, theList.ItemCount === 0 ? pivCats.empty.title: pivCats.notEmpty.title);    
     meta = addItemToArrayIfItDoesNotExist(meta, !theList.EnableVersioning ? pivCats.noVersions.title:'');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.LastItemModifiedDate > '100' ? pivCats.old.title:'');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.MajorVersionLimit > 100 ? pivCats.versions.title:'');
 
-    let libraryTemplates = [101, 116, 119,];
-    let listTemplates = [100, 106];
-    let isLibrary = libraryTemplates.indexOf(theList.BaseTemplate) > -1 ? pivCats.libraries : pivCats.lists ;
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.MajorVersionLimit > 100 ? pivCats.versions.title:'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.modifiedAge > 180 ? pivCats.old.title:'');
+
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.sort );
+
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.groupLabel );
+
+    //List of List and Library types
+    //https://docs.microsoft.com/en-us/previous-versions/office/sharepoint-visio/jj245053(v=office.15)?redirectedfrom=MSDN#remarks
+
+    let isLibrary = theList.BaseType === 0 ? pivCats.lists : pivCats.libraries ;
     meta = addItemToArrayIfItDoesNotExist(meta, isLibrary.title );
     // meta = addItemToArrayIfItDoesNotExist(meta, theList. > 100 ? 'Versioning':'');
 

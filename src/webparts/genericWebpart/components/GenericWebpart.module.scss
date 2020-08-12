@@ -3,6 +3,9 @@
 .genericWebpart {
 
   
+  .msToggleLabel {
+    color: 'red';
+  }
   //  This moves the "Help" Pivot to the far right
     .topPivots *[data-content="Help"]  {
       float:  right !important;

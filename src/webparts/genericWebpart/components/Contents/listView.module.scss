@@ -5,14 +5,20 @@
 
 .logListView {
 
+
+  //https://stackoverflow.com/a/2248908
+  tr:hover td {
+    background-color: darkgray; color: #000;
+  }
+
   .listButtons {
 
     background-color: white !important;
-    
+  /*  
     td {
       background-color: white !important;
     }
-
+*/
     .buttons{
       //padding-right: 10px;
       -webkit-font-smoothing: antialiased;
@@ -52,6 +58,7 @@
           font-weight: bold;
           margin-bottom: 5px;
         }
+
       }
     
       .toggleRow {

@@ -346,6 +346,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           webURL = { this.state.parentListWeb }
           advanced = { true }
           railsOff = { true }
+          allowRailsOff = { true }
 
           WebpartHeight = { this.state.WebpartHeight }
           WebpartWidth = { this.state.WebpartWidth }

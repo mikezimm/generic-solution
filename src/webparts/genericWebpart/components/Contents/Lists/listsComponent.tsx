@@ -34,6 +34,8 @@ import { createAdvancedContentChoices } from '../../fields/choiceFieldBuilder';
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
+import { createLink } from '../../HelpInfo/AllLinks';
+
 import { PageContext } from '@microsoft/sp-page-context';
 import { IMyPivots, IPivot,  } from '../../IReUsableInterfaces';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
@@ -73,6 +75,9 @@ export interface IInspectListsProps {
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
+
+    allowRailsOff?: boolean;
+
     webURL?: string;
 
     allLoaded: boolean;
@@ -93,6 +98,7 @@ export interface IMyHistory {
     columns: IMyProgress[];
     views: IMyProgress[];
     items: IMyProgress[];
+
 
 }
 
@@ -124,6 +130,7 @@ export interface IInspectListsState {
 
     showDesc: boolean;
     showSettings: boolean;
+    showRailsOff: boolean;
 
 }
 
@@ -169,6 +176,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             searchCount: 0,
             meta: [],
 
+            webURL: this.props.webURL,
+
             advanced: false,
             railsOff: false,
 
@@ -177,6 +186,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             searchMeta: '',
             searchText: '',
+
+            showRailsOff: false,
         
         };
 
@@ -244,10 +255,12 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             let thisPage = null;
 
             let listList = <div className={ styles.floatLeft }><MyLogList 
-                advanced = { this.state.advanced } railsOff= { this.state.railsOff }
+                showSettings = { this.state.showSettings } railsOff= { this.state.railsOff }
                 title={ ''}           items={ this.state.searchedLists }
                 showDesc = { this.state.showDesc } 
+                webURL = { this.state.webURL }
                 pickThisList = { this.props.pickThisList }
+
                 descending={false}          titles={null}            ></MyLogList></div>;
 
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
@@ -282,11 +295,15 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             let listPivots = this.createPivotObject(this.state.searchMeta, '');
 
+            let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
+
             thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
 
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                      { searchBox } { toggles }
                 </Stack>
+
+                <div> { settings } </div>
 
                 <div style={{ height:30, paddingBottom: 10} }> { listPivots } </div>
 
@@ -583,7 +600,12 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         let lists = this.buildFilterPivot(pivCats.lists);
         let libraries = this.buildFilterPivot(pivCats.libraries);
 
-        let thesePivots = [visible, lists, libraries, old, empty, notEmpty, lots, max, versions, noVersions  ,hidden];
+        let o0 = this.buildFilterPivot({title: '0', desc: 'User built lists', order: 1 });
+        let o3 = this.buildFilterPivot({title: '3', desc: 'Pre-built Content lists', order: 3 });
+        let o6 = this.buildFilterPivot({title: '6', desc: 'Template System lists', order: 6 });
+        let o9 = this.buildFilterPivot({title: '9', desc: 'System lists', order: 9 });
+
+        let thesePivots = [visible, o0, o3, o6, o9, lists, libraries, old, empty, notEmpty, lots, max, versions, noVersions  ,hidden];
 
         return thesePivots;
     }
@@ -613,7 +635,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     private getPageToggles() {
 
         let togDesc = {
-            label: 'Description',
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>Description</span>,
             key: 'togggleDescription',
             _onChange: this.updateTogggleDesc.bind(this),
             checked: this.state.showDesc,
@@ -624,7 +647,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         };
 
         let togSet = {
-            label: 'Settings',
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>Settings</span>,
             key: 'togggleSettings',
             _onChange: this.updateTogggleSettings.bind(this),
             checked: this.state.showSettings,
@@ -634,8 +658,23 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             styles: '',
         };
 
+        let railsLabel = <span style={{ color: 'red', fontWeight: 700}}>Rails Off!</span>;
+        let togRails = {
+            label: railsLabel,
+            key: 'togggleRailsOff',
+            _onChange: this.updateTogggleRailsOff.bind(this),
+            checked: this.state.showRailsOff,
+            onText: '',
+            offText: '',
+            className: '',
+            styles: '',
+        };
+
+        let theseToggles = [togDesc, togSet ];
+        if ( this.props.allowRailsOff === true ) { theseToggles.push( togRails ); }
+
         let pageToggles : IContentsToggles = {
-            toggles: [togDesc, togSet ],
+            toggles: theseToggles,
             childGap: 20,
             vertical: false,
             hAlign: 'end',
@@ -659,10 +698,28 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         });
     }
 
-    private updateTogggleOther() {
+    private updateTogggleRailsOff() {
         this.setState({
-
+            showRailsOff: !this.state.showRailsOff,
         });
     }
 
+
+    private getSiteSettingsLinks() {
+
+        let stackSettingTokens = { childrenGap: 20 };
+        let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
+                <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Fields */}
+                { createLink( this.state.webURL + "/_layouts/15/settings.aspx" ,'_blank', 'Site Settings' )}
+                { createLink( this.state.webURL + "/_layouts/15/user.aspx" ,'_blank', 'Permissions' )}
+                { createLink( this.state.webURL + "/_layouts/15/prjsetng.aspx" ,'_blank', 'Title/Logo' )}
+                { createLink( this.state.webURL + "/_layouts/15/AreaNavigationSettings.aspx" ,'_blank', 'Navigation' )}
+                { createLink( this.state.webURL + "/_layouts/15/people.aspx" ,'_blank', 'Groups' )}
+                { createLink( this.state.webURL + "/_layouts/15/ManageFeatures.aspx" ,'_blank', 'Features' )}            
+            </Stack>
+        </div>;
+
+        return settingLinks;
+
+    }
 }

@@ -40,6 +40,7 @@ export interface IInspectContentsProps {
 
     currentUser: IUser;
     advanced: boolean;
+    allowRailsOff: boolean;
     railsOff: boolean;
 
     WebpartHeight: number;
@@ -94,6 +95,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     let parentWeb = cleanURL(this.props.webURL);
 
+    let railsMode = this.props.allowRailsOff && this.props.railsOff ? true : false ;
     this.state = {
 
             //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
@@ -106,7 +108,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             allLoaded: false,
 
             advanced: true,
-            railsOff: true,
+            railsOff: railsMode ,
 
             tab: 'Lists',
     
@@ -152,6 +154,8 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allLoaded = { true }
                 pickedList = { this.state.pickedList }
                 pickThisList = { this.updatePickList.bind(this) }
+                allowRailsOff = { this.state.railsOff }
+                webURL = { this.state.webURL }
             ></InspectLists>
         </div>;
 
@@ -169,6 +173,10 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         </div>;
 
         const groupsPage = <div>
+                { noPageAvailable }
+        </div>;
+
+        const railsPage = <div>
                 { noPageAvailable }
         </div>;
 
@@ -205,6 +213,14 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 <h3>Groups</h3>
                 { groupsPage }
             </PivotItem>
+
+            {  !this.state.railsOff ? null : 
+            <PivotItem headerText="RailsOff">
+                <h3>RailsOff</h3>
+                { railsPage }
+            </PivotItem>
+            
+             }
         </Pivot>;
 
         return (

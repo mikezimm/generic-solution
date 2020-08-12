@@ -126,7 +126,7 @@ export interface IListInfo {
     TemplateFeatureId: string;
     Title: string;
     UniquePerms?: boolean;
-    searchString: string;
+
 }
 
 export interface IContentsLists {
@@ -164,8 +164,6 @@ export interface IContentsListInfo {
   LastItemModifiedDate: string;
   LastItemUserModifiedDate: string;
 
-  meta?: string[];
-
   ParentWebPath: {
     DecodedUrl: string;
   };
@@ -188,6 +186,12 @@ export interface IContentsListInfo {
   //Custom info
   UniquePerms?: boolean;
   searchString: string;
+  modifiedAge?: number;
+  createdAge?: number;
+  meta?: string[];
+  sort?: string;
+  group?: string;
+  groupLabel?: string;
 
   //Backend Info
   odataEtag: string; //""121""
@@ -205,9 +209,6 @@ export interface IContentsListInfo {
   IsApplicationList: boolean;
   IsCatalog: boolean;
   IsPrivate: boolean;
-
-
-
 
   TemplateFeatureId: string;
 
