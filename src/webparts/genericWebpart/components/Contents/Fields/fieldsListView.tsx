@@ -263,10 +263,9 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <td className={ columnsToVisible }> { F.Group } </td>
                 <td> { F.DefaultValue ? F.DefaultValue : '-' } </td>
 
-
-                <td className={ styleXML }> { F.SchemaXml } </td>
-                <td className={ styleSPFx }> { this.getFieldSPFx(F) } </td>
-                <td className={ styleJSON }> { this.getFieldJSON(F) } </td>
+                <td className={ styleXML }> { this.props.showXML ? this.getFieldXML(F.SchemaXml) : null } </td>
+                <td className={ styleSPFx }> { this.props.showSPFx ? this.getFieldSPFx(F) : null } </td>
+                <td className={ styleJSON }> { this.props.showJSON ? this.getFieldJSON(F) : null } </td>
 
                 <td className={ [styles.nowWrapping, columnsToVisible].join(', ') }> { dev } </td>
 
@@ -418,6 +417,55 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
     }
 
+    private getFieldXML ( thisField ) {
+
+      console.log( 'getFieldXML thisField:', thisField );
+
+      let sample = thisField ;
+      let xmlArray = [];
+
+      let regex = /[\"] [A-Z]/g;
+
+      do {
+        let loc = sample.search(regex);
+        if (xmlArray.length === 0 ) {
+          //Do this to split the xml tag out
+          let firstSlice = sample.slice(0, loc + 1 );
+          let loc2 = firstSlice.indexOf(' ');
+          let tag = firstSlice.slice(0, loc2 );
+          let prop = firstSlice.slice(loc2 + 1 );
+          xmlArray.push( this.buildMLineDiv(0,tag) );
+          xmlArray.push( this.buildMLineDiv(1,prop) );
+
+        } else {
+          xmlArray.push( this.buildMLineDiv(1, sample.slice(0, loc + 1 ) ) );
+
+        }
+
+        sample = sample.slice( loc + 2 )
+
+      } while ( sample.search(regex) > 0 );
+
+      xmlArray.push( this.buildMLineDiv(1, sample ) );
+
+      console.log( 'getFieldXML:', sample, xmlArray);
+
+/*
+      let x = sample.search(regex);
+
+      function testMe(str, index, replacement) {
+          return str.substr(0, index + 1) + replacement + str.substr(index + 2);
+      }
+
+      let newV = testMe(sample,x,'---');
+
+      console.log(newV);
+      */
+
+      return xmlArray;
+
+    }
+
     private getFieldSPFx ( thisField ) {
 
         var indent1 = 1;
@@ -448,6 +496,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
           thisField.Title=thisField.Title;
 
         }
+
         jsonZ.push(  this.buildMLineDiv(0 , "fieldType: {" + ""  )  ) ;
         jsonZ.push(  this.buildMLineDiv( indent1 , "kind: " + thisField.FieldTypeKind + ","  )  ) ;
         jsonZ.push(  this.buildMLineDiv( indent1 , "type:  '" + thisField['odata.type'] +"',"  )  ) ;
