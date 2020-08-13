@@ -231,6 +231,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
   public componentDidMount() {
     this._updateStateOnPropsChange();
+    console.log('Mounted!');
   }
 
 
@@ -292,6 +293,8 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             let fieldList = <div className={ styles.floatLeft }><MyLogField 
                 showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
                 title={ ''}           items={ this.state.searchedColumns }
+
+                searchMeta= { this.state.searchMeta }
                 showDesc = { this.state.showDesc } 
 
                 showRailsOff= { this.state.showDesc } 
