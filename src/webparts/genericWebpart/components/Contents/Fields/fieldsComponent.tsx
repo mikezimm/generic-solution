@@ -77,9 +77,11 @@ export const pivCats = {
 
 export interface IContentsFieldInfo extends Partial<IFieldInfo>{
     sort: string;
-    group: string;
+    cGroup: string;
     groupLabel: string;
-
+    FillInChoice?: boolean; //Allow Fill In
+    ShowInFiltersPane?: number;
+    CanBeDeleted?: boolean;
     searchString: string;
     meta: string[];
 }
@@ -147,6 +149,14 @@ export interface IInspectColumnsState {
     showSettings: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
 
+    showXML: boolean;
+    showJSON: boolean;
+    showSPFx: boolean;
+
+    showMinFields: boolean;
+
+    errMessage: string;
+
 }
 
 export default class InspectColumns extends React.Component<IInspectColumnsProps, IInspectColumnsState> {
@@ -203,7 +213,12 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             searchMeta: '',
             searchText: '',
 
+            errMessage: '',
 
+            showXML: false,
+            showJSON: false,
+            showSPFx: false,
+            showMinFields: false,
         
         };
 
@@ -270,20 +285,33 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
             let thisPage = null;
 
+            let errMessage = this.state.errMessage === '' ? null : <div>
+                { this.state.errMessage }
+            </div>;
+
             let fieldList = <div className={ styles.floatLeft }><MyLogField 
                 showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
                 title={ ''}           items={ this.state.searchedColumns }
                 showDesc = { this.state.showDesc } 
+
+                showRailsOff= { this.state.showDesc } 
+            
+                showXML= { this.state.showXML } 
+                showJSON= { this.state.showJSON } 
+                showSPFx= { this.state.showSPFx } 
+            
+                showMinFields= { this.state.showDesc } 
+
                 webURL = { this.state.webURL }
 
                 descending={false}          titles={null}            ></MyLogField></div>;
 
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
-            let searchBox =           
+            let searchBox =  
             <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
               <SearchBox
                 className={styles.searchBox}
-                styles={{ root: { maxWidth: 300 } }}
+                styles={{ root: { maxWidth: this.props.allowRailsOff === true ? 200 : 300 } }}
                 placeholder="Search"
                 onSearch={ this._searchForItems.bind(this) }
                 onFocus={ () => console.log('this.state',  this.state) }
@@ -291,7 +319,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
                 onChange={ this._searchForItems.bind(this) }
               />
               <div className={styles.searchStatus}>
-                { 'Searching about ' + this.state.searchCount + ' fields' }
+                { 'Searching ' + this.state.searchCount + ' fields' }
                 { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
               </div>
             </div>;
@@ -315,6 +343,8 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
 
             thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
+
+                { errMessage }
 
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                      { searchBox } { toggles }
@@ -360,11 +390,13 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
 
     private getFieldDefs() {
-        let result : any = allAvailableFields( this.state.webURL, this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let listGuid = '';
+        if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
+        let result : any = allAvailableFields( this.state.webURL, listGuid, this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
-    private addThesePartsToState( allFields ) {
+    private addTheseFieldsToState( allFields, scope : 'List' | 'Web' , errMessage : string ) {
 
         /*
         let meta: string[] = [];
@@ -381,6 +413,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             allFields: allFields,
             searchedColumns: allFields,
             searchCount: allFields.length,
+            errMessage: errMessage,
         });
         return true;
     }
@@ -586,7 +619,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
         let theseStyles = null;
     
-        let pivotPart = 
+        let pivotField = 
         <Pivot 
           style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
           styles={ theseStyles }
@@ -597,7 +630,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
           headersOnly={true}>
             {this.getFieldPivots()}
         </Pivot>;
-        return pivotPart;
+        return pivotField;
       }
 
     private getFieldPivots() {
@@ -654,8 +687,8 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             key: 'togggleDescription',
             _onChange: this.updateTogggleDesc.bind(this),
             checked: this.state.showDesc,
-            onText: '',
-            offText: '',
+            onText: '-',
+            offText: '-',
             className: '',
             styles: '',
         };
@@ -666,8 +699,44 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             key: 'togggleSettings',
             _onChange: this.updateTogggleSettings.bind(this),
             checked: this.state.showSettings,
-            onText: '',
-            offText: '',
+            onText: '-',
+            offText: '-',
+            className: '',
+            styles: '',
+        };
+
+        let togXML = {
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>XML</span>,
+            key: 'togggleXML',
+            _onChange: this.updateTogggleXML.bind(this),
+            checked: this.state.showXML,
+            onText: '-',
+            offText: '-',
+            className: '',
+            styles: '',
+        };
+
+        let togJSON = {
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>JSON</span>,
+            key: 'togggleJSON',
+            _onChange: this.updateTogggleJSON.bind(this),
+            checked: this.state.showJSON,
+            onText: '-',
+            offText: '-',
+            className: '',
+            styles: '',
+        };
+
+        let togSPFx = {
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>SPFx</span>,
+            key: 'togggleSPFx',
+            _onChange: this.updateTogggleSPFx.bind(this),
+            checked: this.state.showSPFx,
+            onText: '-',
+            offText: '-',
             className: '',
             styles: '',
         };
@@ -678,22 +747,23 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             key: 'togggleRailsOff',
             _onChange: this.updateTogggleRailsOff.bind(this),
             checked: this.state.showRailsOff,
-            onText: '',
-            offText: '',
+            onText: '-',
+            offText: '-',
             className: '',
             styles: '',
         };
 
         let theseToggles = [togDesc, togSet ];
-        if ( this.props.allowRailsOff === true ) { theseToggles.push( togRails ); }
+        if ( this.props.allowRailsOff === true ) { theseToggles.push( togXML, togJSON, togSPFx, togRails ); }
+
 
         let pageToggles : IContentsToggles = {
             toggles: theseToggles,
-            childGap: 20,
+            childGap: this.props.allowRailsOff === true ? 10 : 20,
             vertical: false,
             hAlign: 'end',
             vAlign: 'start',
-            rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+            rootStyle: { width: this.props.allowRailsOff === true ? 80 : 120 , paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
         };
 
         return pageToggles;
@@ -718,6 +788,31 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
         });
     }
 
+    private updateTogggleXML() {
+        this.setState({
+            showXML: !this.state.showXML,
+            showJSON: this.state.showJSON,
+            showSPFx: this.state.showSPFx,
+        });
+    }
+
+    
+    private updateTogggleJSON() {
+        this.setState({
+            showXML: this.state.showXML,
+            showJSON: !this.state.showJSON,
+            showSPFx: this.state.showSPFx,
+        });
+    }
+
+    
+    private updateTogggleSPFx() {
+        this.setState({
+            showXML: this.state.showXML,
+            showJSON: this.state.showJSON,
+            showSPFx: !this.state.showSPFx,
+        });
+    }
 
     private getSiteSettingsLinks() {
 

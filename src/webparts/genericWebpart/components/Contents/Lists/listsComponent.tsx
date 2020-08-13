@@ -644,8 +644,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             key: 'togggleDescription',
             _onChange: this.updateTogggleDesc.bind(this),
             checked: this.state.showDesc,
-            onText: '',
-            offText: '',
+            onText: '-',
+            offText: '-',
             className: '',
             styles: '',
         };
@@ -656,8 +656,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             key: 'togggleSettings',
             _onChange: this.updateTogggleSettings.bind(this),
             checked: this.state.showSettings,
-            onText: '',
-            offText: '',
+            onText: '-',
+            offText: '-',
             className: '',
             styles: '',
         };

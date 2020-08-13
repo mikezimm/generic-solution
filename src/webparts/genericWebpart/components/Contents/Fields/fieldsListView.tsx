@@ -28,7 +28,16 @@ export interface IMyLogFieldProps {
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     descending: boolean;
     maxChars?: number;
+
     showDesc?: boolean;
+    showRailsOff: boolean;  //property set by toggle to actually show or hide this content
+
+    showXML: boolean;
+    showJSON: boolean;
+    showSPFx: boolean;
+
+    showMinFields: boolean;
+
 
 }
 
@@ -159,11 +168,49 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
             let hoverFieldStyle = { fontWeight: 700};
             return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
               <div>
+                { /* Basic information */ }
                 <p><span style={hoverFieldStyle}>Title:</span> { F.Title }</p>
-                <p><span style={hoverFieldStyle}>Type:</span> { 'Type' }</p>
+                <p><span style={hoverFieldStyle}>TypeAsString:</span> { F.TypeAsString }</p>
+                <p style={{ display: F.TypeAsString !== F.TypeDisplayName ? '' : 'none' }}>
+                    <span style={hoverFieldStyle}>TypeDisplayName:</span> { F.TypeDisplayName }</p>
+
                 <p><span style={hoverFieldStyle}>Description:</span> { F.Description }</p>
                 <p><span style={hoverFieldStyle}>EntityName:</span> { F.StaticName }</p>
+                <p><span style={hoverFieldStyle}>Group:</span> { F.Group }</p>
                 <p><span style={hoverFieldStyle}>Id:</span> { F.Id }</p>
+
+                { /* Types information */ }
+                <p><span style={hoverFieldStyle}>odata.type:</span> { F['odata.type'] }</p>
+                <p><span style={hoverFieldStyle}>odata.FieldTypeKind:</span> { F.FieldTypeKind }</p>
+                
+                { /* Exceptions information */ }
+                <p style={{ display: F.FillInChoice === true ? '' : 'none' }}>
+                    <span style={hoverFieldStyle}>FillInChoice:</span> { F.FillInChoice === true ? 'true' : 'false' }</p>
+
+                <p style={{ display: F.Hidden === true ? '' : 'none' }}>
+                    <span style={hoverFieldStyle}>Hidden:</span> { F.Hidden === true ? 'true' : 'false' }</p>
+
+                <p style={{ display: F.Indexed === true ? '' : 'none' }}>
+                    <span style={hoverFieldStyle}>Indexed:</span> { F.Indexed === true ? 'true' : 'false' }</p>
+
+                <p style={{ display: F.Required === true ? '' : 'none' }}>
+                    <span style={hoverFieldStyle}>Required:</span> { F.Required === true ? 'true' : 'false' }</p>
+
+                <p style={{ display: F.Sealed === true ? '' : 'none' }}>
+                    <span style={hoverFieldStyle}>Sealed:</span> { F.Sealed === true ? 'true' : 'false' }</p>
+
+                <p style={{ display: F.ShowInFiltersPane ? '' : 'none' }}>
+                    <span style={hoverFieldStyle}>ShowInFiltersPane:</span> { F.ShowInFiltersPane }</p>
+
+                <p style={{ display: F.EnforceUniqueValues === true ? '' : 'none' }}>
+                    <span style={hoverFieldStyle}>EnforceUniqueValues:</span> { F.EnforceUniqueValues === true ? 'true' : 'false'  }</p>
+
+                <p style={{ display: F.ValidationFormula != null ? '' : 'none' }}>
+                    <span style={hoverFieldStyle}>ValidationFormula:</span> { F.ValidationFormula != null ? F.ValidationFormula : '' }</p>
+
+                <p style={{ display: F.ValidationMessage != null ? '' : 'none' }}>
+                    <span style={hoverFieldStyle}>ValidationMessage:</span> { F.ValidationMessage != null ? F.ValidationMessage : ''  }</p>
+
                 <p><br></br></p>
                 <p><span style={hoverFieldStyle}>Search String:</span> { F.searchString }</p>
               </div>
@@ -187,28 +234,29 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 //.buttons{
 
 
-          let fieldSettingsURL = !this.props.showSettings ? F.StaticName : createLink(this.props.webURL + "/_layouts/15/listedit.aspx?Field=(" + F.Id + ")", '_blank', F.StaticName);
+            let fieldSettingsURL = !this.props.showSettings ? F.StaticName : createLink(this.props.webURL + "/_layouts/15/listedit.aspx?Field=(" + F.Id + ")", '_blank', F.StaticName);
 
-          let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
+            let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
 
-          return <tr>
-            <td className={ styles.nowWrapping }> { F.Title } </td>
-            <td className={ styles.nowWrapping }> { fieldSettingsURL }</td>
-            <td className={ styleDesc }> { F.Description.length > this.state.maxChars ? F.Description.slice(0,this.state.maxChars) + '...' : F.Description } </td>
-            <td> { 'Count' } </td>
+            let dev = '';
+            if (F.Indexed === true) { dev += "Idx " ; }
+            if (F.CanBeDeleted !== true) { dev += "!Del" ; }
+            if (F.EnforceUniqueValues === true) { dev += "UQ" ; }
+            if (F.ReadOnlyField === true) { dev += "RO" ; }
+            if (F.Sealed === true) { dev += "S" ; }
 
-            <td className={ styles.nowWrapping }> { 'cre' } </td>
-            <td> { 'last' } </td>
-            <td> {  } </td>
-            <td> {  } </td>
-            <td> { 'crawl' } </td>
-            <td> {  } </td>
-            <td> {  } </td>
-            <td> { 'baseT' } </td>
-            <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }> { other } </td>
-            <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
+            return <tr>
+                <td className={ styles.nowWrapping }> { F.Title } </td>
+                <td className={ styles.nowWrapping }> { fieldSettingsURL }</td>
+                <td className={ styleDesc }> { F.Description.length > this.state.maxChars ? F.Description.slice(0,this.state.maxChars) + '...' : F.Description } </td>
+                <td> { F.TypeAsString } </td>
+                <td> { F.Group } </td>
+                <td> { F.DefaultValue ? F.DefaultValue : '-' } </td>
+                <td className={ styles.nowWrapping }> { dev } </td>
 
-          </tr>;
+                <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
+
+                </tr>;
 
         });
 
@@ -229,17 +277,12 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
               <th>Title</th>
               <th>Name</th>
               <th className={ styleDesc }>Description</th>
-              <th>Items</th>
-              <th>Created</th>
-              <th>Updated</th>
-              <th>Vers</th>
-              <th>Perms</th>
-              <th>Search</th>
-              <th>CT</th>  
-              <th>Exceptions</th>
-              <th>Base</th>
-              <th>Other</th>
-              <th>More</th>
+              <th>Type</th>
+              <th>Group</th>
+              <th>Unique</th>
+              <th>Default</th>
+              <th>Dev</th>
+              <th>Details</th>
 
             </tr>
             { itemRows }
@@ -252,7 +295,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
               <div style={{ paddingTop: 15}} className={ stylesInfo.infoPaneTight }>
                 { fieldTitle }
                 { fieldTable }
-            </div>;
+            </div>
           </div>
           );
 

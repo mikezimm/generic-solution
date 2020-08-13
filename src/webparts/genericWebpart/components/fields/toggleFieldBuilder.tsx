@@ -40,9 +40,16 @@ export function makeToggles( makeTheseToggles: IContentsToggles ){
 
         let toggleResult = makeTheseToggles.toggles.map( toggle => {
     
+            //  Basically, if you leave it as '', you will get the default:  either 'On' or 'Off'
+            //  If you pass in '-', it will be blank
+            //  Else it will be the value
+
+            let onText = toggle.onText != '' ? toggle.onText != '-' ? toggle.onText : '' : 'On';
+            let offText = toggle.offText != '' ? toggle.offText != '-' ? toggle.offText : '' : 'Off';
+
             let thisToggle = <Toggle label={ toggle.label ? toggle.label : '' } 
-                onText={ toggle.onText != '' ? toggle.onText : 'On' } 
-                offText={ toggle.offText != '' ? toggle.offText : 'Off' } 
+                onText={ onText } 
+                offText={ offText } 
                 onChange={ toggle._onChange } 
                 checked={ toggle.checked }
                 styles={ toggle.styles ? toggle.styles : defStyles }
