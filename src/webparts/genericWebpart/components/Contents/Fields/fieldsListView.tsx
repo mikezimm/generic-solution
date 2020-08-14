@@ -5,7 +5,7 @@ import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 import { IMyProgress } from '../../IReUsableInterfaces';
 import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
 
-import { IContentsFieldInfo, } from './fieldsComponent';
+import { IContentsFieldInfo, IFieldBucketInfo} from './fieldsComponent';
 
 import { createIconButton } from '../../createButtons/IconButton';
 
@@ -20,11 +20,11 @@ import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
 export interface IMyLogFieldProps {
-    title: string;
+    //title: string;
     titles: [];
     searchMeta: string;
     webURL: string;
-    items: IContentsFieldInfo[];
+    items: IFieldBucketInfo;
     showSettings: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     descending: boolean;
@@ -124,9 +124,9 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
       let thisLog = null;
 
-      if ( this.props.items != null) { 
+      if ( this.props.items.fields != null && this.props.items.count > 0 ) { 
 
-        let logItems : IContentsFieldInfo[] = this.props.items;
+        let logItems : IContentsFieldInfo[] = this.props.items.fields;
 
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
@@ -135,6 +135,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
         let styleXML = this.props.showXML ? styles.showCell : styles.hideMe;
         let styleJSON = this.props.showJSON ? styles.showCell : styles.hideMe;
         let styleSPFx = this.props.showSPFx ? styles.showCell : styles.hideMe;
+        if ( this.props.showXML || this.props.showJSON || this.props.showSPFx ) { columnsToVisible = styles.hideMe ; }
 
         let itemRows = logItems.length === 0 ? null : logItems.map( F => { 
 
@@ -287,27 +288,27 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
  *                                                                      
  */
 
-        let fieldTable = <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
+        let fieldTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
-              <th>Title</th>
-              <th>Name</th>
-              <th className={ styleDesc }>Description</th>
-              <th className={ columnsToVisible }>Type</th>
-              <th className={ columnsToVisible }>Group</th>
-              <th>Default</th>
+                <th>Title</th>
+                <th>Name</th>
+                <th className={ styleDesc }>Description</th>
+                <th className={ columnsToVisible }>Type</th>
+                <th className={ columnsToVisible }>Group</th>
+                <th>Default</th>
 
                 <th className={ styleXML }> { 'SchemaXml' } </th>
                 <th className={ styleSPFx }> { 'SPFx' } </th>
                 <th className={ styleJSON }> { 'JSON' } </th>
 
-              <th className={ [styles.nowWrapping, columnsToVisible].join(', ') }>Dev</th>
-              <th>Details</th>
+                <th className={ [styles.nowWrapping, columnsToVisible].join(', ') }>Dev</th>
+                <th>Details</th>
 
             </tr>
             { itemRows }
         </table>;
 
-        let fieldTitle = this.props.title == '' ? null : <h2>{this.props.title + 's'}</h2>;
+        let fieldTitle = this.props.items.bucketLabel == '' ? null : <h2>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</h2>;
 
         return (
           <div className={ styles.logListView }>
@@ -435,22 +436,22 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
           let tag = firstSlice.slice(0, loc2 );
           let prop = firstSlice.slice(loc2 + 1 );
           xmlArray.push( this.buildMLineDiv(0,tag) );
-          xmlArray.push( this.buildMLineDiv(1,prop) );
+          xmlArray.push( this.buildMLineDiv(2,prop) );
 
         } else {
-          xmlArray.push( this.buildMLineDiv(1, sample.slice(0, loc + 1 ) ) );
+          xmlArray.push( this.buildMLineDiv(2, sample.slice(0, loc + 1 ) ) );
 
         }
 
-        sample = sample.slice( loc + 2 )
+        sample = sample.slice( loc + 2 );
 
       } while ( sample.search(regex) > 0 );
 
-      xmlArray.push( this.buildMLineDiv(1, sample ) );
+      xmlArray.push( this.buildMLineDiv(2, sample ) );
 
       console.log( 'getFieldXML:', sample, xmlArray);
 
-/*
+      /*
       let x = sample.search(regex);
 
       function testMe(str, index, replacement) {

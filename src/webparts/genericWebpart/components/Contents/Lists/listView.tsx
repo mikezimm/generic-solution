@@ -125,7 +125,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
             icon: { 
               fontSize: 14,
-              fontWeight: "900",
+              //fontWeight: "900",
               margin: '10px 5px',  //This puts the margin around the buttons
               //color: '#00457e', //This will set icon color : 00457e
            },
@@ -133,16 +133,19 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
           let columnsStyles = JSON.parse(JSON.stringify(defButtonStyles));
           columnsStyles.root.color = 'red !important';
+          columnsStyles.root.fontWeight = "600 !important";
 
           let viewsStyles = JSON.parse(JSON.stringify(defButtonStyles));
           viewsStyles.root.color = 'blue !important';
+          viewsStyles.root.fontWeight = "900 !important";
 
           let typesStyles = JSON.parse(JSON.stringify(defButtonStyles));
           typesStyles.root.color = 'green !important';
+          typesStyles.root.fontWeight = "900 !important";
           
           let listInfo = '|Splitme|' + L.Id + '|Splitme|' + L.EntityTypeName  + '|Splitme|' + L.Title;
 
-          let gotoColumns = createIconButton('Pause', 'Columns', this.props.pickThisList, 'Columns' + listInfo , columnsStyles );
+          let gotoColumns = createIconButton('OEM', 'Columns', this.props.pickThisList, 'Columns' + listInfo , columnsStyles );
           let gotoViews = createIconButton('ChevronDown', 'Views', this.props.pickThisList, 'Views' + listInfo, viewsStyles );
           let gotoTypes = createIconButton('TypeScriptLanguage', 'Types', this.props.pickThisList, 'Types' + listInfo, typesStyles );
 
@@ -181,6 +184,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               { normalIcon }
             </HoverCard>
             </div>;
+
 
 //.logListView {
 //.listButtons {
@@ -230,7 +234,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
  *                                                                      
  */
 
-        let logTable = <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
+        let logTable = <table style={{ display: 'block', borderCollapse: 'collapse'}} className={stylesInfo.infoTable}>
             <tr>
               <th>Title</th>
               <th>Name</th>

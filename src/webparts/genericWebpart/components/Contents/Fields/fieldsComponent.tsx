@@ -77,13 +77,15 @@ export const pivCats = {
 
 export interface IContentsFieldInfo extends Partial<IFieldInfo>{
     sort: string;
-    cGroup: string;
-    groupLabel: string;
+    bucketCategory: string;
+    bucketLabel: string;
+    bucketIdx: any;
     FillInChoice?: boolean; //Allow Fill In
     ShowInFiltersPane?: number;
     CanBeDeleted?: boolean;
     searchString: string;
     meta: string[];
+
 }
 
 
@@ -119,6 +121,15 @@ export interface IMyHistory {
 
 }
 
+export interface IFieldBucketInfo {
+    fields: IContentsFieldInfo[];
+    count: number;
+    sort: string;
+    bucketCategory: string;
+    bucketLabel: string;
+
+}
+
 export interface IInspectColumnsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
@@ -138,6 +149,8 @@ export interface IInspectColumnsState {
 
     searchedColumns: IContentsFieldInfo[];
     first20searchedColumns: IContentsFieldInfo[];
+
+    fieldBuckets: IFieldBucketInfo[];
     // 2 - Source and destination list information
     allFields: IContentsFieldInfo[];
     meta: string[];
@@ -161,6 +174,14 @@ export interface IInspectColumnsState {
 
 export default class InspectColumns extends React.Component<IInspectColumnsProps, IInspectColumnsState> {
 
+    private createSearchBuckets() {
+        let result : IFieldBucketInfo[] = [
+            { fields: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content'} ,
+            { fields: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
+            { fields: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
+        ];
+        return result;
+    }
     private clearHistory() {
         let history: IMyHistory = {
             count: 0,
@@ -199,6 +220,9 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             searchedColumns: [],
             first20searchedColumns: [],
             searchCount: 0,
+
+            fieldBuckets : this.createSearchBuckets(),
+
             meta: [],
 
             webURL: this.props.webURL,
@@ -290,24 +314,22 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
                 { this.state.errMessage }
             </div>;
 
-            let fieldList = <div className={ styles.floatLeft }><MyLogField 
-                showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
-                title={ ''}           items={ this.state.searchedColumns }
+//          let fieldList = <div className={ styles.floatLeft }> {  // This format will put all tables horizontal
+            let fieldList = <div> {
+                this.state.fieldBuckets.map( bucket => {
 
-                searchMeta= { this.state.searchMeta }
-                showDesc = { this.state.showDesc } 
+                    return <MyLogField 
+                        showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
+                        items={ bucket }
+                        searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
+                        showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinFields= { this.state.showDesc } 
+                        webURL = { this.state.webURL } descending={false} titles={null}   
+                    ></MyLogField>
+                })
 
-                showRailsOff= { this.state.showDesc } 
-            
-                showXML= { this.state.showXML } 
-                showJSON= { this.state.showJSON } 
-                showSPFx= { this.state.showSPFx } 
-            
-                showMinFields= { this.state.showDesc } 
+            }
 
-                webURL = { this.state.webURL }
-
-                descending={false}          titles={null}            ></MyLogField></div>;
+            </div>;
 
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
             let searchBox =  
@@ -358,7 +380,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
                 <div style={{ height:30, paddingBottom: 10} }> { fieldPivots } </div>
 
                 <div>
-                <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
+                <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                     { fieldList }
                 </Stack>
                 </div></div></div>;
@@ -395,7 +417,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     private getFieldDefs() {
         let listGuid = '';
         if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
-        let result : any = allAvailableFields( this.state.webURL, listGuid, this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableFields( this.state.webURL, listGuid, this.state.fieldBuckets, this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -412,13 +434,27 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
         }
         */
 
+        let fieldBuckets  : IFieldBucketInfo[] = this.bucketFields( allFields, this.state.fieldBuckets );
+
         this.setState({
             allFields: allFields,
             searchedColumns: allFields,
             searchCount: allFields.length,
             errMessage: errMessage,
+            fieldBuckets: fieldBuckets,
         });
         return true;
+    }
+
+    private bucketFields( allFields : IContentsFieldInfo[], fieldBuckets : IFieldBucketInfo[] ) {
+
+        for (let i in allFields ) {
+            fieldBuckets[allFields[i].bucketIdx].fields.push( allFields[i] );
+            fieldBuckets[allFields[i].bucketIdx].count ++;
+        }
+        console.log('bucketFields:  fieldBuckets', fieldBuckets);
+
+        return fieldBuckets;
     }
 
     private markComplete() {
@@ -518,12 +554,13 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
     this.searchForFields( item, this.state.searchMeta );
   }
-
   
   public searchForFields = (text: string, meta: string): void => {
 
     let searchItems : IContentsFieldInfo[] = this.state.allFields;
     let searchCount = searchItems.length;
+
+    let fieldBuckets : IFieldBucketInfo[] = this.createSearchBuckets();
 
     let newFilteredFields : IContentsFieldInfo[] = [];
 
@@ -539,14 +576,19 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
       }
     }
 
+    fieldBuckets  = this.bucketFields( newFilteredFields, fieldBuckets );
+
     console.log('Searched for:' + text);
     console.log('Field Meta:' + meta);
     console.log('and found these fields:', newFilteredFields);
     searchCount = newFilteredFields.length;
 
+
+
     this.setState({
       searchedColumns: newFilteredFields,
       searchCount: searchCount,
+      fieldBuckets: fieldBuckets,
       searchText: text.toLowerCase(),
       searchMeta: meta,
     });

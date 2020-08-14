@@ -275,7 +275,6 @@ export const SortOrder : INumberField = {
     }
 };
 
-
 export const Active : IBooleanField = {
     fieldType: cBool,
     name: 'Active',

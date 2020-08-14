@@ -9,7 +9,7 @@ import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, Clientsi
 
 import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
-import { IContentsFieldInfo } from  './fieldsComponent';
+import { IContentsFieldInfo, IFieldBucketInfo } from  './fieldsComponent';
 
 import { changes, IMyFieldTypes } from '../../../../../services/listServices/columnTypes'; //Import view arrays for Time list
 
@@ -59,7 +59,7 @@ export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
 }
 
 //export async function provisionTestPage( makeThisPage:  IContentsFieldInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableFields( webURL: string, listGUID: string, addTheseFieldsToState: any, setProgress: any, markComplete: any ): Promise<IContentsFieldInfo[]>{
+export async function allAvailableFields( webURL: string, listGUID: string, fieldBuckets: IFieldBucketInfo[], addTheseFieldsToState: any, setProgress: any, markComplete: any ): Promise<IContentsFieldInfo[]>{
 
     let contentsFields : IContentsFieldInfo = null;
 
@@ -89,14 +89,16 @@ export async function allAvailableFields( webURL: string, listGUID: string, addT
 
     for (let i in allFields ) {
 
-        let sort = getFieldSort(allFields[i]);
+        let idx = getFieldSort(allFields[i], fieldBuckets);
 
-        allFields[i].sort = sort.sort;
-        allFields[i].cGroup = sort.group;
-        allFields[i].groupLabel = sort.label;
+        allFields[i].sort = fieldBuckets[idx]['sort'];
+        allFields[i].bucketCategory = fieldBuckets[idx]['bucketCategory'];
+        allFields[i].bucketLabel = fieldBuckets[idx]['bucketLabel'];
+        allFields[i].bucketIdx = idx;       
 
         allFields[i].meta = buildMetaFromField(allFields[i]);
         allFields[i].searchString = buildSearchStringFromField(allFields[i]);
+
 
     }
 
@@ -105,28 +107,32 @@ export async function allAvailableFields( webURL: string, listGUID: string, addT
 
 }
 
-function getFieldSort( theField: IContentsFieldInfo ) {
+function getFieldSort( theField: IContentsFieldInfo, fieldBuckets: IFieldBucketInfo[] ) {
+/*
+    { fields: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content'} ,
+    { fields: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
+    { fields: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
+*/
 
-    let thisSort = '0';
-    let thisLabel = 'Custom';
+    let bucketCategory = '';
 
-    if ( SystemFields.indexOf(theField.StaticName) > -1 ) {
-        thisSort = '9';
-        thisLabel = 'System';
+    if ( ootbFields.indexOf( theField.StaticName ) > -1 ) {
+        bucketCategory = 'OOTB';
 
-    } else if ( ootbFields.indexOf( theField.StaticName ) > -1 ) {
-        thisSort = '6';
-        thisLabel = 'OOTB';
+    } else if ( SystemFields.indexOf(theField.StaticName) > -1 ) {
+        bucketCategory = 'System';
 
-    }
+    } else if ( theField.ReadOnlyField === true ) {
+        bucketCategory = 'System';
 
-    let thisGroup = thisSort + '. ' + thisLabel;
+    } else { bucketCategory = 'Custom'; }
 
-    return {
-        sort: thisSort,
-        label: thisLabel,
-        group: thisGroup,
-    };
+    let idx : any = doesObjectExistInArray(fieldBuckets, 'bucketCategory', bucketCategory ); 
+
+    if ( idx === false ) { alert('getFieldSort issue... bucketCategory (' + bucketCategory + ')not found in fieldBuckets.'); idx = -1; }
+
+    return idx;
+
 }
 
 function buildMetaFromField( theField: IContentsFieldInfo ) {
@@ -150,7 +156,7 @@ function buildMetaFromField( theField: IContentsFieldInfo ) {
     meta = addItemToArrayIfItDoesNotExist(meta, theField.Hidden ? pivCats.hidden.title: '');
 
     meta = addItemToArrayIfItDoesNotExist(meta, theField.sort );
-    meta = addItemToArrayIfItDoesNotExist(meta, theField.groupLabel );
+    meta = addItemToArrayIfItDoesNotExist(meta, theField.bucketLabel );
 
     return meta;
 }
