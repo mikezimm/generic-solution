@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { IMyProgress } from '../../IReUsableInterfaces';
-import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
+import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '../../../../../services/listServices/listTypes';
 
 import { createIconButton } from '../../createButtons/IconButton';
 
@@ -13,6 +13,7 @@ import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-r
 
 import { createLink } from '../../HelpInfo/AllLinks';
 
+import { IListBucketInfo } from './listsComponent';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
@@ -21,7 +22,7 @@ export interface IMyLogListProps {
     title: string;
     titles: [];
     webURL: string;
-    items: IContentsListInfo[];
+    items: IListBucketInfo;
     showSettings: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     descending: boolean;
@@ -111,9 +112,9 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
       let thisLog = null;
 
-      if ( this.props.items != null) { 
+      if ( this.props.items.lists != null && this.props.items.count > 0 ) { 
 
-        let logItems : IContentsListInfo[] = this.props.items;
+        let logItems : IContentsListInfo[] = this.props.items.lists;
 
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
@@ -125,7 +126,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
             icon: { 
               fontSize: 14,
-              fontWeight: "900",
+              //fontWeight: "900",
               margin: '10px 5px',  //This puts the margin around the buttons
               //color: '#00457e', //This will set icon color : 00457e
            },
@@ -133,16 +134,19 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
           let columnsStyles = JSON.parse(JSON.stringify(defButtonStyles));
           columnsStyles.root.color = 'red !important';
+          columnsStyles.root.fontWeight = "600 !important";
 
           let viewsStyles = JSON.parse(JSON.stringify(defButtonStyles));
           viewsStyles.root.color = 'blue !important';
+          viewsStyles.root.fontWeight = "900 !important";
 
           let typesStyles = JSON.parse(JSON.stringify(defButtonStyles));
           typesStyles.root.color = 'green !important';
+          typesStyles.root.fontWeight = "900 !important";
           
           let listInfo = '|Splitme|' + L.Id + '|Splitme|' + L.EntityTypeName  + '|Splitme|' + L.Title;
 
-          let gotoColumns = createIconButton('Pause', 'Columns', this.props.pickThisList, 'Columns' + listInfo , columnsStyles );
+          let gotoColumns = createIconButton('OEM', 'Columns', this.props.pickThisList, 'Columns' + listInfo , columnsStyles );
           let gotoViews = createIconButton('ChevronDown', 'Views', this.props.pickThisList, 'Views' + listInfo, viewsStyles );
           let gotoTypes = createIconButton('TypeScriptLanguage', 'Types', this.props.pickThisList, 'Types' + listInfo, typesStyles );
 
@@ -181,6 +185,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               { normalIcon }
             </HoverCard>
             </div>;
+
 
 //.logListView {
 //.listButtons {
@@ -230,7 +235,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
  *                                                                      
  */
 
-        let logTable = <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
+        let logTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
               <th>Title</th>
               <th>Name</th>
@@ -251,16 +256,14 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             { itemRows }
         </table>;
 
-        let listTitle = this.props.title == '' ? null : <h2>{this.props.title + 's'}</h2>;
-
-        thisLog = <div style={{ paddingTop: 15}} className={ stylesInfo.infoPaneTight }>
-          { listTitle }
-          { logTable }
-          </div>;
+        let listTitle = this.props.items.bucketLabel == '' ? null : <h2>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</h2>;
 
         return (
           <div className={ styles.logListView }>
-              { thisLog }
+              <div style={{ paddingTop: 15}} className={ stylesInfo.infoPaneTight }>
+                { listTitle }
+                { logTable }
+              </div>
           </div>
           );
 

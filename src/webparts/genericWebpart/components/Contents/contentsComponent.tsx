@@ -19,6 +19,8 @@ import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICh
 
 import InspectLists from './Lists/listsComponent';
 
+import InspectColumns from './Fields/fieldsComponent';
+
 //import { analyticsList } from 'InspectContentsWebPartStrings';
 
 import { cleanURL } from '../../../../services/stringServices';
@@ -169,11 +171,19 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 webURL = { this.state.webURL }
             ></InspectLists>
         </div>;
-
-        const columnsPage = <div>
-            { !this.state.pickedList ? pickListMessage : 
-                null }
-            </div>;
+//InspectColumns
+        const columnsPage = !this.state.pickedList ? pickListMessage : <div>
+            <InspectColumns 
+                pageContext = { this.props.pageContext }
+                currentUser = { this.props.currentUser }
+                allowOtherSites = { true }
+                allLoaded = { true }
+                pickedList = { this.state.pickedList }
+                allowRailsOff = { this.state.allowRailsOff }
+                allowSettings = { this.state.allowSettings }
+                webURL = { this.state.webURL }
+            ></InspectColumns>
+        </div>;
 
         const viewsPage = <div>
                 { noPageAvailable }

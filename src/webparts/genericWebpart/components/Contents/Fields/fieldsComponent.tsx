@@ -7,10 +7,15 @@ import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Piv
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
+import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
+    ChoiceFieldFormatType,
+    DateTimeFieldFormatType, CalendarType, DateTimeFieldFriendlyFormatType,
+    FieldUserSelectionMode, IFieldCreationProperties, } from "@pnp/sp/fields/types";
+
 import "@pnp/sp/webs";
 
-import { IValidTemplate, allAvailableLists } from './listsFunction';
-import { addItemToArrayIfItDoesNotExist } from './listsFunction';
+import { IValidTemplate, allAvailableFields } from './fieldsFunctions';
+import { addItemToArrayIfItDoesNotExist } from './fieldsFunctions';
 
 import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
@@ -40,7 +45,7 @@ import { PageContext } from '@microsoft/sp-page-context';
 import { IMyPivots, IPivot,  } from '../../IReUsableInterfaces';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
-import MyLogList from './listView';
+import MyLogField from './fieldsListView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
@@ -56,20 +61,35 @@ export interface IMyPivCat {
 export const pivCats = {
     visible: {title: 'Visible', desc: '', order: 1},
     hidden: {title: 'Hidden', desc: '', order: 100},
-    old: {title: 'Old', desc: '', order: 1},
-    empty: {title: 'Empty', desc: '', order: 1},
-    notEmpty: {title: 'NotEmpty', desc: '', order: 1},
-    lots: {title: 'Lots', desc: '', order: 1},
-    max: {title: 'Max', desc: '', order: 1},
-    checkout: {title: 'CheckOut', desc: '', order: 1},
-    versions: {title: 'Versioning', desc: '', order: 1},
-    noVersions: {title: 'NoVersions', desc: '', order: 1},      
-    noSearch: {title: 'NoSearch' , desc: '', order: 1},
-    lists:  {title: 'Lists' , desc: '', order: 1},
-    libraries:  {title: 'Libraries' , desc: '', order: 1},
+    text: {title: 'Text', desc: '', order: 1},
+    calculated: {title: 'Calculated', desc: '', order: 1},
+    choice: {title: 'Choice', desc: '', order: 1},
+    look: {title: 'Look', desc: '', order: 1},
+    user: {title: 'User', desc: '', order: 1},
+    number: {title: 'Number', desc: '', order: 1},
+    date: {title: 'Date', desc: '', order: 1},
+    url: {title: 'URL', desc: '', order: 1},      
+    boolean: {title: 'Boolean' , desc: '', order: 1},
+    computed:  {title: 'Computed' , desc: '', order: 1},
+    system: {title: '9', desc: 'System', order: 9 },
 };
 
-export interface IInspectListsProps {
+
+export interface IContentsFieldInfo extends Partial<IFieldInfo>{
+    sort: string;
+    bucketCategory: string;
+    bucketLabel: string;
+    bucketIdx: any;
+    FillInChoice?: boolean; //Allow Fill In
+    ShowInFiltersPane?: number;
+    CanBeDeleted?: boolean;
+    searchString: string;
+    meta: string[];
+
+}
+
+
+export interface IInspectColumnsProps {
     // 0 - Context
     
     pageContext: PageContext;
@@ -87,8 +107,6 @@ export interface IInspectListsProps {
 
     pickedList? : IPickedList;
 
-    pickThisList : any;
-
     // 2 - Source and destination list information
 
 }
@@ -96,16 +114,15 @@ export interface IInspectListsProps {
 export interface IMyHistory {
     count: number;
     errors: IMyProgress[];
-    columns: IMyProgress[];
+    fields: IMyProgress[];
     views: IMyProgress[];
     items: IMyProgress[];
 
 
 }
 
-
-export interface IListBucketInfo {
-    lists: IContentsListInfo[];
+export interface IFieldBucketInfo {
+    fields: IContentsFieldInfo[];
     count: number;
     sort: string;
     bucketCategory: string;
@@ -113,7 +130,7 @@ export interface IListBucketInfo {
 
 }
 
-export interface IInspectListsState {
+export interface IInspectColumnsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
 
@@ -130,13 +147,12 @@ export interface IInspectListsState {
     searchText: string;
     searchMeta: string;
 
-    searchedLists: IContentsListInfo[];
-    first20SearchedLists: IContentsListInfo[];
+    searchedColumns: IContentsFieldInfo[];
+    first20searchedColumns: IContentsFieldInfo[];
 
-    listBuckets: IListBucketInfo[];
-
+    fieldBuckets: IFieldBucketInfo[];
     // 2 - Source and destination list information
-    allLists: IContentsListInfo[];
+    allFields: IContentsFieldInfo[];
     meta: string[];
 
     allowSettings: boolean;  //property that determines if the related toggle is visible or not
@@ -146,27 +162,31 @@ export interface IInspectListsState {
     showSettings: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
 
+    showXML: boolean;
+    showJSON: boolean;
+    showSPFx: boolean;
+
+    showMinFields: boolean;
+
     errMessage: string | JSX.Element;
 
 }
 
-export default class InspectLists extends React.Component<IInspectListsProps, IInspectListsState> {
+export default class InspectColumns extends React.Component<IInspectColumnsProps, IInspectColumnsState> {
 
     private createSearchBuckets() {
-        let result : IListBucketInfo[] = [
-            { lists: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content'} ,
-            { lists: [], count: 0, sort : '3' , bucketCategory: 'Template Content', bucketLabel: '3. Template Content' } ,
-            { lists: [], count: 0, sort : '6' , bucketCategory: 'Template System', bucketLabel: '6. Template System' } ,
-            { lists: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
+        let result : IFieldBucketInfo[] = [
+            { fields: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content'} ,
+            { fields: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
+            { fields: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
         ];
         return result;
     }
-
     private clearHistory() {
         let history: IMyHistory = {
             count: 0,
             errors: [],
-            columns: [],
+            fields: [],
             views: [],
             items: [],
         };
@@ -185,7 +205,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
  *                                                                                                       
  */
 
-    public constructor(props:IInspectListsProps){
+    public constructor(props:IInspectColumnsProps){
         super(props);
 
         this.state = { 
@@ -196,12 +216,12 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             history: this.clearHistory(),
             allLoaded: false,
 
-            allLists: [],
-            searchedLists: [],
-            first20SearchedLists: [],
+            allFields: [],
+            searchedColumns: [],
+            first20searchedColumns: [],
             searchCount: 0,
-            
-            listBuckets : this.createSearchBuckets(),
+
+            fieldBuckets : this.createSearchBuckets(),
 
             meta: [],
 
@@ -219,8 +239,10 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             errMessage: '',
 
-
-
+            showXML: false,
+            showJSON: false,
+            showSPFx: false,
+            showMinFields: false,
         
         };
 
@@ -233,6 +255,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
   public componentDidMount() {
     this._updateStateOnPropsChange();
+    console.log('Mounted!');
   }
 
 
@@ -266,7 +289,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
  *                                                          
  */
 
-    public render(): React.ReactElement<IInspectListsProps> {
+    public render(): React.ReactElement<IInspectColumnsProps> {
 
 
         let x = 1;
@@ -283,31 +306,37 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
  *                                                                                     
  */
 
-            console.log('renderStateLists', this.state.allLists );
+            console.log('renderStateFields', this.state.allFields );
 
             let thisPage = null;
 
-//            let listList = <div className={ styles.floatLeft }> {  // This format will put all tables horizontal
-            let listList = <div> {
-                this.state.listBuckets.map( bucket => {
-                    return <MyLogList 
+            let errMessage = this.state.errMessage === '' ? null : <div>
+                { this.state.errMessage }
+            </div>;
+
+//          let fieldList = <div className={ styles.floatLeft }> {  // This format will put all tables horizontal
+            let fieldList = <div> {
+                this.state.fieldBuckets.map( bucket => {
+
+                    return <MyLogField 
                         showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
-                        title={ ''}           items={ bucket }
-                        showDesc = { this.state.showDesc } 
-                        webURL = { this.state.webURL }
-                        pickThisList = { this.props.pickThisList }  descending={false}  titles={null}>
-                    </MyLogList>;
+                        items={ bucket }
+                        searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
+                        showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinFields= { this.state.showDesc } 
+                        webURL = { this.state.webURL } descending={false} titles={null}   
+                    ></MyLogField>;
                 })
 
-                }
-                </div>;
+            }
+
+            </div>;
 
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
-            let searchBox =
+            let searchBox =  
             <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
               <SearchBox
                 className={styles.searchBox}
-                styles={{ root: { maxWidth: 300 } }}
+                styles={{ root: { maxWidth: this.props.allowRailsOff === true ? 200 : 300 } }}
                 placeholder="Search"
                 onSearch={ this._searchForItems.bind(this) }
                 onFocus={ () => console.log('this.state',  this.state) }
@@ -315,17 +344,17 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                 onChange={ this._searchForItems.bind(this) }
               />
               <div className={styles.searchStatus}>
-                { 'Searching about ' + this.state.searchCount + ' lists' }
+                { 'Searching ' + this.state.searchCount + ' fields' }
                 { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
               </div>
             </div>;
 
         let disclaimers = <h3>Contents for { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
-
+            
             let xyz = <div>
                 <h3>Next steps</h3>
                 <ul>
-                    <li>Icons in first column for meta tags</li>
+                    <li>Icons in first field for meta tags</li>
                     <li>See if there are any other parts of the webpart def object that might be helpful</li>
                 </ul>
             </div>;
@@ -334,11 +363,13 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
-            let listPivots = this.createPivotObject(this.state.searchMeta, '');
+            let fieldPivots = this.createPivotObject(this.state.searchMeta, '');
 
             let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
 
             thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
+
+                { errMessage }
 
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                      { searchBox } { toggles }
@@ -346,11 +377,11 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
                 <div> { settings } </div>
 
-                <div style={{ height:30, paddingBottom: 10} }> { listPivots } </div>
+                <div style={{ height:30, paddingBottom: 10} }> { fieldPivots } </div>
 
                 <div>
                 <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
-                    { listList }
+                    { fieldList }
                 </Stack>
                 </div></div></div>;
 
@@ -372,7 +403,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         { thisPage }
                 </div></div></div>
             );
-
+            
         } else {
             console.log('provisionPage.tsx return null');
             return (  <div className={ styles.contents }>
@@ -383,16 +414,18 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     }   //End Public Render
 
 
-    private getListDefs() {
-        let result : any = allAvailableLists( this.state.webURL, this.state.listBuckets,  this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+    private getFieldDefs() {
+        let listGuid = '';
+        if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
+        let result : any = allAvailableFields( this.state.webURL, listGuid, this.state.fieldBuckets, this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
-    private addThesePartsToState( allLists , errMessage : string ) {
+    private addTheseFieldsToState( allFields, scope : 'List' | 'Web' , errMessage : string ) {
 
         /*
         let meta: string[] = [];
-        for ( let p of allLists ) {
+        for ( let p of allFields ) {
             if ( p.meta ) {
                 for ( let x of p.meta ) {
                     meta = addItemToArrayIfItDoesNotExist( meta, x );
@@ -401,27 +434,27 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         }
         */
 
-       let listBuckets  : IListBucketInfo[] = this.bucketLists( allLists, this.state.listBuckets );
+        let fieldBuckets  : IFieldBucketInfo[] = this.bucketFields( allFields, this.state.fieldBuckets );
 
         this.setState({
-            allLists: allLists,
-            searchedLists: allLists,
-            searchCount: allLists.length,
+            allFields: allFields,
+            searchedColumns: allFields,
+            searchCount: allFields.length,
             errMessage: errMessage,
-            listBuckets: listBuckets,
+            fieldBuckets: fieldBuckets,
         });
         return true;
     }
 
-    private bucketLists( allLists : IContentsListInfo[], listBuckets : IListBucketInfo[] ) {
+    private bucketFields( allFields : IContentsFieldInfo[], fieldBuckets : IFieldBucketInfo[] ) {
 
-        for (let i in allLists ) {
-            listBuckets[allLists[i].bucketIdx].lists.push( allLists[i] );
-            listBuckets[allLists[i].bucketIdx].count ++;
+        for (let i in allFields ) {
+            fieldBuckets[allFields[i].bucketIdx].fields.push( allFields[i] );
+            fieldBuckets[allFields[i].bucketIdx].count ++;
         }
-        console.log('bucketLists:  listBuckets', listBuckets);
+        console.log('bucketFields:  fieldBuckets', fieldBuckets);
 
-        return listBuckets;
+        return fieldBuckets;
     }
 
     private markComplete() {
@@ -465,7 +498,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     let history: IMyHistory = this.state.history;
     //let newHistory = null;
-
+    
 
     if ( history === null ){
 
@@ -474,7 +507,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         if ( page === 'E') {
             history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
         } else if ( page === 'C') {
-            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+            history.fields = history.fields.length === 0 ? [progress] : [progress].concat(history.fields);
         } else if ( page === 'V') {
             history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
         } else if ( page === 'I') {
@@ -509,7 +542,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     console.log('searchForItems: this', this);
 
     //Be sure to pass item.props.itemKey to get filter value
-    this.searchForLists( this.state.searchText, item.props.itemKey );
+    this.searchForFields( this.state.searchText, item.props.itemKey );
   }
 
   public _searchForItems = (item): void => {
@@ -519,52 +552,53 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     console.log('searchForItems: item', item);
     console.log('searchForItems: this', this);
 
-    this.searchForLists( item, this.state.searchMeta );
+    this.searchForFields( item, this.state.searchMeta );
   }
+  
+  public searchForFields = (text: string, meta: string): void => {
 
-
-  public searchForLists = (text: string, meta: string): void => {
-
-    let searchItems : IContentsListInfo[] = this.state.allLists;
+    let searchItems : IContentsFieldInfo[] = this.state.allFields;
     let searchCount = searchItems.length;
 
-    let listBuckets : IListBucketInfo[] = this.createSearchBuckets();
+    let fieldBuckets : IFieldBucketInfo[] = this.createSearchBuckets();
 
-    let newFilteredLists : IContentsListInfo[] = [];
+    let newFilteredFields : IContentsFieldInfo[] = [];
 
-    for (let thisSearcPart of searchItems) {
+    for (let thisSearchField of searchItems) {
 
-      let searchString = thisSearcPart.searchString;
-      let listMeta = thisSearcPart.meta;
+      let searchString = thisSearchField.searchString;
+      let fieldMeta = thisSearchField.meta;
 
-      if ( meta === undefined || meta == null || meta == '' || listMeta.indexOf(meta) > -1 ) {
+      if ( meta === undefined || meta == null || meta == '' || fieldMeta.indexOf(meta) > -1 ) {
         if( searchString.indexOf(text.toLowerCase()) > -1 ) {
-            newFilteredLists.push(thisSearcPart);
+            newFilteredFields.push(thisSearchField);
           }
       }
     }
 
-    listBuckets  = this.bucketLists( newFilteredLists, listBuckets );
+    fieldBuckets  = this.bucketFields( newFilteredFields, fieldBuckets );
 
     console.log('Searched for:' + text);
-    console.log('List Meta:' + meta);
-    console.log('and found these lists:', newFilteredLists);
-    searchCount = newFilteredLists.length;
+    console.log('Field Meta:' + meta);
+    console.log('and found these fields:', newFilteredFields);
+    searchCount = newFilteredFields.length;
+
+
 
     this.setState({
-      searchedLists: newFilteredLists,
+      searchedColumns: newFilteredFields,
       searchCount: searchCount,
-      listBuckets: listBuckets,
+      fieldBuckets: fieldBuckets,
       searchText: text.toLowerCase(),
       searchMeta: meta,
     });
 
 
     return ;
-
+    
   } //End searchForItems
 
-
+  
 /***
  *         db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b 
  *         88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'     
@@ -577,39 +611,39 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
  */
 
     private _updateStateOnPropsChange(): void {
-        this.getListDefs();
+        this.getFieldDefs();
     }
 
-    private checkThisWeb(index: number, testLists : IContentsListInfo[] ){
-        //const thisWeb = Web(testLists[index].webURL);
-        //testLists[index].webExists = false;
-        //testLists[index].pageExists = false;
+    private checkThisWeb(index: number, testFields : IContentsFieldInfo[] ){
+        //const thisWeb = Web(testFields[index].webURL);
+        //testFields[index].webExists = false;
+        //testFields[index].pageExists = false;
 
         /*
         thisWeb.pages.get().then((response) => {
-            testLists[index].webExists = true;
-            this.checkThisPage(index, testLists, thisWeb);
+            testFields[index].webExists = true;
+            this.checkThisPage(index, testFields, thisWeb);
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisWeb', errMessage);
-            this.updateStatePages(index, testLists);
+            this.updateStatePages(index, testFields);
         });
     */
 
     }
     
-    private checkThisPage(index: number, testLists : IContentsListInfo[], thisWeb: any ){
-        //const thisWeb = Web(testLists[index].webURL);
-        thisWeb.lists.getByTitle(testLists[index].Title).get().then((response) => {
-            //testLists[index].pageExists = true;
-            //testLists[index].pageExistedB4 = true;   
-            //this.updateStatePages(index,testLists);
+    private checkThisPage(index: number, testFields : IContentsFieldInfo[], thisWeb: any ){
+        //const thisWeb = Web(testFields[index].webURL);
+        thisWeb.fields.getByTitle(testFields[index].Title).get().then((response) => {
+            //testFields[index].pageExists = true;
+            //testFields[index].pageExistedB4 = true;   
+            //this.updateStatePages(index,testFields);
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisPage', errMessage);
-            //this.updateStatePages(index, testLists);
+            //this.updateStatePages(index, testFields);
         });
     }
 
@@ -630,7 +664,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
         let theseStyles = null;
     
-        let pivotPart = 
+        let pivotField = 
         <Pivot 
           style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
           styles={ theseStyles }
@@ -639,34 +673,31 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
           onLinkClick= { this._onSearchForMeta.bind(this) }  //{this.specialClick.bind(this)}
           selectedKey={ setPivot }
           headersOnly={true}>
-            {this.getListPivots()}
+            {this.getFieldPivots()}
         </Pivot>;
-        return pivotPart;
+        return pivotField;
       }
 
-    private getListPivots() {
+    private getFieldPivots() {
 
         let visible = this.buildFilterPivot( pivCats.visible );
-        let old = this.buildFilterPivot(pivCats.old);
-        let empty = this.buildFilterPivot(pivCats.empty);
-        let notEmpty = this.buildFilterPivot(pivCats.notEmpty);
-        let lots = this.buildFilterPivot(pivCats.lots);
-        let max = this.buildFilterPivot(pivCats.max);
-        let checkout = this.buildFilterPivot(pivCats.checkout);
-        let versions = this.buildFilterPivot(pivCats.versions);
-        let noVersions = this.buildFilterPivot(pivCats.noVersions);      
-        let noSearch = this.buildFilterPivot(pivCats.noSearch);
         let hidden = this.buildFilterPivot(pivCats.hidden);
 
-        let lists = this.buildFilterPivot(pivCats.lists);
-        let libraries = this.buildFilterPivot(pivCats.libraries);
+        let text = this.buildFilterPivot(pivCats.text);
+        let calculated = this.buildFilterPivot(pivCats.calculated);
+        let choice = this.buildFilterPivot(pivCats.choice);
+        let look = this.buildFilterPivot(pivCats.look);
+        let user = this.buildFilterPivot(pivCats.user);
+        let number = this.buildFilterPivot(pivCats.number);
+        let date = this.buildFilterPivot(pivCats.date);
+        let url = this.buildFilterPivot(pivCats.url);      
+        let boolean = this.buildFilterPivot(pivCats.boolean);
 
-        let o0 = this.buildFilterPivot({title: '0', desc: 'User built lists', order: 1 });
-        let o3 = this.buildFilterPivot({title: '3', desc: 'Pre-built Content lists', order: 3 });
-        let o6 = this.buildFilterPivot({title: '6', desc: 'Template System lists', order: 6 });
-        let o9 = this.buildFilterPivot({title: '9', desc: 'System lists', order: 9 });
+        let computed = this.buildFilterPivot(pivCats.computed);
 
-        let thesePivots = [visible, o0, o3, o6, o9, lists, libraries, old, empty, notEmpty, lots, max, versions, noVersions  ,hidden];
+        let system = this.buildFilterPivot({title: '9', desc: 'System', order: 9 });
+
+        let thesePivots = [visible, text, calculated, choice, look, user, number, date, url, boolean, computed, system ,hidden];
 
         return thesePivots;
     }
@@ -719,28 +750,65 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             styles: '',
         };
 
+        let togXML = {
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>XML</span>,
+            key: 'togggleXML',
+            _onChange: this.updateTogggleXML.bind(this),
+            checked: this.state.showXML,
+            onText: '-',
+            offText: '-',
+            className: '',
+            styles: '',
+        };
+
+        let togJSON = {
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>JSON</span>,
+            key: 'togggleJSON',
+            _onChange: this.updateTogggleJSON.bind(this),
+            checked: this.state.showJSON,
+            onText: '-',
+            offText: '-',
+            className: '',
+            styles: '',
+        };
+
+        let togSPFx = {
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>SPFx</span>,
+            key: 'togggleSPFx',
+            _onChange: this.updateTogggleSPFx.bind(this),
+            checked: this.state.showSPFx,
+            onText: '-',
+            offText: '-',
+            className: '',
+            styles: '',
+        };
+
         let railsLabel = <span style={{ color: 'red', fontWeight: 700}}>Rails Off!</span>;
         let togRails = {
             label: railsLabel,
             key: 'togggleRailsOff',
             _onChange: this.updateTogggleRailsOff.bind(this),
             checked: this.state.showRailsOff,
-            onText: '',
-            offText: '',
+            onText: '-',
+            offText: '-',
             className: '',
             styles: '',
         };
 
         let theseToggles = [togDesc, togSet ];
-        if ( this.props.allowRailsOff === true ) { theseToggles.push( togRails ); }
+        if ( this.props.allowRailsOff === true ) { theseToggles.push( togXML, togJSON, togSPFx, togRails ); }
+
 
         let pageToggles : IContentsToggles = {
             toggles: theseToggles,
-            childGap: 20,
+            childGap: this.props.allowRailsOff === true ? 10 : 20,
             vertical: false,
             hAlign: 'end',
             vAlign: 'start',
-            rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+            rootStyle: { width: this.props.allowRailsOff === true ? 80 : 120 , paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
         };
 
         return pageToggles;
@@ -765,6 +833,31 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         });
     }
 
+    private updateTogggleXML() {
+        this.setState({
+            showXML: !this.state.showXML,
+            showJSON: this.state.showJSON,
+            showSPFx: this.state.showSPFx,
+        });
+    }
+
+    
+    private updateTogggleJSON() {
+        this.setState({
+            showXML: this.state.showXML,
+            showJSON: !this.state.showJSON,
+            showSPFx: this.state.showSPFx,
+        });
+    }
+
+    
+    private updateTogggleSPFx() {
+        this.setState({
+            showXML: this.state.showXML,
+            showJSON: this.state.showJSON,
+            showSPFx: !this.state.showSPFx,
+        });
+    }
 
     private getSiteSettingsLinks() {
 

@@ -25,41 +25,46 @@ export interface MyFieldDef {
     kind: number;
     type: string;
     vType: string;
+    label: string;
 }
 
-export const cCount : MyFieldDef =    {    kind : null,    type : null , vType: 'Counter'};
-export const cInt : MyFieldDef =    {    kind : null,    type : null , vType: 'Integer'};
+export const cCount : MyFieldDef =    {    kind : null,    type : null , vType: 'Counter', label: 'Counter'};
 
-export const cText : MyFieldDef =    {    kind : 2,    type : 'SP.FieldText' , vType: 'Text'};
+export const cInt : MyFieldDef =    {    kind : null,    type : null , vType: 'Integer', label: 'Number'};
 
-export const cMText : MyFieldDef =   {    kind : 3,    type : 'SP.FieldMultiLineText' , vType: ''};
+export const cText : MyFieldDef =    {    kind : 2,    type : 'SP.FieldText' , vType: 'Text', label: 'Text'};
 
-export const cDate : MyFieldDef =    {    kind : 4,    type : 'SP.FieldDateTime' , vType: 'DateTime'};
+export const cMText : MyFieldDef =   {    kind : 3,    type : 'SP.FieldMultiLineText' , vType: '', label: 'Text'};
 
-export const cChoice : MyFieldDef =  {    kind :6 ,    type : 'SP.FieldChoice'  , vType: 'Text'};
+export const cDate : MyFieldDef =    {    kind : 4,    type : 'SP.FieldDateTime' , vType: 'DateTime', label: 'Date'};
 
-export const cLook : MyFieldDef =    {    kind : 7,    type : 'SP.FieldCreationInformation'  , vType: ''};
+export const cChoice : MyFieldDef =  {    kind :6 ,    type : 'SP.FieldChoice'  , vType: 'Text', label: 'Choice'};
 
-export const cDLook : MyFieldDef =    {    kind : 7,    type : 'SP.FieldCreationInformation'  , vType: ''};
+export const cLook : MyFieldDef =    {    kind : 7,    type : 'SP.FieldCreationInformation'  , vType: '', label: '9'};
 
-export const cBool : MyFieldDef =    {    kind :8 ,    type : 'SP.Field'  , vType: 'Boolean'};
+export const cDLook : MyFieldDef =    {    kind : 7,    type : 'SP.FieldCreationInformation'  , vType: '', label: '9'};
 
-export const cNumb : MyFieldDef =    {    kind : 9,    type : 'SP.FieldNumber'  , vType: 'Number'};
+export const cBool : MyFieldDef =    {    kind :8 ,    type : 'SP.Field'  , vType: 'Boolean', label: 'Boolean'};
 
-export const cCurr : MyFieldDef =    {    kind : 10,    type : 'SP.FieldCurrency'  , vType: ''};
+export const cNumb : MyFieldDef =    {    kind : 9,    type : 'SP.FieldNumber'  , vType: 'Number', label: 'Number'};
 
-export const cURL : MyFieldDef =     {    kind : 11,    type : 'SP.FieldUrl'  , vType: ''};
+export const cCurr : MyFieldDef =    {    kind : 10,    type : 'SP.FieldCurrency'  , vType: '', label: 'Curr'};
 
-export const cMChoice : MyFieldDef = {    kind :15 ,    type : 'SP.FieldMultiChoice'  , vType: ''};
+export const cURL : MyFieldDef =     {    kind : 11,    type : 'SP.FieldUrl'  , vType: '', label: 'URL'};
 
-export const cCalcN : MyFieldDef =    {    kind : 17,    type : 'SP.FieldCalculated'  , vType: 'Number'};
-export const cCalcT : MyFieldDef =    {    kind : 17,    type : 'SP.FieldCalculated'  , vType: 'Text'};
+export const cMChoice : MyFieldDef = {    kind :15 ,    type : 'SP.FieldMultiChoice'  , vType: '', label: 'Choice'};
 
-export const cUser : MyFieldDef =    {    kind : 20,    type : 'SP.FieldUser'  , vType: 'Integer'};
+export const cCalcN : MyFieldDef =    {    kind : 17,    type : 'SP.FieldCalculated'  , vType: 'Number', label: 'Calculated'};
 
-export const cMUser : MyFieldDef =    {    kind : 20,    type : 'SP.FieldUserMulti'  , vType: ''}; //This may be SP.FieldUserMulti or may not ????... but this is required for the function in columnServices.ts to catch this option.
+export const cCalcT : MyFieldDef =    {    kind : 17,    type : 'SP.FieldCalculated'  , vType: 'Text', label: 'Calculated'};
 
-export const cLocal : MyFieldDef =   {    kind : 33,    type : 'SP.FieldLocation'  , vType: ''};
+export const cUser : MyFieldDef =    {    kind : 20,    type : 'SP.FieldUser'  , vType: 'Integer', label: 'User'};
+
+export const cMUser : MyFieldDef =    {    kind : 20,    type : 'SP.FieldUserMulti'  , vType: '', label: 'User'}; //This may be SP.FieldUserMulti or may not ????... but this is required for the function in columnServices.ts to catch this option.
+
+export const cLocal : MyFieldDef =   {    kind : 33,    type : 'SP.FieldLocation'  , vType: '', label: 'Loc'};
+
+export const myFieldDefs : MyFieldDef[] = [cCount, cInt, cText, cMText, cDate, cChoice, cLook, cDLook, cBool, cNumb, cCurr, cURL, cMChoice, cCalcN, cCalcT, cUser, cMUser, cLocal,];
 
 export type IMyFieldTypes = IBaseField | ITextField | IMultiLineTextField | INumberField | IXMLField | 
     IBooleanField | ICalculatedField | IDateTimeField | ICurrencyField | IUserField | ILookupField | IChoiceField | 
@@ -237,6 +242,7 @@ export interface IChoiceField extends IBaseField {
     choices: string[]; 
     format?: ChoiceFieldFormatType; 
     fillIn?: boolean; 
+    FillInChoice?: boolean; //This is the actual property to allow fill in
 }
 
 /**
