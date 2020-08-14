@@ -112,7 +112,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
       let thisLog = null;
 
-      if ( this.props.items != null) { 
+      if ( this.props.items.lists != null && this.props.items.count > 0 ) { 
 
         let logItems : IContentsListInfo[] = this.props.items.lists;
 
