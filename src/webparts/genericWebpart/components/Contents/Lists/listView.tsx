@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { IMyProgress } from '../../IReUsableInterfaces';
-import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
+import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '../../../../../services/listServices/listTypes';
 
 import { createIconButton } from '../../createButtons/IconButton';
 
@@ -13,6 +13,7 @@ import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-r
 
 import { createLink } from '../../HelpInfo/AllLinks';
 
+import { IListBucketInfo } from './listsComponent';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
@@ -21,7 +22,7 @@ export interface IMyLogListProps {
     title: string;
     titles: [];
     webURL: string;
-    items: IContentsListInfo[];
+    items: IListBucketInfo;
     showSettings: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     descending: boolean;
@@ -113,7 +114,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
       if ( this.props.items != null) { 
 
-        let logItems : IContentsListInfo[] = this.props.items;
+        let logItems : IContentsListInfo[] = this.props.items.lists;
 
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
@@ -234,7 +235,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
  *                                                                      
  */
 
-        let logTable = <table style={{ display: 'block', borderCollapse: 'collapse'}} className={stylesInfo.infoTable}>
+        let logTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
               <th>Title</th>
               <th>Name</th>
@@ -255,7 +256,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             { itemRows }
         </table>;
 
-        let listTitle = this.props.title == '' ? null : <h2>{this.props.title + 's'}</h2>;
+        let listTitle = this.props.items.bucketLabel == '' ? null : <h2>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</h2>;
 
         return (
           <div className={ styles.logListView }>

@@ -103,6 +103,16 @@ export interface IMyHistory {
 
 }
 
+
+export interface IListBucketInfo {
+    lists: IContentsListInfo[];
+    count: number;
+    sort: string;
+    bucketCategory: string;
+    bucketLabel: string;
+
+}
+
 export interface IInspectListsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
@@ -122,6 +132,9 @@ export interface IInspectListsState {
 
     searchedLists: IContentsListInfo[];
     first20SearchedLists: IContentsListInfo[];
+
+    listBuckets: IListBucketInfo[];
+
     // 2 - Source and destination list information
     allLists: IContentsListInfo[];
     meta: string[];
@@ -133,9 +146,21 @@ export interface IInspectListsState {
     showSettings: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
 
+    errMessage: string | JSX.Element;
+
 }
 
 export default class InspectLists extends React.Component<IInspectListsProps, IInspectListsState> {
+
+    private createSearchBuckets() {
+        let result : IListBucketInfo[] = [
+            { lists: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content'} ,
+            { lists: [], count: 0, sort : '3' , bucketCategory: 'Template Content', bucketLabel: '3. Template Content' } ,
+            { lists: [], count: 0, sort : '6' , bucketCategory: 'Template System', bucketLabel: '6. Template System' } ,
+            { lists: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
+        ];
+        return result;
+    }
 
     private clearHistory() {
         let history: IMyHistory = {
@@ -175,6 +200,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             searchedLists: [],
             first20SearchedLists: [],
             searchCount: 0,
+            
+            listBuckets : this.createSearchBuckets(),
+
             meta: [],
 
             webURL: this.props.webURL,
@@ -188,6 +216,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             searchMeta: '',
             searchText: '',
+
+            errMessage: '',
+
 
 
         
@@ -256,17 +287,23 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             let thisPage = null;
 
-            let listList = <div className={ styles.floatLeft }><MyLogList 
-                showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
-                title={ ''}           items={ this.state.searchedLists }
-                showDesc = { this.state.showDesc } 
-                webURL = { this.state.webURL }
-                pickThisList = { this.props.pickThisList }
+//            let listList = <div className={ styles.floatLeft }> {  // This format will put all tables horizontal
+            let listList = <div> {
+                this.state.listBuckets.map( bucket => {
+                    return <MyLogList 
+                        showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
+                        title={ ''}           items={ bucket }
+                        showDesc = { this.state.showDesc } 
+                        webURL = { this.state.webURL }
+                        pickThisList = { this.props.pickThisList }  descending={false}  titles={null}>
+                    </MyLogList>;
+                })
 
-                descending={false}          titles={null}            ></MyLogList></div>;
+                }
+                </div>;
 
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
-            let searchBox =           
+            let searchBox =
             <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
               <SearchBox
                 className={styles.searchBox}
@@ -284,7 +321,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             </div>;
 
         let disclaimers = <h3>Contents for { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
-            
+
             let xyz = <div>
                 <h3>Next steps</h3>
                 <ul>
@@ -312,7 +349,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                 <div style={{ height:30, paddingBottom: 10} }> { listPivots } </div>
 
                 <div>
-                <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
+                <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                     { listList }
                 </Stack>
                 </div></div></div>;
@@ -335,7 +372,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         { thisPage }
                 </div></div></div>
             );
-            
+
         } else {
             console.log('provisionPage.tsx return null');
             return (  <div className={ styles.contents }>
@@ -347,11 +384,11 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
 
     private getListDefs() {
-        let result : any = allAvailableLists( this.state.webURL, this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableLists( this.state.webURL, this.state.listBuckets,  this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
-    private addThesePartsToState( allLists ) {
+    private addThesePartsToState( allLists , errMessage : string ) {
 
         /*
         let meta: string[] = [];
@@ -364,12 +401,27 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         }
         */
 
+       let listBuckets  : IListBucketInfo[] = this.bucketLists( allLists, this.state.listBuckets );
+
         this.setState({
             allLists: allLists,
             searchedLists: allLists,
             searchCount: allLists.length,
+            errMessage: errMessage,
+            listBuckets: listBuckets,
         });
         return true;
+    }
+
+    private bucketLists( allLists : IContentsListInfo[], listBuckets : IListBucketInfo[] ) {
+
+        for (let i in allLists ) {
+            listBuckets[allLists[i].bucketIdx].lists.push( allLists[i] );
+            listBuckets[allLists[i].bucketIdx].count ++;
+        }
+        console.log('bucketLists:  listBuckets', listBuckets);
+
+        return listBuckets;
     }
 
     private markComplete() {
@@ -413,7 +465,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     let history: IMyHistory = this.state.history;
     //let newHistory = null;
-    
+
 
     if ( history === null ){
 
@@ -470,11 +522,13 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     this.searchForLists( item, this.state.searchMeta );
   }
 
-  
+
   public searchForLists = (text: string, meta: string): void => {
 
     let searchItems : IContentsListInfo[] = this.state.allLists;
     let searchCount = searchItems.length;
+
+    let listBuckets : IListBucketInfo[] = this.createSearchBuckets();
 
     let newFilteredLists : IContentsListInfo[] = [];
 
@@ -490,6 +544,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
       }
     }
 
+    listBuckets  = this.bucketLists( newFilteredLists, listBuckets );
+
     console.log('Searched for:' + text);
     console.log('List Meta:' + meta);
     console.log('and found these lists:', newFilteredLists);
@@ -498,16 +554,17 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     this.setState({
       searchedLists: newFilteredLists,
       searchCount: searchCount,
+      listBuckets: listBuckets,
       searchText: text.toLowerCase(),
       searchMeta: meta,
     });
 
 
     return ;
-    
+
   } //End searchForItems
 
-  
+
 /***
  *         db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b 
  *         88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'     

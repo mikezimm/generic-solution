@@ -168,7 +168,7 @@ export interface IInspectColumnsState {
 
     showMinFields: boolean;
 
-    errMessage: string;
+    errMessage: string | JSX.Element;
 
 }
 
@@ -324,7 +324,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinFields= { this.state.showDesc } 
                         webURL = { this.state.webURL } descending={false} titles={null}   
-                    ></MyLogField>
+                    ></MyLogField>;
                 })
 
             }

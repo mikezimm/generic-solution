@@ -189,9 +189,11 @@ export interface IContentsListInfo {
   modifiedAge?: number;
   createdAge?: number;
   meta?: string[];
-  sort?: string;
-  group?: string;
-  groupLabel?: string;
+  
+  sort: string;
+  bucketCategory: string;
+  bucketLabel: string;
+  bucketIdx: any;
 
   //Backend Info
   odataEtag: string; //""121""

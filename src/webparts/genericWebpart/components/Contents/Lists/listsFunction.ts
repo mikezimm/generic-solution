@@ -7,7 +7,7 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists,  } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
 import { changes, IMyFieldTypes } from '../../../../../services/listServices/columnTypes'; //Import view arrays for Time list
 
@@ -17,6 +17,8 @@ import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../
 
 import { makeSmallTimeObject, ITheTime} from '../../../../../services/dateServices';
 
+import { doesObjectExistInArray } from '../../../../../services/arrayServices';
+
 import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
 
 import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
@@ -24,13 +26,13 @@ import { IViewLog, addTheseViews } from '../../../../../services/listServices/vi
 import { IAnyArray } from  '../../../../../services/listServices/listServices';
 import { mergeAriaAttributeValues } from "office-ui-fabric-react";
 
-import { pivCats } from './listsComponent';
+import { pivCats, IListBucketInfo } from './listsComponent';
 
 export type IValidTemplate = 100 | 101;
 
 
 
-let SystLists = ["WorkflowTasks", "Style_x0020_Library",
+let SystemLists = ["WorkflowTasks", "Style_x0020_Library",
 "SitePages", "SiteAssets", "ReusableContent", "Pages", "SearchConfigList", "OData__x005f_catalogs_x002f_masterpage", "OData__x005f_catalogs_x002f_design",
 "TeamSiteFooterQL1List", "TeamSiteFooterQL2List",
 "SiteCollectionImages", "SiteCollectionDocuments", "FormServerTemplates", "Reports_x0020_List", "PublishingImages",
@@ -61,7 +63,7 @@ export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
     return arr;
 }
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableLists( webURL: string, addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
+export async function allAvailableLists( webURL: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
 
     let contentsLists : IContentsLists = null;
 
@@ -79,10 +81,12 @@ export async function allAvailableLists( webURL: string, addTheseListsToState: a
         allLists[i].modifiedAge = lastModified.daysAgo;
         allLists[i].createdAge = created.daysAgo;
 
-        let sort = getListSort(allLists[i]);
-        allLists[i].sort = sort.sort;
-        allLists[i].group = sort.group;
-        allLists[i].groupLabel = sort.label;
+        let idx = getListSort(allLists[i], listBuckets);
+
+        allLists[i].sort = listBuckets[idx]['sort'];
+        allLists[i].bucketCategory = listBuckets[idx]['bucketCategory'];
+        allLists[i].bucketLabel = listBuckets[idx]['bucketLabel'];
+        allLists[i].bucketIdx = idx;
 
         allLists[i].meta = buildMetaFromList(allLists[i]);
         allLists[i].searchString = buildSearchStringFromList(allLists[i]);
@@ -95,33 +99,27 @@ export async function allAvailableLists( webURL: string, addTheseListsToState: a
 
 }
 
-function getListSort( theList: IContentsListInfo ) {
+function getListSort( theList: IContentsListInfo, listBuckets: IListBucketInfo[] ) {
 
-    let thisSort = '0';
-    let thisLabel = 'Custom';
+    let bucketCategory = '';
 
-    if ( SystLists.indexOf(theList.EntityTypeName) > -1 ) {
-        thisSort = '9';
-        thisLabel = 'System';
+    if ( TempContLists.indexOf( theList.EntityTypeName ) > -1 ) {
+        bucketCategory = 'Template Content';
 
-    } else  if ( TempSysLists.indexOf(theList.EntityTypeName) > -1  ) {
-        thisSort = '6';
-        thisLabel = 'Template System';
+    } else if ( TempSysLists.indexOf(theList.EntityTypeName) > -1 ) {
+        bucketCategory = 'Template System';
 
-    } else  if ( TempContLists.indexOf(theList.EntityTypeName) > -1  ) {
-        thisSort = '3';
-        thisLabel = 'Template Content';
+    } else if ( SystemLists.indexOf(theList.EntityTypeName) > -1 ) {
+        bucketCategory = 'System';
 
-    } 
+    } else { bucketCategory = 'Custom'; }
 
-    let thisGroup = thisSort + '. ' + thisLabel;
+    let idx : any = doesObjectExistInArray(listBuckets, 'bucketCategory', bucketCategory ); 
 
+    if ( idx === false ) { alert('getFieldSort issue... bucketCategory (' + bucketCategory + ')not found in fieldBuckets.'); idx = -1; }
 
-    return {
-        sort: thisSort,
-        label: thisLabel,
-        group: thisGroup,
-    };
+    return idx;
+
 }
 
 function buildMetaFromList( theList: IContentsListInfo ) {
@@ -140,7 +138,7 @@ function buildMetaFromList( theList: IContentsListInfo ) {
 
     meta = addItemToArrayIfItDoesNotExist(meta, theList.sort );
 
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.groupLabel );
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.bucketLabel );
 
     //List of List and Library types
     //https://docs.microsoft.com/en-us/previous-versions/office/sharepoint-visio/jj245053(v=office.15)?redirectedfrom=MSDN#remarks
