@@ -64,7 +64,13 @@ export const cMUser : MyFieldDef =    {    kind : 20,    type : 'SP.FieldUserMul
 
 export const cLocal : MyFieldDef =   {    kind : 33,    type : 'SP.FieldLocation'  , vType: '', label: 'Loc'};
 
-export const myFieldDefs : MyFieldDef[] = [cCount, cInt, cText, cMText, cDate, cChoice, cLook, cDLook, cBool, cNumb, cCurr, cURL, cMChoice, cCalcN, cCalcT, cUser, cMUser, cLocal,];
+export const cModStatus : MyFieldDef =   {    kind : 23,    type : 'SP.FieldChoice'  , vType: '', label: 'ModStatus'}; 
+
+export const cSLook : MyFieldDef =   {    kind : 7,    type : 'SP.FieldLookup'  , vType: '', label: 'Lookup'}; 
+
+export const cComputed : MyFieldDef =   {    kind : 12,    type : 'SP.FieldComputed'  , vType: '', label: 'Computed'}; 
+
+export const myFieldDefs : MyFieldDef[] = [cCount, cInt, cText, cMText, cDate, cChoice, cLook, cDLook, cBool, cNumb, cCurr, cURL, cMChoice, cCalcN, cCalcT, cUser, cMUser, cLocal, cSLook, cComputed, cModStatus];
 
 export type IMyFieldTypes = IBaseField | ITextField | IMultiLineTextField | INumberField | IXMLField | 
     IBooleanField | ICalculatedField | IDateTimeField | ICurrencyField | IUserField | ILookupField | IChoiceField | 

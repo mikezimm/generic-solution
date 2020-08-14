@@ -37,6 +37,8 @@
     
     if (result.indexOf('The formula refers to a column that does not exist.') > -1 ) { friendlyMessage = 'Check the formula for spelling mistakes and missing or hidden columns'; }
 
+    if (result.indexOf('You do not have permission') > -1 ) { friendlyMessage = 'You do not have access to something.  Double check to make sure you are logged in as well!'; }
+
     if (result.indexOf('does not exist on type') > -1 &&  result.indexOf('ListItem\'') > -1  && result.indexOf('The property') > -1 ) {
       if ( friendlyMessage != null ) { friendlyMessage += ' AND '; } else { friendlyMessage = ''; }
       friendlyMessage += 'Column: ' + result.split('\'')[1] + ' does not exist on list!';

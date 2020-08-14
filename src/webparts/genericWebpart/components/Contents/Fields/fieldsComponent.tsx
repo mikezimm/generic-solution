@@ -147,8 +147,8 @@ export interface IInspectColumnsState {
     searchText: string;
     searchMeta: string;
 
-    searchedColumns: IContentsFieldInfo[];
-    first20searchedColumns: IContentsFieldInfo[];
+    searchedItems: IContentsFieldInfo[];
+    first20searchedItems: IContentsFieldInfo[];
 
     fieldBuckets: IFieldBucketInfo[];
     // 2 - Source and destination list information
@@ -217,8 +217,8 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             allLoaded: false,
 
             allFields: [],
-            searchedColumns: [],
-            first20searchedColumns: [],
+            searchedItems: [],
+            first20searchedItems: [],
             searchCount: 0,
 
             fieldBuckets : this.createSearchBuckets(),
@@ -234,7 +234,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             showSettings: false,
             showRailsOff: false,
 
-            searchMeta: '',
+            searchMeta: pivCats.visible.title,
             searchText: '',
 
             errMessage: '',
@@ -349,7 +349,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
               </div>
             </div>;
 
-        let disclaimers = <h3>Contents for { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+            let disclaimers = <h3>Columns for { this.props.pickedList.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -367,6 +367,11 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
             let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
 
+            let noInfo = [];
+            noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
+            if ( this.state.searchText != '' ) { noInfo.push( <p>{'Search Text: ' + this.state.searchText}</p> )  ; }
+            if ( this.state.searchMeta != '' ) { noInfo.push( <p>{'Refiner: ' + this.state.searchMeta}</p> ) ; }
+
             thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
 
                 { errMessage }
@@ -377,9 +382,12 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
                 <div> { settings } </div>
 
-                <div style={{ height:30, paddingBottom: 10} }> { fieldPivots } </div>
+                <div style={{ height:30, paddingBottom: 15} }> { fieldPivots } </div>
 
                 <div>
+
+                <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
+
                 <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                     { fieldList }
                 </Stack>
@@ -407,7 +415,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
         } else {
             console.log('provisionPage.tsx return null');
             return (  <div className={ styles.contents }>
-                <h2>There are no parts to see</h2>
+                <h2>There are no Fields to see</h2>
             </div> );
         }
 
@@ -423,29 +431,27 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
     private addTheseFieldsToState( allFields, scope : 'List' | 'Web' , errMessage : string ) {
 
-        /*
-        let meta: string[] = [];
-        for ( let p of allFields ) {
-            if ( p.meta ) {
-                for ( let x of p.meta ) {
-                    meta = addItemToArrayIfItDoesNotExist( meta, x );
-                }
-            }
-        }
-        */
+        let newFilteredItems : IContentsFieldInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allFields );
 
-        let fieldBuckets  : IFieldBucketInfo[] = this.bucketFields( allFields, this.state.fieldBuckets );
-
+        let fieldBuckets  : IFieldBucketInfo[] = this.bucketFields( newFilteredItems, this.state.fieldBuckets );
+        
         this.setState({
             allFields: allFields,
-            searchedColumns: allFields,
-            searchCount: allFields.length,
+            searchedItems: newFilteredItems,
+            searchCount: newFilteredItems.length,
             errMessage: errMessage,
             fieldBuckets: fieldBuckets,
+            searchText: '',
+            searchMeta: this.state.searchMeta,
         });
         return true;
     }
 
+    /**
+     * This puts all the fields into the buckets
+     * @param allFields 
+     * @param fieldBuckets 
+     */
     private bucketFields( allFields : IContentsFieldInfo[], fieldBuckets : IFieldBucketInfo[] ) {
 
         for (let i in allFields ) {
@@ -555,6 +561,26 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     this.searchForFields( item, this.state.searchMeta );
   }
   
+  private getNewFilteredItems(text: string, meta: string , searchItems : IContentsFieldInfo[]) {
+
+    let newFilteredItems : IContentsFieldInfo[] = [];
+
+    for (let thisSearchItem of searchItems) {
+
+        let searchString = thisSearchItem.searchString;
+        let fieldMeta = thisSearchItem.meta;
+  
+        if ( meta === undefined || meta == null || meta == '' || fieldMeta.indexOf(meta) > -1 ) {
+          if( searchString.indexOf(text.toLowerCase()) > -1 ) {
+            newFilteredItems.push(thisSearchItem);
+            }
+        }
+      }
+
+      return newFilteredItems;
+
+  }
+
   public searchForFields = (text: string, meta: string): void => {
 
     let searchItems : IContentsFieldInfo[] = this.state.allFields;
@@ -562,31 +588,17 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
     let fieldBuckets : IFieldBucketInfo[] = this.createSearchBuckets();
 
-    let newFilteredFields : IContentsFieldInfo[] = [];
+    let newFilteredItems : IContentsFieldInfo[] = this.getNewFilteredItems( text, meta, searchItems );
 
-    for (let thisSearchField of searchItems) {
-
-      let searchString = thisSearchField.searchString;
-      let fieldMeta = thisSearchField.meta;
-
-      if ( meta === undefined || meta == null || meta == '' || fieldMeta.indexOf(meta) > -1 ) {
-        if( searchString.indexOf(text.toLowerCase()) > -1 ) {
-            newFilteredFields.push(thisSearchField);
-          }
-      }
-    }
-
-    fieldBuckets  = this.bucketFields( newFilteredFields, fieldBuckets );
+    fieldBuckets  = this.bucketFields( newFilteredItems, fieldBuckets );
 
     console.log('Searched for:' + text);
     console.log('Field Meta:' + meta);
-    console.log('and found these fields:', newFilteredFields);
-    searchCount = newFilteredFields.length;
-
-
+    console.log('and found these fields:', newFilteredItems);
+    searchCount = newFilteredItems.length;
 
     this.setState({
-      searchedColumns: newFilteredFields,
+      searchedItems: newFilteredItems,
       searchCount: searchCount,
       fieldBuckets: fieldBuckets,
       searchText: text.toLowerCase(),

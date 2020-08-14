@@ -153,7 +153,7 @@ function buildMetaFromField( theField: IContentsFieldInfo ) {
     }
 
     //Add hidden to meta
-    meta = addItemToArrayIfItDoesNotExist(meta, theField.Hidden ? pivCats.hidden.title: '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theField.Hidden ? pivCats.hidden.title: pivCats.visible.title);
 
     meta = addItemToArrayIfItDoesNotExist(meta, theField.sort );
     meta = addItemToArrayIfItDoesNotExist(meta, theField.bucketLabel );

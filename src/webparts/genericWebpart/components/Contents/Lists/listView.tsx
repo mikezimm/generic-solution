@@ -168,6 +168,9 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
                 <p><span style={hoverFieldStyle}>Description:</span> { L.Description }</p>
                 <p><span style={hoverFieldStyle}>EntityName:</span> { L.EntityTypeName }</p>
                 <p><span style={hoverFieldStyle}>Id:</span> { L.Id }</p>
+
+                <p><span style={hoverFieldStyle}>Meta:</span> { L.meta.join('; ') }</p>
+
                 <p><br></br></p>
                 <p><span style={hoverFieldStyle}>Search String:</span> { L.searchString }</p>
               </div>
@@ -256,11 +259,12 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             { itemRows }
         </table>;
 
-        let listTitle = this.props.items.bucketLabel == '' ? null : <h2>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</h2>;
+      let listTitle = this.props.items.bucketLabel == '' ? null :
+        <div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
 
         return (
           <div className={ styles.logListView }>
-              <div style={{ paddingTop: 15}} className={ stylesInfo.infoPaneTight }>
+              <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
                 { listTitle }
                 { logTable }
               </div>

@@ -130,8 +130,8 @@ export interface IInspectListsState {
     searchText: string;
     searchMeta: string;
 
-    searchedLists: IContentsListInfo[];
-    first20SearchedLists: IContentsListInfo[];
+    searchedItems: IContentsListInfo[];
+    first20searchedItems: IContentsListInfo[];
 
     listBuckets: IListBucketInfo[];
 
@@ -197,8 +197,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             allLoaded: false,
 
             allLists: [],
-            searchedLists: [],
-            first20SearchedLists: [],
+            searchedItems: [],
+            first20searchedItems: [],
             searchCount: 0,
             
             listBuckets : this.createSearchBuckets(),
@@ -214,7 +214,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             showSettings: false,
             showRailsOff: false,
 
-            searchMeta: '',
+            searchMeta: pivCats.visible.title,
             searchText: '',
 
             errMessage: '',
@@ -338,7 +338,14 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
 
+            let noInfo = [];
+            noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
+            if ( this.state.searchText != '' ) { noInfo.push( <p>{'Search Text: ' + this.state.searchText}</p> )  ; }
+            if ( this.state.searchMeta != '' ) { noInfo.push( <p>{'Refiner: ' + this.state.searchMeta}</p> ) ; }
+
             thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
+
+                <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
 
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                      { searchBox } { toggles }
@@ -346,9 +353,12 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
                 <div> { settings } </div>
 
-                <div style={{ height:30, paddingBottom: 10} }> { listPivots } </div>
+                <div style={{ height:30, paddingBottom: 15} }> { listPivots } </div>
 
                 <div>
+
+                <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
+
                 <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                     { listList }
                 </Stack>
@@ -376,6 +386,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         } else {
             console.log('provisionPage.tsx return null');
             return (  <div className={ styles.contents }>
+                <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
                 <h2>There are no parts to see</h2>
             </div> );
         }
@@ -384,31 +395,24 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
 
     private getListDefs() {
-        let result : any = allAvailableLists( this.state.webURL, this.state.listBuckets,  this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableLists( this.state.webURL, this.state.listBuckets,  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
-    private addThesePartsToState( allLists , errMessage : string ) {
+    private addTheseListsToState( allLists , errMessage : string ) {
 
-        /*
-        let meta: string[] = [];
-        for ( let p of allLists ) {
-            if ( p.meta ) {
-                for ( let x of p.meta ) {
-                    meta = addItemToArrayIfItDoesNotExist( meta, x );
-                }
-            }
-        }
-        */
+        let newFilteredItems : IContentsListInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allLists );
 
-       let listBuckets  : IListBucketInfo[] = this.bucketLists( allLists, this.state.listBuckets );
+        let listBuckets  : IListBucketInfo[] = this.bucketLists( newFilteredItems, this.state.listBuckets );
 
         this.setState({
             allLists: allLists,
-            searchedLists: allLists,
-            searchCount: allLists.length,
+            searchedItems: newFilteredItems,
+            searchCount: newFilteredItems.length,
             errMessage: errMessage,
             listBuckets: listBuckets,
+            searchText: '',
+            searchMeta: this.state.searchMeta,
         });
         return true;
     }
@@ -522,6 +526,26 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     this.searchForLists( item, this.state.searchMeta );
   }
 
+    
+  private getNewFilteredItems(text: string, meta: string , searchItems : IContentsListInfo[]) {
+
+    let newFilteredItems : IContentsListInfo[] = [];
+
+    for (let thisSearchItem of searchItems) {
+
+        let searchString = thisSearchItem.searchString;
+        let fieldMeta = thisSearchItem.meta;
+  
+        if ( meta === undefined || meta == null || meta == '' || fieldMeta.indexOf(meta) > -1 ) {
+          if( searchString.indexOf(text.toLowerCase()) > -1 ) {
+            newFilteredItems.push(thisSearchItem);
+            }
+        }
+      }
+
+      return newFilteredItems;
+
+  }
 
   public searchForLists = (text: string, meta: string): void => {
 
@@ -530,29 +554,17 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     let listBuckets : IListBucketInfo[] = this.createSearchBuckets();
 
-    let newFilteredLists : IContentsListInfo[] = [];
+    let newFilteredItems : IContentsListInfo[] = this.getNewFilteredItems( text, meta, searchItems );
 
-    for (let thisSearcPart of searchItems) {
-
-      let searchString = thisSearcPart.searchString;
-      let listMeta = thisSearcPart.meta;
-
-      if ( meta === undefined || meta == null || meta == '' || listMeta.indexOf(meta) > -1 ) {
-        if( searchString.indexOf(text.toLowerCase()) > -1 ) {
-            newFilteredLists.push(thisSearcPart);
-          }
-      }
-    }
-
-    listBuckets  = this.bucketLists( newFilteredLists, listBuckets );
+    listBuckets  = this.bucketLists( newFilteredItems, listBuckets );
 
     console.log('Searched for:' + text);
     console.log('List Meta:' + meta);
-    console.log('and found these lists:', newFilteredLists);
-    searchCount = newFilteredLists.length;
+    console.log('and found these lists:', newFilteredItems);
+    searchCount = newFilteredItems.length;
 
     this.setState({
-      searchedLists: newFilteredLists,
+      searchedItems: newFilteredItems,
       searchCount: searchCount,
       listBuckets: listBuckets,
       searchText: text.toLowerCase(),

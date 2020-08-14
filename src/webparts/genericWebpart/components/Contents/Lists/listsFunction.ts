@@ -19,6 +19,8 @@ import { makeSmallTimeObject, ITheTime} from '../../../../../services/dateServic
 
 import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 
+import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+
 import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
 
 import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
@@ -67,35 +69,42 @@ export async function allAvailableLists( webURL: string, listBuckets: IListBucke
 
     let contentsLists : IContentsLists = null;
 
-    let allLists : IContentsListInfo[] = await sp.web.lists.get();
-    console.log(allLists);
-
-    for (let i in allLists ) {
-
-        let lastModified = makeSmallTimeObject(allLists[i].LastItemModifiedDate);
-        let created = makeSmallTimeObject(allLists[i].Created);
-
-        allLists[i].Created = makeSmallTimeObject(allLists[i].Created).dayYYYYMMDD;
-
-        allLists[i].LastItemModifiedDate = lastModified.daysAgo.toString() + ' days';
-        allLists[i].modifiedAge = lastModified.daysAgo;
-        allLists[i].createdAge = created.daysAgo;
-
-        let idx = getListSort(allLists[i], listBuckets);
-
-        allLists[i].sort = listBuckets[idx]['sort'];
-        allLists[i].bucketCategory = listBuckets[idx]['bucketCategory'];
-        allLists[i].bucketLabel = listBuckets[idx]['bucketLabel'];
-        allLists[i].bucketIdx = idx;
-
-        allLists[i].meta = buildMetaFromList(allLists[i]);
-        allLists[i].searchString = buildSearchStringFromList(allLists[i]);
-
-
+    try {
+        let allLists : IContentsListInfo[] = await sp.web.lists.get();
+        console.log(allLists);
+    
+        for (let i in allLists ) {
+    
+            let lastModified = makeSmallTimeObject(allLists[i].LastItemModifiedDate);
+            let created = makeSmallTimeObject(allLists[i].Created);
+    
+            allLists[i].Created = makeSmallTimeObject(allLists[i].Created).dayYYYYMMDD;
+    
+            allLists[i].LastItemModifiedDate = lastModified.daysAgo.toString() + ' days';
+            allLists[i].modifiedAge = lastModified.daysAgo;
+            allLists[i].createdAge = created.daysAgo;
+    
+            let idx = getListSort(allLists[i], listBuckets);
+    
+            allLists[i].sort = listBuckets[idx]['sort'];
+            allLists[i].bucketCategory = listBuckets[idx]['bucketCategory'];
+            allLists[i].bucketLabel = listBuckets[idx]['bucketLabel'];
+            allLists[i].bucketIdx = idx;
+    
+            allLists[i].meta = buildMetaFromList(allLists[i]);
+            allLists[i].searchString = buildSearchStringFromList(allLists[i]);
+    
+    
+        }
+    
+        addTheseListsToState(allLists, '');
+        return allLists;
+    } catch (e) {
+        let errMessage = getHelpfullError(e, true, true);
+        console.log('checkThisPage', errMessage);
+        addTheseListsToState([], errMessage);
     }
 
-    addTheseListsToState(allLists);
-    return allLists;
 
 }
 

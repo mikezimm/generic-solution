@@ -187,6 +187,8 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <p><span style={hoverFieldStyle}>Group:</span> { F.Group }</p>
                 <p><span style={hoverFieldStyle}>Id:</span> { F.Id }</p>
 
+                <p><span style={hoverFieldStyle}>Meta:</span> { F.meta.join('; ') }</p>
+
                 { /* Types information */ }
                 <p><span style={hoverFieldStyle}>odata.type:</span> { F['odata.type'] }</p>
                 <p><span style={hoverFieldStyle}>odata.FieldTypeKind:</span> { F.FieldTypeKind }</p>
@@ -308,11 +310,12 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
             { itemRows }
         </table>;
 
-        let fieldTitle = this.props.items.bucketLabel == '' ? null : <h2>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</h2>;
+        let fieldTitle = this.props.items.bucketLabel == '' ? null :
+            <div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
 
         return (
           <div className={ styles.logListView }>
-              <div style={{ paddingTop: 15}} className={ stylesInfo.infoPaneTight }>
+              <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
                 { fieldTitle }
                 { fieldTable }
             </div>

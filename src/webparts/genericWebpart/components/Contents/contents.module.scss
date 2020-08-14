@@ -80,6 +80,10 @@
       align-items: center;
     }
 
+    .hideMe {
+      display: none;
+    }
+    
     .showErrorMessage {
       display:"";
       padding-left: 40px;

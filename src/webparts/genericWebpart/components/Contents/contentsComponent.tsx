@@ -156,7 +156,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
     public render(): React.ReactElement<IInspectContentsProps> {
 
         const pickListMessage = <div>Please pick a list first</div>;
-        const noPageAvailable = <div>This feature is not yet available</div>;
+        const noPageAvailable = <div style={{ paddingBottom: 30 }}>This feature is not yet available</div>;
 
         const listPage = this.state.tab !== 'Lists' ? null : <div>
             <InspectLists 
@@ -219,7 +219,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 { listPage }
             </PivotItem>
             <PivotItem headerText="Columns">
-                <h3>Columns</h3>
                 { columnsPage }
             </PivotItem>
             <PivotItem headerText="Views">
