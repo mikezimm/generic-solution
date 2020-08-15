@@ -47,8 +47,8 @@ let SystemFields = [ 'AccessPolicy', '_ModerationStatus', '_ModerationComments',
 ];
 
 let ootbFields = [ 'Created_x0020_Date', 'Last_x0020_Modified', 'FileLeafRef', 'LinkFilenameNoMenu', 'LinkFilename', 'LinkFilename2', '', '',
-    'SMTotalSize', 'LinkTitle2', '_UIVersion', 'UniqueId', 'FileRef', '', '', '',
-    '', '', '', '', '', '', '', '',
+    'SMTotalSize', 'LinkTitle2', '_UIVersion', 'UniqueId', 'FileRef', 'Title', 'Created', 'Modified',
+    'Author', 'Editor', '', '', '', '', '', '',
         
 ];
 
@@ -122,9 +122,12 @@ function getFieldSort( theField: IContentsFieldInfo, fieldBuckets: IFieldBucketI
     } else if ( SystemFields.indexOf(theField.StaticName) > -1 ) {
         bucketCategory = 'System';
 
-    } else if ( theField.ReadOnlyField === true ) {
+    } else if ( theField.CanBeDeleted === false ) {
         bucketCategory = 'System';
 
+    } else if ( theField.ReadOnlyField === true ) {
+        bucketCategory = 'ReadOnly';
+        
     } else { bucketCategory = 'Custom'; }
 
     let idx : any = doesObjectExistInArray(fieldBuckets, 'bucketCategory', bucketCategory ); 

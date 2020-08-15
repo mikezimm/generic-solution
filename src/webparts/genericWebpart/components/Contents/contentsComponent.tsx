@@ -85,7 +85,7 @@ export interface IInspectContentsState {
 
 }
 
-export const contentsTabs = ['Lists','Columns','Views','Types','Groups'];
+export const contentsTabs = ['Lists','Columns','Views','Types','WebParts','Groups', 'RailsOff'];
 
 export default class InspectContents extends React.Component<IInspectContentsProps, IInspectContentsState> {
 
@@ -229,31 +229,32 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             onLinkClick={ this.updatePickList2.bind(this) }
 
         >
-            <PivotItem headerText="Lists">
+            { /* export const contentsTabs = ['Lists','Columns','Views','Types','WebParts','Groups']; */ }
+            <PivotItem headerText={ contentsTabs[0] }>
                 { listPage }
             </PivotItem>
-            <PivotItem headerText="Columns">
+            <PivotItem headerText={ contentsTabs[1] }>
                 { columnsPage }
             </PivotItem>
-            <PivotItem headerText="Views">
+            <PivotItem headerText={ contentsTabs[2] }>
                 <h3>Views</h3>
                 { viewsPage }
             </PivotItem>
-            <PivotItem headerText="Types">
+            <PivotItem headerText={ contentsTabs[3] }>
                 <h3>Types</h3>
                 { typesPage }
             </PivotItem>
-            <PivotItem headerText="WebParts">
+            <PivotItem headerText={ contentsTabs[4] }>
                 <h3>WebParts</h3>
                 { partsPage }
             </PivotItem>
-            <PivotItem headerText="Groups">
+            <PivotItem headerText={ contentsTabs[5] }>
                 <h3>Groups</h3>
                 { groupsPage }
             </PivotItem>
 
             {  !this.state.allowRailsOff ? null : 
-            <PivotItem headerText="RailsOff">
+            <PivotItem headerText={ contentsTabs[6] }>
                 <h3>RailsOff</h3>
                 { railsPage }
             </PivotItem>
