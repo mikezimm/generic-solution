@@ -243,7 +243,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
             </div>;
 
 
-            let fieldSettingsURL = !this.props.showSettings ? F.StaticName : createLink(this.props.webURL + "/_layouts/15/FldEdit.aspx?List=" + this.props.listGuid + "&Field=" + F.Id, '_blank', F.StaticName);
+            let fieldSettingsURL = !this.props.showSettings ? F.StaticName : createLink(this.props.webURL + "/_layouts/15/FldEdit.aspx?List={" + this.props.listGuid + "}&Field=" + F.Id, '_blank', F.StaticName);
 
             let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
 
