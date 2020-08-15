@@ -35,8 +35,6 @@ import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/co
 import { defineThePage } from './PageProvisioning/FinancePages/defineThisPage';
 import ProvisionPages from './PageProvisioning/component/provisionPageComponent';
 
-import InspectParts from './WPDef/component/inspectPartComponent';
-
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
 
 
@@ -316,17 +314,6 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         ></ProvisionPages>
       </div>;
 
-      const inspectPartsPage = <div>
-      <InspectParts 
-          allowOtherSites={ false }
-          pageContext={ this.props.pageContext }
-          showPane={true}
-          allLoaded={false}
-          currentUser = {this.state.currentUser }
-
-        ></InspectParts>
-      </div>;
-
       const infoPage = <div>
       <InfoPage 
           allLoaded={ true }
@@ -363,16 +350,13 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
       let MyPivot = <div style={{ paddingLeft: 10, paddingRight: 20 }}>
         <Pivot aria-label="Provision Options"
-          defaultSelectedIndex ={3}>
+          defaultSelectedIndex ={2}>
             
           <PivotItem headerText="Lists">
                 { provisionListPage }
           </PivotItem>
           <PivotItem headerText="Pages">
               { provisionPagesPage }
-          </PivotItem>
-          <PivotItem headerText="WebParts">
-              { inspectPartsPage }
           </PivotItem>
           <PivotItem headerText="Contents">
               { contentsPage }

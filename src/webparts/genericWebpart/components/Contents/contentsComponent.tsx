@@ -21,6 +21,8 @@ import InspectLists from './Lists/listsComponent';
 
 import InspectColumns from './Fields/fieldsComponent';
 
+import InspectParts from './WParts/partsComponent';
+
 //import { analyticsList } from 'InspectContentsWebPartStrings';
 
 import { cleanURL } from '../../../../services/stringServices';
@@ -59,6 +61,7 @@ export interface IPickedList {
     title: string;
     name: string;
     guid: string;
+    isLibrary: boolean;
 }
 
 export interface IInspectContentsState {
@@ -171,7 +174,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 webURL = { this.state.webURL }
             ></InspectLists>
         </div>;
-//InspectColumns
+
         const columnsPage = !this.state.pickedList ? pickListMessage : <div>
             <InspectColumns 
                 pageContext = { this.props.pageContext }
@@ -183,6 +186,17 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allowSettings = { this.state.allowSettings }
                 webURL = { this.state.webURL }
             ></InspectColumns>
+        </div>;
+
+        const partsPage = <div>
+            <InspectParts 
+                allowOtherSites={ false }
+                pageContext={ this.props.pageContext }
+                showPane={true}
+                allLoaded={false}
+                currentUser = {this.props.currentUser }
+                webURL = { this.state.webURL }
+            ></InspectParts>
         </div>;
 
         const viewsPage = <div>
@@ -228,6 +242,10 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             <PivotItem headerText="Types">
                 <h3>Types</h3>
                 { typesPage }
+            </PivotItem>
+            <PivotItem headerText="WebParts">
+                <h3>WebParts</h3>
+                { partsPage }
             </PivotItem>
             <PivotItem headerText="Groups">
                 <h3>Groups</h3>
@@ -288,8 +306,9 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         let splitID = buttonID.split('|Splitme|');
         let thisTab = splitID[0];
         let thisId = splitID[1];
-        let thisTitle = splitID[2];
-        let thisName = splitID[3];
+        let thisName = splitID[2];
+        let thisTitle = splitID[3];
+        let isLibrary : boolean = splitID[4] === 'Libraries' ? true : false;
 
         console.log('updatePickList:', ev );
         console.log('splitID:', splitID );
@@ -298,6 +317,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             title: thisTitle,
             name: thisName,
             guid: thisId,
+            isLibrary : isLibrary,
         };
 
         this.setState({

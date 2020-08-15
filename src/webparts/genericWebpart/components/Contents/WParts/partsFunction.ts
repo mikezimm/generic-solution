@@ -90,8 +90,6 @@ export async function allAvailableWebParts( addThesePartsToState: any, setProgre
         webPartDefs = getAllPreConfiguredEntries(webPartDefs, thisManifest, i );
         //webPartDefs.splice(webPartDefs.length, 0, theseEntries );
 
-
-
     }
 
     console.log('webPartDefs', webPartDefs);

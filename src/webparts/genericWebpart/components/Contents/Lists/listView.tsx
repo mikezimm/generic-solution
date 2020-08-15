@@ -144,8 +144,11 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           typesStyles.root.color = 'green !important';
           typesStyles.root.fontWeight = "900 !important";
           
-          let listInfo = '|Splitme|' + L.Id + '|Splitme|' + L.EntityTypeName  + '|Splitme|' + L.Title;
+          let listOrLibrary = L.meta.indexOf('Libraries') > -1 ? 'Libraries' : 'Other';
+          let listInfo = '|Splitme|' + L.Id + '|Splitme|' + L.EntityTypeName  + '|Splitme|' + L.Title + '|Splitme|' + listOrLibrary;
 
+//          console.log('listInfo', listInfo);
+//          console.log(' this.props.pickThisList',  this.props.pickThisList);
           let gotoColumns = createIconButton('OEM', 'Columns', this.props.pickThisList, 'Columns' + listInfo , columnsStyles );
           let gotoViews = createIconButton('ChevronDown', 'Views', this.props.pickThisList, 'Views' + listInfo, viewsStyles );
           let gotoTypes = createIconButton('TypeScriptLanguage', 'Types', this.props.pickThisList, 'Types' + listInfo, typesStyles );

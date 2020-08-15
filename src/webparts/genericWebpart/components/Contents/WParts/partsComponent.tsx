@@ -6,18 +6,10 @@ import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
-import "@pnp/sp/webs";
-import "@pnp/sp/clientside-pages/web";
-import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
-import { CreateClientsidePage, PromotedState } from "@pnp/sp/clientside-pages";
-
-import { IValidTemplate, allAvailableWebParts } from './inspectPartFunction';
+import { IValidTemplate, allAvailableWebParts } from './partsFunction';
 import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
-
-import { IGenericWebpartProps } from '../../IGenericWebpartProps';
-import { IGenericWebpartState } from '../../IGenericWebpartState';
-import styles from './inspectPart.module.scss';
+import styles from '../contents.module.scss';
 
 import { IMyProgress, IUser } from '../../IReUsableInterfaces';
 
@@ -28,11 +20,11 @@ import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButt
 
 import { PageContext } from '@microsoft/sp-page-context';
 
-import MyLogList from './listView';
+import MyLogList from './partsListView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
-import { IWPart, addItemToArrayIfItDoesNotExist } from './inspectPartFunction';
+import { IWPart, addItemToArrayIfItDoesNotExist } from './partsFunction';
 
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
@@ -246,7 +238,7 @@ public constructor(props:IInspectPartsProps){
 
             const stackPageTokens: IStackTokens = { childrenGap: 10 };
 
-            thisPage = <div className={styles.partDefs}>
+            thisPage = <div className={styles.contents}>
 
                 <div><div>{ disclaimers }</div>
                 <div> { searchBox } </div>                
@@ -272,14 +264,14 @@ public constructor(props:IInspectPartsProps){
  */
 
             return (
-                <div className={ styles.partDefs }>
+                <div className={ styles.contents }>
                     { thisPage }
                 </div>
             );
             
         } else {
             console.log('provisionPage.tsx return null');
-            return (  <div className={ styles.partDefs }>
+            return (  <div className={ styles.contents }>
                 <h2>There are no parts to see</h2>
             </div> );
         }

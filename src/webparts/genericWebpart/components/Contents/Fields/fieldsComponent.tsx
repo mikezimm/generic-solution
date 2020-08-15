@@ -64,7 +64,7 @@ export const pivCats = {
     text: {title: 'Text', desc: '', order: 1},
     calculated: {title: 'Calculated', desc: '', order: 1},
     choice: {title: 'Choice', desc: '', order: 1},
-    look: {title: 'Look', desc: '', order: 1},
+    look: {title: 'Lookup', desc: '', order: 1},
     user: {title: 'User', desc: '', order: 1},
     number: {title: 'Number', desc: '', order: 1},
     date: {title: 'Date', desc: '', order: 1},
@@ -85,6 +85,30 @@ export interface IContentsFieldInfo extends Partial<IFieldInfo>{
     CanBeDeleted?: boolean;
     searchString: string;
     meta: string[];
+    OutputType: number;
+
+    Formula?: string;    //Calculated Fields
+    MinimumValue?: number;  //Number Fields
+    MaximumValue?: number;  //Number Fields
+
+    DisplayFormat?: number;
+    SelectionMode?: number;  //User Fields
+    SelectionGroup?: number;  //User Fields
+
+    FriendlyDisplayFormat?: number;     //Date Fields
+    DateTimeCalendarType?: number;      //Date Fields
+
+    Choices?: string[];                 //Choice Field
+
+    NumberOfLines?: number;     // NOTE Field
+    RichText?: boolean;         // NOTE Field
+
+    LookupField?: string;                   // Lookup Field 
+    AllowMultipleValues?: boolean;          // Lookup Field 
+    LookupList?: string;                    // Lookup Field 
+    RelationshipDeleteBehavior?: number;    // Lookup Field 
+
+
 
 }
 
@@ -170,6 +194,8 @@ export interface IInspectColumnsState {
 
     errMessage: string | JSX.Element;
 
+    specialAlt: boolean;
+
 }
 
 export default class InspectColumns extends React.Component<IInspectColumnsProps, IInspectColumnsState> {
@@ -243,6 +269,8 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             showJSON: false,
             showSPFx: false,
             showMinFields: false,
+
+            specialAlt: false,
         
         };
 
@@ -320,11 +348,12 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
                     return <MyLogField 
                         showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
-                        items={ bucket }
+                        items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinFields= { this.state.showDesc } 
                         webURL = { this.state.webURL } descending={false} titles={null}   
-                    ></MyLogField>;
+                        listGuid = { this.props.pickedList.guid }
+                        ></MyLogField>;
                 })
 
             }
@@ -548,7 +577,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     console.log('searchForItems: this', this);
 
     //Be sure to pass item.props.itemKey to get filter value
-    this.searchForFields( this.state.searchText, item.props.itemKey );
+    this.searchForFields( this.state.searchText, item.props.itemKey, false );
   }
 
   public _searchForItems = (item): void => {
@@ -558,10 +587,10 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     console.log('searchForItems: item', item);
     console.log('searchForItems: this', this);
 
-    this.searchForFields( item, this.state.searchMeta );
+    this.searchForFields( item, this.state.searchMeta, true );
   }
   
-  private getNewFilteredItems(text: string, meta: string , searchItems : IContentsFieldInfo[]) {
+  private getNewFilteredItems(text: string, meta: string , searchItems : IContentsFieldInfo[] ) {
 
     let newFilteredItems : IContentsFieldInfo[] = [];
 
@@ -581,7 +610,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
   }
 
-  public searchForFields = (text: string, meta: string): void => {
+  public searchForFields = (text: string, meta: string , resetSpecialAlt: boolean ): void => {
 
     let searchItems : IContentsFieldInfo[] = this.state.allFields;
     let searchCount = searchItems.length;
@@ -603,6 +632,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
       fieldBuckets: fieldBuckets,
       searchText: text.toLowerCase(),
       searchMeta: meta,
+      specialAlt: resetSpecialAlt === true || this.state.searchMeta !== meta ? false : !this.state.specialAlt , 
     });
 
 
@@ -873,20 +903,24 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
     private getSiteSettingsLinks() {
 
+        let listGUID = this.props.pickedList.guid;
         let stackSettingTokens = { childrenGap: 20 };
+        
+        let listLibString = ( this.props.pickedList.isLibrary === true ) ? "},doclib&List={" : "},list&List={"; //Needed for if inherited permissions?
+
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Fields */}
-                { createLink( this.state.webURL + "/_layouts/15/viewlsts.aspx" ,'_blank', 'Contents' )}                
-                { createLink( this.state.webURL + "/SiteAssets" ,'_blank', 'SiteAssets' )}
-                { createLink( this.state.webURL + "/SitePages" ,'_blank', 'SitePages' )}
+                    { createLink( this.state.webURL + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.state.webURL + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.state.webURL + "/_layouts/15/user.aspx?obj={" + listGUID + listLibString + listGUID + "}" ,'_blank', 'Permissions' )}
+                    { createLink( this.state.webURL + "/_layouts/15/LstSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Versioning' )}
+                    { createLink( this.state.webURL + "/_layouts/15/AdvSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Advanced' )}
+                    { createLink( this.state.webURL + "/_layouts/15/ManageCheckedOutFiles.aspx?List=(" + listGUID + ")" ,'_blank', 'Orphan files' )}
+                    { createLink( this.state.webURL + "/_layouts/15/IndexedColumns.aspx?List=(" + listGUID + ")" ,'_blank', 'Index' )}
+                    { createLink( this.state.webURL + "/_layouts/15/AddFieldFromTemplate.aspx?List=(" + listGUID + ")" ,'_blank', 'Add Site Col' )}
+                    { createLink( this.state.webURL + "/_layouts/15/fldNew.aspx?List=(" + listGUID + ")" ,'_blank', '+ New Col' )}
 
-                { createLink( this.state.webURL + "/_layouts/15/settings.aspx" ,'_blank', 'Site Settings' )}
-                { createLink( this.state.webURL + "/_layouts/15/user.aspx" ,'_blank', 'Permissions' )}
-                { createLink( this.state.webURL + "/_layouts/15/prjsetng.aspx" ,'_blank', 'Title/Logo' )}
-                { createLink( this.state.webURL + "/_layouts/15/AreaNavigationSettings.aspx" ,'_blank', 'Navigation' )}
-                { createLink( this.state.webURL + "/_layouts/15/people.aspx" ,'_blank', 'Groups' )}
-                { createLink( this.state.webURL + "/_layouts/15/ManageFeatures.aspx" ,'_blank', 'Features' )}            
-            </Stack>
+                </Stack>
         </div>;
 
         return settingLinks;
