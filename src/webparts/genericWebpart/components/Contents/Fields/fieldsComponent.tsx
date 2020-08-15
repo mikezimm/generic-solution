@@ -64,7 +64,7 @@ export const pivCats = {
     text: {title: 'Text', desc: '', order: 1},
     calculated: {title: 'Calculated', desc: '', order: 1},
     choice: {title: 'Choice', desc: '', order: 1},
-    look: {title: 'Look', desc: '', order: 1},
+    look: {title: 'Lookup', desc: '', order: 1},
     user: {title: 'User', desc: '', order: 1},
     number: {title: 'Number', desc: '', order: 1},
     date: {title: 'Date', desc: '', order: 1},
@@ -85,6 +85,30 @@ export interface IContentsFieldInfo extends Partial<IFieldInfo>{
     CanBeDeleted?: boolean;
     searchString: string;
     meta: string[];
+    OutputType: number;
+
+    Formula?: string;    //Calculated Fields
+    MinimumValue?: number;  //Number Fields
+    MaximumValue?: number;  //Number Fields
+
+    DisplayFormat?: number;
+    SelectionMode?: number;  //User Fields
+    SelectionGroup?: number;  //User Fields
+
+    FriendlyDisplayFormat?: number;     //Date Fields
+    DateTimeCalendarType?: number;      //Date Fields
+
+    Choices?: string[];                 //Choice Field
+
+    NumberOfLines?: number;     // NOTE Field
+    RichText?: boolean;         // NOTE Field
+
+    LookupField?: string;                   // Lookup Field 
+    AllowMultipleValues?: boolean;          // Lookup Field 
+    LookupList?: string;                    // Lookup Field 
+    RelationshipDeleteBehavior?: number;    // Lookup Field 
+
+
 
 }
 
@@ -147,8 +171,8 @@ export interface IInspectColumnsState {
     searchText: string;
     searchMeta: string;
 
-    searchedColumns: IContentsFieldInfo[];
-    first20searchedColumns: IContentsFieldInfo[];
+    searchedItems: IContentsFieldInfo[];
+    first20searchedItems: IContentsFieldInfo[];
 
     fieldBuckets: IFieldBucketInfo[];
     // 2 - Source and destination list information
@@ -170,13 +194,16 @@ export interface IInspectColumnsState {
 
     errMessage: string | JSX.Element;
 
+    specialAlt: boolean;
+
 }
 
 export default class InspectColumns extends React.Component<IInspectColumnsProps, IInspectColumnsState> {
 
     private createSearchBuckets() {
         let result : IFieldBucketInfo[] = [
-            { fields: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content'} ,
+            { fields: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content - Can update'} ,
+            { fields: [], count: 0, sort : '3' , bucketCategory: 'ReadOnly', bucketLabel: '3. ReadOnly - Calculated/Lookup?' } ,
             { fields: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
             { fields: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
         ];
@@ -217,8 +244,8 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             allLoaded: false,
 
             allFields: [],
-            searchedColumns: [],
-            first20searchedColumns: [],
+            searchedItems: [],
+            first20searchedItems: [],
             searchCount: 0,
 
             fieldBuckets : this.createSearchBuckets(),
@@ -234,7 +261,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             showSettings: false,
             showRailsOff: false,
 
-            searchMeta: '',
+            searchMeta: pivCats.visible.title,
             searchText: '',
 
             errMessage: '',
@@ -243,6 +270,8 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             showJSON: false,
             showSPFx: false,
             showMinFields: false,
+
+            specialAlt: false,
         
         };
 
@@ -320,11 +349,12 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
                     return <MyLogField 
                         showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
-                        items={ bucket }
+                        items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinFields= { this.state.showDesc } 
                         webURL = { this.state.webURL } descending={false} titles={null}   
-                    ></MyLogField>;
+                        listGuid = { this.props.pickedList.guid }
+                        ></MyLogField>;
                 })
 
             }
@@ -349,7 +379,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
               </div>
             </div>;
 
-        let disclaimers = <h3>Contents for { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+            let disclaimers = <h3>Columns for { this.props.pickedList.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -367,6 +397,11 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
             let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
 
+            let noInfo = [];
+            noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
+            if ( this.state.searchText != '' ) { noInfo.push( <p>{'Search Text: ' + this.state.searchText}</p> )  ; }
+            if ( this.state.searchMeta != '' ) { noInfo.push( <p>{'Refiner: ' + this.state.searchMeta}</p> ) ; }
+
             thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
 
                 { errMessage }
@@ -377,9 +412,12 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
                 <div> { settings } </div>
 
-                <div style={{ height:30, paddingBottom: 10} }> { fieldPivots } </div>
+                <div style={{ height:30, paddingBottom: 15} }> { fieldPivots } </div>
 
                 <div>
+
+                <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
+
                 <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                     { fieldList }
                 </Stack>
@@ -407,7 +445,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
         } else {
             console.log('provisionPage.tsx return null');
             return (  <div className={ styles.contents }>
-                <h2>There are no parts to see</h2>
+                <h2>There are no Fields to see</h2>
             </div> );
         }
 
@@ -423,29 +461,27 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
     private addTheseFieldsToState( allFields, scope : 'List' | 'Web' , errMessage : string ) {
 
-        /*
-        let meta: string[] = [];
-        for ( let p of allFields ) {
-            if ( p.meta ) {
-                for ( let x of p.meta ) {
-                    meta = addItemToArrayIfItDoesNotExist( meta, x );
-                }
-            }
-        }
-        */
+        let newFilteredItems : IContentsFieldInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allFields );
 
-        let fieldBuckets  : IFieldBucketInfo[] = this.bucketFields( allFields, this.state.fieldBuckets );
-
+        let fieldBuckets  : IFieldBucketInfo[] = this.bucketFields( newFilteredItems, this.state.fieldBuckets );
+        
         this.setState({
             allFields: allFields,
-            searchedColumns: allFields,
-            searchCount: allFields.length,
+            searchedItems: newFilteredItems,
+            searchCount: newFilteredItems.length,
             errMessage: errMessage,
             fieldBuckets: fieldBuckets,
+            searchText: '',
+            searchMeta: this.state.searchMeta,
         });
         return true;
     }
 
+    /**
+     * This puts all the fields into the buckets
+     * @param allFields 
+     * @param fieldBuckets 
+     */
     private bucketFields( allFields : IContentsFieldInfo[], fieldBuckets : IFieldBucketInfo[] ) {
 
         for (let i in allFields ) {
@@ -542,7 +578,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     console.log('searchForItems: this', this);
 
     //Be sure to pass item.props.itemKey to get filter value
-    this.searchForFields( this.state.searchText, item.props.itemKey );
+    this.searchForFields( this.state.searchText, item.props.itemKey, false );
   }
 
   public _searchForItems = (item): void => {
@@ -552,45 +588,52 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     console.log('searchForItems: item', item);
     console.log('searchForItems: this', this);
 
-    this.searchForFields( item, this.state.searchMeta );
+    this.searchForFields( item, this.state.searchMeta, true );
   }
   
-  public searchForFields = (text: string, meta: string): void => {
+  private getNewFilteredItems(text: string, meta: string , searchItems : IContentsFieldInfo[] ) {
+
+    let newFilteredItems : IContentsFieldInfo[] = [];
+
+    for (let thisSearchItem of searchItems) {
+
+        let searchString = thisSearchItem.searchString;
+        let fieldMeta = thisSearchItem.meta;
+  
+        if ( meta === undefined || meta == null || meta == '' || fieldMeta.indexOf(meta) > -1 ) {
+          if( searchString.indexOf(text.toLowerCase()) > -1 ) {
+            newFilteredItems.push(thisSearchItem);
+            }
+        }
+      }
+
+      return newFilteredItems;
+
+  }
+
+  public searchForFields = (text: string, meta: string , resetSpecialAlt: boolean ): void => {
 
     let searchItems : IContentsFieldInfo[] = this.state.allFields;
     let searchCount = searchItems.length;
 
     let fieldBuckets : IFieldBucketInfo[] = this.createSearchBuckets();
 
-    let newFilteredFields : IContentsFieldInfo[] = [];
+    let newFilteredItems : IContentsFieldInfo[] = this.getNewFilteredItems( text, meta, searchItems );
 
-    for (let thisSearchField of searchItems) {
-
-      let searchString = thisSearchField.searchString;
-      let fieldMeta = thisSearchField.meta;
-
-      if ( meta === undefined || meta == null || meta == '' || fieldMeta.indexOf(meta) > -1 ) {
-        if( searchString.indexOf(text.toLowerCase()) > -1 ) {
-            newFilteredFields.push(thisSearchField);
-          }
-      }
-    }
-
-    fieldBuckets  = this.bucketFields( newFilteredFields, fieldBuckets );
+    fieldBuckets  = this.bucketFields( newFilteredItems, fieldBuckets );
 
     console.log('Searched for:' + text);
     console.log('Field Meta:' + meta);
-    console.log('and found these fields:', newFilteredFields);
-    searchCount = newFilteredFields.length;
-
-
+    console.log('and found these fields:', newFilteredItems);
+    searchCount = newFilteredItems.length;
 
     this.setState({
-      searchedColumns: newFilteredFields,
+      searchedItems: newFilteredItems,
       searchCount: searchCount,
       fieldBuckets: fieldBuckets,
       searchText: text.toLowerCase(),
       searchMeta: meta,
+      specialAlt: resetSpecialAlt === true || this.state.searchMeta !== meta ? false : !this.state.specialAlt , 
     });
 
 
@@ -861,20 +904,24 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
     private getSiteSettingsLinks() {
 
+        let listGUID = this.props.pickedList.guid;
         let stackSettingTokens = { childrenGap: 20 };
+        
+        let listLibString = ( this.props.pickedList.isLibrary === true ) ? "},doclib&List={" : "},list&List={"; //Needed for if inherited permissions?
+
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Fields */}
-                { createLink( this.state.webURL + "/_layouts/15/viewlsts.aspx" ,'_blank', 'Contents' )}                
-                { createLink( this.state.webURL + "/SiteAssets" ,'_blank', 'SiteAssets' )}
-                { createLink( this.state.webURL + "/SitePages" ,'_blank', 'SitePages' )}
+                    { createLink( this.state.webURL + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.state.webURL + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.state.webURL + "/_layouts/15/user.aspx?obj={" + listGUID + listLibString + listGUID + "}" ,'_blank', 'Permissions' )}
+                    { createLink( this.state.webURL + "/_layouts/15/LstSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Versioning' )}
+                    { createLink( this.state.webURL + "/_layouts/15/AdvSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Advanced' )}
+                    { createLink( this.state.webURL + "/_layouts/15/ManageCheckedOutFiles.aspx?List=(" + listGUID + ")" ,'_blank', 'Orphan files' )}
+                    { createLink( this.state.webURL + "/_layouts/15/IndexedColumns.aspx?List=(" + listGUID + ")" ,'_blank', 'Index' )}
+                    { createLink( this.state.webURL + "/_layouts/15/AddFieldFromTemplate.aspx?List=(" + listGUID + ")" ,'_blank', 'Add Site Col' )}
+                    { createLink( this.state.webURL + "/_layouts/15/fldNew.aspx?List=(" + listGUID + ")" ,'_blank', '+ New Col' )}
 
-                { createLink( this.state.webURL + "/_layouts/15/settings.aspx" ,'_blank', 'Site Settings' )}
-                { createLink( this.state.webURL + "/_layouts/15/user.aspx" ,'_blank', 'Permissions' )}
-                { createLink( this.state.webURL + "/_layouts/15/prjsetng.aspx" ,'_blank', 'Title/Logo' )}
-                { createLink( this.state.webURL + "/_layouts/15/AreaNavigationSettings.aspx" ,'_blank', 'Navigation' )}
-                { createLink( this.state.webURL + "/_layouts/15/people.aspx" ,'_blank', 'Groups' )}
-                { createLink( this.state.webURL + "/_layouts/15/ManageFeatures.aspx" ,'_blank', 'Features' )}            
-            </Stack>
+                </Stack>
         </div>;
 
         return settingLinks;

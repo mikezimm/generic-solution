@@ -24,6 +24,7 @@ export interface IMyLogFieldProps {
     titles: [];
     searchMeta: string;
     webURL: string;
+    listGuid: string;
     items: IFieldBucketInfo;
     showSettings: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
@@ -38,6 +39,7 @@ export interface IMyLogFieldProps {
     showSPFx: boolean;
 
     showMinFields: boolean;
+    specialAlt: boolean;
 
 
 }
@@ -131,6 +133,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
         let columnsToVisible = ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.showCell : styles.hideMe;
+        let styleSpecial = ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.hideMe : styles.showCell;
         let styleDesc = this.props.showDesc && ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.showCell : styles.hideMe;
         let styleXML = this.props.showXML ? styles.showCell : styles.hideMe;
         let styleJSON = this.props.showJSON ? styles.showCell : styles.hideMe;
@@ -187,6 +190,8 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <p><span style={hoverFieldStyle}>Group:</span> { F.Group }</p>
                 <p><span style={hoverFieldStyle}>Id:</span> { F.Id }</p>
 
+                <p><span style={hoverFieldStyle}>Meta:</span> { F.meta.join('; ') }</p>
+
                 { /* Types information */ }
                 <p><span style={hoverFieldStyle}>odata.type:</span> { F['odata.type'] }</p>
                 <p><span style={hoverFieldStyle}>odata.FieldTypeKind:</span> { F.FieldTypeKind }</p>
@@ -237,12 +242,8 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
             </HoverCard>
             </div>;
 
-//.logFieldView {
-//.fieldButtons {
-//.buttons{
 
-
-            let fieldSettingsURL = !this.props.showSettings ? F.StaticName : createLink(this.props.webURL + "/_layouts/15/listedit.aspx?Field=(" + F.Id + ")", '_blank', F.StaticName);
+            let fieldSettingsURL = !this.props.showSettings ? F.StaticName : createLink(this.props.webURL + "/_layouts/15/FldEdit.aspx?List={" + this.props.listGuid + "}&Field=" + F.StaticName, '_blank', F.StaticName);
 
             let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
 
@@ -260,7 +261,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <td className={ styles.nowWrapping }> { F.Title } </td>
                 <td className={ styles.nowWrapping }> { fieldSettingsURL }</td>
                 <td className={ styleDesc }> { F.Description.length > this.state.maxChars ? F.Description.slice(0,this.state.maxChars) + '...' : F.Description } </td>
-                <td className={ columnsToVisible }> { F.TypeAsString } </td>
+                <td> { F.TypeAsString } </td>
                 <td className={ columnsToVisible }> { F.Group } </td>
                 <td> { F.DefaultValue ? F.DefaultValue : '-' } </td>
 
@@ -269,6 +270,8 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <td className={ styleJSON }> { this.props.showJSON ? this.getFieldJSON(F) : null } </td>
 
                 <td className={ [styles.nowWrapping, columnsToVisible].join(', ') }> { dev } </td>
+
+                <td className={ styleSpecial }> { this.getFieldSpecialValue( F ) } </td>
 
                 <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 
@@ -293,7 +296,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <th>Title</th>
                 <th>Name</th>
                 <th className={ styleDesc }>Description</th>
-                <th className={ columnsToVisible }>Type</th>
+                <th>Type</th>
                 <th className={ columnsToVisible }>Group</th>
                 <th>Default</th>
 
@@ -302,17 +305,20 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <th className={ styleJSON }> { 'JSON' } </th>
 
                 <th className={ [styles.nowWrapping, columnsToVisible].join(', ') }>Dev</th>
+                <th className={ styleSpecial }>Column Props</th>
+
                 <th>Details</th>
 
             </tr>
             { itemRows }
         </table>;
 
-        let fieldTitle = this.props.items.bucketLabel == '' ? null : <h2>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</h2>;
+        let fieldTitle = this.props.items.bucketLabel == '' ? null :
+            <div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
 
         return (
           <div className={ styles.logListView }>
-              <div style={{ paddingTop: 15}} className={ stylesInfo.infoPaneTight }>
+              <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
                 { fieldTitle }
                 { fieldTable }
             </div>
@@ -467,7 +473,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
     }
 
-    private getFieldSPFx ( thisField ) {
+    private getFieldSPFx ( thisField  ) { // thisField is : IContentsFieldInfo but not using because can't type the .results array
 
         var indent1 = 1;
 
@@ -555,5 +561,188 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
         return jsonZ;
     }
 
+    private getFieldSpecialValue ( F : IContentsFieldInfo ) {
 
+
+      var specialColumn : string | JSX.Element = "";
+
+      let fieldOutputType = '';
+      let FriendlyDisplayFormat = '';
+      let DisplayFormat = '';
+      let DateTimeCalendarType = '';
+      let SelectionGroup = null;
+      let SelectionMode = '';
+
+
+
+      switch ( F.TypeAsString ) {
+        case "Calculated":
+          if ( F.OutputType === 2) {
+            fieldOutputType = "Single line text";
+          }
+          if ( F.OutputType === 9) {
+            fieldOutputType = "Number";
+          }
+          if ( F.OutputType === 10) {
+            fieldOutputType = "Currency";
+          }
+          if ( F.OutputType === 8) {
+            fieldOutputType = "Yes/No";
+          }
+          if ( F.OutputType === 4) {
+            fieldOutputType = "Date/Time";
+          }
+
+          specialColumn = <p><span style={{color:'green'}}> {F.Formula} </span><i><strong><span style={{color:"red", paddingLeft: 5}}> ( { fieldOutputType } ) </span></strong></i></p>;
+          //specialColumn = specialColumn.split(")&IF(").join(")</br>&IF(");
+
+
+          if (this.props.specialAlt === true ) {
+           //Someday, we could use this function to find closing brackets for things like And and Or
+            //https://codereview.stackexchange.com/questions/179471/find-the-corresponding-closing-parenthesis
+
+            if (F.Formula.indexOf("=\"<a") == 0 ) {
+              specialColumn = <div><p><i><strong><span style={{color:"red", paddingLeft: 5}}>( {fieldOutputType } ) </span><span style={{color:"blue"}}>Link</span></strong></i>
+              <span style={{color:"green"}}> { F.Formula.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')} </span></p></div>;
+  //                specialColumn = specialColumn.split(")&IF(").join(")</br>&IF(")
+            } else if (F.Formula.indexOf(")&IF(") > 0 ) {
+              specialColumn = <div><p><i><strong><span style={{color:"red", paddingLeft: 5}}>( {fieldOutputType } ) IF</span></strong></i>
+                <span style={{color:"green"}}> { F.Formula.split(")&IF(").join(")</br>&IF(").split("</br>").map( r => { return <div>{ r }</div>; } ) } </span></p></div>;
+  //                specialColumn = specialColumn.split(")&IF(").join(")</br>&IF(")
+
+            } else if (F.Formula.indexOf(")+IF(") > 0 ) {
+              specialColumn = <div><p><i><strong><span style={{color:"red", paddingLeft: 5}}>( {fieldOutputType } ) +IF</span></strong></i>
+                <span style={{color:"green"}}> { F.Formula.split(")+IF(").join(")</br>+IF(").split("</br>").map( r => { return <div>{ r }</div>; } )} </span></p></div>;
+  //                specialColumn = specialColumn.split(")+IF(").join(")</br>+IF(")
+
+            } else if (F.Formula.indexOf(",IF(") > 0 ) {
+              specialColumn = <div><p><i><strong><span style={{color:"red", paddingLeft: 5}}>( {fieldOutputType } ) ,IF</span></strong></i>
+                <span style={{color:"green"}}> { F.Formula.split(",IF(").join("</br>,IF(").split("</br>").map( r => { return <div>{ r }</div>; } )} </span></p></div>;
+  //                specialColumn = F.Formula.split(",IF(").join("</br>,IF(")
+
+            } else if (F.Formula.indexOf(",") > 0 ) {
+              specialColumn = <div><p><i><strong><span style={{color:"red", paddingLeft: 5}}>( {fieldOutputType } ) various</span></strong></i></p></div>;
+
+                let newFormula = F.Formula;
+                newFormula = newFormula.split("ISNUMBER(").join("</br>ISNUMBER(");
+                newFormula = newFormula.split("ISDATE(").join("</br>ISDATE(");
+                newFormula = newFormula.split(",TEXT(").join("</br>,TEXT(");
+                newFormula = newFormula.split(",CONCATENATE(").join("</br>,CONCATENATE(");
+                newFormula = newFormula.split("(OR(").join("(</br>OR(");
+                newFormula = newFormula.split("(AND(").join("(</br>AND(");
+                newFormula = newFormula.split("((").join("(</br>(");
+                newFormula = newFormula.split("))").join(")</br>)");
+
+//                newFormula = newFormula.split("])").join("])</br>");
+                newFormula = newFormula.split("&TEXT").join("</br>&TEXT");
+
+                specialColumn = <div><span style={{color:"green"}}>{ newFormula.split("</br>").map( r => { return <div>{ r }</div>; } ) }</span></div>;
+  //                fieldDetails3 = fieldDetails3.split(",").join(")</br>,")
+
+            } else if (F.Formula.indexOf(",,,,,,") > 0 ) {
+              specialColumn = <div><div><p><i><strong><span style={{color:"red", paddingLeft: 5}}>( { fieldOutputType } ) ,</span></strong></i></p></div>
+                  <div><span style={{color:"green"}}> { F.Formula.split(",").join(")</br>,")}</span></div></div>;
+  //                specialColumn = specialColumn.split(",").join(")</br>,")
+
+            } else {
+              specialColumn = specialColumn;
+
+            }
+
+          }
+
+
+          break;
+
+        case "MultiChoice":
+          specialColumn = this.props.specialAlt === true ? <div> { F.Choices.map( c => <div>{ c } </div>) } </div> : <div> { F.Choices.join('; ') }</div>;
+          break;
+
+        case "Choice":
+          specialColumn = this.props.specialAlt === true ? <div> { F.Choices.map( c => <div>{ c } </div>) } </div> : <div> { F.Choices.join('; ') }</div>;
+          break;
+
+        case "Integer":
+        case "Number":
+          if ( this.props.specialAlt !== true ) {
+              specialColumn = <div> {F.MinimumValue } to { F.MaximumValue }  <i><strong><span style={{color:"red", paddingLeft: 5}}>( {F.TypeShortDescription } )</span></strong></i></div>;
+
+          } else {
+            specialColumn = <div><div><i><strong><span style={{color:"red", paddingLeft: 5}}>( { F.TypeShortDescription } )</span></strong></i></div>
+            <div>Min: { F.MinimumValue }</div>
+            <div>Max: { F.MaximumValue }</div></div>;
+
+          }
+
+          break;
+
+        case "Integer":
+          specialColumn = F.MinimumValue + " to " + F.MaximumValue + <i><strong><span style={{color:"red", paddingLeft: 5}}>( ' + F.TypeShortDescription + " )</span></strong></i>;
+          break;
+
+        case "Currency":
+          specialColumn = F.MinimumValue + " to " + F.MaximumValue + <i><strong><span style={{color:"red", paddingLeft: 5}}>( ' + F.TypeShortDescription + " Currency id=" + F.CurrencyLocaleId + " )</span></strong></i>;
+          break;
+
+        case "URL":
+          specialColumn = F.DisplayFormat === 1 ? 'Picture format' : 'HyperLink format';
+          break;
+
+        case "Lookup":
+          let lookupSettings = [];
+          if ( F.AllowMultipleValues === true ) { lookupSettings.push('Multi') ; }
+          lookupSettings.push('LookupField: ' + F.LookupField) ;
+          lookupSettings.push('LookupList: ' + F.LookupList) ;
+          lookupSettings.push('Relationship: ' + F.RelationshipDeleteBehavior) ;
+
+          if ( this.props.specialAlt === true ) {
+            specialColumn = lookupSettings.length > 0 ? <div> { lookupSettings.map( L => { return <div>{ L } </div> ; }) } </div> : null;
+
+          } else { 
+            specialColumn = lookupSettings.length > 0 ? lookupSettings.join(', ')  : null;
+
+          }
+
+
+
+          break;
+
+        case "Text":
+          specialColumn = F.TypeShortDescription;
+          break;
+
+        case "Note":
+          specialColumn = [ 'Multi Line Text ( ' + F.NumberOfLines + ' ) ', ' RichText = ' + F.RichText].join(', ');
+          break;
+
+        case "DateTime":
+        case "Date":
+          FriendlyDisplayFormat = (F.FriendlyDisplayFormat === 1) ? "Friendly" : "";
+          DisplayFormat = (F.DisplayFormat === 0) ? "Date Only" : "Date & Time";
+          DateTimeCalendarType = "CalendarType = " + F.DateTimeCalendarType;
+          specialColumn = <div> { F.TypeShortDescription }  <i><strong><span style={{color:"red", paddingLeft: 5}}>( { [DisplayFormat, FriendlyDisplayFormat, DateTimeCalendarType].join(', ') } ) </span></strong></i></div>;
+          break;
+
+        case "User":
+        case "MultiUser":
+        case "UserMulti":
+          SelectionMode = (F.SelectionMode === 0) ? "People only" : "Users & Groups";
+          specialColumn = SelectionMode + ",";
+          SelectionGroup = (F.SelectionGroup === 0) ? "Everyone" : F.SelectionGroup;
+          specialColumn += " from group ( " + SelectionGroup + " )";
+
+          break;
+
+        default:
+          if (F.Hidden === true) {
+            specialColumn = "";
+            specialColumn = "";
+          }
+          break;
+
+      }
+
+      return specialColumn;
+
+    } // End getSpecialColumn
 }

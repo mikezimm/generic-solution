@@ -80,8 +80,27 @@
 
 }
 
+// define variables first
+//https://docs.microsoft.com/en-us/sharepoint/dev/spfx/use-theme-colors-in-your-customizations#available-theme-tokens-and-their-occurances
+$themePrimary: '[theme:themePrimary, default:#0078d7]';
+$themeWhite: '[theme:white, default:white]';
+
 .infoPaneTight {
 
+  .infoHeading {
+    font-size: 24px;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    width: 100%;
+    font-weight: 500;
+    background-color: $themePrimary;
+    color: $themeWhite;
+
+    #myTableTitle {
+      padding-left: 20px;
+    }
+
+  }
 
   .infoTable {
 

@@ -144,8 +144,11 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           typesStyles.root.color = 'green !important';
           typesStyles.root.fontWeight = "900 !important";
           
-          let listInfo = '|Splitme|' + L.Id + '|Splitme|' + L.EntityTypeName  + '|Splitme|' + L.Title;
+          let listOrLibrary = L.meta.indexOf('Libraries') > -1 ? 'Libraries' : 'Other';
+          let listInfo = '|Splitme|' + L.Id + '|Splitme|' + L.EntityTypeName  + '|Splitme|' + L.Title + '|Splitme|' + listOrLibrary;
 
+//          console.log('listInfo', listInfo);
+//          console.log(' this.props.pickThisList',  this.props.pickThisList);
           let gotoColumns = createIconButton('OEM', 'Columns', this.props.pickThisList, 'Columns' + listInfo , columnsStyles );
           let gotoViews = createIconButton('ChevronDown', 'Views', this.props.pickThisList, 'Views' + listInfo, viewsStyles );
           let gotoTypes = createIconButton('TypeScriptLanguage', 'Types', this.props.pickThisList, 'Types' + listInfo, typesStyles );
@@ -168,6 +171,9 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
                 <p><span style={hoverFieldStyle}>Description:</span> { L.Description }</p>
                 <p><span style={hoverFieldStyle}>EntityName:</span> { L.EntityTypeName }</p>
                 <p><span style={hoverFieldStyle}>Id:</span> { L.Id }</p>
+
+                <p><span style={hoverFieldStyle}>Meta:</span> { L.meta.join('; ') }</p>
+
                 <p><br></br></p>
                 <p><span style={hoverFieldStyle}>Search String:</span> { L.searchString }</p>
               </div>
@@ -256,11 +262,12 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             { itemRows }
         </table>;
 
-        let listTitle = this.props.items.bucketLabel == '' ? null : <h2>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</h2>;
+      let listTitle = this.props.items.bucketLabel == '' ? null :
+        <div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
 
         return (
           <div className={ styles.logListView }>
-              <div style={{ paddingTop: 15}} className={ stylesInfo.infoPaneTight }>
+              <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
                 { listTitle }
                 { logTable }
               </div>

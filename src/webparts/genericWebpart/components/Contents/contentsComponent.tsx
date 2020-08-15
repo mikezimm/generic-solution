@@ -21,6 +21,8 @@ import InspectLists from './Lists/listsComponent';
 
 import InspectColumns from './Fields/fieldsComponent';
 
+import InspectParts from './WParts/partsComponent';
+
 //import { analyticsList } from 'InspectContentsWebPartStrings';
 
 import { cleanURL } from '../../../../services/stringServices';
@@ -59,6 +61,7 @@ export interface IPickedList {
     title: string;
     name: string;
     guid: string;
+    isLibrary: boolean;
 }
 
 export interface IInspectContentsState {
@@ -82,7 +85,7 @@ export interface IInspectContentsState {
 
 }
 
-export const contentsTabs = ['Lists','Columns','Views','Types','Groups'];
+export const contentsTabs = ['Lists','Columns','Views','Types','WebParts','Groups', 'RailsOff'];
 
 export default class InspectContents extends React.Component<IInspectContentsProps, IInspectContentsState> {
 
@@ -156,7 +159,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
     public render(): React.ReactElement<IInspectContentsProps> {
 
         const pickListMessage = <div>Please pick a list first</div>;
-        const noPageAvailable = <div>This feature is not yet available</div>;
+        const noPageAvailable = <div style={{ paddingBottom: 30 }}>This feature is not yet available</div>;
 
         const listPage = this.state.tab !== 'Lists' ? null : <div>
             <InspectLists 
@@ -171,7 +174,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 webURL = { this.state.webURL }
             ></InspectLists>
         </div>;
-//InspectColumns
+
         const columnsPage = !this.state.pickedList ? pickListMessage : <div>
             <InspectColumns 
                 pageContext = { this.props.pageContext }
@@ -183,6 +186,17 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allowSettings = { this.state.allowSettings }
                 webURL = { this.state.webURL }
             ></InspectColumns>
+        </div>;
+
+        const partsPage = <div>
+            <InspectParts 
+                allowOtherSites={ false }
+                pageContext={ this.props.pageContext }
+                showPane={true}
+                allLoaded={false}
+                currentUser = {this.props.currentUser }
+                webURL = { this.state.webURL }
+            ></InspectParts>
         </div>;
 
         const viewsPage = <div>
@@ -215,28 +229,32 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             onLinkClick={ this.updatePickList2.bind(this) }
 
         >
-            <PivotItem headerText="Lists">
+            { /* export const contentsTabs = ['Lists','Columns','Views','Types','WebParts','Groups']; */ }
+            <PivotItem headerText={ contentsTabs[0] }>
                 { listPage }
             </PivotItem>
-            <PivotItem headerText="Columns">
-                <h3>Columns</h3>
+            <PivotItem headerText={ contentsTabs[1] }>
                 { columnsPage }
             </PivotItem>
-            <PivotItem headerText="Views">
+            <PivotItem headerText={ contentsTabs[2] }>
                 <h3>Views</h3>
                 { viewsPage }
             </PivotItem>
-            <PivotItem headerText="Types">
+            <PivotItem headerText={ contentsTabs[3] }>
                 <h3>Types</h3>
                 { typesPage }
             </PivotItem>
-            <PivotItem headerText="Groups">
+            <PivotItem headerText={ contentsTabs[4] }>
+                <h3>WebParts</h3>
+                { partsPage }
+            </PivotItem>
+            <PivotItem headerText={ contentsTabs[5] }>
                 <h3>Groups</h3>
                 { groupsPage }
             </PivotItem>
 
             {  !this.state.allowRailsOff ? null : 
-            <PivotItem headerText="RailsOff">
+            <PivotItem headerText={ contentsTabs[6] }>
                 <h3>RailsOff</h3>
                 { railsPage }
             </PivotItem>
@@ -289,8 +307,9 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         let splitID = buttonID.split('|Splitme|');
         let thisTab = splitID[0];
         let thisId = splitID[1];
-        let thisTitle = splitID[2];
-        let thisName = splitID[3];
+        let thisName = splitID[2];
+        let thisTitle = splitID[3];
+        let isLibrary : boolean = splitID[4] === 'Libraries' ? true : false;
 
         console.log('updatePickList:', ev );
         console.log('splitID:', splitID );
@@ -299,6 +318,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             title: thisTitle,
             name: thisName,
             guid: thisId,
+            isLibrary : isLibrary,
         };
 
         this.setState({

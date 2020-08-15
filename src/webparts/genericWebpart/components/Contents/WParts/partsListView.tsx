@@ -3,13 +3,13 @@ import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { IMyProgress } from '../../IReUsableInterfaces';
-import { IWPart } from './inspectPartFunction';
+import { IWPart } from './partsFunction';
 import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
 
-import styles from './listView.module.scss';
+import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
 export interface IMyLogListProps {
