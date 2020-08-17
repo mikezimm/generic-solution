@@ -1,13 +1,13 @@
 
 //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
-import { Web } from "@pnp/sp/presets/all";
+import { Web } from "../webparts/genericWebpart/components/ListProvisioning/PivotTiles/node_modules/@pnp/sp/presets/all";
 
 /**
  * This just takes an object, and returns a string of the Key and Value.
  * Used for logging
- * @param thisOne 
- * @param keyNo 
- * @param delimiter 
+ * @param thisOne
+ * @param keyNo
+ * @param delimiter
  */
 export function stringifyKeyValue( thisOne: any, keyNo, delimiter : string ) {
 
@@ -18,16 +18,16 @@ export function stringifyKeyValue( thisOne: any, keyNo, delimiter : string ) {
 /**
  * This function will take an array of objects, and insert into another array of objects at a specific index.
  * It will also remove objects at specific indexies.
- * 
+ *
  * Example of call:  This will take an array of fields from a view, and just insert [ootbModified, ootbEditor ] at index #2 of the array.
  * If you replace the startDel and countDelete with values, it will remove XX objects starting at index YY
  * The unique thing about it though is for adding, you can give the original position to add things in.
  * This way you don't have to figure out the new index if something is to be removed.
- * 
+ *
  * export const ProjectRecentUpdatesFields = spliceCopyArray ( stdProjectViewFields, null, null, 2, [ootbModified, ootbEditor ] );
- * 
+ *
  * In the example
- * 
+ *
  * @param sourceArray - Original array of objects
  * @param startDel - index of objects to start deleting
  * @param countDelete - number of objects to delete starting at startDel
@@ -38,7 +38,7 @@ export function spliceCopyArray(sourceArray, startDel, countDelete, startAddOrig
 
     let whole = [];
     let skipMin = startDel === null ? "-1000" : startDel ;
-    let skipMax = startDel === null ? "-1000" : startDel + countDelete - 1 ; 
+    let skipMax = startDel === null ? "-1000" : startDel + countDelete - 1 ;
     let addedArray = false;
 
     if ( startAddOrigPos <= 0 ) {
@@ -64,13 +64,13 @@ export function spliceCopyArray(sourceArray, startDel, countDelete, startAddOrig
 
 /**
  * This function checks to see if an element of an array (object) contains a specific property/value pair.
- * 
+ *
  * example call:  if ( doesObjectExistInArray(currentFields, 'StaticName', checkField ) ) {
  * This takes an array of field objects (currentFields), and looks to see if any of the objects has a key of StaticName which has a value of checkField variable.
- * 
- * @param sourceArray 
- * @param objectProperty 
- * @param propValue 
+ *
+ * @param sourceArray
+ * @param objectProperty
+ * @param propValue
  */
 
 export function doesObjectExistInArray(sourceArray, objectProperty : string, propValue){
@@ -104,11 +104,11 @@ export interface ICompareResult {
  * Then I run a process which creates another 'result' array of what things were actually added - minus any errors
  * The function will remove the items in the 'result' array from the 'addItemsArray.
  * Only the items that were not added (ie the ones that errored out) will be left... or maybe it would add a key with the result.
- * 
+ *
  */
 
  /**
-  * 
+  *
   * @param checkForTheseItems - this is the array of items you want to check for in the sourceArray ('inThisArray')
   * @param inThisArray - this is the array where you are looking for items in
   * @param method - this tells what to do... either flage items in 'inThisArray' with found/not found, or remove the found ones
@@ -121,12 +121,12 @@ export interface ICompareResult {
     let compareKey = 'compareArrays';
     let foundTag = 'Found';
     let notFoundTag = 'Not' + foundTag;
-    
+
     let result : ICompareResult = {
         checkForTheseItems: checkForTheseItems,
         inThisArray: inThisArray,
         found: [],
-        notFound: [], 
+        notFound: [],
         result: [],
         message: '',
     };
@@ -139,7 +139,7 @@ export interface ICompareResult {
     for (let c in checkForTheseItems){
 
         let foundThisCheck : boolean = false;
-        
+
         //Expecting syntax "Title===Email triage"
         let splitStr : string = checkForTheseItems[c][keyToCheck];
 
@@ -148,31 +148,31 @@ export interface ICompareResult {
             let splitArr: string[] = splitStr.split(checkDelimiter);
             let testKey: string = splitArr[0];
             let testVal: string = splitArr[1];
-    
+
             if ( splitArr.length !== 2 ) {
                 //There was a problem with the test value... needs to be syntax like this:  "Title===Email triage"
                 notFoundItems += '\n???: ' +splitStr;
             } else {
-    
+
                 //Loop through all the objects in the 'inThisArray' and process them
                 for (let i in inThisArray){
                     let objectToUpdate: {} = inThisArray[i];
-    
+
                     if ( inThisArray[i][testKey] === testVal ) {
                         //Value was found.... do whatever needs to be done.
                         objectToUpdate[compareKey] = foundTag;
                         /*
                         if ( method === 'AddTag') { //Add item to result and then add keyTag to it
                             objectToUpdate[compareKey] = foundTag;
-                            
+
                         } else if ( method === 'ReturnNOTFound') { //Do not add this one to the result array
-    
-    
+
+
                         } else if ( method === 'ReturnFound') { //Not sure about this loop yet
-    
+
                         }
                         */
-                       
+
                         foundThisCheck = true;
                         break;
                     }
@@ -182,26 +182,26 @@ export interface ICompareResult {
         if ( foundThisCheck === false  ) { notFoundItems += '\nNotFound: ' +splitStr; checkForTheseItems[c][compareKey] = notFoundTag; }
     }
 
-    
+
     /** this is where we need to do some other things for other options
-     * 
+     *
      */
 
     for (let i in inThisArray){
         let objectToUpdate: any = inThisArray[i];
             //Value was found.... do whatever needs to be done.
-            if ( objectToUpdate[compareKey] ) { 
+            if ( objectToUpdate[compareKey] ) {
                 objectToUpdate[compareKey] = 'Found';
                 result.found.push(objectToUpdate);
                 foundCount ++;
-            } else { 
+            } else {
                 objectToUpdate[compareKey] = 'NOTFound';
                 result.notFound.push(objectToUpdate);
-                notFoundCount ++; 
+                notFoundCount ++;
             }
     }
 
-    result.message = result.notFound.map( thisOne => { 
+    result.message = result.notFound.map( thisOne => {
         return 'NF: ' + stringifyKeyValue(thisOne, 0, '===') + '\n';
     }).join('');
 
@@ -221,7 +221,7 @@ export interface ICompareResult {
         //alert('compareArrays - completed! Check Console for results');
 
         let alertMessage = `Found (${foundCount}) matches in both arrays`;
-        if (notFoundCount > 0 ) { 
+        if (notFoundCount > 0 ) {
             alertMessage += '\nCheck Console.log for details';
             alertMessage += `\nDid NOT find these (${notFoundCount}) items!`;
             alertMessage += '\n' + result.message;

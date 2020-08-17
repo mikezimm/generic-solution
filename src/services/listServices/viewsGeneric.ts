@@ -1,17 +1,17 @@
 //  >>>> ADD import additional controls/components
-import { UrlFieldFormatType, Field } from "@pnp/sp/presets/all";
+import { UrlFieldFormatType, Field } from "../../webparts/genericWebpart/components/ListProvisioning/PivotTiles/node_modules/@pnp/sp/presets/all";
 import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
     ChoiceFieldFormatType,
     DateTimeFieldFormatType, CalendarType, DateTimeFieldFriendlyFormatType,
-    FieldUserSelectionMode, IFieldCreationProperties } from "@pnp/sp/fields/types";
+    FieldUserSelectionMode, IFieldCreationProperties } from "../../webparts/genericWebpart/components/ListProvisioning/PivotTiles/node_modules/@pnp/sp/fields/types";
 
-import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
-    IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
+import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField ,
+    IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField ,
     IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from './columnTypes';
 
-import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
+import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
 	cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity } from './columnTypes';
-	
+
 import { IMyView, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from './viewTypes';
 
 import { spliceCopyArray } from '../arrayServices';
@@ -39,12 +39,12 @@ import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc,
 
 /**
  * Array splicer to remove elements, and add in  middle
- * @param sourceArray 
+ * @param sourceArray
  * @param startDel - zero based index where you want to start deleting
  * @param countDelete - # of elements to delete
  * @param startAddOrigPos - starting position to add addArray to... NOTE:  Based on ORIGINAL sourceArray elements
  *      The reason for startAddOrigPos is because you don't need to figure out the right position if you remove elements first.
- * @param addArray 
+ * @param addArray
  */
 
 
@@ -62,9 +62,9 @@ export const testAlertsView : IMyView = {
 					{field: Leader, 	clause:'And', 	oper: Eq, 		val: queryValueCurrentUser },
 					{field: Team, 		clause:'Or', 	oper: Eq, 		val: queryValueCurrentUser }, //Error because Or should not come after And
 				],
-    orders: [ 
-        {field: ootbID, asc: true}, 
-        {field: 'Step4Check', asc: false} 
+    orders: [
+        {field: ootbID, asc: true},
+        {field: 'Step4Check', asc: false}
     ],
     groups: { collapse: false, limit: 25,
 		fields: [

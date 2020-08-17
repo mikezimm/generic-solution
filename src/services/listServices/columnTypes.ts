@@ -1,10 +1,10 @@
 
 //  >>>> ADD import additional controls/components
-import { UrlFieldFormatType, Field } from "@pnp/sp/presets/all";
+import { UrlFieldFormatType, Field } from "../../webparts/genericWebpart/components/ListProvisioning/PivotTiles/node_modules/@pnp/sp/presets/all";
 import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
     ChoiceFieldFormatType,
     DateTimeFieldFormatType, CalendarType, DateTimeFieldFriendlyFormatType,
-    FieldUserSelectionMode, IFieldCreationProperties, } from "@pnp/sp/fields/types";
+    FieldUserSelectionMode, IFieldCreationProperties, } from "../../webparts/genericWebpart/components/ListProvisioning/PivotTiles/node_modules/@pnp/sp/fields/types";
 
 import { IItemAddResult } from "@pnp/sp/items";
 import "@pnp/sp/lists";
@@ -15,7 +15,7 @@ export const maxInfinity = -1 * minInfinity ;
 
 export interface MyListDef {
 title: string;
-desc?: string; 
+desc?: string;
 template?: number;
 enableContentTypes?: boolean;
 additionalSettings?: Partial<IListInfo>;
@@ -64,16 +64,16 @@ export const cMUser : MyFieldDef =    {    kind : 20,    type : 'SP.FieldUserMul
 
 export const cLocal : MyFieldDef =   {    kind : 33,    type : 'SP.FieldLocation'  , vType: '', label: 'Loc'};
 
-export const cModStatus : MyFieldDef =   {    kind : 23,    type : 'SP.FieldChoice'  , vType: '', label: 'ModStatus'}; 
+export const cModStatus : MyFieldDef =   {    kind : 23,    type : 'SP.FieldChoice'  , vType: '', label: 'ModStatus'};
 
-export const cSLook : MyFieldDef =   {    kind : 7,    type : 'SP.FieldLookup'  , vType: '', label: 'Lookup'}; 
+export const cSLook : MyFieldDef =   {    kind : 7,    type : 'SP.FieldLookup'  , vType: '', label: 'Lookup'};
 
-export const cComputed : MyFieldDef =   {    kind : 12,    type : 'SP.FieldComputed'  , vType: '', label: 'Computed'}; 
+export const cComputed : MyFieldDef =   {    kind : 12,    type : 'SP.FieldComputed'  , vType: '', label: 'Computed'};
 
 export const myFieldDefs : MyFieldDef[] = [cCount, cInt, cText, cMText, cDate, cChoice, cLook, cDLook, cBool, cNumb, cCurr, cURL, cMChoice, cCalcN, cCalcT, cUser, cMUser, cLocal, cSLook, cComputed, cModStatus];
 
-export type IMyFieldTypes = IBaseField | ITextField | IMultiLineTextField | INumberField | IXMLField | 
-    IBooleanField | ICalculatedField | IDateTimeField | ICurrencyField | IUserField | ILookupField | IChoiceField | 
+export type IMyFieldTypes = IBaseField | ITextField | IMultiLineTextField | INumberField | IXMLField |
+    IBooleanField | ICalculatedField | IDateTimeField | ICurrencyField | IUserField | ILookupField | IChoiceField |
     IMultiChoiceField | IDepLookupField | ILocationField;
 
 /**
@@ -144,8 +144,8 @@ export interface IMultiLineTextField extends IBaseField {
  */
 //    addNumber(title: string, minValue?: number, maxValue?: number, properties?: IFieldCreationProperties): Promise<IFieldAddResult>;
 export interface INumberField extends IBaseField {
-    minValue?: number; 
-    maxValue?: number; 
+    minValue?: number;
+    maxValue?: number;
 }
 
 /**
@@ -197,9 +197,9 @@ export interface IDateTimeField extends IBaseField {
  * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
  */
 export interface ICurrencyField extends IBaseField {
-    minValue?: number; 
-    maxValue?: number; 
-    currencyLocalId?: number; //This is technically available but 
+    minValue?: number;
+    maxValue?: number;
+    currencyLocalId?: number; //This is technically available but
 }
 
 /**
@@ -245,9 +245,9 @@ export interface ILookupField extends IBaseField {
  * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
  */
 export interface IChoiceField extends IBaseField {
-    choices: string[]; 
-    format?: ChoiceFieldFormatType; 
-    fillIn?: boolean; 
+    choices: string[];
+    format?: ChoiceFieldFormatType;
+    fillIn?: boolean;
     FillInChoice?: boolean; //This is the actual property to allow fill in
 }
 
@@ -260,7 +260,7 @@ export interface IChoiceField extends IBaseField {
  * @param properties Differ by type of field being created (see: https://msdn.microsoft.com/en-us/library/office/dn600182.aspx)
  */
 export interface IMultiChoiceField extends IBaseField {
-    choices: string[]; 
+    choices: string[];
     fillIn?: boolean;
 }
 

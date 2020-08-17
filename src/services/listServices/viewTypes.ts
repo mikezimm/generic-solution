@@ -1,8 +1,8 @@
 
-import { sp, Views, IViews, IViewInfo } from "@pnp/sp/presets/all";
+import { sp, Views, IViews, IViewInfo } from "../../webparts/genericWebpart/components/ListProvisioning/PivotTiles/node_modules/@pnp/sp/presets/all";
 
-import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
-    IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
+import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField ,
+    IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField ,
     IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from './columnTypes';
 
 //Imported but not used so that intellisense can prevent duplicate named columns.
