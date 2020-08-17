@@ -1,5 +1,5 @@
 
-import { TMTProjectFields, TMTTimeFields} from './columnsHarmonie'; //Import column arrays (one file because both lists use many of same columns)
+import { HarmonieFields} from './columnsHarmonie'; //Import column arrays (one file because both lists use many of same columns)
 
 import { projectViews} from './viewsHarmonie';  //Import view arrays for Project list
 
@@ -12,13 +12,13 @@ export type IValidTemplate = 100 | 101;
 import { cleanURL } from '../../../../../services/stringServices';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, currentUser: IUser, pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listName : string, listDefinition: 'Emails' | 'Emails' , webURL: string, currentUser: IUser, pageURL: string ) {
 
     //Sometimes the webURL is undefined  (when props are empty)
     pageURL = pageURL.toLowerCase();
-    if ( webURL ) { 
+    if ( webURL ) {
         let webLastIndexOf = webURL.lastIndexOf('/');
-        if ( webURL.length > 0 && webLastIndexOf != webURL.length -1 ) { webURL += '/'; } 
+        if ( webURL.length > 0 && webLastIndexOf != webURL.length -1 ) { webURL += '/'; }
     }
     if ( pageURL.length > 0 && pageURL.lastIndexOf('/') != pageURL.length -1 ) { pageURL += '/'; }
 
@@ -33,7 +33,7 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
     } else if ( pageURL === webURL ) {
         isListOnThisWeb = true;
     }
-    
+
     let makeThisList:  IMakeThisList = {
 
         title: listName,
@@ -57,15 +57,15 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
         webExists: false,
         listExists: false,
         listExistedB4: false,
-    
+
     };
 
-    if ( listDefinition === 'ParentListTitle' ) {
+    if ( listDefinition === 'Emails' ) {
 //        makeThisList.createTheseFields = TMTProjectFields();
 //        makeThisList.createTheseViews = projectViews;
 //        makeThisList.createTheseItems = TMTDefaultProjectItems;
         makeThisList.autoItemCreate = true;
-        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
+//        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 
 
     } else if ( listDefinition === 'ChildListTitle' ) {
@@ -73,7 +73,7 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
 //        makeThisList.createTheseViews = timeViewsFull;
 //        makeThisList.createTheseItems =  TMTTestTimeItems(currentUser);
         makeThisList.autoItemCreate = false;
-        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
+//        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
     }
 
     //let listResult = await provisionTheList( makeThisList, setProgress );
