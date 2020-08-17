@@ -132,13 +132,16 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
-        let columnsToVisible = ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.showCell : styles.hideMe;
-        let styleSpecial = ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.hideMe : styles.showCell;
-        let styleDesc = this.props.showDesc && ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.showCell : styles.hideMe;
-        let styleXML = this.props.showXML ? styles.showCell : styles.hideMe;
-        let styleJSON = this.props.showJSON ? styles.showCell : styles.hideMe;
-        let styleSPFx = this.props.showSPFx ? styles.showCell : styles.hideMe;
-        if ( this.props.showXML || this.props.showJSON || this.props.showSPFx ) { columnsToVisible = styles.hideMe ; }
+        let columnsToVisible = !this.props.railsOff && ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.showCell : styles.hideMe;
+        let styleSpecial = this.props.railsOff || ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.hideMe : styles.showCell;
+        let styleDesc = !this.props.railsOff && this.props.showDesc && ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.showCell : styles.hideMe;
+        let styleXML = !this.props.railsOff && this.props.showXML ? styles.showCell : styles.hideMe;
+        let styleJSON = !this.props.railsOff && this.props.showJSON ? styles.showCell : styles.hideMe;
+        let styleSPFx = !this.props.railsOff && this.props.showSPFx ? styles.showCell : styles.hideMe;
+        let styleRailsOff = this.props.railsOff ? styles.showCell : styles.hideMe;
+        let styleOnRailsOn = this.props.railsOff ? styles.hideMe : styles.showCell;
+
+        if ( this.props.railsOff || this.props.showXML || this.props.showJSON || this.props.showSPFx ) { columnsToVisible = styles.hideMe ; }
 
         let itemRows = logItems.length === 0 ? null : logItems.map( F => { 
 
@@ -262,8 +265,9 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <td className={ styles.nowWrapping }> { fieldSettingsURL }</td>
                 <td className={ styleDesc }> { F.Description.length > this.state.maxChars ? F.Description.slice(0,this.state.maxChars) + '...' : F.Description } </td>
                 <td> { F.TypeAsString } </td>
+
                 <td className={ columnsToVisible }> { F.Group } </td>
-                <td> { F.DefaultValue ? F.DefaultValue : '-' } </td>
+                <td className={ columnsToVisible }> { F.DefaultValue ? F.DefaultValue : '-' } </td>
 
                 <td className={ styleXML }> { this.props.showXML ? this.getFieldXML(F.SchemaXml) : null } </td>
                 <td className={ styleSPFx }> { this.props.showSPFx ? this.getFieldSPFx(F) : null } </td>
@@ -272,6 +276,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <td className={ [styles.nowWrapping, columnsToVisible].join(', ') }> { dev } </td>
 
                 <td className={ styleSpecial }> { this.getFieldSpecialValue( F ) } </td>
+                <td className= { styleRailsOff }>Rails Off Content</td>
 
                 <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 
@@ -298,15 +303,17 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <th className={ styleDesc }>Description</th>
                 <th>Type</th>
                 <th className={ columnsToVisible }>Group</th>
-                <th>Default</th>
+                <th className={ columnsToVisible }>Default</th>
 
                 <th className={ styleXML }> { 'SchemaXml' } </th>
                 <th className={ styleSPFx }> { 'SPFx' } </th>
                 <th className={ styleJSON }> { 'JSON' } </th>
 
                 <th className={ [styles.nowWrapping, columnsToVisible].join(', ') }>Dev</th>
-                <th className={ styleSpecial }>Column Props</th>
 
+                <th className={ styleSpecial }> Column Props </th>
+
+                <th className= { styleRailsOff }>Rails Off Heading</th>
                 <th>Details</th>
 
             </tr>
