@@ -85,7 +85,7 @@ export interface IInspectContentsState {
 
 }
 
-export const contentsTabs = ['Lists','Columns','Views','Types','WebParts','Groups', 'RailsOff'];
+export const contentsTabs = ['Subsites','Lists','Columns','Views','Types','WebParts','Groups', 'RailsOff'];
 
 export default class InspectContents extends React.Component<IInspectContentsProps, IInspectContentsState> {
 
@@ -161,6 +161,10 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         const pickListMessage = <div>Please pick a list first</div>;
         const noPageAvailable = <div style={{ paddingBottom: 30 }}>This feature is not yet available</div>;
 
+        const websPage = <div>
+                { noPageAvailable }
+        </div>;
+
         const listPage = this.state.tab !== 'Lists' ? null : <div>
             <InspectLists 
                 pageContext = { this.props.pageContext }
@@ -231,30 +235,34 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         >
             { /* export const contentsTabs = ['Lists','Columns','Views','Types','WebParts','Groups']; */ }
             <PivotItem headerText={ contentsTabs[0] }>
-                { listPage }
+                <h3>Subsites</h3>
+                { websPage }
             </PivotItem>
             <PivotItem headerText={ contentsTabs[1] }>
-                { columnsPage }
+                { listPage }
             </PivotItem>
             <PivotItem headerText={ contentsTabs[2] }>
+                { columnsPage }
+            </PivotItem>
+            <PivotItem headerText={ contentsTabs[3] }>
                 <h3>Views</h3>
                 { viewsPage }
             </PivotItem>
-            <PivotItem headerText={ contentsTabs[3] }>
+            <PivotItem headerText={ contentsTabs[4] }>
                 <h3>Types</h3>
                 { typesPage }
             </PivotItem>
-            <PivotItem headerText={ contentsTabs[4] }>
+            <PivotItem headerText={ contentsTabs[5] }>
                 <h3>WebParts</h3>
                 { partsPage }
             </PivotItem>
-            <PivotItem headerText={ contentsTabs[5] }>
+            <PivotItem headerText={ contentsTabs[6] }>
                 <h3>Groups</h3>
                 { groupsPage }
             </PivotItem>
 
             {  !this.state.allowRailsOff ? null : 
-            <PivotItem headerText={ contentsTabs[6] }>
+            <PivotItem headerText={ contentsTabs[7] }>
                 <h3>RailsOff</h3>
                 { railsPage }
             </PivotItem>
@@ -263,13 +271,13 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         </Pivot></div>;
 
         return (
-        <div className={ styles.contents }>
-        <div className={ styles.container }>
-        <div className={ styles.rightContents }>
-            { MyPivot }
-        </div>
-        </div>
-        </div>
+            <div className={ styles.contents }>
+            <div className={ styles.container }>
+            <div className={ styles.rightContents }>
+                { MyPivot }
+            </div>
+            </div>
+            </div>
         );
     }
 
