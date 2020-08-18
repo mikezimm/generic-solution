@@ -43,80 +43,19 @@ import {
 export const stdViewFields = ['Edit', zzzShowAllPivot, OrderPivot, TileCategoryPivot, ootbTitle, TileDescriptionPivot, TileBgImageSizePivot,
     TileBgColorClassPivot, TileHrefLinkPivot, TileBgImageUrlPivot, zzzAutoFeaturePivot];
 
-export const  EmailRecentUpdatesFields = spliceCopyArray ( stdEmailViewFields, null, null, 2, [ootbModified, ootbEditor ] );
+export const  PivotRecentUpdatesFields = spliceCopyArray ( stdViewFields, null, null, 2, [ootbModified, ootbEditor ] );
 
-export const EmailAllItemsView : IMyView = {
+export const PivotAllItemsView : IMyView = {
     Title: 'All Items',
-    iFields: 	stdEmailViewFields,
+    iFields: 	stdViewFields,
     wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
             ],
     orders: [ {field: ootbModified, asc: false} ],
 };
 
-let EmailByYearViewFields = ['Edit', ootbID, EmailCategoriesHarm, EmailFromNameHarm, EmailDateHarm, EmailSubjectHarm, ootbTitle, ];
-
-export const EmailsByYearView : IMyView = {
-    Title: 'Emails by Year',
-    iFields: 	EmailByYearViewFields,
-    orders: [ {field: EmailDateHarm, asc: false} ],
-    groups: { collapse: true, limit: 30,
-		fields: [
-			{field: EmailYrHarm, asc: false},
-		],
-	},
-};
-
-export const EmailsByYearMoView : IMyView = {
-    Title: 'Emails by Year Month',
-    iFields: 	EmailByYearViewFields,
-    orders: [ {field: EmailDateHarm, asc: false} ],
-    groups: { collapse: true, limit: 30,
-		fields: [
-			{field: EmailYrMoHarm, asc: false},
-		],
-	},
-};
-
-export const EmailsByProdView : IMyView = {
-    Title: 'Emails By Product',
-    iFields: 	EmailByYearViewFields,
-    orders: [ {field: EmailDateHarm, asc: false} ],
-    groups: { collapse: true, limit: 30,
-		fields: [
-			{field: ProductsALV, asc: false},
-		],
-	},
-};
-
-export const EmailsByCompanyView : IMyView = {
-    Title: 'Emails By Company',
-    iFields: 	EmailByYearViewFields,
-    orders: [ {field: EmailDateHarm, asc: false} ],
-    groups: { collapse: true, limit: 30,
-		fields: [
-			{field: FromCompanyHarm, asc: false},
-		],
-	},
-};
-
-export const EmailsByProgramView : IMyView = {
-    Title: 'Emails By Program',
-    iFields: 	EmailByYearViewFields,
-    orders: [ {field: EmailDateHarm, asc: false} ],
-    groups: { collapse: true, limit: 30,
-		fields: [
-			{field: ProgramsALV, asc: false},
-		],
-	},
-};
-
 export const projectViews : IMyView[] = [
-    EmailAllItemsView, createRecentUpdatesView( EmailRecentUpdatesFields),
-    EmailsByYearMoView,
-    EmailsByYearView,
-    EmailsByProdView,
-    EmailsByProgramView,
-    EmailsByCompanyView,
+    PivotAllItemsView, createRecentUpdatesView( PivotRecentUpdatesFields),
+
 
 ] ;
 
