@@ -1,7 +1,7 @@
 
 import { HarmonieFields} from './columnsHarmonie'; //Import column arrays (one file because both lists use many of same columns)
 
-import { projectViews} from './viewsHarmonie';  //Import view arrays for Project list
+import { HarmonieViews } from './viewsHarmonie';  //Import view arrays for Project list
 
 import { IMyProgress, IUser } from '../../IReUsableInterfaces';
 
@@ -51,7 +51,7 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
         createTheseViews: null,
         createTheseItems: null,
         autoItemCreate: false,
-        listURL: webURL + ( template === 100 ? 'Lists/' : '') + listName,
+        listURL: webURL + listName,
         confirmed: false,
         onCurrentSite: isListOnThisWeb,
         webExists: false,
@@ -61,8 +61,8 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
     };
 
     if ( listDefinition === 'Emails' ) {
-//        makeThisList.createTheseFields = TMTProjectFields();
-//        makeThisList.createTheseViews = projectViews;
+        makeThisList.createTheseFields = HarmonieFields('Emails');
+        makeThisList.createTheseViews = HarmonieViews;
 //        makeThisList.createTheseItems = TMTDefaultProjectItems;
         makeThisList.autoItemCreate = true;
 //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';

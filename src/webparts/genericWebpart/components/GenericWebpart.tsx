@@ -23,7 +23,8 @@ import InfoPage from './HelpInfo/infoPages';
 
 //These are for provisionLists
 import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/component/provisionListComponent';
-import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
+//import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
+import { defineTheList } from './ListProvisioning/Harmonie/defineHarmonie';
 import ProvisionLists from './ListProvisioning/component/provisionListComponent';
 
 import InspectContents from './Contents/contentsComponent';
@@ -239,8 +240,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     parentListWeb = cleanURL(parentListWeb);
     childListWeb = cleanURL(childListWeb);
 
-    let parentList : IMakeThisList = defineTheList( 100 , parentName, 'ParentListTitle' , parentListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
-    let childList : IMakeThisList = defineTheList( 100 , childName, 'ChildListTitle' , childListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
+    let parentList : IMakeThisList = defineTheList( 101 , parentName, 'Emails' , parentListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
+    let childList : IMakeThisList = defineTheList( 101 , childName, 'Emails' , childListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
 
     let theLists : IMakeThisList[] = [];
     if ( parentList ) { theLists.push( parentList ); }

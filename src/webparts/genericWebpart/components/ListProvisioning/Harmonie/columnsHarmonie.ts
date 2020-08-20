@@ -97,7 +97,7 @@ export const BccHarm : IMultiLineTextField = {
 
 export const ConversationIndexHarm : ITextField = {
     fieldType: cText,
-    name: 'Conversation-Index',
+    name: 'Conversation%5Fx002d%5FIndex',
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -107,7 +107,7 @@ export const ConversationIndexHarm : ITextField = {
 
 export const ConversationTopicHarm	 : ITextField = {
     fieldType: cText,
-    name: 'Conversation-Topic',
+    name: 'Conversation_x002d_Topic',
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -133,7 +133,7 @@ export const EmailCategoriesHarm : IChoiceField = {
 
 export const EmailCcHarm : IMultiLineTextField = {
     fieldType: cMText,
-    name: 'EmailCc1',
+    name: 'EmailCc',
     //title: string,
     numberOfLines: 6,
     richText: false,
@@ -161,7 +161,7 @@ export const EmailDateHarm : IDateTimeField = {
 
 export const EmailFromHarm : ITextField = {
     fieldType: cText,
-    name: 'EmailFrom1',
+    name: 'EmailFrom',
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -181,7 +181,7 @@ export const EmailReceivedHarm : ITextField = {
 
 export const EmailReferencesHarm : ITextField = {
     fieldType: cText,
-    name: 'EmailReferences1',
+    name: 'EmailReferences',
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -191,7 +191,7 @@ export const EmailReferencesHarm : ITextField = {
 
 export const EmailSubjectHarm : ITextField = {
     fieldType: cText,
-    name: 'EmailSubject1',
+    name: 'EmailSubject',
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -211,7 +211,7 @@ export const ImportanceHarm : ITextField = {
 
 export const InReplyToHarm : ITextField = {
     fieldType: cText,
-    name: 'In-Reply-To',
+    name: 'In%5Fx002d%5FReply%5Fx002d%5FTo', //In%5Fx002d%5FReply%5Fx002d%5FTo
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -221,7 +221,7 @@ export const InReplyToHarm : ITextField = {
 
 export const MessageIDHarm : ITextField = {
     fieldType: cText,
-    name: 'Message-ID',
+    name: 'Message_x002d_ID', //_x002d_
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -251,7 +251,7 @@ export const ReplyToHarm : ITextField = {
 
 export const EmailToHarm : IMultiLineTextField = {
     fieldType: cMText,
-    name: 'EmailTo1',
+    name: 'EmailTo',
     //title: string,
     numberOfLines: 6,
     richText: false,
@@ -293,7 +293,7 @@ export const HasAttachmentsHarm : IBooleanField = {
 export const EmailFromNameHarm : ICalculatedField = {
     fieldType: cCalcT,
     name: 'EmailFromName',
-    formula: '=IF(ISNUMBER(FIND(" <",EmailFrom1)),LEFT(EmailFrom1,FIND(" <",EmailFrom1)),"-")',
+    formula: '=IF(ISNUMBER(FIND(" <",EmailFrom)),LEFT(EmailFrom,FIND(" <",EmailFrom)),"-")',
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Mapped according to Harmon.ie',
@@ -303,7 +303,7 @@ export const EmailFromNameHarm : ICalculatedField = {
 export const EmailFromTxtHarm : ICalculatedField = {
     fieldType: cCalcT,
     name: 'EmailFromTxt',
-    formula: '=IF(ISNUMBER(FIND("<",EmailFrom1)),RIGHT(EmailFrom1,1+LEN(EmailFrom1)-FIND("<",EmailFrom1)),"-")',
+    formula: '=IF(ISNUMBER(FIND("<",EmailFrom)),RIGHT(EmailFrom,1+LEN(EmailFrom)-FIND("<",EmailFrom)),"-")',
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Mapped according to Harmon.ie',
@@ -393,7 +393,7 @@ export const YearsALV : IChoiceField = {
 export const FromCompanyHarm : ICalculatedField = {
     fieldType: cCalcT,
     name: 'FromCompany',
-    formula: '=IF(ISNUMBER(FIND("@autoliv",EmailFrom1)),"ALV",IF(ISNUMBER(FIND("@gm",EmailFrom1)),"GM","Other"))',
+    formula: '=IF(ISNUMBER(FIND("@autoliv",EmailFrom)),"ALV",IF(ISNUMBER(FIND("@gm",EmailFrom)),"GM","Other"))',
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Determine Email domain from address. Update formula to define your own companies',
