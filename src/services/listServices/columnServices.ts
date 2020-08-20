@@ -68,7 +68,11 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
     let listFields = null;
 
     if (readOnly === false ) {
-        listFields = ensuredList.list.fields;
+        if ( ensuredList.list === undefined ) {
+            listFields = ensuredList.fields;
+        } else {
+            listFields = ensuredList.list.fields;
+        }
     } else { 
         listFields = ensuredList.fields;
     }

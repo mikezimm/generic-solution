@@ -49,6 +49,19 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     let consoleLog = false;
 
     let createItems: boolean = false;
+    let hasFields: boolean = false;
+    let hasViews: boolean = false;
+    let errMess= '';
+
+    if ( makeThisList.createTheseFields !== null && makeThisList.createTheseFields.length > 0 ) {
+        hasFields = true; } else { errMess += 'List defintion does not have any FIELDS defined.' ; }
+    if ( makeThisList.createTheseViews !== null && makeThisList.createTheseViews.length > 0  ) {
+        hasViews = true; } else {  errMess += 'List defintion does not have any VIEWS defined.' ; }
+
+    if ( hasViews === false || hasFields === false ) {
+        alert( errMess );
+        return statusLog;
+    }
 
     if ( readOnly === false  ) {
         if ( makeThisList.autoItemCreate === true ) {
@@ -79,10 +92,25 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     let currentViews = null;
 
     if ( readOnly === false ) {
-        ensuredList = await thisWeb.lists.ensure(makeThisList.title);
+        if (makeThisList.template === 100 ) {
+            ensuredList = await thisWeb.lists.ensure(makeThisList.title);
+            listFields = ensuredList.list.fields;   //Get the fields object from the list
+            listViews = ensuredList.list.views;     //Get the views object from the list
+        } else {
+            if ( makeThisList.listExists === true ) {
+                ensuredList = await thisWeb.lists.getByTitle(makeThisList.title);
+                listFields = ensuredList.fields;   //Get the fields object from the list
+                listViews = ensuredList.views;     //Get the views object from the list
+            } else {
+                ensuredList = await thisWeb.lists.add(makeThisList.title, makeThisList.desc, makeThisList.template, true, { OnQuickLaunch: true });
+                listFields = ensuredList.list.fields;   //Get the fields object from the list
+                listViews = ensuredList.list.views;     //Get the views object from the list               
+            }
+
+        }
+
         console.log('ensuredList:', readOnly, ensuredList );
-        listFields = ensuredList.list.fields;   //Get the fields object from the list
-        listViews = ensuredList.list.views;     //Get the views object from the list
+
 
         currentFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter(fieldFilter).get();
         currentViews = await listViews.get();
