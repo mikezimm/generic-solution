@@ -11,29 +11,21 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
 import { PageContext } from '@microsoft/sp-page-context';
 
-import styles from './contents.module.scss';
+import styles from '../contents.module.scss';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../IReUsableInterfaces';
+import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../../IReUsableInterfaces';
 
-import InspectLists from './Lists/listsComponent';
-
-import InspectColumns from './Fields/fieldsComponent';
-
-import InspectWebs from './Webs/websComponent';
-
-import InspectParts from './WParts/partsComponent';
-
-import { Web } from "@pnp/sp/presets/all";
+import InspectWebs from '../Webs/websComponent';
 
 //import { analyticsList } from 'InspectContentsWebPartStrings';
 
-import { cleanURL } from '../../../../services/stringServices';
+import { cleanURL } from '../../../../../services/stringServices';
 
-import { pivotOptionsGroup, } from '../../../../services/propPane';
+import { pivotOptionsGroup, } from '../../../../../services/propPane';
  
-import { doesObjectExistInArray } from '../../../../services/arrayServices';
+import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 
 export interface IInspectContentsProps {
     // 0 - Context
@@ -63,7 +55,7 @@ export interface IInspectContentsProps {
 
 export interface IPickedWeb {
     title: string;
-    ServerRelativeUrl: string;
+    name: string;
     guid: string;
     url: string;
     siteIcon: string;
@@ -99,7 +91,7 @@ export interface IInspectContentsState {
 
 }
 
-export const contentsTabs = ['ThisSite','Subsites','Lists','Columns','Views','Types','WebParts','Groups', 'RailsOff'];
+export const contentsTabs = ['Subsites','Lists','Columns','Views','Types','WebParts','Groups', 'RailsOff'];
 
 export default class InspectContents extends React.Component<IInspectContentsProps, IInspectContentsState> {
 
@@ -121,13 +113,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     let parentWeb = cleanURL(this.props.webURL);
 
-    let pickedWeb : IPickedWeb = {
-        ServerRelativeUrl: 'Site ServerRelativeUrl',
-        guid: 'Site Guid',
-        title: 'Site Title',
-        url: this.props.webURL,
-        siteIcon: 'Site Icon',
-    };
+    let pickedWeb = this.getThisWeb( parentWeb );
 
     let railsMode = this.props.allowRailsOff && this.props.showRailsOff ? true : false ;
     this.state = {
@@ -156,7 +142,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
 
     public componentDidMount() {
-        this.getThisWeb( this.state.webURL );
+
     }
 
 
@@ -186,72 +172,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         const pickWebMessage = <div>Please pick a WEB first</div>;
         const noPageAvailable = <div style={{ paddingBottom: 30 }}>This feature is not yet available</div>;
 
-        const websPage = !this.state.pickedWeb ? pickWebMessage : <div>
-            <InspectWebs 
-                pageContext = { this.props.pageContext }
-                currentUser = { this.props.currentUser }
-                allowOtherSites = { true }
-                allLoaded = { true }
-                pickedWeb = { this.state.pickedWeb }
-                allowRailsOff = { this.state.allowRailsOff }
-                allowSettings = { this.state.allowSettings }
-                webURL = { this.state.webURL }
-            ></InspectWebs>
-        </div>;
-
-        const listPage = this.state.tab !== 'Lists' ? null : <div>
-            <InspectLists 
-                pageContext = { this.props.pageContext }
-                currentUser = { this.props.currentUser }
-                allowOtherSites = { true }
-                allLoaded = { true }
-                pickedList = { this.state.pickedList }
-                pickThisList = { this.updatePickList.bind(this) }
-                allowRailsOff = { this.state.allowRailsOff }
-                allowSettings = { this.state.allowSettings }
-                webURL = { this.state.webURL }
-            ></InspectLists>
-        </div>;
-
-        const columnsPage = !this.state.pickedList ? pickListMessage : <div>
-            <InspectColumns 
-                pageContext = { this.props.pageContext }
-                currentUser = { this.props.currentUser }
-                allowOtherSites = { true }
-                allLoaded = { true }
-                pickedList = { this.state.pickedList }
-                allowRailsOff = { this.state.allowRailsOff }
-                allowSettings = { this.state.allowSettings }
-                webURL = { this.state.webURL }
-            ></InspectColumns>
-        </div>;
-
-        const partsPage = <div>
-            <InspectParts 
-                allowOtherSites={ false }
-                pageContext={ this.props.pageContext }
-                showPane={true}
-                allLoaded={false}
-                currentUser = {this.props.currentUser }
-                webURL = { this.state.webURL }
-            ></InspectParts>
-        </div>;
-
-        const viewsPage = <div>
-                { noPageAvailable }
-        </div>;
-
-        const typesPage = <div>
-                { noPageAvailable }
-        </div>;
-
-        const groupsPage = <div>
-                { noPageAvailable }
-        </div>;
-
-        const railsPage = <div>
-                { noPageAvailable }
-        </div>;
 
         const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
             root: { marginTop: 10 },
@@ -268,44 +188,13 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
         >
             { /* export const contentsTabs = ['Lists','Columns','Views','Types','WebParts','Groups']; */ }
-
             <PivotItem headerText={ contentsTabs[0] }>
-                { websPage }
+                { 'websPage' }
             </PivotItem>
-            
             <PivotItem headerText={ contentsTabs[1] }>
-                { websPage }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[2] }>
-                { listPage }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[3] }>
-                { columnsPage }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[4] }>
-                <h3>Views</h3>
-                { viewsPage }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[5] }>
-                <h3>Types</h3>
-                { typesPage }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[6] }>
-                <h3>WebParts</h3>
-                { partsPage }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[7] }>
-                <h3>Groups</h3>
-                { groupsPage }
+                { 'listPage' }
             </PivotItem>
 
-            {  !this.state.allowRailsOff ? null : 
-            <PivotItem headerText={ contentsTabs[8] }>
-                <h3>RailsOff</h3>
-                { railsPage }
-            </PivotItem>
-
-             }
         </Pivot></div>;
 
         return (
@@ -330,57 +219,32 @@ export default class InspectContents extends React.Component<IInspectContentsPro
    *                                                                                                          
    */
 
-   private async getThisWeb ( webURL ): Promise<IPickedWeb>{
-
-    const thisWebObject = Web( webURL );
-
-    let getMinProps = 'Title,Id,Url,ServerRelativeUrl,SiteLogoUrl,Description';
-    const webbie = await thisWebObject.select(getMinProps).get();
-
-//    console.log('getThisWeb: webbie', webbie);   
-
-//    const allprops = await thisWebObject.allProperties();
-//    console.log('getThisWeb: allprops', allprops);
-
-//    const thisWebInfos = await thisWebObject.webinfos();
-//    console.log('getThisWeb: thisWebInfos', thisWebInfos);
-
-/*
-    const webChanges = await thisWebObject.getChanges({
-        Add: true,
-        ChangeTokenEnd: null,
-        ChangeTokenStart: null,
-        DeleteObject: true,
-        Update: true,
-        Web: true,
-    });
-
-    console.log('getThisWeb: webChanges', webChanges);
-*/
+   private getThisWeb ( webURL ) {
 
     let thisWeb : IPickedWeb = {
-        ServerRelativeUrl: webbie.ServerRelativeUrl,
-        guid: webbie.Id,
-        title: webbie.Title,
-        url: webbie.Url,
-        siteIcon: webbie.SiteLogoUrl,
+        name: '',
+        guid: '',
+        title: 'updatePickWeb Title',
+        url: webURL,
+        siteIcon: 'add site icon here',
     };
+
+    return thisWeb;
+
+   }
+
+  private updatePickWeb  = (ev: React.FormEvent<HTMLInputElement>): void => {
+
+    //NEED TO USE THIS LATER WHEN PICKING DIFFERENT WEB
+    let webURL = this.state.webURL;
+    let thisWeb : IPickedWeb = this.getThisWeb( this.state.webURL );
 
     this.setState({
         pickedWeb: thisWeb,
         webURL: webURL, 
     });
 
-    return thisWeb;
-
-   }
-
-    private updatePickWebFromButton  = (ev: React.FormEvent<HTMLInputElement>): void => {
-
-        this.getThisWeb( this.state.webURL );
-
-    }
-
+  }
     // public searchForItems = (item): void => {
     // private updatePickList2  = (ev: React.FormEvent<HTMLInputElement>): void => {
     private updatePickList2  = (item): void => {
@@ -426,7 +290,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     private _updateStateOnPropsChange(params: any ): void {
         console.log('_updateStateOnPropsChange');
-        this.getThisWeb( this.state.webURL );
     }
 
 }

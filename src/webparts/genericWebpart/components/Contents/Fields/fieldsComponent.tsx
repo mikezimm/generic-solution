@@ -108,8 +108,6 @@ export interface IContentsFieldInfo extends Partial<IFieldInfo>{
     LookupList?: string;                    // Lookup Field 
     RelationshipDeleteBehavior?: number;    // Lookup Field 
 
-
-
 }
 
 
