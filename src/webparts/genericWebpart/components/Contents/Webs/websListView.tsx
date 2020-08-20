@@ -15,7 +15,6 @@ import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-r
 
 import { createLink } from '../../HelpInfo/AllLinks';
 
-
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
@@ -24,12 +23,14 @@ export interface IMyLogWebProps {
     titles: [];
     searchMeta: string;
     webURL: string;
-    listGuid: string;
+
     items: IWebBucketInfo;
     showSettings: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     descending: boolean;
     maxChars?: number;
+
+    showDates?: boolean;
 
     showDesc?: boolean;
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
@@ -40,7 +41,6 @@ export interface IMyLogWebProps {
 
     showMinWebs: boolean;
     specialAlt: boolean;
-
 
 }
 
@@ -184,24 +184,24 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
               <div>
                 { /* Basic information */ }
                 <p><span style={hoverWebStyle}>Title:</span> { W.Title }</p>
-                <p><span style={hoverWebStyle}>TypeAsString:</span> { W.TypeAsString }</p>
-                <p style={{ display: W.TypeAsString !== W.TypeDisplayName ? '' : 'none' }}>
-                    <span style={hoverWebStyle}>TypeDisplayName:</span> { W.TypeDisplayName }</p>
+                <p><span style={hoverWebStyle}>Created:</span> { W.timeCreated.dayYYYYMMDD + '(' + W.timeCreated.daysAgo + ' days)'   }</p>
 
-                <p><span style={hoverWebStyle}>Description:</span> { W.Description }</p>
-                <p><span style={hoverWebStyle}>EntityName:</span> { W.StaticName }</p>
-                <p><span style={hoverWebStyle}>Group:</span> { W.Group }</p>
-                <p><span style={hoverWebStyle}>Id:</span> { W.Id }</p>
+                <p><span style={hoverWebStyle}>IsHomepageModernized:</span> { W.IsHomepageModernized }</p>
+                <p><span style={hoverWebStyle}>EnableMinimalDownload:</span> { W.EnableMinimalDownload }</p>
+                <p><span style={hoverWebStyle}>QuickLaunchEnabled:</span> { W.QuickLaunchEnabled }</p>
+                <p><span style={hoverWebStyle}>MegaMenuEnabled:</span> { W.MegaMenuEnabled }</p>
+                <p><span style={hoverWebStyle}>LastItemUserModifiedDate:</span> { W.LastItemUserModifiedDate }</p>
+                <p><span style={hoverWebStyle}>Language:</span> { W.Language }</p>
 
                 <p><span style={hoverWebStyle}>Meta:</span> { W.meta.join('; ') }</p>
 
                 { /* Types information */ }
-                <p><span style={hoverWebStyle}>odata.type:</span> { F['odata.type'] }</p>
-                <p><span style={hoverWebStyle}>odata.WebTypeKind:</span> { W.WebTypeKind }</p>
+                <p><span style={hoverWebStyle}>odata.type:</span> { /* F['odata.type'] */ '' }</p>
+
                 
                 { /* Exceptions information */ }
                 <p style={{ display: W.FillInChoice === true ? '' : 'none' }}>
-                    <span style={hoverWebStyle}>FillInChoice:</span> { W.FillInChoice === true ? 'true' : 'false' }</p>
+                    <span style={hoverWebStyle}>ClassicWelcomePage:</span> { W.ClassicWelcomePage }</p>
 
                 <p><br></br></p>
                 <p><span style={hoverWebStyle}>Search String:</span> { W.searchString }</p>
@@ -222,7 +222,7 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
             </div>;
 
 
-            let webSettingsURL = !this.props.showSettings ? W.StaticName : createLink(this.props.webURL + "/_layouts/15/FldEdit.aspx?List={" + this.props.listGuid + "}&Web=" + W.StaticName, '_blank', W.StaticName);
+            let webSettingsURL = 'webSettingsURL';
 
             let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
 
@@ -230,23 +230,31 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
 
             let metaClass = W.meta.indexOf( this.props.searchMeta ) > -1 ? styles.showMe : styles.hideMe;
 
+            let webCreated = this.props.showDates ?
+                W.timeCreated.dayYYYYMMDD + ' ( ' + W.timeCreated.daysAgo + ' days )' : 
+                W.bestCreate;
+
+              let webModified = this.props.showDates ?
+                W.timeModified.dayYYYYMMDD + ' ( ' + W.timeModified.daysAgo + ' days )' : 
+                W.bestMod;
+
             //columnsToVisible
             return <tr>
-                <td className={ styles.nowWrapping }> { W.Title } </td>
-                <td className={ styles.nowWrapping }> { webSettingsURL }</td>
+                <td className={ '' }> { 'Add Site Icon' }</td> 
+                <td className={ styles.nowWrapping }> { W.Title }</td>
+
+                <td> { webCreated } </td>
+                <td> { webModified } </td>
+
+                <td> { W.WebTemplate } </td>
+                <td> { W.ServerRelativeUrl } </td>
                 <td className={ styleDesc }> { W.Description.length > this.state.maxChars ? W.Description.slice(0,this.state.maxChars) + '...' : W.Description } </td>
-                <td> { W.TypeAsString } </td>
 
-                <td className={ columnsToVisible }> { W.Group } </td>
-                <td className={ columnsToVisible }> { W.DefaultValue ? W.DefaultValue : '-' } </td>
+                <td className={ columnsToVisible }> { W.ServerRelativeUrl } </td>
 
-                <td className={ styleXML }> { this.props.showXML ? this.getWebXML(W.SchemaXml) : null } </td>
-                <td className={ styleSPFx }> { this.props.showSPFx ? this.getWebSPFx(F) : null } </td>
-                <td className={ styleJSON }> { this.props.showJSON ? this.getWebJSON(F) : null } </td>
+                <td className={ styleSPFx }> { this.props.showSPFx ? /*this.getWebSPFx(F)*/ '' : null } </td>
 
-                <td className={ [styles.nowWrapping, columnsToVisible].join(', ') }> { dev } </td>
-
-                <td className={ styleSpecial }> { this.getWebSpecialValue( F ) } </td>
+                <td className={ styleSpecial }> { /*this.getWebSpecialValue( F ) */ '' } </td>
                 <td className= { styleRailsOff }>Rails Off Content</td>
 
                 <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
@@ -269,20 +277,21 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
 
         let webTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
+                <th>Icon</th>
                 <th>Title</th>
-                <th>Name</th>
+
+                <th>Created</th>
+                <th>Last Update</th>
+                <th>Template</th>
+
                 <th className={ styleDesc }>Description</th>
-                <th>Type</th>
-                <th className={ columnsToVisible }>Group</th>
-                <th className={ columnsToVisible }>Default</th>
 
-                <th className={ styleXML }> { 'SchemaXml' } </th>
-                <th className={ styleSPFx }> { 'SPFx' } </th>
-                <th className={ styleJSON }> { 'JSON' } </th>
+                { /* <th className={ columnsToVisible }>Group</th> */ }
+                { /* <th className={ columnsToVisible }>Default</th> */ }
 
-                <th className={ [styles.nowWrapping, columnsToVisible].join(', ') }>Dev</th>
+                <th className={ '' }> { 'URL' } </th>
 
-                <th className={ styleSpecial }> Column Props </th>
+                <th className={ styleSpecial }> TBD Special </th>
 
                 <th className= { styleRailsOff }>Rails Off Heading</th>
                 <th>Details</th>

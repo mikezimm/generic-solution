@@ -17,7 +17,7 @@ import { IMyView,  } from '../../../../../services/listServices/viewTypes'; //Im
 
 import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
 
-import { makeSmallTimeObject, ITheTime} from '../../../../../services/dateServices';
+import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '../../../../../services/dateServices';
 
 import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 
@@ -46,37 +46,41 @@ export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
 }
 
 //export async function provisionTestPage( makeThisPage:  IContentsWebInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableWebs( webURL: string, listGUID: string, webBuckets: IWebBucketInfo[], addTheseWebsToState: any, setProgress: any, markComplete: any ): Promise<IContentsWebInfo[]>{
+export async function allAvailableWebs( webURL: string, webBuckets: IWebBucketInfo[], addTheseWebsToState: any, setProgress: any, markComplete: any ): Promise<IContentsWebInfo[]>{
 
     let contentsWebs : IContentsWebInfo = null;
 
     //lists.getById(listGUID).webs.orderBy("Title", true).get().then(function(result) {
     //let allWebs : IContentsWebInfo[] = await sp.web.webs.get();
 
+    let thisWebObject = null;
+    let thisWebInfos = null;
+
     let allWebs : IContentsWebInfo[] = [];
     let scope = '';
     let errMessage = '';
     try {
-        if ( listGUID != '' ) {
-            allWebs = await sp.web.webs.orderBy("Title", true).get();
-            scope = 'List';
+        thisWebObject = Web(webURL);
+        allWebs = await thisWebObject.webinfos();
     
-        } else {
-            allWebs = await sp.web.webs.orderBy("Title", true).get();
-            scope = 'Web';
-    
-        }
     } catch (e) {
         errMessage = getHelpfullError(e, true, true);
 
     }
 
+    console.log('allAvailableWebs thisWebInfos:' , thisWebInfos);
 
-    console.log('allAvailableWebs allWebs:' , allWebs);
+    let thisIsNow = new Date().toLocaleString();
 
     for (let i in allWebs ) {
 
         let idx = getWebSort(allWebs[i], webBuckets);
+
+        allWebs[i].timeCreated = makeSmallTimeObject(allWebs[i].Created);
+        allWebs[i].timeModified = makeSmallTimeObject(allWebs[i].LastItemModifiedDate);
+
+        allWebs[i].bestCreate = getBestTimeDelta(allWebs[i].Created, thisIsNow);
+        allWebs[i].bestMod = getBestTimeDelta(allWebs[i].LastItemModifiedDate, thisIsNow);
 
         allWebs[i].sort = webBuckets[idx]['sort'];
         allWebs[i].bucketCategory = webBuckets[idx]['bucketCategory'];
@@ -85,7 +89,6 @@ export async function allAvailableWebs( webURL: string, listGUID: string, webBuc
 
         allWebs[i].meta = buildMetaFromWeb(allWebs[i]);
         allWebs[i].searchString = buildSearchStringFromWeb(allWebs[i]);
-
 
     }
 
@@ -101,7 +104,7 @@ function getWebSort( theWeb: IContentsWebInfo, webBuckets: IWebBucketInfo[] ) {
     { webs: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
 */
 
-    let bucketCategory = '';
+    let bucketCategory = 'All';
 
     /*
     if ( ootbWebs.indexOf( theWeb.StaticName ) > -1 ) {
@@ -128,9 +131,15 @@ function getWebSort( theWeb: IContentsWebInfo, webBuckets: IWebBucketInfo[] ) {
 }
 
 function buildMetaFromWeb( theWeb: IContentsWebInfo ) {
-    let meta: string[] = [];
+    let meta: string[] = ['All'];
 
-    meta = addItemToArrayIfItDoesNotExist(meta, theWeb.CanBeDeleted !== true ? pivCats.visible.title: '');
+    if ( theWeb.timeCreated.daysAgo === 0 ) { 
+        meta = addItemToArrayIfItDoesNotExist(meta, 'New');
+    } else {
+        meta = theWeb.timeCreated.daysAgo < 180 ? addItemToArrayIfItDoesNotExist(meta, 'RecentlyCreated') : addItemToArrayIfItDoesNotExist(meta, 'Old');
+    }
+
+    meta = theWeb.timeModified.daysAgo < 180 ? addItemToArrayIfItDoesNotExist(meta, 'RecentlyUpdated') : addItemToArrayIfItDoesNotExist(meta, 'Stale');
 
     meta = addItemToArrayIfItDoesNotExist(meta, theWeb.sort );
     meta = addItemToArrayIfItDoesNotExist(meta, theWeb.bucketLabel );

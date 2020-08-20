@@ -18,10 +18,12 @@ import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../
 
 import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 
+import { ITheTime } from '../../../../../services/dateServices';
+
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 
-import { IPickedList } from '../contentsComponent';
+import { IPickedWeb } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
@@ -56,19 +58,12 @@ export interface IMyPivCat {
 }
 
 export const pivCats = {
-    visible: {title: 'Visible', desc: '', order: 1},
-    hidden: {title: 'Hidden', desc: '', order: 100},
-    text: {title: 'Text', desc: '', order: 1},
-    calculated: {title: 'Calculated', desc: '', order: 1},
-    choice: {title: 'Choice', desc: '', order: 1},
-    look: {title: 'Lookup', desc: '', order: 1},
-    user: {title: 'User', desc: '', order: 1},
-    number: {title: 'Number', desc: '', order: 1},
-    date: {title: 'Date', desc: '', order: 1},
-    url: {title: 'URL', desc: '', order: 1},      
-    boolean: {title: 'Boolean' , desc: '', order: 1},
-    computed:  {title: 'Computed' , desc: '', order: 1},
-    system: {title: '9', desc: 'System', order: 9 },
+    all: {title: 'All', desc: '', order: 1},
+    newWebs: {title: 'New' , desc: '', order: 1},
+    recCreate:  {title: 'RecentlyCreated' , desc: '', order: 1},
+    oldCreate: {title: 'Old', desc: '', order: 9 },
+    recUpdate: {title: 'RecentlyUpdated', desc: '', order: 9 },
+    oldUpdate: {title: 'Stale', desc: '', order: 9 },
 };
 
 
@@ -83,10 +78,62 @@ export interface IContentsWebInfo extends Partial<IWebInfo>{
     searchString: string;
     meta: string[];
 
+    timeCreated : ITheTime;
+    timeModified : ITheTime;
+    bestCreate: string;
+    bestMod: string;
+
+
+    Created: string;
+    CurrentChangeToken: {
+        StringValue: string;
+    };
+    CustomMasterUrl: string;
+    Description: string;
+    DesignPackageId: string;
+    DocumentLibraryCalloutOfficeWebAppPreviewersDisabled: boolean;
+    EnableMinimalDownload: boolean;
+    FooterEmphasis: number;
+    FooterEnabled: boolean;
+    FooterLayout: number;
+    HeaderEmphasis: number;
+    HeaderLayout: number;
+    HorizontalQuickLaunch: boolean;
+    Id: string;
+    IsHomepageModernized: boolean;
+    IsMultilingual: boolean;
+    IsRevertHomepageLinkHidden: boolean;
+    Language: number;
+    LastItemModifiedDate: string;
+    LastItemUserModifiedDate: string;
+    MasterUrl: string;
+    MegaMenuEnabled: boolean;
+    NavAudienceTargetingEnabled: boolean;
+    NoCrawl: boolean;
+    ObjectCacheEnabled: boolean;
+    OverwriteTranslationsOnChange: boolean;
+    QuickLaunchEnabled: boolean;
+    RecycleBinEnabled: boolean;
+    ResourcePath: {
+        DecodedUrl: string;
+    };
+    SearchScope: number;
+    ServerRelativeUrl: string;
+    SiteLogoUrl: string | null;
+    SyndicationEnabled: boolean;
+    TenantAdminMembersCanShare: number;
+    Title: string;
+    TreeViewEnabled: boolean;
+    UIVersion: number;
+    UIVersionConfigurationEnabled: boolean;
+    Url: string;
+    WebTemplate: string;
+    WelcomePage: string;
+
 }
 
 
-export interface IInspectColumnsProps {
+export interface IInspectWebsProps {
     // 0 - Context
     
     pageContext: PageContext;
@@ -102,7 +149,7 @@ export interface IInspectColumnsProps {
 
     currentUser: IUser;
 
-    pickedList? : IPickedList;
+    pickedWeb? : IPickedWeb;
 
     // 2 - Source and destination list information
 
@@ -127,7 +174,7 @@ export interface IWebBucketInfo {
 
 }
 
-export interface IInspectColumnsState {
+export interface IInspectWebsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
 
@@ -155,6 +202,8 @@ export interface IInspectColumnsState {
     allowSettings: boolean;  //property that determines if the related toggle is visible or not
     allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
 
+    showDates: boolean;
+
     showDesc: boolean;      //property set by toggle to actually show or hide this content
     showSettings: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
@@ -171,14 +220,14 @@ export interface IInspectColumnsState {
 
 }
 
-export default class InspectColumns extends React.Component<IInspectColumnsProps, IInspectColumnsState> {
+export default class InspectWebs extends React.Component<IInspectWebsProps, IInspectWebsState> {
 
     private createSearchBuckets() {
         let result : IWebBucketInfo[] = [
-            { webs: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content - Can update'} ,
-            { webs: [], count: 0, sort : '3' , bucketCategory: 'ReadOnly', bucketLabel: '3. ReadOnly - Calculated/Lookup?' } ,
-            { webs: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
-            { webs: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
+            { webs: [], count: 0, sort : '0' , bucketCategory: 'All' , bucketLabel: '0. All Subsites'} ,
+//            { webs: [], count: 0, sort : '3' , bucketCategory: 'ReadOnly', bucketLabel: '3. ReadOnly - Calculated/Lookup?' } ,
+//            { webs: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
+//            { webs: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
         ];
         return result;
     }
@@ -205,7 +254,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
  *                                                                                                       
  */
 
-    public constructor(props:IInspectColumnsProps){
+    public constructor(props:IInspectWebsProps){
         super(props);
 
         this.state = { 
@@ -230,11 +279,12 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             allowSettings: this.props.allowSettings === true ? true : false,
             allowRailsOff: this.props.allowRailsOff === true ? true : false,
 
+            showDates: false,
             showDesc: false,
             showSettings: false,
             showRailsOff: false,
 
-            searchMeta: pivCats.visible.title,
+            searchMeta: pivCats.all.title,
             searchText: '',
 
             errMessage: '',
@@ -274,7 +324,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
   public componentDidUpdate(prevProps){
 
-    if ( prevProps.webURL != this.props.webURL || prevProps.pickedList != this.props.pickedList ) {
+    if ( prevProps.webURL != this.props.webURL || prevProps.pickedWeb != this.props.pickedWeb ) {
         this._updateStateOnPropsChange();
     }
 
@@ -291,7 +341,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
  *                                                          
  */
 
-    public render(): React.ReactElement<IInspectColumnsProps> {
+    public render(): React.ReactElement<IInspectWebsProps> {
 
 
         let x = 1;
@@ -316,17 +366,17 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
                 { this.state.errMessage }
             </div>;
 
-//          let webList = <div className={ styles.floatLeft }> {  // This format will put all tables horizontal
-            let webList = <div> {
+//          let webWeb = <div className={ styles.floatLeft }> {  // This format will put all tables horizontal
+            let webWeb = <div> {
                 this.state.webBuckets.map( bucket => {
 
                     return <MyLogWeb 
                         showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
+                        showDates = { this.state.showDates } 
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinWebs= { this.state.showDesc } 
-                        webURL = { this.state.webURL } descending={false} titles={null}   
-                        listGuid = { this.props.pickedList.guid }
+                        webURL = { this.state.webURL } descending={false} titles={null} 
                         ></MyLogWeb>;
                 })
 
@@ -352,7 +402,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
               </div>
             </div>;
 
-            let disclaimers = <h3>Columns for { this.props.pickedList.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+            let disclaimers = <h3>Subsites for { this.props.pickedWeb.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -392,7 +442,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
                 <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
 
                 <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
-                    { webList }
+                    { webWeb }
                 </Stack>
                 </div></div></div>;
 
@@ -427,12 +477,12 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
     private getWebDefs() {
         let listGuid = '';
-        if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
-        let result : any = allAvailableWebs( this.state.webURL, listGuid, this.state.webBuckets, this.addTheseWebsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
+        let result : any = allAvailableWebs( this.state.webURL, this.state.webBuckets, this.addTheseWebsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
-    private addTheseWebsToState( allWebs, scope : 'List' | 'Web' , errMessage : string ) {
+    private addTheseWebsToState( allWebs, scope : 'Web' | 'Web' , errMessage : string ) {
 
         let newFilteredItems : IContentsWebInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allWebs );
 
@@ -696,24 +746,16 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
     private getWebPivots() {
 
-        let visible = this.buildFilterPivot( pivCats.visible );
-        let hidden = this.buildFilterPivot(pivCats.hidden);
+        let all = this.buildFilterPivot( pivCats.all );
+        let newWebs = this.buildFilterPivot(pivCats.newWebs);
 
-        let text = this.buildFilterPivot(pivCats.text);
-        let calculated = this.buildFilterPivot(pivCats.calculated);
-        let choice = this.buildFilterPivot(pivCats.choice);
-        let look = this.buildFilterPivot(pivCats.look);
-        let user = this.buildFilterPivot(pivCats.user);
-        let number = this.buildFilterPivot(pivCats.number);
-        let date = this.buildFilterPivot(pivCats.date);
-        let url = this.buildFilterPivot(pivCats.url);      
-        let boolean = this.buildFilterPivot(pivCats.boolean);
+        let recCreate = this.buildFilterPivot(pivCats.recCreate);
+        let oldCreate = this.buildFilterPivot(pivCats.oldCreate);
+        let recUpdate = this.buildFilterPivot(pivCats.recUpdate);
+        let oldUpdate = this.buildFilterPivot(pivCats.oldUpdate);
 
-        let computed = this.buildFilterPivot(pivCats.computed);
-
-        let system = this.buildFilterPivot({title: '9', desc: 'System', order: 9 });
-
-        let thesePivots = [visible, text, calculated, choice, look, user, number, date, url, boolean, computed, system ,hidden];
+        
+        let thesePivots = [all, newWebs, recCreate, oldCreate, recUpdate, oldUpdate ];
 
         return thesePivots;
     }
@@ -750,6 +792,18 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             checked: this.state.showDesc,
             onText: '-',
             offText: '-',
+            className: '',
+            styles: '',
+        };
+
+        let togDates = {
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>Dates</span>,
+            key: 'togggleDates',
+            _onChange: this.updateTogggleDates.bind(this),
+            checked: this.state.showDates,
+            onText: 'Actual',
+            offText: 'Friendly',
             className: '',
             styles: '',
         };
@@ -814,17 +868,17 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             styles: '',
         };
 
-        let theseToggles = [togDesc, togSet ];
-        if ( this.props.allowRailsOff === true ) { theseToggles.push( togXML, togJSON, togSPFx, togRails ); }
-
+        //let theseToggles = [togDesc, togSet ];
+        //if ( this.props.allowRailsOff === true ) { theseToggles.push( togXML, togJSON, togSPFx, togRails ); }
+        let theseToggles = [togDesc , togDates];
 
         let pageToggles : IContentsToggles = {
             toggles: theseToggles,
-            childGap: this.props.allowRailsOff === true ? 10 : 20,
+            childGap: this.props.allowRailsOff === true ? 30 : 30,
             vertical: false,
             hAlign: 'end',
             vAlign: 'start',
-            rootStyle: { width: this.props.allowRailsOff === true ? 80 : 120 , paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+            rootStyle: { width: this.props.allowRailsOff === true ? 120 : 120 , paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
         };
 
         return pageToggles;
@@ -834,6 +888,12 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     private updateTogggleDesc() {
         this.setState({
             showDesc: !this.state.showDesc,
+        });
+    }
+
+    private updateTogggleDates() {
+        this.setState({
+            showDates: !this.state.showDates,
         });
     }
 
@@ -877,22 +937,14 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
     private getSiteSettingsLinks() {
 
-        let listGUID = this.props.pickedList.guid;
+        let listGUID = this.props.pickedWeb.guid;
         let stackSettingTokens = { childrenGap: 20 };
-        
-        let listLibString = ( this.props.pickedList.isLibrary === true ) ? "},doclib&List={" : "},list&List={"; //Needed for if inherited permissions?
 
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Webs */}
                     { createLink( this.state.webURL + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
                     { createLink( this.state.webURL + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
-                    { createLink( this.state.webURL + "/_layouts/15/user.aspx?obj={" + listGUID + listLibString + listGUID + "}" ,'_blank', 'Permissions' )}
-                    { createLink( this.state.webURL + "/_layouts/15/LstSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Versioning' )}
-                    { createLink( this.state.webURL + "/_layouts/15/AdvSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Advanced' )}
-                    { createLink( this.state.webURL + "/_layouts/15/ManageCheckedOutFiles.aspx?List=(" + listGUID + ")" ,'_blank', 'Orphan files' )}
-                    { createLink( this.state.webURL + "/_layouts/15/IndexedColumns.aspx?List=(" + listGUID + ")" ,'_blank', 'Index' )}
-                    { createLink( this.state.webURL + "/_layouts/15/AddFieldFromTemplate.aspx?List=(" + listGUID + ")" ,'_blank', 'Add Site Col' )}
-                    { createLink( this.state.webURL + "/_layouts/15/fldNew.aspx?List=(" + listGUID + ")" ,'_blank', '+ New Col' )}
+
 
                 </Stack>
         </div>;
