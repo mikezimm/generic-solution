@@ -49,7 +49,7 @@ export const stdEmailViewFields = ['Edit', ootbID, EmailCategoriesHarm, EmailFro
 export const  EmailRecentUpdatesFields = spliceCopyArray ( stdEmailViewFields, null, null, 2, [ootbModified, ootbEditor ] );
 
 export const EmailAllItemsView : IMyView = {
-    Title: 'All Items',
+    Title: 'All Documents', //'All Items',  --- All Documents is default view for a library
     iFields: 	stdEmailViewFields,
     wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
             ],
@@ -65,6 +65,25 @@ export const EmailsByYearView : IMyView = {
     groups: { collapse: true, limit: 30,
 		fields: [
 			{field: EmailYrHarm, asc: false},
+		],
+	},
+};
+
+
+let allFields = [ootbTitle, EmailCategoriesHarm , ProductsALV , ProgramsALV , YearsALV , EmailDateHarm ,
+    EmailSubjectHarm , EmailFromHarm , EmailReceivedHarm , EmailCcHarm , BccHarm ,
+    ConversationIndexHarm , ConversationTopicHarm , EmailReferencesHarm , ImportanceHarm , InReplyToHarm ,
+    MessageIDHarm , OriginalSubjectHarm , ReplyToHarm , EmailToHarm , MailPreviewDataHarm ,
+    HasAttachmentsHarm , EmailFromNameHarm , EmailFromTxtHarm , EmailMoHarm , EmailYrHarm , EmailYrMoHarm
+    , FromCompanyHarm];
+
+export const AllFieldsView : IMyView = {
+    Title: 'zTest - All Fields',
+    iFields: 	allFields,
+    orders: [ {field: EmailDateHarm, asc: false} ],
+    groups: { collapse: true, limit: 30,
+		fields: [
+			{field: EmailFromHarm, asc: false},
 		],
 	},
 };
@@ -113,13 +132,14 @@ export const EmailsByProgramView : IMyView = {
 	},
 };
 
-export const projectViews : IMyView[] = [
+export const HarmonieViews : IMyView[] = [
     EmailAllItemsView, createRecentUpdatesView( EmailRecentUpdatesFields),
     EmailsByYearMoView,
     EmailsByYearView,
     EmailsByProdView,
     EmailsByProgramView,
     EmailsByCompanyView,
+    AllFieldsView,
 
 ] ;
 

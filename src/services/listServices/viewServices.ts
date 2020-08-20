@@ -175,7 +175,11 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
     let listViews = null;
 
     if (readOnly === false ) {
-        listViews = ensuredList.list.views;
+        if ( ensuredList.list === undefined ) {
+            listViews = ensuredList.views;
+        } else {
+            listViews = ensuredList.list.views;
+        }
     } else { 
         listViews = ensuredList.views;
     }

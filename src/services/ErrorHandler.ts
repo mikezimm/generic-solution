@@ -25,6 +25,7 @@
       friendlyMessage = 'Missing column: ' + result.split('\'')[1]; 
     }
 
+    if (result.indexOf('document library with the specified title already exists') > -1 ) { friendlyMessage = 'List with title already exists.'; }
     if (result.indexOf('Item does not exist') > -1 ) { friendlyMessage = 'This can happen if you are trying to find something that well... does not exist:).'; }
 
     if (result.indexOf('Cannot find resource for the request SP.UserProfiles') > -1 ) { friendlyMessage = 'This can happen if you have a typo in a URL:).'; }
