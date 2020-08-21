@@ -32,7 +32,7 @@ import { testAlertsView, createRecentUpdatesView } from '../../../../../services
 //Imported but not used so that intellisense can prevent duplicate named columns.
 import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '../../../../../services/listServices/columnsOOTB';
 
-//Harmonie columns
+//CustReq columns
 import {
 DocSubjectCReq , zzzFileStatusCReq , IssueDateCReq , QuotePhaseCReq ,
 RequirementNoCReq , MYCReq , ProductItemCReq , ProgramCReq , DateRequirementPhaseCReq ,
@@ -109,13 +109,12 @@ export const ItemsByDocSubjectView : IMyView = {
 	},
 };
 
-export const HarmonieViews : IMyView[] = [
+export const CustReqViews : IMyView[] = [
     CustAllItemsView, createRecentUpdatesView( CustRecentUpdatesFields),
     ItemsByMYView,
     ItemsByProgramView,
     ItemsByProductView,
     ItemsByDocSubjectView,
-
 
 ] ;
 
