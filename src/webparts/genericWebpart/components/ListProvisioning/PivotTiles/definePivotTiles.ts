@@ -9,7 +9,7 @@ import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartL
 
 export type IValidTemplate = 100 | 101;
 
-import { cleanURL } from '../../../../../services/stringServices';
+import { cleanURL, camelize } from '../../../../../services/stringServices';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listName : string, listDefinition: 'OurTiles' | 'PivotTiles' , webURL: string, currentUser: IUser, pageURL: string ) {

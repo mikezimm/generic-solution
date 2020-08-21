@@ -13,10 +13,10 @@ import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartL
 
 export type IValidTemplate = 100 | 101;
 
-import { cleanURL } from '../../../../../services/stringServices';
+import { cleanURL, camelize } from '../../../../../services/stringServices';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, currentUser: IUser, pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'Projects' | 'TrackMyTime' , webURL: string, currentUser: IUser, pageURL: string ) {
 
     //Sometimes the webURL is undefined  (when props are empty)
     pageURL = pageURL.toLowerCase();
@@ -38,12 +38,13 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
         isListOnThisWeb = true;
     }
     
+    let listName = camelize(listTitle, true);
     let makeThisList:  IMakeThisList = {
 
-        title: listName,
+        title: listTitle,
         name: listName,
         webURL: webURL,
-        desc: listName + ' list for this Webpart',
+        desc: listTitle + ' list for this Webpart',
         template: template,
         enableContentTypes: true,
         additionalSettings: {
@@ -64,7 +65,7 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
     
     };
 
-    if ( listDefinition === 'ParentListTitle' ) {
+    if ( listDefinition === 'Projects' ) {
         makeThisList.createTheseFields = TMTProjectFields();
         makeThisList.createTheseViews = projectViews;
         makeThisList.createTheseItems = TMTDefaultProjectItems;
@@ -72,7 +73,7 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
         makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 
 
-    } else if ( listDefinition === 'ChildListTitle' ) {
+    } else if ( listDefinition === 'TrackMyTime' ) {
         makeThisList.createTheseFields = TMTTimeFields();
         makeThisList.createTheseViews = timeViewsFull;
         makeThisList.createTheseItems =  TMTTestTimeItems(currentUser);

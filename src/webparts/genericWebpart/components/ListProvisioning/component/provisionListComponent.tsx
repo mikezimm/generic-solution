@@ -1,6 +1,8 @@
 import * as React from 'react';
 
 import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
+import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
@@ -17,6 +19,7 @@ import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator'
 import ButtonCompound from '../../createButtons/ICreateButtons';
 import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
 
+
 import { PageContext } from '@microsoft/sp-page-context';
 
 import MyLogList from './listView';
@@ -26,6 +29,28 @@ import * as links from '../../HelpInfo/AllLinks';
 import { IMakeThisList } from './provisionWebPartList';
 
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+import { cleanURL, camelize, getChoiceKey, getChoiceText } from '../../../../../services/stringServices';
+
+import { IFieldDef } from '../../fields/fieldDefinitions';
+import { createBasicTextField } from  '../../fields/textFieldBuilder';
+
+import * as dHarm from '../Harmonie/defineHarmonie';
+import * as dTMT from '../ListsTMT/defineThisList';
+//import * as dCust from '../ListsCustReq/defineCustReq';
+//import * as dFinT from '../ListsFinTasks/defineFinTasks';
+//import * as dReps from '../ListsReports/defineReports';
+//import * as dTurn from '../ListsTurnover/defineTurnover';
+//import * as dOurG from '../ListsOurGroups/defineOurGroups';
+//import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
+//import * as dPivT from '../PivotTiles/definePivotTiles';
+
+export type IDefinedLists = 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | '';
+
+const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles'];
+
+const availLists : IDefinedLists[] =  ['TrackMyTime','Harmon.ie'];
+
+const dropDownWidth = 200;
 
 export interface IProvisionListsProps {
     // 0 - Context
@@ -39,6 +64,11 @@ export interface IProvisionListsProps {
     allLoaded: boolean;
 
     currentUser: IUser;
+
+    // 2 - Source and destination list information
+    definedList: IDefinedLists; 
+    provisionWebs: string[];
+    provisionListTitles: string[];
 
     // 2 - Source and destination list information
 
@@ -67,12 +97,31 @@ export interface IProvisionListsState {
     currentList: string;
 
     // 2 - Source and destination list information
+    definedList: IDefinedLists;
+    provisionWebs: string[];
+    provisionListTitles: string[];
+
+    // 2 - Source and destination list information
     lists: IMakeThisList[];
 
 }
 
 export default class ProvisionLists extends React.Component<IProvisionListsProps, IProvisionListsState> {
 
+    private createTitleField( title ) {
+        let thisField : IFieldDef = {
+            name: title,
+            title: null,
+            column: title,
+            type: 'String', //Smart, Text, Number, etc...
+            required: true,
+            disabled: false,
+            hidden: false,
+            blinkOnProject: null,
+            value: title,
+        };
+        return thisField;
+    }
 
 private clearHistory() {
     let history: IMyHistory = {
@@ -99,7 +148,8 @@ private clearHistory() {
 public constructor(props:IProvisionListsProps){
     super(props);
 
-    let theLists = this.props.lists;
+    let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[1];
+    let theLists = this.getDefinedLists(definedList, true) ;
 
     this.state = {
 
@@ -109,6 +159,21 @@ public constructor(props:IProvisionListsProps){
         allLoaded: this.props.allLoaded,
         progress: null,
         history: this.clearHistory(),
+
+        // 2 - Source and destination list information
+
+        definedList: definedList,
+        provisionWebs: this.props.provisionWebs.map( web => { return cleanURL(web) ; } ),
+        provisionListTitles: this.props.provisionListTitles,
+
+        //parentListURL: parentWeb + 'lists/' + this.props.parentListTitle, //Get from list item
+        //childListURL: childWeb + 'lists/' + this.props.childListTitle, //Get from list item
+        
+        //parentListWeb: parentWeb, //Get from list item
+        //childListWeb: childWeb, //Get from list item
+        
+        //parentListTitle: this.props.parentListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
+        //childListTitle: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
 
         lists: theLists,
 
@@ -175,6 +240,8 @@ public constructor(props:IProvisionListsProps){
  */
 
 
+            let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
+
             let thisPage = null;
             let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
 
@@ -214,7 +281,14 @@ public constructor(props:IProvisionListsProps){
                     label: theLabel, buttonOnClick: createButtonOnClicks[index], };
             });
 
-            let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
+            //let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
+            let updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
+            let provisionButtons = buttons.map ( ( theButton, index ) => {
+                let thisTitle = this.state.provisionListTitles[index];
+                let titleBox = createBasicTextField(this.createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], null );
+                return <div style={{ paddingTop: '20px' }}><div> { titleBox }</div><ButtonCompound buttons={[theButton]} horizontal={true}/></div>;
+            });
+
 
             let listLinks = this.state.lists.map( mapThisList => (
                 mapThisList.listExists ? links.createLink( mapThisList.listURL, '_blank',  'Go to: ' + mapThisList.title ) : null ));
@@ -261,6 +335,8 @@ public constructor(props:IProvisionListsProps){
             const stackListTokens: IStackTokens = { childrenGap: 10 };
 
             thisPage = <div><div>{ disclaimers }</div>
+
+                <div> { listDropdown } </div>
                 <div> { provisionButtonRow } </div>
                 <div style={{ height:30} }> {  } </div>
                 <div> { myProgress } </div>
@@ -448,55 +524,164 @@ public constructor(props:IProvisionListsProps){
     private _updateStateOnPropsChange(doThis: 'props' | 'state' ): void {
         console.log('_updateStateOnPropsChange:', doThis, this.props );
         let testLists : IMakeThisList[] = [];
+        let definedList : IDefinedLists = null;
         if ( doThis === 'props' ) {
-            if ( this.props.lists ) { testLists = JSON.parse(JSON.stringify(this.props.lists)) ; }
+            if ( this.props.lists ) { testLists = JSON.parse(JSON.stringify(this.props.lists)) ; definedList = this.props.definedList; }
 
         } else {
-            if ( this.state.lists ) { testLists = JSON.parse(JSON.stringify(this.state.lists)) ; }
+            if ( this.state.lists ) { testLists = JSON.parse(JSON.stringify(this.state.lists)) ; definedList = this.state.definedList; }
         }
 
         if ( testLists.length > 0 ) {
             for ( let i in testLists ) {
-                this.checkThisWeb(parseInt(i,10), testLists);
+                this.checkThisWeb(parseInt(i,10), testLists, definedList);
             }
         }
     }
 
-    private checkThisWeb(index: number, testLists : IMakeThisList[] ){
+    private checkThisWeb(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ){
         const thisWeb = Web(testLists[index].webURL);
         testLists[index].webExists = false;
         testLists[index].listExists = false;
         thisWeb.lists.get().then((response) => {
             testLists[index].webExists = true;
-            this.checkThisList(index, testLists, thisWeb);
+            this.checkThisList(index, testLists, thisWeb, definedList);
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisWeb', errMessage);
-            this.updateStateLists(index, testLists);
+            this.updateStateLists(index, testLists, definedList);
         });
     }
 
-    private checkThisList(index: number, testLists : IMakeThisList[], thisWeb: any ){
+    private checkThisList(index: number, testLists : IMakeThisList[], thisWeb: any, definedList: IDefinedLists ){
         //const thisWeb = Web(testLists[index].webURL);
         thisWeb.lists.getByTitle(testLists[index].title).get().then((response) => {
             testLists[index].listExists = true;
             testLists[index].listExistedB4 = true;
-            this.updateStateLists(index,testLists);
+            this.updateStateLists(index, testLists, definedList);
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisList', errMessage);
-            this.updateStateLists(index, testLists);
+            this.updateStateLists(index, testLists, definedList);
         });
     }
 
-    private updateStateLists(index: number, testLists : IMakeThisList[] ) {
+    private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ) {
         let stateLists = this.state.lists;
         if (stateLists === undefined ) { stateLists = this.props.lists ; }
         stateLists[index] = testLists[index];
         this.setState({
             lists: stateLists,
+            definedList: definedList,
         });
     }
+
+    private getDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean ) {
+
+        let theLists : IMakeThisList[] = [];
+
+        let provisionWebs =  this.state ? this.state.provisionWebs : this.props.provisionWebs;
+        let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
+
+        if ( defineThisList === 'TrackMyTime' ) {
+            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[1] ? provisionWebs[1] : provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+        
+            if ( parentList ) { theLists.push( parentList ); }
+            if ( childList ) { theLists.push( childList ); }
+
+        } else if ( defineThisList === 'Harmon.ie' ) {
+            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+        
+            if ( buEmails ) { theLists.push( buEmails ); }
+            if ( justEmails ) { theLists.push( justEmails ); }
+
+        }
+
+        if ( justReturnLists === true ) {
+            return theLists;
+        } else {
+            for ( let i in theLists ) {
+                this.checkThisWeb(parseInt(i,10), theLists, defineThisList );
+            }
+        }
+        return theLists;
+    }
+
+    private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+        const dropdownStyles: Partial<IDropdownStyles> = {
+            dropdown: { width: dropDownWidth }
+          };
+
+          let sOptions: IDropdownOption[] = choices == null ? null : 
+            choices.map(val => {
+                  return {
+                      //key: getChoiceKey(val),
+                      key: val,
+                      text: val,
+                  };
+              });
+
+          let keyVal = this.state.definedList;
+
+          let thisDropdown = sOptions == null ? null : <div
+              //style={{  paddingTop: 10  }}
+                ><Dropdown 
+                label={ label }
+                //selectedKey={ getChoiceKey(keyVal) }
+                selectedKey={ keyVal }
+                onChange={ _onChange }
+                options={ sOptions } 
+                styles={ dropdownStyles }
+              />
+            </div>;
+
+        return thisDropdown;
+
+    }
+
+    private _updateDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+        console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
+    
+        let thisValue : any = getChoiceText(item.text);
+
+        let result = this.getDefinedLists(thisValue, false);
+    
+    }
+
+    private UpdateTitle_0(oldVal: any): any {
+        this.UpdateTitles(oldVal,0);
+      }
+    
+      private UpdateTitle_1(oldVal: any): any {
+        this.UpdateTitles(oldVal,1);
+      }
+    
+      private UpdateTitle_2(oldVal: any): any {
+        this.UpdateTitles(oldVal,2);
+      }
+
+      private UpdateTitles( oldVal: any, index: number ) {
+        let provisionListTitles = this.state.provisionListTitles;
+        provisionListTitles[index] = oldVal;
+        this.setState({ provisionListTitles: provisionListTitles, });
+
+        let stateLists = this.state.lists;
+        let listName = camelize(oldVal, true);
+        stateLists[index].name = listName;
+        stateLists[index].title = oldVal + ' list for this Webpart';
+        stateLists[index].desc = '';
+        stateLists[index].listURL = this.state.provisionWebs[index] + ( stateLists[index].template === 100 ? 'Lists/' : '') + listName;
+
+        let definedList = this.state.definedList;
+
+        this.checkThisWeb(0, stateLists, definedList);
+
+      }
+
+
+
 }

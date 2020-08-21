@@ -75,6 +75,9 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         }
     }
 
+    if ( makeThisList.createTheseItems == null || makeThisList.createTheseItems == undefined ) { createItems = false; }
+    if ( createItems === true && makeThisList.createTheseItems.length === 0 ) { createItems = false; } 
+
     let fieldsToGet = makeThisList.createTheseFields.map ( thisField => {
         return thisField.name;
     });
@@ -141,6 +144,7 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         //setProgress(false, "I", 0, 0 , '', 'TimePicker', makeThisList.title, 'Adding ITEMS to list: ' + makeThisList.title, 'Checking for ITEMS', 'Add items ~ 112' );
         let createThisBatch : IAnyArray = [];
         //https://www.sitepoint.com/community/t/for-loop-through-array-and-group-every-x-number-of-items/97966
+
         let totalItems = makeThisList.createTheseItems.length;
         let chunk = 3;
 
@@ -152,6 +156,7 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
                 result3 = await addTheseItemsToListInBatch(makeThisList, thisWeb, createThisBatch, setProgress, true, true);
             }
         }
+
     }
     
     if ( readOnly === true  ) {

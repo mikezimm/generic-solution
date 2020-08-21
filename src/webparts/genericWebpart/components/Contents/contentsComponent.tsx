@@ -29,7 +29,7 @@ import { Web } from "@pnp/sp/presets/all";
 
 //import { analyticsList } from 'InspectContentsWebPartStrings';
 
-import { cleanURL } from '../../../../services/stringServices';
+import { cleanURL, camelize } from '../../../../services/stringServices';
 
 import { pivotOptionsGroup, } from '../../../../services/propPane';
  

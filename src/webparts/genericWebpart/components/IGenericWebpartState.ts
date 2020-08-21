@@ -116,8 +116,8 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
     parentListWeb?: string; //Get from list item
     childListWeb?: string; //Get from list item
   
-    parentListName: string;  // Static Name of list (for URL) - used for links and determined by first returned item
-    childListName: string;  // Static Name of list (for URL) - used for links and determined by first returned item
+    parentListTitle: string;  // Static Name of list (for URL) - used for links and determined by first returned item
+    childListTitle: string;  // Static Name of list (for URL) - used for links and determined by first returned item
   
     // 3 - General how accurate do you want this to be
   
@@ -131,6 +131,8 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
   
     // 6 - User Feedback:
     currentUser?: IUser;  //Current user information
+
+    blinkOnProject?: number; //Tells text fields to blink when project is clicked on and values reset
     
     chartData?: IChartData;
     showCharts?: boolean;
