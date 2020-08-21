@@ -41,7 +41,7 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
 
 import { analyticsList } from 'GenericWebpartWebPartStrings';
 
-import { cleanURL } from '../../../services/stringServices';
+import { cleanURL, camelize } from '../../../services/stringServices';
 
 
 export default class GenericWebpart extends React.Component<IGenericWebpartProps, IGenericWebpartState> {
@@ -145,8 +145,8 @@ public constructor(props:IGenericWebpartProps){
         parentListWeb: parentWeb, //Get from list item
         childListWeb: childWeb, //Get from list item
       
-        parentListName: this.props.parentListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
-        childListName: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
+        parentListTitle: this.props.parentListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
+        childListTitle: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
 
         // 3 - General how accurate do you want this to be
       
@@ -232,8 +232,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       Name: r['LoginName'],
     };
 
-    let parentName =  doThis === 'state' ? this.state.parentListName : this.props.parentListTitle;
-    let childName =  doThis === 'state' ? this.state.childListName : this.props.childListTitle;
+    let parentName =  doThis === 'state' ? this.state.parentListTitle : this.props.parentListTitle;
+    let childName =  doThis === 'state' ? this.state.childListTitle : this.props.childListTitle;
     let parentListWeb = doThis === 'state' ? this.state.parentListWeb : this.props.parentListWeb;
     let childListWeb = doThis === 'state' ? this.state.childListWeb : this.props.childListWeb;
 
@@ -297,7 +297,11 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           showPane={true}
           allLoaded={false}
           currentUser = {this.state.currentUser }
-          lists = { this.state.allLists }
+          lists = { [] }
+
+          definedList = { '' }
+          provisionWebs = { [this.props.parentListWeb, this.props.childListWeb] }
+          provisionListTitles = { [this.props.parentListTitle, this.props.childListTitle] }
 
         ></ProvisionLists>
       </div>;

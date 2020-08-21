@@ -428,23 +428,25 @@ export const FromCompanyHarm : ICalculatedField = {
  */
 
 
-export function HarmonieEmailFields() {
+export function HarmonieEmailFields(listName: 'Emails' | 'BUEmails') {
     //return null;
 
-    let theseFields: IMyFieldTypes[] = HarmonieFields('Emails');
+    let theseFields: IMyFieldTypes[] = HarmonieFields(listName);
 
     console.log('HarmonieEmailFields', theseFields);
     return theseFields;
 }
 
 
-export function HarmonieFields(listName: 'Emails' | 'Emails') {
+function HarmonieFields(listName: 'Emails' | 'BUEmails') {
 
     let theseFields: IMyFieldTypes[] = [];
     theseFields.push(EmailCategoriesHarm);  //BOTH
-    theseFields.push(ProductsALV);  //BOTH
-    theseFields.push(ProgramsALV);  //BOTH
-    theseFields.push(YearsALV);  //BOTH
+
+    if (listName === 'BUEmails' ) { theseFields.push(ProductsALV); }  //BOTH
+    if (listName === 'BUEmails' ) { theseFields.push(ProgramsALV); }  //BOTH
+    if (listName === 'BUEmails' ) { theseFields.push(YearsALV); }  //BOTH
+
     theseFields.push(EmailDateHarm);  //BOTH
     theseFields.push(EmailSubjectHarm);  //BOTH
     theseFields.push(EmailFromHarm);  //BOTH

@@ -147,6 +147,8 @@ import {
 
   }
 
+
+/*  DISABLED THIS FUNCTION UNTIL parentState has 'blinkOnProject' */
   export function createSmartTextBox(parentProps: IGenericWebpartProps, parentState : IGenericWebpartState, field: IFieldDef, onChanged){
 
     //Return nothing if user has not been loaded because that is when formEntry gets created.
@@ -169,6 +171,7 @@ import {
     }
     
   }
+
 
   export function createThisField(parentProps: IGenericWebpartProps, parentState : IGenericWebpartState, field: IFieldDef, isSaveDisabled:boolean = false ,onChanged){
 

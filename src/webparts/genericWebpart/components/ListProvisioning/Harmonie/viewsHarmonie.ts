@@ -136,11 +136,21 @@ export const HarmonieViews : IMyView[] = [
     EmailAllItemsView, createRecentUpdatesView( EmailRecentUpdatesFields),
     EmailsByYearMoView,
     EmailsByYearView,
+    EmailsByCompanyView,
+    AllFieldsView,
+
+] ;
+
+export const BUHarmonieViews : IMyView[] = [
+    EmailAllItemsView, createRecentUpdatesView( EmailRecentUpdatesFields),
+    EmailsByYearMoView,
+    EmailsByYearView,
     EmailsByProdView,
     EmailsByProgramView,
     EmailsByCompanyView,
     AllFieldsView,
 
 ] ;
+
 
 

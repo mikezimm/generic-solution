@@ -21,7 +21,7 @@ import InspectWebs from '../Webs/websComponent';
 
 //import { analyticsList } from 'InspectContentsWebPartStrings';
 
-import { cleanURL } from '../../../../../services/stringServices';
+import { cleanURL, camelize } from '../../../../../services/stringServices';
 
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
  
