@@ -33,6 +33,17 @@ export function camelize(str,firstCap: boolean) {
             }).replace(/\s+/g, '');
     }
 }
+
+/**
+ * SharePoint automatically removes characters from library names
+ * 
+ * @param str
+ */
+export function cleanSPListURL( str : string ) {
+  return str.replace(/\s\%\&\?\.\+/g, '');
+
+}
+
 //Sample to convert to arrow function
 //const sum1 = function(list, prop){ return list.reduce( function(a, b){ return a + b[prop];}, 0);}
 //const sum2 = (list,prop) =>  { return list.reduce((a,b) => {return (a+ b[prop])}, 0);}

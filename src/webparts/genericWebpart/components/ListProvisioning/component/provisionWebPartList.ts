@@ -40,6 +40,9 @@ export interface IMakeThisList {
     webExists: boolean;
     listExists: boolean;
     listExistedB4: boolean;
+    existingTemplate: number;
+    sameTemplate: boolean;
+    listDefinition: string;
 
 }
 export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{

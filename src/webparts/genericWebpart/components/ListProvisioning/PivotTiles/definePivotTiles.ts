@@ -9,10 +9,10 @@ import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartL
 
 export type IValidTemplate = 100 | 101;
 
-import { cleanURL, camelize } from '../../../../../services/stringServices';
+import { cleanURL, camelize, cleanSPListURL } from '../../../../../services/stringServices';
 
-//export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listName : string, listDefinition: 'OurTiles' | 'PivotTiles' , webURL: string, currentUser: IUser, pageURL: string ) {
+//export async function provisionTheListLoader( template: IValidTemplate , listTitle : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'OurTiles' | 'PivotTiles' , webURL: string, currentUser: IUser, pageURL: string ) {
 
     //Sometimes the webURL is undefined  (when props are empty)
     pageURL = pageURL.toLowerCase();
@@ -34,12 +34,14 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
         isListOnThisWeb = true;
     }
 
+    let listName = cleanSPListURL(camelize(listTitle, true));
+
     let makeThisList:  IMakeThisList = {
 
-        title: listName,
+        title: listTitle,
         name: listName,
         webURL: webURL,
-        desc: listName + ' list for this Webpart',
+        desc: listTitle + ' list for this Webpart',
         template: template,
         enableContentTypes: true,
         additionalSettings: {
@@ -57,6 +59,9 @@ export function defineTheList ( template: IValidTemplate , listName : string, li
         webExists: false,
         listExists: false,
         listExistedB4: false,
+        existingTemplate: null,
+        sameTemplate: false,
+        listDefinition: listDefinition,
 
     };
 

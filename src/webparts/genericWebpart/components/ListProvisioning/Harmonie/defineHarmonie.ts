@@ -9,7 +9,7 @@ import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartL
 
 export type IValidTemplate = 100 | 101;
 
-import { cleanURL, camelize } from '../../../../../services/stringServices';
+import { cleanURL, camelize, cleanSPListURL } from '../../../../../services/stringServices';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'Emails' | 'BUEmails' , webURL: string, currentUser: IUser, pageURL: string ) {
@@ -34,7 +34,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         isListOnThisWeb = true;
     }
 
-    let listName = camelize(listTitle, true);
+    let listName = cleanSPListURL(camelize(listTitle, true));
     let makeThisList:  IMakeThisList = {
 
         title: listTitle,
@@ -58,6 +58,9 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         webExists: false,
         listExists: false,
         listExistedB4: false,
+        existingTemplate: null,
+        sameTemplate: false,
+        listDefinition: listDefinition,
 
     };
 

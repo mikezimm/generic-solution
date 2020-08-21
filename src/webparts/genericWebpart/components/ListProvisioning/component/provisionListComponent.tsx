@@ -29,13 +29,14 @@ import * as links from '../../HelpInfo/AllLinks';
 import { IMakeThisList } from './provisionWebPartList';
 
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
-import { cleanURL, camelize, getChoiceKey, getChoiceText } from '../../../../../services/stringServices';
+import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '../../../../../services/stringServices';
 
 import { IFieldDef } from '../../fields/fieldDefinitions';
 import { createBasicTextField } from  '../../fields/textFieldBuilder';
 
 import * as dHarm from '../Harmonie/defineHarmonie';
 import * as dTMT from '../ListsTMT/defineThisList';
+import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 //import * as dCust from '../ListsCustReq/defineCustReq';
 //import * as dFinT from '../ListsFinTasks/defineFinTasks';
 //import * as dReps from '../ListsReports/defineReports';
@@ -255,21 +256,32 @@ public constructor(props:IProvisionListsProps){
                 let theLabel = null;
                 let isDisabled = !thelist.webExists;
                 if ( thelist.webExists ) {
-                    if ( this.isListReadOnly(thelist) === false ) {
+                    if ( thelist.title === '' ) {
+                        theLabel = "Update Title";
+                        isDisabled = true;
+
+                    } else if ( this.isListReadOnly(thelist) === false ) {
 
                         if ( thelist.listExists === true ) {
-                            theLabel = "UPDATE " + thelist.title + " List";
+                            if ( thelist.sameTemplate === true ) {
+                                theLabel = "UPDATE to " + thelist.listDefinition;
+
+                            } else {
+                                theLabel = "Not a " + ( thelist.template === 100 ? "List" : "Library" );
+                                isDisabled = true;
+                            }
 
                         } else {
-                            theLabel = "Create " + thelist.title + " List";
+                            theLabel = "Create as " + thelist.listDefinition;
                         }
 
                     } else {
                         if ( thelist.listExists === true ) {
-                            theLabel = "Verify " + thelist.title + " List";
+                            theLabel = "Verify as " + thelist.listDefinition;
+                            console.log('render theList:', thelist ) ;
 
                         } else {
-                            theLabel = "Can't verify " + thelist.title + " List";
+                            theLabel = "Can't verify List";
                             isDisabled = true;
                         }
                     }
@@ -543,17 +555,34 @@ public constructor(props:IProvisionListsProps){
         const thisWeb = Web(testLists[index].webURL);
         testLists[index].webExists = false;
         testLists[index].listExists = false;
+        testLists[index].existingTemplate = null;
+        testLists[index].sameTemplate = false;
+
         thisWeb.lists.get().then((response) => {
             testLists[index].webExists = true;
-            this.checkThisList(index, testLists, thisWeb, definedList);
+            //this.checkThisList(index, testLists, thisWeb, definedList);
+            let responseIdx = doesObjectExistInArray(response, 'Title', testLists[index].title ); //Check existing lists for the new list
+
+            if ( responseIdx === false ) {
+
+            } else {
+                testLists[index].listExists = true;     //Copied in from checkThisList
+                testLists[index].listExistedB4 = true;  //Copied in from checkThisList
+                testLists[index].existingTemplate = response[responseIdx].BaseTemplate;
+                testLists[index].sameTemplate = testLists[index].existingTemplate === testLists[index].template ? true : false;    
+                testLists[index].onCurrentSite = testLists[index].webURL.toLowerCase() === this.props.pageContext.web.absoluteUrl.toLowerCase() + '/' ? true : false; 
+            }
+
+            this.updateStateLists(index, testLists, definedList);
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisWeb', errMessage);
             this.updateStateLists(index, testLists, definedList);
+
         });
     }
-
+/*
     private checkThisList(index: number, testLists : IMakeThisList[], thisWeb: any, definedList: IDefinedLists ){
         //const thisWeb = Web(testLists[index].webURL);
         thisWeb.lists.getByTitle(testLists[index].title).get().then((response) => {
@@ -567,6 +596,7 @@ public constructor(props:IProvisionListsProps){
             this.updateStateLists(index, testLists, definedList);
         });
     }
+*/
 
     private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ) {
         let stateLists = this.state.lists;
@@ -670,15 +700,17 @@ public constructor(props:IProvisionListsProps){
         this.setState({ provisionListTitles: provisionListTitles, });
 
         let stateLists = this.state.lists;
-        let listName = camelize(oldVal, true);
-        stateLists[index].name = listName;
-        stateLists[index].title = oldVal + ' list for this Webpart';
-        stateLists[index].desc = '';
-        stateLists[index].listURL = this.state.provisionWebs[index] + ( stateLists[index].template === 100 ? 'Lists/' : '') + listName;
+        let listName = cleanSPListURL(camelize(oldVal, true));
 
         let definedList = this.state.definedList;
 
-        this.checkThisWeb(0, stateLists, definedList);
+        let reDefinedLists = this.getDefinedLists(definedList, true);
+        reDefinedLists[index].name = listName;
+        reDefinedLists[index].title = oldVal;
+        reDefinedLists[index].desc = oldVal + ' list for this Webpart';
+        reDefinedLists[index].listURL = this.state.provisionWebs[index] + ( reDefinedLists[index].template === 100 ? 'Lists/' : '') + listName;
+
+        this.checkThisWeb(index, reDefinedLists, definedList);
 
       }
 
