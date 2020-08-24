@@ -242,32 +242,33 @@ export const RequirementDatePhaseCReq : ICalculatedField = {
  * Each list would have an array of field objects like this.
  */
 
-
-export function HarmonieEmailFields() {
+export type ICustReqDefs = 'Program' | 'SORInfo' ;
+export function CustReqFields(listName: ICustReqDefs ) {
     //return null;
 
-    let theseFields: IMyFieldTypes[] = HarmonieFields('Emails');
+    let theseFields: IMyFieldTypes[] = CustReqFieldsBuilder(listName);
 
-    console.log('HarmonieEmailFields', theseFields);
+    console.log('CustReqFields', theseFields);
     return theseFields;
 }
 
 
-export function HarmonieFields(listName: 'Emails' | 'Emails') {
+export function CustReqFieldsBuilder(listName: ICustReqDefs ) {
+
+    let includeStatus = listName === 'SORInfo' ? true : false ;
 
     let theseFields: IMyFieldTypes[] = [];
     theseFields.push(DocSubjectCReq);  //BOTH
-    theseFields.push(zzzFileStatusCReq);  //BOTH
-    theseFields.push(IssueDateCReq);  //BOTH
-    theseFields.push(QuotePhaseCReq);  //BOTH
-    theseFields.push(RequirementNoCReq);  //BOTH
+    if ( includeStatus ) { theseFields.push(zzzFileStatusCReq); } //BOTH
+    if ( includeStatus ) { theseFields.push(IssueDateCReq); }  //BOTH
+    if ( includeStatus ) { theseFields.push(QuotePhaseCReq); }  //BOTH
+    if ( includeStatus ) { theseFields.push(RequirementNoCReq); }  //BOTH
     theseFields.push(MYCReq);  //BOTH
     theseFields.push(ProductItemCReq);  //BOTH
     theseFields.push(ProgramCReq);  //BOTH
-    theseFields.push(DateRequirementPhaseCReq);  //BOTH
-    theseFields.push(PhaseDateRequirementCReq);  //BOTH
-    theseFields.push(RequirementDatePhaseCReq);  //BOTH
-
+    if ( includeStatus ) { theseFields.push(DateRequirementPhaseCReq); } //BOTH
+    if ( includeStatus ) { theseFields.push(PhaseDateRequirementCReq); } //BOTH
+    if ( includeStatus ) { theseFields.push(RequirementDatePhaseCReq); } //BOTH
 
     return theseFields;
 

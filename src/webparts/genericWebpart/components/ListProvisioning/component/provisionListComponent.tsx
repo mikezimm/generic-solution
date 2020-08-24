@@ -34,10 +34,18 @@ import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from 
 import { IFieldDef } from '../../fields/fieldDefinitions';
 import { createBasicTextField } from  '../../fields/textFieldBuilder';
 
+/**
+ * Steps to add new list def:
+ * 1. Create folder and columns, define and view files
+ * 2. Make sure the list def is in the availLists array
+ * 3. Add logic to getDefinedLists to fetch the list definition
+ * Rinse and repeat
+ */
 import * as dHarm from '../Harmonie/defineHarmonie';
 import * as dTMT from '../ListsTMT/defineThisList';
+import * as dCust from '../ListsCustReq/defineCustReq';
+
 import { doesObjectExistInArray } from '../../../../../services/arrayServices';
-//import * as dCust from '../ListsCustReq/defineCustReq';
 //import * as dFinT from '../ListsFinTasks/defineFinTasks';
 //import * as dReps from '../ListsReports/defineReports';
 //import * as dTurn from '../ListsTurnover/defineTurnover';
@@ -45,11 +53,15 @@ import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
 //import * as dPivT from '../PivotTiles/definePivotTiles';
 
-export type IDefinedLists = 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | '';
+
+/**
+ * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
+ * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
+ */
+export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | '';
+const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements'];
 
 const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles'];
-
-const availLists : IDefinedLists[] =  ['TrackMyTime','Harmon.ie'];
 
 const dropDownWidth = 200;
 
@@ -149,7 +161,7 @@ private clearHistory() {
 public constructor(props:IProvisionListsProps){
     super(props);
 
-    let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[1];
+    let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
     let theLists = this.getDefinedLists(definedList, true) ;
 
     this.state = {
@@ -226,7 +238,7 @@ public constructor(props:IProvisionListsProps){
 
     public render(): React.ReactElement<IProvisionListsProps> {
 
-        if ( this.state.lists && this.state.lists.length > 0 ) {
+        if ( this.state.definedList === availLists[0] || ( this.state.lists && this.state.lists.length > 0 ) ) {
             //console.log('provisionList.tsx', this.props, this.state);
 
 /***
@@ -255,7 +267,12 @@ public constructor(props:IProvisionListsProps){
             const buttons: ISingleButtonProps[] = this.state.lists.map (( thelist, index ) => {
                 let theLabel = null;
                 let isDisabled = !thelist.webExists;
-                if ( thelist.webExists ) {
+
+                if ( this.state.definedList === availLists[0] ) {
+                    isDisabled = true;
+                    theLabel = availLists[0];
+
+                } else if ( thelist.webExists ) {
                     if ( thelist.title === '' ) {
                         theLabel = "Update Title";
                         isDisabled = true;
@@ -615,7 +632,13 @@ public constructor(props:IProvisionListsProps){
         let provisionWebs =  this.state ? this.state.provisionWebs : this.props.provisionWebs;
         let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
 
-        if ( defineThisList === 'TrackMyTime' ) {
+        if ( defineThisList === availLists[0] ) {
+            //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            this.setState({
+                lists: theLists,
+                definedList: defineThisList,
+            });
+        } else if ( defineThisList === 'TrackMyTime' ) {
             let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
             let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[1] ? provisionWebs[1] : provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
         
@@ -629,10 +652,18 @@ public constructor(props:IProvisionListsProps){
             if ( buEmails ) { theLists.push( buEmails ); }
             if ( justEmails ) { theLists.push( justEmails ); }
 
+        } else if ( defineThisList === 'Customer Requirements' ) {
+            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+        
+            if ( progCustRequire ) { theLists.push( progCustRequire ); }
+            if ( sorCustRequire ) { theLists.push( sorCustRequire ); }
+
         }
 
         if ( justReturnLists === true ) {
             return theLists;
+
         } else {
             for ( let i in theLists ) {
                 this.checkThisWeb(parseInt(i,10), theLists, defineThisList );
@@ -675,21 +706,21 @@ public constructor(props:IProvisionListsProps){
 
     private _updateDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
         console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
-    
+
         let thisValue : any = getChoiceText(item.text);
 
         let result = this.getDefinedLists(thisValue, false);
-    
+
     }
 
     private UpdateTitle_0(oldVal: any): any {
         this.UpdateTitles(oldVal,0);
       }
-    
+
       private UpdateTitle_1(oldVal: any): any {
         this.UpdateTitles(oldVal,1);
       }
-    
+
       private UpdateTitle_2(oldVal: any): any {
         this.UpdateTitles(oldVal,2);
       }
