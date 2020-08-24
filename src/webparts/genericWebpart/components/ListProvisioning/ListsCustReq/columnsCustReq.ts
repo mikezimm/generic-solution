@@ -151,33 +151,38 @@ export const RequirementNoCReq : ITextField = {
     }
 };
 
-
-export const MYCReq : ITextField = {
-    fieldType: cText,
+let myChoices =  ['2020', '2021', '2022', '2023', '2024', '2025', '2026', '2027', '2028', '2029', '202x'];
+export const MYCReq : IChoiceField = {
+    fieldType: cChoice,
     name: 'MY',
-    maxLength: 10,
+    choices: myChoices,
     onCreateProps: {
         Group: thisColumnGroup,
+        DefaultFormula:'="' + myChoices[myChoices.length-1] + '"',
         Description: thisDefaultDescription,
     }
 };
 
-export const ProductItemCReq : ITextField = {
-    fieldType: cText,
+let prodChoices =  ['AB', 'SB', 'SW', 'Other'];
+export const ProductItemCReq : IChoiceField = {
+    fieldType: cChoice,
     name: 'ProductItem',
-    maxLength: 10,
+    choices: prodChoices,
     onCreateProps: {
         Group: thisColumnGroup,
+        DefaultFormula:'="' + prodChoices[prodChoices.length-1] + '"',
         Description: thisDefaultDescription,
     }
 };
 
-export const ProgramCReq : ITextField = {
-    fieldType: cText,
+let progChoices =  ['GM', 'Ford', 'FCA', 'Honda', 'Toyota', 'VW', 'Tesla', 'Chinese', 'Other'];
+export const ProgramCReq : IChoiceField = {
+    fieldType: cChoice,
     name: 'Program',
-    maxLength: 20,
+    choices: progChoices,
     onCreateProps: {
         Group: thisColumnGroup,
+        DefaultFormula:'="' + progChoices[progChoices.length-1] + '"',
         Description: thisDefaultDescription,
     }
 };
