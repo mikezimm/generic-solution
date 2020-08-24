@@ -149,7 +149,6 @@ export function ItemsByDocSubjectView ( viewFields, sortField ) {
     return view;
 }
 
-
 export function CustReqViews (listName: ICustReqDefs ) : IMyView[]  {
 
     let thisView : IMyView[] = [];
