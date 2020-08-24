@@ -49,7 +49,7 @@ export type IDefinedLists = 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements
 
 const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles'];
 
-const availLists : IDefinedLists[] =  ['TrackMyTime','Harmon.ie'];
+const availLists : IDefinedLists[] =  ['TrackMyTime','Harmon.ie','Customer Requirements'];
 
 const dropDownWidth = 200;
 
@@ -675,21 +675,21 @@ public constructor(props:IProvisionListsProps){
 
     private _updateDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
         console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
-    
+
         let thisValue : any = getChoiceText(item.text);
 
         let result = this.getDefinedLists(thisValue, false);
-    
+
     }
 
     private UpdateTitle_0(oldVal: any): any {
         this.UpdateTitles(oldVal,0);
       }
-    
+
       private UpdateTitle_1(oldVal: any): any {
         this.UpdateTitles(oldVal,1);
       }
-    
+
       private UpdateTitle_2(oldVal: any): any {
         this.UpdateTitles(oldVal,2);
       }
