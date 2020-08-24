@@ -34,36 +34,15 @@ import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, oo
 
 //CustReq columns
 import {ICustReqDefs,
-DocSubjectCReq , zzzFileStatusCReq , IssueDateCReq , QuotePhaseCReq ,
-RequirementNoCReq , MYCReq , ProductItemCReq , ProgramCReq , DateRequirementPhaseCReq ,
-PhaseDateRequirementCReq , RequirementDatePhaseCReq
-
+    DocSubjectCReq , zzzFileStatusCReq , IssueDateCReq , QuotePhaseCReq ,
+    RequirementNoCReq , MYCReq , ProductItemCReq , ProgramCReq , DateRequirementPhaseCReq ,
+    PhaseDateRequirementCReq , RequirementDatePhaseCReq
 } from './columnsCustReq';
-//let checks = StepChecks(0,5);  // Email
-/*
-    if ( includeSOR ) { theseFields.push(zzzFileStatusCReq); } //BOTH
-    if ( includeStatus ) { theseFields.push(IssueDateCReq); }  //BOTH
-    if ( includeStatus ) { theseFields.push(QuotePhaseCReq); }  //BOTH
-    if ( includeStatus ) { theseFields.push(RequirementNoCReq); }  //BOTH
-    theseFields.push(MYCReq);  //BOTH
-    theseFields.push(ProductItemCReq);  //BOTH
-    theseFields.push(ProgramCReq);  //BOTH
-    if ( includeStatus ) { theseFields.push(DateRequirementPhaseCReq); } //BOTH
-    if ( includeStatus ) { theseFields.push(PhaseDateRequirementCReq); } //BOTH
-    if ( includeStatus ) { theseFields.push(RequirementDatePhaseCReq); } //BOTH
-    */
 
-
-export const stdViewFieldsProg = [ootbID, DocSubjectCReq, ProgramCReq, ProductItemCReq, MYCReq,  ];
+export const stdViewFieldsProg = [ootbID, DocSubjectCReq, ProgramCReq, ProductItemCReq, MYCReq, ootbCreated, ootbVersion ];
+export const stdViewFieldsStat = [ootbID, DocSubjectCReq, ProgramCReq, ProductItemCReq, MYCReq, IssueDateCReq, QuotePhaseCReq, RequirementNoCReq, ootbVersion ];
 
 let allFieldsProg = ["Edit", ootbTitle, DocSubjectCReq , zzzFileStatusCReq , MYCReq , ProductItemCReq , ProgramCReq ,];
-
-export const stdViewFieldsSOR = [ootbID, DocSubjectCReq, ProgramCReq, ProductItemCReq, MYCReq,  ];
-
-let allFieldsSOR = ["Edit", ootbTitle, DocSubjectCReq , zzzFileStatusCReq , MYCReq , ProductItemCReq , ProgramCReq , ];
-
-export const stdViewFieldsStat = [ootbID, DocSubjectCReq, ProgramCReq, ProductItemCReq, MYCReq, IssueDateCReq, QuotePhaseCReq, RequirementNoCReq, ];
-
 let allFieldsStat = ["Edit", ootbTitle, DocSubjectCReq , zzzFileStatusCReq , IssueDateCReq , QuotePhaseCReq ,
     RequirementNoCReq , MYCReq , ProductItemCReq , ProgramCReq , DateRequirementPhaseCReq ,
     PhaseDateRequirementCReq , RequirementDatePhaseCReq];
@@ -76,18 +55,22 @@ export interface IViewFields {
     all?: IViewField[];
 }
 
-export function getStdFields(listName: ICustReqDefs ) {
+export function getStdFields( listName: ICustReqDefs ) {
     let fields : IViewFields = null;
     if (listName === 'Program') {
-        fields = { std: stdViewFieldsProg, all: allFieldsProg , rec: spliceCopyArray ( stdViewFieldsProg, null, null, 2, [ootbModified, ootbEditor ] ) };
+        fields = { 
+            std: stdViewFieldsProg,
+            all: allFieldsProg ,
+            rec: spliceCopyArray ( stdViewFieldsProg, null, null, 2, [ootbModified, ootbEditor ] ) 
+        };
     } else if ( listName === 'SORInfo') {
-        fields =  { std: stdViewFieldsProg, all: allFieldsSOR , rec: spliceCopyArray ( stdViewFieldsSOR, null, null, 2, [ootbModified, ootbEditor ] ) };
-    } else if ( listName === 'WithStatus') {
-        fields =  { std: stdViewFieldsStat, all: allFieldsStat , rec: spliceCopyArray ( stdViewFieldsStat, null, null, 2, [ootbModified, ootbEditor ] ) };
+        fields =  { std: stdViewFieldsStat,
+            all: allFieldsStat ,
+            rec: spliceCopyArray ( stdViewFieldsStat, null, null, 2, [ootbModified, ootbEditor ] )
+        };
     }
     return fields;
 }
-
 
 export function CustAllItemsView( viewFields ) {
     let x : IMyView = {
@@ -101,20 +84,20 @@ export function CustAllItemsView( viewFields ) {
 
 }
 
-export function AllFieldsView( viewFields ) {
+export function AllFieldsView( viewFields, sortField ) {
     let x : IMyView= {
         Title: 'zTest - All Fields',
         iFields: 	viewFields,
-        orders: [ {field: IssueDateCReq, asc: false} ],
+        orders: [ {field: sortField, asc: false} ],
     };
     return x;
 }
 
-export function ItemsByMYView(viewFields ) {
+export function ItemsByMYView( viewFields, sortField ) {
     let x : IMyView= {
         Title: 'Files By MY',
         iFields: 	viewFields,
-        orders: [ {field: IssueDateCReq, asc: false} ],
+        orders: [ {field: sortField, asc: false} ],
         groups: { collapse: true, limit: 30,
             fields: [
                 {field: MYCReq, asc: false},
@@ -124,11 +107,11 @@ export function ItemsByMYView(viewFields ) {
     return x;
 }
 
-export function ItemsByProgramView(viewFields ) {
+export function ItemsByProgramView( viewFields, sortField ) {
     let x : IMyView= {
         Title: 'Files By Program',
         iFields: 	viewFields,
-        orders: [ {field: IssueDateCReq, asc: false} ],
+        orders: [ {field: sortField, asc: false} ],
         groups: { collapse: true, limit: 30,
             fields: [
                 {field: ProgramCReq, asc: false},
@@ -138,11 +121,11 @@ export function ItemsByProgramView(viewFields ) {
     return x;
 }
 
-export function ItemsByProductView(viewFields ) {
+export function ItemsByProductView( viewFields, sortField ) {
     let x : IMyView= {
         Title: 'Files By Product',
         iFields: 	viewFields,
-        orders: [ {field: IssueDateCReq, asc: false} ],
+        orders: [ {field: sortField, asc: false} ],
         groups: { collapse: true, limit: 30,
             fields: [
                 {field: ProductItemCReq, asc: false},
@@ -152,11 +135,11 @@ export function ItemsByProductView(viewFields ) {
     return x;
 }
 
-export function ItemsByDocSubjectView (viewFields) {
+export function ItemsByDocSubjectView ( viewFields, sortField ) {
     let view = {
         Title: 'Files By DocSubject',
         iFields: viewFields,
-        orders: [ {field: IssueDateCReq, asc: false} ],
+        orders: [ {field: sortField, asc: false} ],
         groups: { collapse: true, limit: 30,
             fields: [
                 {field: DocSubjectCReq, asc: false},
@@ -170,19 +153,15 @@ export function ItemsByDocSubjectView (viewFields) {
 export function CustReqViews (listName: ICustReqDefs ) : IMyView[]  {
 
     let thisView : IMyView[] = [];
-
     let viewFields = getStdFields(listName);
-
-    thisView.push(createRecentUpdatesView(viewFields.rec));
-
-    thisView.push(CustAllItemsView(viewFields.std));
-    thisView.push(AllFieldsView(viewFields.std));
-    thisView.push(ItemsByMYView(viewFields.std));
-    thisView.push(ItemsByProgramView(viewFields.std));
-    thisView.push(ItemsByProductView(viewFields.std));
-    thisView.push(ItemsByDocSubjectView(viewFields.std));
-
-    thisView.push(AllFieldsView(viewFields.all));
+    let sortField = listName === 'Program' ? ootbCreated : IssueDateCReq;
+    thisView.push( createRecentUpdatesView( viewFields.rec ));
+    thisView.push( CustAllItemsView( viewFields.std ));
+    thisView.push( AllFieldsView( viewFields.all, sortField ));
+    thisView.push( ItemsByMYView( viewFields.std, sortField ));
+    thisView.push( ItemsByProgramView( viewFields.std, sortField ));
+    thisView.push( ItemsByProductView( viewFields.std, sortField ));
+    thisView.push( ItemsByDocSubjectView( viewFields.std, sortField ));
 
     return thisView;
 

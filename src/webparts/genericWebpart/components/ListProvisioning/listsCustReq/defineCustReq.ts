@@ -69,7 +69,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         makeThisList.createTheseFields = CustReqFields(listDefinition);
         makeThisList.createTheseViews = CustReqViews(listDefinition);
 //        makeThisList.createTheseItems = TMTDefaultProjectItems;
-//        makeThisList.autoItemCreate = true;
+        makeThisList.autoItemCreate = true;
 //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 
 

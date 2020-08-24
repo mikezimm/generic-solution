@@ -242,11 +242,11 @@ export const RequirementDatePhaseCReq : ICalculatedField = {
  * Each list would have an array of field objects like this.
  */
 
-export type ICustReqDefs = 'Program' | 'SORInfo' | 'WithStatus';
+export type ICustReqDefs = 'Program' | 'SORInfo' ;
 export function CustReqFields(listName: ICustReqDefs ) {
     //return null;
 
-    let theseFields: IMyFieldTypes[] = CustReqFieldsBuilder('WithStatus');
+    let theseFields: IMyFieldTypes[] = CustReqFieldsBuilder(listName);
 
     console.log('CustReqFields', theseFields);
     return theseFields;
@@ -254,12 +254,12 @@ export function CustReqFields(listName: ICustReqDefs ) {
 
 
 export function CustReqFieldsBuilder(listName: ICustReqDefs ) {
-    let includeSOR = listName === 'SORInfo' || listName === 'WithStatus' ? true : false ;
-    let includeStatus = listName === 'WithStatus' ? true : false ;
+
+    let includeStatus = listName === 'SORInfo' ? true : false ;
 
     let theseFields: IMyFieldTypes[] = [];
     theseFields.push(DocSubjectCReq);  //BOTH
-    if ( includeSOR ) { theseFields.push(zzzFileStatusCReq); } //BOTH
+    if ( includeStatus ) { theseFields.push(zzzFileStatusCReq); } //BOTH
     if ( includeStatus ) { theseFields.push(IssueDateCReq); }  //BOTH
     if ( includeStatus ) { theseFields.push(QuotePhaseCReq); }  //BOTH
     if ( includeStatus ) { theseFields.push(RequirementNoCReq); }  //BOTH
