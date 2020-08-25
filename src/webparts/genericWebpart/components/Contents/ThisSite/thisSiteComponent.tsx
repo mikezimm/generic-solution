@@ -99,6 +99,9 @@ export interface IPickedSite {
     nav?: {
         MegaMenuEnabled: boolean;
         NavAudienceTargetingEnabled: boolean;
+        QuickLaunchEnabled: boolean;
+        HorizontalQuickLaunch: boolean;
+        TreeViewEnabled: boolean;
     };
     legacy?: {
         ClassicWelcomePage: string | null;
@@ -119,17 +122,17 @@ export interface IPickedSite {
         NoCrawl: boolean;
         ObjectCacheEnabled: boolean;
         OverwriteTranslationsOnChange: boolean;
-        QuickLaunchEnabled: boolean;
+
         RecycleBinEnabled: boolean;
         DocumentLibraryCalloutOfficeWebAppPreviewersDisabled: boolean;
         Configuration: number;
         CustomMasterUrl: string;
         DesignPackageId: string;
         IsRevertHomepageLinkHidden: boolean;
-        HorizontalQuickLaunch: boolean;
+
         SyndicationEnabled: boolean;
         TenantAdminMembersCanShare: number;
-        TreeViewEnabled: boolean;
+
         Id: string;
         CurrentChangeToken: {
             StringValue: string;
@@ -364,17 +367,17 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
             NoCrawl: actual.NoCrawl ,
             ObjectCacheEnabled: actual.ObjectCacheEnabled ,
             OverwriteTranslationsOnChange: actual.OverwriteTranslationsOnChange ,
-            QuickLaunchEnabled: actual.QuickLaunchEnabled ,
+
             RecycleBinEnabled: actual.RecycleBinEnabled ,
             DocumentLibraryCalloutOfficeWebAppPreviewersDisabled: actual.DocumentLibraryCalloutOfficeWebAppPreviewersDisabled ,
             Configuration: actual.Configuration ,
             CustomMasterUrl: actual.CustomMasterUrl ,
             DesignPackageId: actual.DesignPackageId ,
             IsRevertHomepageLinkHidden: actual.IsRevertHomepageLinkHidden ,
-            HorizontalQuickLaunch: actual.HorizontalQuickLaunch ,
+
             SyndicationEnabled: actual.SyndicationEnabled ,
             TenantAdminMembersCanShare: actual.TenantAdminMembersCanShare ,
-            TreeViewEnabled: actual.TreeViewEnabled ,
+
 
             CurrentChangeToken: actual.CurrentChangeToken,
     
@@ -393,6 +396,9 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
         nav: {
             MegaMenuEnabled: actual.MegaMenuEnabled,
             NavAudienceTargetingEnabled: actual.NavAudienceTargetingEnabled ,
+            TreeViewEnabled: actual.TreeViewEnabled ,
+            HorizontalQuickLaunch: actual.HorizontalQuickLaunch ,
+            QuickLaunchEnabled: actual.QuickLaunchEnabled ,
         },
         spo: {
             IsHomepageModernized: actual.IsHomepageModernized ,
