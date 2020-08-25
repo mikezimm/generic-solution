@@ -25,6 +25,8 @@ import InspectWebs from './Webs/websComponent';
 
 import InspectParts from './WParts/partsComponent';
 
+import InspectThisSite from './ThisSite/thisSiteComponent';
+
 import { Web } from "@pnp/sp/presets/all";
 
 //import { analyticsList } from 'InspectContentsWebPartStrings';
@@ -61,7 +63,7 @@ export interface IInspectContentsProps {
 
 }
 
-export interface IPickedWeb {
+export interface IPickedWebBasic {
     title: string;
     ServerRelativeUrl: string;
     guid: string;
@@ -84,7 +86,7 @@ export interface IInspectContentsState {
     tab?: string;
 
     pickedList? : IPickedList;
-    pickedWeb? : IPickedWeb;
+    pickedWeb? : IPickedWebBasic;
 
     allLoaded: boolean;
 
@@ -121,7 +123,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     let parentWeb = cleanURL(this.props.webURL);
 
-    let pickedWeb : IPickedWeb = {
+    let pickedWeb : IPickedWebBasic = {
         ServerRelativeUrl: 'Site ServerRelativeUrl',
         guid: 'Site Guid',
         title: 'Site Title',
@@ -185,6 +187,20 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         const pickListMessage = <div>Please pick a list first</div>;
         const pickWebMessage = <div>Please pick a WEB first</div>;
         const noPageAvailable = <div style={{ paddingBottom: 30 }}>This feature is not yet available</div>;
+
+        //InspectThisSite
+        const sitePage = !this.state.pickedWeb ? pickWebMessage : <div>
+            <InspectThisSite 
+                pageContext = { this.props.pageContext }
+                currentUser = { this.props.currentUser }
+                allowOtherSites = { true }
+                allLoaded = { true }
+                pickedWeb = { this.state.pickedWeb }
+                allowRailsOff = { this.state.allowRailsOff }
+                allowSettings = { this.state.allowSettings }
+                //webURL = { this.state.webURL }
+            ></InspectThisSite>
+        </div>;
 
         const websPage = !this.state.pickedWeb ? pickWebMessage : <div>
             <InspectWebs 
@@ -270,7 +286,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             { /* export const contentsTabs = ['Lists','Columns','Views','Types','WebParts','Groups']; */ }
 
             <PivotItem headerText={ contentsTabs[0] }>
-                { websPage }
+                { sitePage }
             </PivotItem>
             
             <PivotItem headerText={ contentsTabs[1] }>
@@ -330,7 +346,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
    *                                                                                                          
    */
 
-   private async getThisWeb ( webURL ): Promise<IPickedWeb>{
+   private async getThisWeb ( webURL ): Promise<IPickedWebBasic>{
 
     const thisWebObject = Web( webURL );
 
@@ -358,7 +374,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
     console.log('getThisWeb: webChanges', webChanges);
 */
 
-    let thisWeb : IPickedWeb = {
+    let thisWeb : IPickedWebBasic = {
         ServerRelativeUrl: webbie.ServerRelativeUrl,
         guid: webbie.Id,
         title: webbie.Title,

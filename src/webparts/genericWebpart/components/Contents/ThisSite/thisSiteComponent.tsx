@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { sp, Views, IViews } from "@pnp/sp/presets/all";
+import { sp, Views, IViews, IWebInfo, Web } from "@pnp/sp/presets/all";
 
 // For Pivot VVVV
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
@@ -17,9 +17,11 @@ import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../../IReUsableInterfaces';
 
-import InspectWebs from '../Webs/websComponent';
+import { IPickedWebBasic } from '../contentsComponent';
 
-//import { analyticsList } from 'InspectContentsWebPartStrings';
+//import { analyticsList } from 'InspectThisSiteWebPartStrings';
+
+import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '../../../../../services/dateServices';
 
 import { cleanURL, camelize } from '../../../../../services/stringServices';
 
@@ -27,38 +29,121 @@ import { pivotOptionsGroup, } from '../../../../../services/propPane';
  
 import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 
-export interface IInspectContentsProps {
+import * as pages from './thisSiteFunctions';
+
+export interface IInspectThisSiteProps {
     // 0 - Context
     
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-    webURL?: string;
-
-    showPane: boolean;
+//    webURL?: string;
+    pickedWeb? : IPickedWebBasic;
+    
+    showPane?: boolean;
     allLoaded: boolean;
 
     currentUser: IUser;
 
-    allowSettings: boolean;
-    allowRailsOff: boolean;
+    allowSettings?: boolean;
+    allowRailsOff?: boolean;
 
-    showSettings: boolean;  //property set by toggle to actually show or hide this content
-    showRailsOff: boolean;  //property set by toggle to actually show or hide this content
+    showSettings?: boolean;  //property set by toggle to actually show or hide this content
+    showRailsOff?: boolean;  //property set by toggle to actually show or hide this content
 
-    WebpartHeight: number;
-    WebpartWidth: number;
+    WebpartHeight?: number;
+    WebpartWidth?: number;
 
     // 2 - Source and destination list information
 
 }
 
-export interface IPickedWeb {
-    title: string;
-    name: string;
-    guid: string;
-    url: string;
-    siteIcon: string;
+export interface IPickedSite {
+
+    basic: {
+        ServerRelativeUrl: string;
+        SiteLogoUrl: string | null;
+        Url: string;
+        WebTemplate: string;
+        Title: string;
+        Created: string;
+
+        Description: string;
+        WelcomePage: string;
+        EnableMinimalDownload: boolean;
+        Language: number;
+        IsMultilingual: boolean;
+        LastItemModifiedDate: string;
+        LastItemUserModifiedDate: string;
+
+
+
+        timeCreated : ITheTime;
+        timeModified : ITheTime;
+        userModified: ITheTime;
+
+        bestCreate: string;
+        bestMod: string;
+        bestUser: string;
+
+    };
+    siteFeatures?: {
+
+    };
+    webFeatures?: {
+
+    };
+    graph?: {
+
+    };
+    nav?: {
+        MegaMenuEnabled: boolean;
+        NavAudienceTargetingEnabled: boolean;
+    };
+    legacy?: {
+        ClassicWelcomePage: string | null;
+        MasterUrl: string;
+    };
+    spo?: {
+        IsHomepageModernized: boolean;
+        FooterEmphasis: number;
+        FooterEnabled: boolean;
+        FooterLayout: number;
+        HeaderEmphasis: number;
+        HeaderLayout: number;
+    };
+    hubs?: {
+
+    };
+    advanced?: {
+        NoCrawl: boolean;
+        ObjectCacheEnabled: boolean;
+        OverwriteTranslationsOnChange: boolean;
+        QuickLaunchEnabled: boolean;
+        RecycleBinEnabled: boolean;
+        DocumentLibraryCalloutOfficeWebAppPreviewersDisabled: boolean;
+        Configuration: number;
+        CustomMasterUrl: string;
+        DesignPackageId: string;
+        IsRevertHomepageLinkHidden: boolean;
+        HorizontalQuickLaunch: boolean;
+        SyndicationEnabled: boolean;
+        TenantAdminMembersCanShare: number;
+        TreeViewEnabled: boolean;
+        Id: string;
+        CurrentChangeToken: {
+            StringValue: string;
+        };
+
+        ResourcePath: {
+            DecodedUrl: string;
+        };
+        SearchScope: number;
+    };
+    later?: {
+        UIVersion: number;
+        UIVersionConfigurationEnabled: boolean;
+    };
 }
 
 export interface IPickedList {
@@ -68,7 +153,7 @@ export interface IPickedList {
     isLibrary: boolean;
 }
 
-export interface IInspectContentsState {
+export interface IInspectThisSiteState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
 
@@ -76,7 +161,7 @@ export interface IInspectContentsState {
     tab?: string;
 
     pickedList? : IPickedList;
-    pickedWeb? : IPickedWeb;
+    pickedWeb? : IPickedSite;
 
     allLoaded: boolean;
 
@@ -91,9 +176,9 @@ export interface IInspectContentsState {
 
 }
 
-export const contentsTabs = ['Subsites','Lists','Columns','Views','Types','WebParts','Groups', 'RailsOff'];
+export const contentsTabs = ['Basic','Graph','SPO','Nav','Hub','Advanced', 'RailsOff'];
 
-export default class InspectContents extends React.Component<IInspectContentsProps, IInspectContentsState> {
+export default class InspectThisSite extends React.Component<IInspectThisSiteProps, IInspectThisSiteState> {
 
 
     /***
@@ -108,12 +193,12 @@ export default class InspectContents extends React.Component<IInspectContentsPro
      */
 
 
-    public constructor(props:IInspectContentsProps){
+    public constructor(props:IInspectThisSiteProps){
     super(props);
 
-    let parentWeb = cleanURL(this.props.webURL);
+    let parentWeb = cleanURL(this.props.pickedWeb.url);
 
-    let pickedWeb = this.getThisWeb( parentWeb );
+    let pickedWeb = null; //this.getThisWeb( parentWeb );
 
     let railsMode = this.props.allowRailsOff && this.props.showRailsOff ? true : false ;
     this.state = {
@@ -142,7 +227,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
 
     public componentDidMount() {
-
+        let pickedWeb = this.getThisWeb( this.props.pickedWeb.url );
     }
 
 
@@ -160,13 +245,13 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     public componentDidUpdate(prevProps){
 
-        let rebuildPart = prevProps.webURL === this.props.webURL ? false : true;
+        let rebuildPart = prevProps.pickedWeb.url === this.props.pickedWeb.url ? false : true;
         if (rebuildPart === true) {
         this._updateStateOnPropsChange({});
         }
     }
 
-    public render(): React.ReactElement<IInspectContentsProps> {
+    public render(): React.ReactElement<IInspectThisSiteProps> {
 
         const pickListMessage = <div>Please pick a list first</div>;
         const pickWebMessage = <div>Please pick a WEB first</div>;
@@ -178,10 +263,10 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         };
 
 
-        let MyPivot = <div style={{ paddingLeft: 10, paddingRight: 20 }}><Pivot 
+        let MyPivot = <div style={{ paddingLeft: 10, paddingRight: 20, paddingBottom: 20 }}><Pivot 
             aria-label="Contents Options"
             linkSize= { pivotOptionsGroup.getPivSize('normal') }
-            linkFormat= { pivotOptionsGroup.getPivFormat('tabs') }
+            linkFormat= { pivotOptionsGroup.getPivFormat('links') }
             selectedKey= { contentsTabs.indexOf(this.state.tab).toFixed() }
             defaultSelectedKey= { contentsTabs.indexOf(this.state.tab).toFixed() }
             onLinkClick={ this.updatePickList2.bind(this) }
@@ -189,12 +274,26 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         >
             { /* export const contentsTabs = ['Lists','Columns','Views','Types','WebParts','Groups']; */ }
             <PivotItem headerText={ contentsTabs[0] }>
-                { 'websPage' }
+                { ( pages.createBasicPage(this.state.pickedWeb ) ) }
             </PivotItem>
             <PivotItem headerText={ contentsTabs[1] }>
-                { 'listPage' }
+                { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[1] ) ) }
             </PivotItem>
-
+            <PivotItem headerText={ contentsTabs[2] }>
+            { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[2] ) ) }
+            </PivotItem>
+            <PivotItem headerText={ contentsTabs[3] }>
+            { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[3] ) ) }
+            </PivotItem>
+            <PivotItem headerText={ contentsTabs[4] }>
+            { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[4] ) ) }
+            </PivotItem>
+            <PivotItem headerText={ contentsTabs[5] }>
+            { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[5] ) ) }
+            </PivotItem>
+            <PivotItem headerText={ contentsTabs[6] }>
+            { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[6] ) ) }
+            </PivotItem>
         </Pivot></div>;
 
         return (
@@ -219,16 +318,106 @@ export default class InspectContents extends React.Component<IInspectContentsPro
    *                                                                                                          
    */
 
-   private getThisWeb ( webURL ) {
 
-    let thisWeb : IPickedWeb = {
-        name: '',
-        guid: '',
-        title: 'updatePickWeb Title',
-        url: webURL,
-        siteIcon: 'add site icon here',
+   private async getThisWeb ( webURL ) {
+
+    let thisIsNow = new Date().toLocaleString();
+    const thisWebObject = Web( webURL );
+
+    let getMinProps = 'Title,Id,Url,ServerRelativeUrl,SiteLogoUrl,Description';
+    //const actual = await thisWebObject.select(getMinProps).get();
+
+    const actual: IWebInfo = await thisWebObject.get();
+
+    let thisWeb : IPickedSite = {
+        basic: {
+            ServerRelativeUrl: actual.ServerRelativeUrl ,
+            SiteLogoUrl: actual.SiteLogoUrl ,
+            Url: actual.Url ,
+            WebTemplate: actual.WebTemplate ,
+            Title: actual.Title ,
+            Created: actual.Created ,
+            Description: actual.Description ,
+            WelcomePage: actual.WelcomePage ,
+
+            LastItemModifiedDate: actual.LastItemModifiedDate ,
+            LastItemUserModifiedDate: actual.LastItemUserModifiedDate ,
+
+            timeCreated : makeSmallTimeObject(actual.Created),
+            timeModified : makeSmallTimeObject(actual.LastItemModifiedDate),
+            userModified: makeSmallTimeObject(actual.LastItemUserModifiedDate),
+
+            bestCreate: getBestTimeDelta(actual.Created, thisIsNow),
+            bestMod: getBestTimeDelta(actual.Created, thisIsNow),
+            bestUser: getBestTimeDelta(actual.LastItemUserModifiedDate, thisIsNow),
+
+            EnableMinimalDownload: actual.EnableMinimalDownload ,
+            Language: actual.Language ,
+            IsMultilingual: actual.IsMultilingual ,
+        },
+        legacy: {
+            MasterUrl: actual.MasterUrl.indexOf('seattle') > 0 ? 'Seattle' : actual.MasterUrl.indexOf('oslo') > 0 ? 'Oslo' : actual.MasterUrl ,
+            ClassicWelcomePage: actual.ClassicWelcomePage,
+        },
+        advanced: {
+            Id: actual.Id ,
+            NoCrawl: actual.NoCrawl ,
+            ObjectCacheEnabled: actual.ObjectCacheEnabled ,
+            OverwriteTranslationsOnChange: actual.OverwriteTranslationsOnChange ,
+            QuickLaunchEnabled: actual.QuickLaunchEnabled ,
+            RecycleBinEnabled: actual.RecycleBinEnabled ,
+            DocumentLibraryCalloutOfficeWebAppPreviewersDisabled: actual.DocumentLibraryCalloutOfficeWebAppPreviewersDisabled ,
+            Configuration: actual.Configuration ,
+            CustomMasterUrl: actual.CustomMasterUrl ,
+            DesignPackageId: actual.DesignPackageId ,
+            IsRevertHomepageLinkHidden: actual.IsRevertHomepageLinkHidden ,
+            HorizontalQuickLaunch: actual.HorizontalQuickLaunch ,
+            SyndicationEnabled: actual.SyndicationEnabled ,
+            TenantAdminMembersCanShare: actual.TenantAdminMembersCanShare ,
+            TreeViewEnabled: actual.TreeViewEnabled ,
+
+            CurrentChangeToken: actual.CurrentChangeToken,
+    
+            ResourcePath: actual.ResourcePath,
+            SearchScope: actual.SearchScope ,
+        },
+        siteFeatures: {
+
+        },
+        webFeatures: {
+    
+        },
+        graph: {
+    
+        },
+        nav: {
+            MegaMenuEnabled: actual.MegaMenuEnabled,
+            NavAudienceTargetingEnabled: actual.NavAudienceTargetingEnabled ,
+        },
+        spo: {
+            IsHomepageModernized: actual.IsHomepageModernized ,
+            FooterEmphasis: actual.FooterEmphasis ,
+            FooterEnabled: actual.FooterEnabled ,
+            FooterLayout: actual.FooterLayout ,
+            HeaderEmphasis: actual.HeaderEmphasis ,
+            HeaderLayout: actual.HeaderLayout ,
+        },
+        hubs: {
+    
+        },
+        later: {
+            UIVersion: actual.UIVersion ,
+            UIVersionConfigurationEnabled: actual.UIVersionConfigurationEnabled ,
+        },
+
     };
 
+    this.setState({
+        pickedWeb: thisWeb,
+
+    });
+
+    console.log('getThisWeb:', thisWeb);
     return thisWeb;
 
    }
@@ -236,14 +425,15 @@ export default class InspectContents extends React.Component<IInspectContentsPro
   private updatePickWeb  = (ev: React.FormEvent<HTMLInputElement>): void => {
 
     //NEED TO USE THIS LATER WHEN PICKING DIFFERENT WEB
+    /*
     let webURL = this.state.webURL;
-    let thisWeb : IPickedWeb = this.getThisWeb( this.state.webURL );
+    let thisWeb : IPickedSite = this.getThisWeb( this.state.webURL );
 
     this.setState({
         pickedWeb: thisWeb,
         webURL: webURL, 
     });
-
+*/
   }
     // public searchForItems = (item): void => {
     // private updatePickList2  = (ev: React.FormEvent<HTMLInputElement>): void => {

@@ -314,8 +314,8 @@ public constructor(props:IProvisionListsProps){
             let updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
             let provisionButtons = buttons.map ( ( theButton, index ) => {
                 let thisTitle = this.state.provisionListTitles[index];
-                let titleBox = createBasicTextField(this.createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], null );
-                return <div style={{ paddingTop: '20px' }}><div> { titleBox }</div><ButtonCompound buttons={[theButton]} horizontal={true}/></div>;
+                let titleBox = createBasicTextField(this.createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], styles.listProvTextField1 );
+                return <div style={{ paddingTop: '20px' }}><div> { titleBox }</div><ButtonCompound buttons={[theButton]} horizontal={true} /></div>;
             });
 
 
