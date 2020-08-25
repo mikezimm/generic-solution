@@ -33,6 +33,17 @@ export function camelize(str,firstCap: boolean) {
             }).replace(/\s+/g, '');
     }
 }
+
+/**
+ * SharePoint automatically removes characters from library names
+ * 
+ * @param str
+ */
+export function cleanSPListURL( str : string ) {
+  return str.replace(/\s\%\&\?\.\+/g, '');
+
+}
+
 //Sample to convert to arrow function
 //const sum1 = function(list, prop){ return list.reduce( function(a, b){ return a + b[prop];}, 0);}
 //const sum2 = (list,prop) =>  { return list.reduce((a,b) => {return (a+ b[prop])}, 0);}
@@ -58,3 +69,43 @@ export function cleanURL(originalURL: String) {
     return newURL;
 
   }
+
+/**
+ * This is used specifically for making a key value from text that can be in a css ID or classname.
+ * Used in Dropdown Fields
+ * 
+ * @param val 
+ */
+export function getChoiceKey(val: string) {
+
+    if (val === null) {  
+      console.log('getChoiceKey is null');
+      return'valueIsNull'; }
+    else if (val === undefined) {  
+      console.log('getChoiceKey is undefined');
+      return'valueIsNull'; }
+    else {
+      return val.replace(' ','SPACE').replace('.','DOT').replace('~','TILDE').replace('~','COMMA');
+    }
+
+}
+
+/**
+ * This is the opposite of getChoiceKey..
+ * Just converts the key back to the text
+ * 
+ * @param val 
+ */
+export function getChoiceText(val: string) {
+
+    if (val === null) {  
+      console.log('getChoiceText is null');
+      return null; }
+    else if (val === undefined) {  
+      console.log('getChoiceText is undefined');
+      return null; }
+    else {
+      return val.replace('SPACE',' ').replace('DOT','.').replace('TILDE','~').replace('COMMA','~');
+    }
+
+}

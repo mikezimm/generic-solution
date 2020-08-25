@@ -23,7 +23,7 @@ import { ITheTime } from '../../../../../services/dateServices';
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 
-import { IPickedWeb } from '../contentsComponent';
+import { IPickedWebBasic } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
@@ -83,53 +83,6 @@ export interface IContentsWebInfo extends Partial<IWebInfo>{
     bestCreate: string;
     bestMod: string;
 
-
-    Created: string;
-    CurrentChangeToken: {
-        StringValue: string;
-    };
-    CustomMasterUrl: string;
-    Description: string;
-    DesignPackageId: string;
-    DocumentLibraryCalloutOfficeWebAppPreviewersDisabled: boolean;
-    EnableMinimalDownload: boolean;
-    FooterEmphasis: number;
-    FooterEnabled: boolean;
-    FooterLayout: number;
-    HeaderEmphasis: number;
-    HeaderLayout: number;
-    HorizontalQuickLaunch: boolean;
-    Id: string;
-    IsHomepageModernized: boolean;
-    IsMultilingual: boolean;
-    IsRevertHomepageLinkHidden: boolean;
-    Language: number;
-    LastItemModifiedDate: string;
-    LastItemUserModifiedDate: string;
-    MasterUrl: string;
-    MegaMenuEnabled: boolean;
-    NavAudienceTargetingEnabled: boolean;
-    NoCrawl: boolean;
-    ObjectCacheEnabled: boolean;
-    OverwriteTranslationsOnChange: boolean;
-    QuickLaunchEnabled: boolean;
-    RecycleBinEnabled: boolean;
-    ResourcePath: {
-        DecodedUrl: string;
-    };
-    SearchScope: number;
-    ServerRelativeUrl: string;
-    SiteLogoUrl: string | null;
-    SyndicationEnabled: boolean;
-    TenantAdminMembersCanShare: number;
-    Title: string;
-    TreeViewEnabled: boolean;
-    UIVersion: number;
-    UIVersionConfigurationEnabled: boolean;
-    Url: string;
-    WebTemplate: string;
-    WelcomePage: string;
-
 }
 
 
@@ -149,7 +102,7 @@ export interface IInspectWebsProps {
 
     currentUser: IUser;
 
-    pickedWeb? : IPickedWeb;
+    pickedWeb? : IPickedWebBasic;
 
     // 2 - Source and destination list information
 

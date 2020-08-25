@@ -119,9 +119,9 @@ public constructor(props:IInfoAboutMeProps){
             thisPage = <div>
                 <WebPartLinks
                     parentListURL={ this.props.parentState.parentListURL }
-                    parentListName={ this.props.parentState.parentListName }
+                    parentListName={ this.props.parentState.parentListTitle }
                     childListURL={ this.props.parentState.childListURL }
-                    childListName={ this.props.parentState.childListName }
+                    childListName={ this.props.parentState.childListTitle }
                 ></WebPartLinks>
 
                 <h2>Version History</h2>

@@ -40,7 +40,6 @@ export function createAdvancedContentChoices( selectedKey: string, _onChange){
   );
 }
 
-
 /*
 Entry Type Choices need to match these:  \src\services\propPane\WebPartSettingsPage.ts
 

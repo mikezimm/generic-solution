@@ -151,33 +151,38 @@ export const RequirementNoCReq : ITextField = {
     }
 };
 
-
-export const MYCReq : ITextField = {
-    fieldType: cText,
+let myChoices =  ['2020', '2021', '2022', '2023', '2024', '2025', '2026', '2027', '2028', '2029', '202x'];
+export const MYCReq : IChoiceField = {
+    fieldType: cChoice,
     name: 'MY',
-    maxLength: 10,
+    choices: myChoices,
     onCreateProps: {
         Group: thisColumnGroup,
+        DefaultFormula:'="' + myChoices[myChoices.length-1] + '"',
         Description: thisDefaultDescription,
     }
 };
 
-export const ProductItemCReq : ITextField = {
-    fieldType: cText,
+let prodChoices =  ['AB', 'SB', 'SW', 'Other'];
+export const ProductItemCReq : IChoiceField = {
+    fieldType: cChoice,
     name: 'ProductItem',
-    maxLength: 10,
+    choices: prodChoices,
     onCreateProps: {
         Group: thisColumnGroup,
+        DefaultFormula:'="' + prodChoices[prodChoices.length-1] + '"',
         Description: thisDefaultDescription,
     }
 };
 
-export const ProgramCReq : ITextField = {
-    fieldType: cText,
+let progChoices =  ['GM', 'Ford', 'FCA', 'Honda', 'Toyota', 'VW', 'Tesla', 'Chinese', 'Other'];
+export const ProgramCReq : IChoiceField = {
+    fieldType: cChoice,
     name: 'Program',
-    maxLength: 20,
+    choices: progChoices,
     onCreateProps: {
         Group: thisColumnGroup,
+        DefaultFormula:'="' + progChoices[progChoices.length-1] + '"',
         Description: thisDefaultDescription,
     }
 };
@@ -242,32 +247,33 @@ export const RequirementDatePhaseCReq : ICalculatedField = {
  * Each list would have an array of field objects like this.
  */
 
-
-export function HarmonieEmailFields() {
+export type ICustReqDefs = 'Program' | 'SORInfo' ;
+export function CustReqFields(listName: ICustReqDefs ) {
     //return null;
 
-    let theseFields: IMyFieldTypes[] = HarmonieFields('Emails');
+    let theseFields: IMyFieldTypes[] = CustReqFieldsBuilder(listName);
 
-    console.log('HarmonieEmailFields', theseFields);
+    console.log('CustReqFields', theseFields);
     return theseFields;
 }
 
 
-export function HarmonieFields(listName: 'Emails' | 'Emails') {
+export function CustReqFieldsBuilder(listName: ICustReqDefs ) {
+
+    let includeStatus = listName === 'SORInfo' ? true : false ;
 
     let theseFields: IMyFieldTypes[] = [];
     theseFields.push(DocSubjectCReq);  //BOTH
-    theseFields.push(zzzFileStatusCReq);  //BOTH
-    theseFields.push(IssueDateCReq);  //BOTH
-    theseFields.push(QuotePhaseCReq);  //BOTH
-    theseFields.push(RequirementNoCReq);  //BOTH
+    if ( includeStatus ) { theseFields.push(zzzFileStatusCReq); } //BOTH
+    if ( includeStatus ) { theseFields.push(IssueDateCReq); }  //BOTH
+    if ( includeStatus ) { theseFields.push(QuotePhaseCReq); }  //BOTH
+    if ( includeStatus ) { theseFields.push(RequirementNoCReq); }  //BOTH
     theseFields.push(MYCReq);  //BOTH
     theseFields.push(ProductItemCReq);  //BOTH
     theseFields.push(ProgramCReq);  //BOTH
-    theseFields.push(DateRequirementPhaseCReq);  //BOTH
-    theseFields.push(PhaseDateRequirementCReq);  //BOTH
-    theseFields.push(RequirementDatePhaseCReq);  //BOTH
-
+    if ( includeStatus ) { theseFields.push(DateRequirementPhaseCReq); } //BOTH
+    if ( includeStatus ) { theseFields.push(PhaseDateRequirementCReq); } //BOTH
+    if ( includeStatus ) { theseFields.push(RequirementDatePhaseCReq); } //BOTH
 
     return theseFields;
 

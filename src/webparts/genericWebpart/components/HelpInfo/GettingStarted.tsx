@@ -118,9 +118,9 @@ public constructor(props:IGettingStartedProps){
             <h3>Please submit any issues or suggestions on github (requires free account)</h3>
             <WebPartLinks
                     parentListURL={ this.props.parentState.parentListURL }
-                    parentListName={ this.props.parentState.parentListName }
+                    parentListName={ this.props.parentState.parentListTitle }
                     childListURL={ this.props.parentState.childListURL }
-                    childListName={ this.props.parentState.childListName }
+                    childListName={ this.props.parentState.childListTitle }
             ></WebPartLinks>
 
             <h2>First:  Create a Parent List and Child List in your site</h2>
