@@ -438,22 +438,22 @@ export const IsCurrentVerFin : IBooleanField = {
  */
 
 
-export function HarmonieEmailFields(listName: 'Emails' | 'BUEmails') {
+export function FinTasksFields(listName: 'OurTasks' | 'OurTasks') {
     //return null;
 
-    let theseFields: IMyFieldTypes[] = HarmonieFields(listName);
+    let theseFields: IMyFieldTypes[] = BuildFinTasksFields(listName);
 
     console.log('HarmonieEmailFields', theseFields);
     return theseFields;
 }
 
 
-function HarmonieFields(listName: 'Emails' | 'BUEmails') {
+function BuildFinTasksFields(listName: 'OurTasks' | 'OurTasks') {
 
     let theseFields: IMyFieldTypes[] = [];
 
-    theseFields.push(PeriodFin);  //BOTH
     theseFields.push(YearFin);  //BOTH
+    theseFields.push(PeriodFin);  //BOTH
     theseFields.push(PercentCompleteFin);  //BOTH
     theseFields.push(ReviewDaysFin);  //BOTH
     theseFields.push(CommentsFin);  //BOTH

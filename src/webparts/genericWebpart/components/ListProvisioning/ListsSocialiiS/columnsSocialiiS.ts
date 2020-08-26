@@ -233,17 +233,17 @@ export const objectTypeSiiSCalc : ICalculatedField = {
  */
 
 
-export function HarmonieEmailFields(listName: 'Emails' | 'BUEmails') {
+export function SocialiiSFields(listName: 'EntityList' | 'EntityList') {
     //return null;
 
-    let theseFields: IMyFieldTypes[] = HarmonieFields(listName);
+    let theseFields: IMyFieldTypes[] = BuildSocialiiSFields(listName);
 
     console.log('HarmonieEmailFields', theseFields);
     return theseFields;
 }
 
 
-function HarmonieFields(listName: 'Emails' | 'BUEmails') {
+function BuildSocialiiSFields(listName: 'EntityList' | 'EntityList') {
 
     let theseFields: IMyFieldTypes[] = [];
 

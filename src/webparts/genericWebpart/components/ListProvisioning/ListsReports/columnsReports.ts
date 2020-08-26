@@ -191,24 +191,24 @@ export const SectionRep : IChoiceField = {
  */
 
 
-export function HarmonieEmailFields(listName: 'Emails' | 'BUEmails') {
+export function ReportsFields(listName: 'Reports' | 'Reports') {
     //return null;
 
-    let theseFields: IMyFieldTypes[] = HarmonieFields(listName);
+    let theseFields: IMyFieldTypes[] = BuildReportsFields(listName);
 
     console.log('HarmonieEmailFields', theseFields);
     return theseFields;
 }
 
 
-function HarmonieFields(listName: 'Emails' | 'BUEmails') {
+function BuildReportsFields(listName: 'Reports' | 'Reports') {
 
     let theseFields: IMyFieldTypes[] = [];
 
-    theseFields.push(PeriodRep);  //BOTH
     theseFields.push(YearRep);  //BOTH
-    theseFields.push(ScopeRep);  //BOTH
+    theseFields.push(PeriodRep);  //BOTH
     theseFields.push(SectionRep);  //BOTH
+    theseFields.push(ScopeRep);  //BOTH
     theseFields.push(YearPerRepCalc);  //BOTH
     return theseFields;
 

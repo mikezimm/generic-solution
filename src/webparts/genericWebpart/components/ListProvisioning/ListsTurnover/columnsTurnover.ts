@@ -546,17 +546,17 @@ export const KPI05TurnCalc : ICalculatedField = {
  */
 
 
-export function HarmonieEmailFields(listName: 'Emails' | 'BUEmails') {
+export function TurnOverFields(listName: 'TurnOver' | 'TurnOver') {
     //return null;
 
-    let theseFields: IMyFieldTypes[] = HarmonieFields(listName);
+    let theseFields: IMyFieldTypes[] = BuildTurnOverFields(listName);
 
     console.log('HarmonieEmailFields', theseFields);
     return theseFields;
 }
 
 
-function HarmonieFields(listName: 'Emails' | 'BUEmails') {
+function BuildTurnOverFields(listName: 'TurnOver' | 'TurnOver') {
 
     let theseFields: IMyFieldTypes[] = [];
 
