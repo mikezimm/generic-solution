@@ -176,7 +176,7 @@ export const orderSiiS : INumberField = {
 };
 
 export const mediaSourceSiiSCalc : ICalculatedField = {
-    fieldType: cCalcN,
+    fieldType: cCalcT,
     name: 'mediaSource',
     //=IF(ISNUMBER(FIND("-",mediaObject)),TRIM(LEFT(mediaObject,FIND("-",mediaObject)-1)),TRIM(mediaObject))
     formula: '=IF(ISNUMBER(FIND("-", ' + mediaObjectSiiS.title + ')),TRIM(LEFT(' + mediaObjectSiiS.title + ',FIND("-",' + mediaObjectSiiS.title + ')-1)),TRIM(' + mediaObjectSiiS.title + '))',
@@ -191,7 +191,7 @@ export const mediaSourceSiiSCalc : ICalculatedField = {
 };
 
 export const objectTypeSiiSCalc : ICalculatedField = {
-    fieldType: cCalcN,
+    fieldType: cCalcT,
     name: 'objectType',
     //=IF(ISNUMBER(FIND("-",mediaObject)),TRIM(MID(mediaObject,FIND("-",mediaObject)+1,100)),"")
     formula: '=IF(ISNUMBER(FIND("-",' + mediaObjectSiiS.title + ')),TRIM(MID(' + mediaObjectSiiS.title + ',FIND("-",' + mediaObjectSiiS.title + ')+1,100)),"")',
