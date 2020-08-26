@@ -77,6 +77,8 @@ export interface IInspectPartsState {
     parts: IWPart[];
     meta: string[];
 
+    errMessage: string | JSX.Element;
+
 }
 
 export default class InspectParts extends React.Component<IInspectPartsProps, IInspectPartsState> {
@@ -120,6 +122,8 @@ public constructor(props:IInspectPartsProps){
         searchedParts: [],
         first20SearchedParts: [],
         searchCount: 0,
+
+        errMessage: '',
     };
 
     // because our event handler needs access to the component, bind 
@@ -243,7 +247,7 @@ public constructor(props:IInspectPartsProps){
             const stackPageTokens: IStackTokens = { childrenGap: 10 };
 
             thisPage = <div className={styles.contents}>
-
+                <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
                 <div><div>{ disclaimers }</div>
                 <div> { searchBox } </div>                
                 <div style={{ height:30} }> {  } </div>
@@ -288,7 +292,7 @@ public constructor(props:IInspectPartsProps){
 
     }
 
-    private addThesePartsToState( allWebParts ) {
+    private addThesePartsToState( allWebParts, errMessage : string ) {
 
         let meta: string[] = [];
         for ( let p of allWebParts ) {
@@ -304,6 +308,7 @@ public constructor(props:IInspectPartsProps){
             meta: meta,
             searchedParts: allWebParts,
             searchCount: allWebParts.length,
+            errMessage: errMessage,
         });
         return true;
     }

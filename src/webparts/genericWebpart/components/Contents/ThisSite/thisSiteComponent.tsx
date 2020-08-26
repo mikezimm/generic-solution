@@ -372,7 +372,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
 
         thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
 
-        { errMessage }
+        <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
 
         <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
             { searchBox } {  }

@@ -23,6 +23,8 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
 import { addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices'; //Import view arrays for Time list
 
+import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 export type IValidTemplate = 100 | 101;
@@ -72,30 +74,38 @@ export async function allAvailableWebParts( addThesePartsToState: any, setProgre
 
     let webPartDefs : IWPart[] = [];
 
-    const partDefs = await sp.web.getClientsideWebParts();
-    console.log('partDefs:', partDefs);
-    // find the definition we want, here by id
-    //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
-    //ff5f0cc8-b7e7-4e75-b46c-c0091483d2c2
-    const partDef = partDefs.filter(c => c.Name === "Weather");
-    //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
+    let errMessage = '';
 
-
-    // create a ClientWebPart instance from the definition
-    const part = ClientsideWebpart.fromComponentDef(partDef[0]);
-
-    for (let i in partDefs ) {
-
-        let thisManifest = JSON.parse(partDefs[i].Manifest);
-        //let entries: any = getAllPreConfiguredEntries(thisManifest);
-        //let theseEntries : any = getAllPreConfiguredEntries(thisManifest);
-        webPartDefs = getAllPreConfiguredEntries(webPartDefs, thisManifest, i );
-        //webPartDefs.splice(webPartDefs.length, 0, theseEntries );
+    try {
+        const partDefs = await sp.web.getClientsideWebParts();
+        console.log('partDefs:', partDefs);
+        // find the definition we want, here by id
+        //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
+        //ff5f0cc8-b7e7-4e75-b46c-c0091483d2c2
+        const partDef = partDefs.filter(c => c.Name === "Weather");
+        //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
+    
+    
+        // create a ClientWebPart instance from the definition
+        const part = ClientsideWebpart.fromComponentDef(partDef[0]);
+    
+        for (let i in partDefs ) {
+    
+            let thisManifest = JSON.parse(partDefs[i].Manifest);
+            //let entries: any = getAllPreConfiguredEntries(thisManifest);
+            //let theseEntries : any = getAllPreConfiguredEntries(thisManifest);
+            webPartDefs = getAllPreConfiguredEntries(webPartDefs, thisManifest, i );
+            //webPartDefs.splice(webPartDefs.length, 0, theseEntries );
+    
+        }
+    
+        console.log('webPartDefs', webPartDefs);
+    } catch (e) {
+        errMessage = getHelpfullError(e, true, true);
 
     }
 
-    console.log('webPartDefs', webPartDefs);
-    let result = await addThesePartsToState(webPartDefs);
+    let result = await addThesePartsToState(webPartDefs, errMessage);
 
     return result;
 }
