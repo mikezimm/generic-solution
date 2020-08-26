@@ -184,9 +184,9 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     public render(): React.ReactElement<IInspectContentsProps> {
 
-        const pickListMessage = <div style={{ paddingBottom: 30 }}>Please pick a list first</div>;
-        const pickWebMessage = <div style={{ paddingBottom: 30 }}>Please pick a WEB first</div>;
-        const noPageAvailable = <div style={{ paddingBottom: 30 }}>This feature is not yet available</div>;
+        const pickListMessage = <div style={{ paddingBottom: 30, paddingTop: 30 }}>Please pick a list first</div>;
+        const pickWebMessage = <div style={{ paddingBottom: 30, paddingTop: 30  }}>Please pick a WEB first</div>;
+        const noPageAvailable = <div style={{ paddingBottom: 30, paddingTop: 30  }}>This feature is not yet available</div>;
 
         //InspectThisSite
         const sitePage = !this.state.pickedWeb ? pickWebMessage : <div>
