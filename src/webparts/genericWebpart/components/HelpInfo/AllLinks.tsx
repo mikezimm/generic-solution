@@ -40,6 +40,8 @@ export const chartJSBar = createLink( 'https://www.chartjs.org/docs/latest/chart
  */
 export const baseGitContReact = 'https://github.com/SharePoint/sp-dev-fx-controls-react/';
 export const gitRepoSPFxContReact = createLink( baseGitContReact,'_blank', 'controls-react' );
+export const devDocsPnpJSsp = createLink( 'https://pnp.github.io/pnpjs/sp/','_blank', 'PnpJS' );
+export const gitRepoPnpJSsp = createLink( 'https://github.com/pnp/pnpjs/','_blank', '@PnpJS' );
 
 
 /**
