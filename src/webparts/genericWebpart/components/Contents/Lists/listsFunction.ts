@@ -17,7 +17,7 @@ import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../
 
 import { makeSmallTimeObject, ITheTime} from '../../../../../services/dateServices';
 
-import { doesObjectExistInArray } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
 
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
 
@@ -58,12 +58,6 @@ let TempContLists = ["ActionRegisterList", "AgendasList", "AutoOnBoardList", "Br
 "FilesYMCat","FilesYMCatU"
 ];
 
-
-// Copied from WPDef component
-export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
-    if ( item != '' && arr.indexOf(item) < 0 ) { arr.push(item); }
-    return arr;
-}
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allAvailableLists( webURL: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
 

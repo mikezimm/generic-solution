@@ -232,3 +232,10 @@ export interface ICompareResult {
     return result;
 
  }
+
+ 
+// Copied from WPDef component
+export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
+    if ( item != '' && arr.indexOf(item) < 0 ) { arr.push(item); }
+    return arr;
+}

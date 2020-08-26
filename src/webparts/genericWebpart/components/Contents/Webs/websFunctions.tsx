@@ -19,7 +19,7 @@ import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../
 
 import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '../../../../../services/dateServices';
 
-import { doesObjectExistInArray } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
 
 import { getHelpfullError } from '../../../../../services/ErrorHandler';
 
@@ -37,13 +37,6 @@ export type IValidWebTemplate2 = 64 | 68 ; //64 = Team; 68 = Communication
 //  SITEPAGEPUBLISHING#0 - Communication site
 //  STS#3  = team site no group 365
 //  GROUP#0   = with group 365
- 
-
-// Copied from WPDef component
-export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
-    if ( item != '' && arr.indexOf(item) < 0 ) { arr.push(item); }
-    return arr;
-}
 
 //export async function provisionTestPage( makeThisPage:  IContentsWebInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allAvailableWebs( webURL: string, webBuckets: IWebBucketInfo[], addTheseWebsToState: any, setProgress: any, markComplete: any ): Promise<IContentsWebInfo[]>{
@@ -92,6 +85,9 @@ export async function allAvailableWebs( webURL: string, webBuckets: IWebBucketIn
 
     }
 
+    if ( errMessage === '' && allWebs.length === 0 ) { 
+        errMessage = 'This site/web does not have any subsites that you can see.';
+     }
     addTheseWebsToState(allWebs, scope, errMessage);
     return allWebs;
 

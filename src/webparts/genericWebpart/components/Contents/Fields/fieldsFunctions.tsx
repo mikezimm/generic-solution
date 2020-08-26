@@ -19,7 +19,7 @@ import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../
 
 import { makeSmallTimeObject, ITheTime} from '../../../../../services/dateServices';
 
-import { doesObjectExistInArray } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
 
 import { getHelpfullError } from '../../../../../services/ErrorHandler';
 
@@ -52,11 +52,6 @@ let ootbFields = [ 'Created_x0020_Date', 'Last_x0020_Modified', 'FileLeafRef', '
         
 ];
 
-// Copied from WPDef component
-export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
-    if ( item != '' && arr.indexOf(item) < 0 ) { arr.push(item); }
-    return arr;
-}
 
 //export async function provisionTestPage( makeThisPage:  IContentsFieldInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allAvailableFields( webURL: string, listGUID: string, fieldBuckets: IFieldBucketInfo[], addTheseFieldsToState: any, setProgress: any, markComplete: any ): Promise<IContentsFieldInfo[]>{
