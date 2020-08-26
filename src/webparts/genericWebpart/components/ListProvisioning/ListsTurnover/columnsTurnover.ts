@@ -559,35 +559,39 @@ export function HarmonieEmailFields(listName: 'Emails' | 'BUEmails') {
 function HarmonieFields(listName: 'Emails' | 'BUEmails') {
 
     let theseFields: IMyFieldTypes[] = [];
-    theseFields.push(EmailCategoriesHarm);  //BOTH
 
-    if (listName === 'BUEmails' ) { theseFields.push(ProductsALV); }  //BOTH
-    if (listName === 'BUEmails' ) { theseFields.push(ProgramsALV); }  //BOTH
-    if (listName === 'BUEmails' ) { theseFields.push(YearsALV); }  //BOTH
-
-    theseFields.push(EmailDateHarm);  //BOTH
-    theseFields.push(EmailSubjectHarm);  //BOTH
-    theseFields.push(EmailFromHarm);  //BOTH
-    theseFields.push(EmailReceivedHarm);  //BOTH
-    theseFields.push(EmailCcHarm);  //BOTH
-    theseFields.push(BccHarm);  //BOTH
-    theseFields.push(ConversationIndexHarm);  //BOTH
-    theseFields.push(ConversationTopicHarm);  //BOTH
-    theseFields.push(EmailReferencesHarm);  //BOTH
-    theseFields.push(ImportanceHarm);  //BOTH
-    theseFields.push(InReplyToHarm);  //BOTH
-    theseFields.push(MessageIDHarm);  //BOTH
-    theseFields.push(OriginalSubjectHarm);  //BOTH
-    theseFields.push(ReplyToHarm);  //BOTH
-    theseFields.push(EmailToHarm);  //BOTH
-    theseFields.push(MailPreviewDataHarm);  //BOTH
-    theseFields.push(HasAttachmentsHarm);  //BOTH
-    theseFields.push(EmailFromNameHarm);  //BOTH
-    theseFields.push(EmailFromTxtHarm);  //BOTH
-    theseFields.push(EmailMoHarm);  //BOTH
-    theseFields.push(EmailYrHarm);  //BOTH
-    theseFields.push(EmailYrMoHarm);  //BOTH
-    theseFields.push(FromCompanyHarm);  //BOTH
+    theseFields.push(Date01Turn);  //BOTH
+    theseFields.push(Date01TurnCalc);  //BOTH
+    theseFields.push(Choice01Turn);  //BOTH
+    theseFields.push(Choice01TurnCalc);  //BOTH
+    theseFields.push(ItemCategoryTurn);  //BOTH
+    theseFields.push(ItemCategoryTurnCalc);  //BOTH
+    theseFields.push(StatusTurn);  //BOTH
+    theseFields.push(StatusTurnCalc);  //BOTH
+    theseFields.push(URL01Turn);  //BOTH
+    theseFields.push(Text01Turn);  //BOTH
+    theseFields.push(Text01TurnCalc);  //BOTH
+    theseFields.push(IdNumberTurn);  //BOTH
+    theseFields.push(IdNumberTurnCalc);  //BOTH
+    theseFields.push(Number01Turn);  //BOTH
+    theseFields.push(Number01TurnCalc);  //BOTH
+    theseFields.push(Number02Turn);  //BOTH
+    theseFields.push(Number02TurnCalc);  //BOTH
+    theseFields.push(Number03Turn);  //BOTH
+    theseFields.push(Number03TurnCalc);  //BOTH
+    theseFields.push(Number04Turn);  //BOTH
+    theseFields.push(Number04TurnCalc);  //BOTH
+    theseFields.push(Number05Turn);  //BOTH
+    theseFields.push(Number05TurnCalc);  //BOTH
+    theseFields.push(Number06Turn);  //BOTH
+    theseFields.push(Number06TurnCalc);  //BOTH
+    theseFields.push(Number07Turn);  //BOTH
+    theseFields.push(Number07TurnCalc);  //BOTH
+    theseFields.push(KPI01TurnCalc);  //BOTH
+    theseFields.push(KPI02TurnCalc);  //BOTH
+    theseFields.push(KPI03TurnCalc);  //BOTH
+    theseFields.push(KPI04TurnCalc);  //BOTH
+    theseFields.push(KPI05TurnCalc);  //BOTH
 
 
     return theseFields;
