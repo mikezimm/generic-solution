@@ -24,9 +24,13 @@ import MyLogList from './partsListView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
-import { IWPart, addItemToArrayIfItDoesNotExist } from './partsFunction';
+import { IWPart,  } from './partsFunction';
 
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+
+import { addItemToArrayIfItDoesNotExist, } from '../../../../../services/arrayServices';
+
+
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 export interface IInspectPartsProps {

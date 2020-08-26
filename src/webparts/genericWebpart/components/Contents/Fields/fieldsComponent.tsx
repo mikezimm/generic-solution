@@ -15,11 +15,10 @@ import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
 import "@pnp/sp/webs";
 
 import { IValidTemplate, allAvailableFields } from './fieldsFunctions';
-import { addItemToArrayIfItDoesNotExist } from './fieldsFunctions';
 
 import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
-import { doesObjectExistInArray } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';

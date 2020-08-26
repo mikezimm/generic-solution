@@ -4,6 +4,9 @@ import { sp, Views, IViews, IWebInfo, Web } from "@pnp/sp/presets/all";
 // For Pivot VVVV
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
 import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
+import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
+import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
+
 import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
 // For Pivot ^^^^
 
@@ -27,9 +30,35 @@ import { cleanURL, camelize } from '../../../../../services/stringServices';
 
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
  
-import { doesObjectExistInArray } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
 
-import * as pages from './thisSiteFunctions';
+import {  } from '../Fields/fieldsFunctions';
+
+import { allSiteProps } from './thisSiteFunctions';
+
+import MyLogProps from './thisSiteListView';
+
+import { createLink } from '../../HelpInfo/AllLinks';
+
+import { resultContent } from 'office-ui-fabric-react/lib/components/ExtendedPicker/PeoplePicker/ExtendedPeoplePicker.scss';
+
+export interface IMyPivCat {
+    title: string;
+    desc: string;
+    order: number;
+}
+
+export const pivCats = {
+    all: {title: 'All', desc: '', order: 1},
+    basic: {title: 'Basic' , desc: '', order: 1},
+    advanced:  {title: 'Advanced' , desc: '', order: 1},
+    graph:  {title: 'Graph' , desc: '', order: 1},
+    hub: {title: 'Hub', desc: '', order: 9 },
+    nav: {title: 'Nav', desc: '', order: 9 },
+    spo: {title: 'SPO', desc: '', order: 9 },
+    legacy: {title: 'Legacy', desc: '', order: 9 },
+    other: {title: 'Other', desc: '', order: 9 },
+};
 
 export interface IInspectThisSiteProps {
     // 0 - Context
@@ -58,102 +87,87 @@ export interface IInspectThisSiteProps {
 
 }
 
-export interface IPickedSite {
+export const BasicProps = [
+    "ServerRelativeUrl",
+    "SiteLogoUrl",
+    "Url",
+    "WebTemplate",
+    "Title",
+    "Created",
+    "Description",
+    "WelcomePage",
+    "EnableMinimalDownload",
+    "Language",
+    "IsMultilingual",
+    "LastItemModifiedDate",
+    "LastItemUserModifiedDate",
+];
 
-    basic: {
-        ServerRelativeUrl: string;
-        SiteLogoUrl: string | null;
-        Url: string;
-        WebTemplate: string;
-        Title: string;
-        Created: string;
+export const NavProps = [
+    "MegaMenuEnabled",
+    "NavAudienceTargetingEnabled",
+    "QuickLaunchEnabled",
+    "HorizontalQuickLaunch",
+    "TreeViewEnabled",
+];
 
-        Description: string;
-        WelcomePage: string;
-        EnableMinimalDownload: boolean;
-        Language: number;
-        IsMultilingual: boolean;
-        LastItemModifiedDate: string;
-        LastItemUserModifiedDate: string;
+export const SPOProps = [
+    "IsHomepageModernized",
+    "FooterEmphasis",
+    "FooterEnabled",
+    "FooterLayout",
+    "HeaderEmphasis",
+    "HeaderLayout",   
+];
 
+export const LegacyProps = [
+    "ClassicWelcomePage",
+    "MasterUrl",
+];
 
+export const GraphProps = [];
 
-        timeCreated : ITheTime;
-        timeModified : ITheTime;
-        userModified: ITheTime;
+export const HubProps = [];
 
-        bestCreate: string;
-        bestMod: string;
-        bestUser: string;
+export const AdvProps = [
+    "NoCrawl",
+    "ObjectCacheEnabled",
+    "OverwriteTranslationsOnChange",
+    "RecycleBinEnabled",
+    "DocumentLibraryCalloutOfficeWebAppPreviewersDisabled",
+    "Configuration",
+    "CustomMasterUrl",
+    "DesignPackageId",
+    "IsRevertHomepageLinkHidden",
+    "SyndicationEnabled",
+    "TenantAdminMembersCanShare",
+    "Id",
+    "CurrentChangeToken",
+    "ResourcePath",
+    "SearchScope",    
+];
 
-    };
-    siteFeatures?: {
+export interface IContentsSiteInfo {
+    property: string;
+    value: any;
+    element?: HTMLElement;
+    searchString: string;
+    meta?: string[];
+    sort: string;
+    bucketCategory: string;
+    bucketLabel: string;
+    bucketIdx: any;
 
-    };
-    webFeatures?: {
-
-    };
-    graph?: {
-
-    };
-    nav?: {
-        MegaMenuEnabled: boolean;
-        NavAudienceTargetingEnabled: boolean;
-        QuickLaunchEnabled: boolean;
-        HorizontalQuickLaunch: boolean;
-        TreeViewEnabled: boolean;
-    };
-    legacy?: {
-        ClassicWelcomePage: string | null;
-        MasterUrl: string;
-    };
-    spo?: {
-        IsHomepageModernized: boolean;
-        FooterEmphasis: number;
-        FooterEnabled: boolean;
-        FooterLayout: number;
-        HeaderEmphasis: number;
-        HeaderLayout: number;
-    };
-    hubs?: {
-
-    };
-    advanced?: {
-        NoCrawl: boolean;
-        ObjectCacheEnabled: boolean;
-        OverwriteTranslationsOnChange: boolean;
-
-        RecycleBinEnabled: boolean;
-        DocumentLibraryCalloutOfficeWebAppPreviewersDisabled: boolean;
-        Configuration: number;
-        CustomMasterUrl: string;
-        DesignPackageId: string;
-        IsRevertHomepageLinkHidden: boolean;
-
-        SyndicationEnabled: boolean;
-        TenantAdminMembersCanShare: number;
-
-        Id: string;
-        CurrentChangeToken: {
-            StringValue: string;
-        };
-
-        ResourcePath: {
-            DecodedUrl: string;
-        };
-        SearchScope: number;
-    };
-    later?: {
-        UIVersion: number;
-        UIVersionConfigurationEnabled: boolean;
-    };
 }
 
-export interface IPickedList {
-    title: string;
-    name: string;
-    guid: string;
-    isLibrary: boolean;
+
+export interface ISitePropsBucketInfo {
+    items: IContentsSiteInfo[];
+    count: number;
+    sort: string;
+    bucketCategory: string;
+    bucketLabel: string;
+
 }
 
 export interface IInspectThisSiteState {
@@ -163,8 +177,20 @@ export interface IInspectThisSiteState {
     webURL?: string;
     tab?: string;
 
-    pickedList? : IPickedList;
-    pickedWeb? : IPickedSite;
+    searchCount: number;
+    
+    searchText: string;
+    searchMeta: string;
+    
+    searchedItems: IContentsSiteInfo[];
+    first20searchedItems: IContentsSiteInfo[];
+
+    propBuckets: ISitePropsBucketInfo[];
+
+    allItems: IContentsSiteInfo[];
+    meta: string[];
+
+    errMessage: string | JSX.Element;
 
     allLoaded: boolean;
 
@@ -179,10 +205,17 @@ export interface IInspectThisSiteState {
 
 }
 
-export const contentsTabs = ['Basic','Graph','SPO','Nav','Hub','Advanced', 'RailsOff'];
-
 export default class InspectThisSite extends React.Component<IInspectThisSiteProps, IInspectThisSiteState> {
 
+    private createSearchBuckets() {
+        let result : ISitePropsBucketInfo[] = [
+            { items: [], count: 0, sort : '0' , bucketCategory: 'All' , bucketLabel: 'Available props'} ,
+//            { webs: [], count: 0, sort : '3' , bucketCategory: 'ReadOnly', bucketLabel: '3. ReadOnly - Calculated/Lookup?' } ,
+//            { webs: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
+//            { webs: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
+        ];
+        return result;
+    }
 
     /***
      *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -213,7 +246,18 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
             // 2 - Source and destination list information
             webURL: parentWeb,
 
-            pickedWeb: pickedWeb,
+            meta: [],
+
+            allItems: [],
+            propBuckets : this.createSearchBuckets(),
+            searchedItems: [],
+            first20searchedItems: [],
+            searchCount: 0,
+
+            searchMeta: 'All',
+            searchText: '',
+
+            errMessage: '',
 
             allLoaded: false,
 
@@ -230,7 +274,8 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
 
 
     public componentDidMount() {
-        let pickedWeb = this.getThisWeb( this.props.pickedWeb.url );
+        this._updateStateOnPropsChange({});
+        console.log('Mounted!');
     }
 
 
@@ -247,7 +292,6 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
      */
 
     public componentDidUpdate(prevProps){
-
         let rebuildPart = prevProps.pickedWeb.url === this.props.pickedWeb.url ? false : true;
         if (rebuildPart === true) {
         this._updateStateOnPropsChange({});
@@ -256,236 +300,333 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
 
     public render(): React.ReactElement<IInspectThisSiteProps> {
 
-        const pickListMessage = <div>Please pick a list first</div>;
-        const pickWebMessage = <div>Please pick a WEB first</div>;
-        const noPageAvailable = <div style={{ paddingBottom: 30 }}>This feature is not yet available</div>;
+
+/***
+ *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
+ *              `~~88~~' 88   88   `88'   88'  YP      88  `8D d8' `8b 88' Y8b 88'     
+ *                 88    88ooo88    88    `8bo.        88oodD' 88ooo88 88      88ooooo 
+ *                 88    88~~~88    88      `Y8b.      88~~~   88~~~88 88  ooo 88~~~~~ 
+ *                 88    88   88   .88.   db   8D      88      88   88 88. ~8~ 88.     
+ *                 YP    YP   YP Y888888P `8888Y'      88      YP   YP  Y888P  Y88888P 
+ *                                                                                     
+ *                                                                                     
+ */
+
+        console.log('renderStateWebs', this.state.allItems );
+
+        let thisPage = null;
+
+        let errMessage = this.state.errMessage === '' ? null : <div>
+            { this.state.errMessage }
+        </div>;
+
+        // let logComponent = <div className={ styles.floatLeft }> {  // This format will put all tables horizontal
+        let logComponent = <div> {
+            this.state.propBuckets.map( bucket => {
+
+                return <MyLogProps 
+                    showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
+                    items={ bucket }    specialAlt= { false }
+                    searchMeta= { this.state.searchMeta } showRailsOff= { this.state.allowRailsOff } 
+                    webURL = { this.state.webURL } descending={false} titles={null} 
+                    ></MyLogProps>;
+            })
+
+        }
+
+        </div>;
+
+        /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
+        let searchBox =  
+        <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
+        <SearchBox
+            className={styles.searchBox}
+            styles={{ root: { maxWidth: this.props.allowRailsOff === true ? 200 : 300 } }}
+            placeholder="Search"
+            onSearch={ this._searchForItems.bind(this) }
+            onFocus={ () => console.log('this.state',  this.state) }
+            onBlur={ () => console.log('onBlur called') }
+            onChange={ this._searchForItems.bind(this) }
+        />
+        <div className={styles.searchStatus}>
+            { 'Searching ' + this.state.searchCount + ' props' }
+            { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
+        </div>
+        </div>;
+
+        let disclaimers = <h3>Properties for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.url, '_blank', this.props.pickedWeb.url )  }</h3>;
+
+        const stackPageTokens: IStackTokens = { childrenGap: 10 };
+
+        let propPivots = this.createPivotObject(this.state.searchMeta, '');
+
+        let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
+
+        let noInfo = [];
+        noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
+        if ( this.state.searchText != '' ) { noInfo.push( <p>{'Search Text: ' + this.state.searchText}</p> )  ; }
+        if ( this.state.searchMeta != '' ) { noInfo.push( <p>{'Refiner: ' + this.state.searchMeta}</p> ) ; }
+
+        thisPage = null;
+        console.log('InspectThisSite state:', this.state );
+
+        thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
+
+        { errMessage }
+
+        <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
+            { searchBox } {  }
+        </Stack>
+
+        <div> { settings } </div>
+
+        <div style={{ height:30, paddingBottom: 15} }> { propPivots } </div>
+
+        <div>
+
+        <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
+
+        <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
+            { logComponent }
+        </Stack>
+        </div></div></div>;
 
 
-        const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
-            root: { marginTop: 10 },
-        };
-
-
-        let MyPivot = <div style={{ paddingLeft: 10, paddingRight: 20, paddingBottom: 20 }}><Pivot 
-            aria-label="Contents Options"
-            linkSize= { pivotOptionsGroup.getPivSize('normal') }
-            linkFormat= { pivotOptionsGroup.getPivFormat('links') }
-            selectedKey= { contentsTabs.indexOf(this.state.tab).toFixed() }
-            defaultSelectedKey= { contentsTabs.indexOf(this.state.tab).toFixed() }
-            onLinkClick={ this.updatePickList2.bind(this) }
-
-        >
-            { /* export const contentsTabs = ['Lists','Columns','Views','Types','WebParts','Groups']; */ }
-            <PivotItem headerText={ contentsTabs[0] }>
-                { ( pages.createBasicPage(this.state.pickedWeb ) ) }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[1] }>
-                { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[1] ) ) }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[2] }>
-            { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[2] ) ) }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[3] }>
-            { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[3] ) ) }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[4] }>
-            { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[4] ) ) }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[5] }>
-            { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[5] ) ) }
-            </PivotItem>
-            <PivotItem headerText={ contentsTabs[6] }>
-            { ( pages.createDumpAndRunPage(this.state.pickedWeb, contentsTabs[6] ) ) }
-            </PivotItem>
-        </Pivot></div>;
+        /***
+        *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
+        *              88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
+        *              88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
+        *              88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
+        *              88 `88. 88.        88    88b  d88 88 `88. 88  V888 
+        *              88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
+        *                                                                 
+        *                                                                 
+        */
 
         return (
             <div className={ styles.contents }>
             <div className={ styles.container }>
-            <div className={ styles.rightContents }>
-                { MyPivot }
-            </div>
-            </div>
-            </div>
+            <div className={ styles.rightPivot }>
+                    { thisPage }
+            </div></div></div>
         );
+
+    } //End PUBLIC RENDER
+
+
+        /**
+     * This puts all the webs into the buckets
+     * @param allProps 
+     * @param propBuckets 
+     */
+    private bucketProps( allProps : IContentsSiteInfo[], propBuckets : ISitePropsBucketInfo[] ) {
+
+        for (let i in allProps ) {
+            propBuckets[allProps[i].bucketIdx].items.push( allProps[i] );
+            propBuckets[allProps[i].bucketIdx].count ++;
+        }
+        console.log('bucketProps:  propBuckets', propBuckets);
+
+        return propBuckets;
     }
-
-  /***
-   *         db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b 
-   *         88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'     
-   *         88    88 88oodD' 88   88 88ooo88    88    88ooooo      `8bo.      88    88ooo88    88    88ooooo 
-   *         88    88 88~~~   88   88 88~~~88    88    88~~~~~        `Y8b.    88    88~~~88    88    88~~~~~ 
-   *         88b  d88 88      88  .8D 88   88    88    88.          db   8D    88    88   88    88    88.     
-   *         ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      `8888Y'    YP    YP   YP    YP    Y88888P 
-   *                                                                                                          
-   *                                                                                                          
-   */
-
-
-   private async getThisWeb ( webURL ) {
-
-    let thisIsNow = new Date().toLocaleString();
-    const thisWebObject = Web( webURL );
-
-    let getMinProps = 'Title,Id,Url,ServerRelativeUrl,SiteLogoUrl,Description';
-    //const actual = await thisWebObject.select(getMinProps).get();
-
-    const actual: IWebInfo = await thisWebObject.get();
-
-    let thisWeb : IPickedSite = {
-        basic: {
-            ServerRelativeUrl: actual.ServerRelativeUrl ,
-            SiteLogoUrl: actual.SiteLogoUrl ,
-            Url: actual.Url ,
-            WebTemplate: actual.WebTemplate ,
-            Title: actual.Title ,
-            Created: actual.Created ,
-            Description: actual.Description ,
-            WelcomePage: actual.WelcomePage ,
-
-            LastItemModifiedDate: actual.LastItemModifiedDate ,
-            LastItemUserModifiedDate: actual.LastItemUserModifiedDate ,
-
-            timeCreated : makeSmallTimeObject(actual.Created),
-            timeModified : makeSmallTimeObject(actual.LastItemModifiedDate),
-            userModified: makeSmallTimeObject(actual.LastItemUserModifiedDate),
-
-            bestCreate: getBestTimeDelta(actual.Created, thisIsNow),
-            bestMod: getBestTimeDelta(actual.Created, thisIsNow),
-            bestUser: getBestTimeDelta(actual.LastItemUserModifiedDate, thisIsNow),
-
-            EnableMinimalDownload: actual.EnableMinimalDownload ,
-            Language: actual.Language ,
-            IsMultilingual: actual.IsMultilingual ,
-        },
-        legacy: {
-            MasterUrl: actual.MasterUrl.indexOf('seattle') > 0 ? 'Seattle' : actual.MasterUrl.indexOf('oslo') > 0 ? 'Oslo' : actual.MasterUrl ,
-            ClassicWelcomePage: actual.ClassicWelcomePage,
-        },
-        advanced: {
-            Id: actual.Id ,
-            NoCrawl: actual.NoCrawl ,
-            ObjectCacheEnabled: actual.ObjectCacheEnabled ,
-            OverwriteTranslationsOnChange: actual.OverwriteTranslationsOnChange ,
-
-            RecycleBinEnabled: actual.RecycleBinEnabled ,
-            DocumentLibraryCalloutOfficeWebAppPreviewersDisabled: actual.DocumentLibraryCalloutOfficeWebAppPreviewersDisabled ,
-            Configuration: actual.Configuration ,
-            CustomMasterUrl: actual.CustomMasterUrl ,
-            DesignPackageId: actual.DesignPackageId ,
-            IsRevertHomepageLinkHidden: actual.IsRevertHomepageLinkHidden ,
-
-            SyndicationEnabled: actual.SyndicationEnabled ,
-            TenantAdminMembersCanShare: actual.TenantAdminMembersCanShare ,
-
-
-            CurrentChangeToken: actual.CurrentChangeToken,
     
-            ResourcePath: actual.ResourcePath,
-            SearchScope: actual.SearchScope ,
-        },
-        siteFeatures: {
+/***
+ *         .d8888. d88888b  .d8b.  d8888b.  .o88b. db   db 
+ *         88'  YP 88'     d8' `8b 88  `8D d8P  Y8 88   88 
+ *         `8bo.   88ooooo 88ooo88 88oobY' 8P      88ooo88 
+ *           `Y8b. 88~~~~~ 88~~~88 88`8b   8b      88~~~88 
+ *         db   8D 88.     88   88 88 `88. Y8b  d8 88   88 
+ *         `8888Y' Y88888P YP   YP 88   YD  `Y88P' YP   YP 
+ *                                                         
+ *                                                         
+ */
 
-        },
-        webFeatures: {
-    
-        },
-        graph: {
-    
-        },
-        nav: {
-            MegaMenuEnabled: actual.MegaMenuEnabled,
-            NavAudienceTargetingEnabled: actual.NavAudienceTargetingEnabled ,
-            TreeViewEnabled: actual.TreeViewEnabled ,
-            HorizontalQuickLaunch: actual.HorizontalQuickLaunch ,
-            QuickLaunchEnabled: actual.QuickLaunchEnabled ,
-        },
-        spo: {
-            IsHomepageModernized: actual.IsHomepageModernized ,
-            FooterEmphasis: actual.FooterEmphasis ,
-            FooterEnabled: actual.FooterEnabled ,
-            FooterLayout: actual.FooterLayout ,
-            HeaderEmphasis: actual.HeaderEmphasis ,
-            HeaderLayout: actual.HeaderLayout ,
-        },
-        hubs: {
-    
-        },
-        later: {
-            UIVersion: actual.UIVersion ,
-            UIVersionConfigurationEnabled: actual.UIVersionConfigurationEnabled ,
-        },
+public _onSearchForMeta = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+    console.log('searchForItems: e',e);
+    console.log('searchForItems: item', item);
+    console.log('searchForItems: this', this);
 
-    };
-
-    this.setState({
-        pickedWeb: thisWeb,
-
-    });
-
-    console.log('getThisWeb:', thisWeb);
-    return thisWeb;
-
-   }
-
-  private updatePickWeb  = (ev: React.FormEvent<HTMLInputElement>): void => {
-
-    //NEED TO USE THIS LATER WHEN PICKING DIFFERENT WEB
-    /*
-    let webURL = this.state.webURL;
-    let thisWeb : IPickedSite = this.getThisWeb( this.state.webURL );
-
-    this.setState({
-        pickedWeb: thisWeb,
-        webURL: webURL, 
-    });
-*/
+    //Be sure to pass item.props.itemKey to get filter value
+    this.searchForProps( this.state.searchText, item.props.itemKey, false );
   }
-    // public searchForItems = (item): void => {
-    // private updatePickList2  = (ev: React.FormEvent<HTMLInputElement>): void => {
-    private updatePickList2  = (item): void => {
 
-        let thisTab = item.props.headerText;
-        this.setState({
-            tab: thisTab,
-        });
-    }
-   
-    private updatePickList  = (ev: React.FormEvent<HTMLInputElement>): void => {
+  public _searchForItems = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+    console.log('searchForItems: e',e);
+    console.log('searchForItems: item', item);
+    console.log('searchForItems: this', this);
 
-        //let itemID = (item.title + '|Splitme|' + item.activity);
-        let parent = ev.currentTarget.parentElement;
-        let buttonID = parent.id;
+    this.searchForProps( item, this.state.searchMeta, true );
+  }
+  
+  public searchForProps = (text: string, meta: string , resetSpecialAlt: boolean ): void => {
 
-        //2020-05-11:  Issue 44 Added so activity can have / or \ from partial URLs
-        buttonID = buttonID.replace(/forwardSSlash/gi, '\/');
-        buttonID = buttonID.replace(/backwardSSlash/gi, '\\');
+    let searchItems : IContentsSiteInfo[] = this.state.allItems;
+    let searchCount = searchItems.length;
 
-        let splitID = buttonID.split('|Splitme|');
-        let thisTab = splitID[0];
-        let thisId = splitID[1];
-        let thisName = splitID[2];
-        let thisTitle = splitID[3];
-        let isLibrary : boolean = splitID[4] === 'Libraries' ? true : false;
+    let propBuckets : ISitePropsBucketInfo[] = this.createSearchBuckets();
 
-        console.log('updatePickList:', ev );
-        console.log('splitID:', splitID );
-        
-        let thisList : IPickedList = {
-            title: thisTitle,
-            name: thisName,
-            guid: thisId,
-            isLibrary : isLibrary,
-        };
+    let newFilteredItems : IContentsSiteInfo[] = this.getNewFilteredItems( text, meta, searchItems );
 
-        this.setState({
-            pickedList: thisList,
-            tab: thisTab,
-        });
-    }
+    propBuckets  = this.bucketProps( newFilteredItems, propBuckets );
 
+    console.log('Searched for:' + text);
+    console.log('Web Meta:' + meta);
+    console.log('and found these webs:', newFilteredItems);
+    searchCount = newFilteredItems.length;
+
+    this.setState({
+      searchedItems: newFilteredItems,
+      searchCount: searchCount,
+      propBuckets: propBuckets,
+      searchText: text.toLowerCase(),
+      searchMeta: meta,
+//      specialAlt: resetSpecialAlt === true || this.state.searchMeta !== meta ? false : !this.state.specialAlt , 
+    });
+
+
+    return ;
+    
+  } //End searchForItems
+
+  private getNewFilteredItems(text: string, meta: string , searchItems : IContentsSiteInfo[] ) {
+
+    let newFilteredItems : IContentsSiteInfo[] = [];
+
+    for (let thisSearchItem of searchItems) {
+
+        let searchString = thisSearchItem.searchString;
+        let webMeta = thisSearchItem.meta;
+  
+        if ( meta === undefined || meta == null || meta == '' || webMeta.indexOf(meta) > -1 ) {
+          if( searchString.indexOf(text.toLowerCase()) > -1 ) {
+            newFilteredItems.push(thisSearchItem);
+            }
+        }
+      }
+
+      return newFilteredItems;
+
+  }
+
+  
+/***
+ *         db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b 
+ *         88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'     
+ *         88    88 88oodD' 88   88 88ooo88    88    88ooooo      `8bo.      88    88ooo88    88    88ooooo 
+ *         88    88 88~~~   88   88 88~~~88    88    88~~~~~        `Y8b.    88    88~~~88    88    88~~~~~ 
+ *         88b  d88 88      88  .8D 88   88    88    88.          db   8D    88    88   88    88    88.     
+ *         ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P      `8888Y'    YP    YP   YP    YP    Y88888P 
+ *                                                                                                          
+ *                                                                                                          
+ */
+
+ 
     private _updateStateOnPropsChange(params: any ): void {
+        this.getPropDefs();
         console.log('_updateStateOnPropsChange');
+    }
+
+
+    private getPropDefs() {
+        let listGuid = '';
+        if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
+        let result : any = allSiteProps( this.state.webURL, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
+
+    }
+
+    private addThesePropsToState( allProps, scope : 'Web' | 'Site' , errMessage : string ) {
+
+        let newFilteredItems : IContentsSiteInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allProps );
+
+        let propBuckets  : ISitePropsBucketInfo[] = this.bucketProps( newFilteredItems, this.state.propBuckets );
+        
+        this.setState({
+            allItems: allProps,
+            searchedItems: newFilteredItems,
+            searchCount: newFilteredItems.length,
+            errMessage: errMessage,
+            propBuckets: propBuckets,
+            searchText: '',
+            searchMeta: this.state.searchMeta,
+        });
+        return true;
+        
+    }
+
+
+       
+        /***
+     *         d8888b. d888888b db    db  .d88b.  d888888b .d8888. 
+     *         88  `8D   `88'   88    88 .8P  Y8. `~~88~~' 88'  YP 
+     *         88oodD'    88    Y8    8P 88    88    88    `8bo.   
+     *         88~~~      88    `8b  d8' 88    88    88      `Y8b. 
+     *         88        .88.    `8bd8'  `8b  d8'    88    db   8D 
+     *         88      Y888888P    YP     `Y88P'     YP    `8888Y' 
+     *                                                             
+     *                                                             
+     */
+
+
+    public createPivotObject(setPivot, display){
+
+        let theseStyles = null;
+
+        let pivotWeb = 
+        <Pivot 
+        style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
+        styles={ theseStyles }
+        linkSize= { pivotOptionsGroup.getPivSize('normal') }
+        linkFormat= { pivotOptionsGroup.getPivFormat('links') }
+        onLinkClick= { this._onSearchForMeta.bind(this) }  //{this.specialClick.bind(this)}
+        selectedKey={ setPivot }
+        headersOnly={true}>
+            {this.getPropPivots()}
+        </Pivot>;
+        return pivotWeb;
+    }
+
+    private getPropPivots() {
+
+        let pivKeys: string[] = pivCats === null || pivCats === undefined ? [] : Object.keys(pivCats);
+
+        let thesePivots = pivKeys.map( thisKey => {
+            return this.buildFilterPivot(pivCats[thisKey]);
+        });
+        
+        return thesePivots;
+    }
+
+    private buildFilterPivot(pivCat: IMyPivCat) {
+        let p = <PivotItem 
+            headerText={ pivCat.title }
+            itemKey={ pivCat.title }
+            >
+            { pivCat.desc }
+        </PivotItem>;
+
+        return p;
+    }
+
+    private getSiteSettingsLinks() {
+
+        let listGUID = this.props.pickedWeb.guid;
+        let stackSettingTokens = { childrenGap: 20 };
+
+        let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
+                <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Webs */}
+                    { createLink( this.state.webURL + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.state.webURL + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+
+
+                </Stack>
+        </div>;
+
+        return settingLinks;
+
     }
 
 }

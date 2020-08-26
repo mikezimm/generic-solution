@@ -21,6 +21,8 @@ import { IViewLog, addTheseViews } from '../../../../../services/listServices/vi
 
 import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
+import { addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices'; //Import view arrays for Time list
+
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 export type IValidTemplate = 100 | 101;
@@ -197,13 +199,6 @@ function getAllPreConfiguredEntries(webPartDefs : IWPart[], thisManifest, parent
     webPartDefs.sort((a, b) => (a.alias > b.alias) ? 1 : -1);
 
     return webPartDefs;
-
-}
-
-export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
-
-    if ( arr.indexOf(item) < 0 ) { arr.push(item); }
-    return arr;
 
 }
 

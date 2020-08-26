@@ -5,7 +5,7 @@ import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 import { IMyProgress } from '../../IReUsableInterfaces';
 import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
 
-import { IContentsWebInfo, IWebBucketInfo} from './websComponent';
+import { IContentsSiteInfo, ISitePropsBucketInfo } from  './thisSiteComponent';
 
 import { createIconButton } from '../../createButtons/IconButton';
 
@@ -18,33 +18,25 @@ import { createLink } from '../../HelpInfo/AllLinks';
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
-export interface IMyLogWebProps {
+export interface IMyLogPropsProps {
     //title: string;
     titles: [];
     searchMeta: string;
     webURL: string;
 
-    items: IWebBucketInfo;
+    items: ISitePropsBucketInfo;
     showSettings: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     descending: boolean;
     maxChars?: number;
 
-    showDates?: boolean;
-
-    showDesc?: boolean;
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
 
-    showXML: boolean;
-    showJSON: boolean;
-    showSPFx: boolean;
-
-    showMinWebs: boolean;
     specialAlt: boolean;
 
 }
 
-export interface IMyLogWebState {
+export interface IMyLogPropsState {
   maxChars?: number;
 }
 
@@ -67,7 +59,7 @@ const iconClassInfo = mergeStyles({
 });
 
 
-export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebState> {
+export default class MyLogProps extends React.Component<IMyLogPropsProps, IMyLogPropsState> {
 
 
     /***
@@ -81,7 +73,7 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
  *                                                                                                       
  */ 
 
-    constructor(props: IMyLogWebProps) {
+    constructor(props: IMyLogPropsProps) {
         super(props);
         this.state = {
           maxChars: this.props.maxChars ? this.props.maxChars : 50,
@@ -106,7 +98,7 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
  *                                                                                         
  */
 
-    public componentDidUpdate(prevProps: IMyLogWebProps): void {
+    public componentDidUpdate(prevProps: IMyLogPropsProps): void {
     //this._updateWebPart(prevProps);
     }
 
@@ -122,28 +114,20 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
  */
 
 
-    public render(): React.ReactElement<IMyLogWebProps> {
+    public render(): React.ReactElement<IMyLogPropsProps> {
 
       let thisLog = null;
 
-      if ( this.props.items.webs != null && this.props.items.count > 0 ) { 
+      if ( this.props.items.items != null && this.props.items.count > 0 ) { 
 
-        let logItems : IContentsWebInfo[] = this.props.items.webs;
+        let logItems : IContentsSiteInfo[] = this.props.items.items;
 
-        let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
-        let columnsToVisible = !this.props.railsOff && ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.showCell : styles.hideMe;
         let styleSpecial = this.props.railsOff || ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.hideMe : styles.showCell;
-        let styleDesc = !this.props.railsOff && this.props.showDesc && ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.showCell : styles.hideMe;
-        let styleXML = !this.props.railsOff && this.props.showXML ? styles.showCell : styles.hideMe;
-        let styleJSON = !this.props.railsOff && this.props.showJSON ? styles.showCell : styles.hideMe;
-        let styleSPFx = !this.props.railsOff && this.props.showSPFx ? styles.showCell : styles.hideMe;
         let styleRailsOff = this.props.railsOff ? styles.showCell : styles.hideMe;
         let styleOnRailsOn = this.props.railsOff ? styles.hideMe : styles.showCell;
 
-        if ( this.props.railsOff || this.props.showXML || this.props.showJSON || this.props.showSPFx ) { columnsToVisible = styles.hideMe ; }
-
-        let itemRows = logItems.length === 0 ? null : logItems.map( W => { 
+        let itemRows = logItems.length === 0 ? null : logItems.map( thisItem => { 
 
           let defButtonStyles = {
             root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
@@ -155,56 +139,25 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
            },
           };
 
-          let columnsStyles = JSON.parse(JSON.stringify(defButtonStyles));
-          columnsStyles.root.color = 'red !important';
-
-          let viewsStyles = JSON.parse(JSON.stringify(defButtonStyles));
-          viewsStyles.root.color = 'blue !important';
-
-          let typesStyles = JSON.parse(JSON.stringify(defButtonStyles));
-          typesStyles.root.color = 'green !important';
-          
-          let webInfo = '|Splitme|' + W.Id + '|Splitme|' + W.Title  + '|Splitme|' + W.Title;
-
           let gotoColumns = null; //createIconButton('Pause', 'Columns', this.props.pickThisWeb, 'Columns' + webInfo , columnsStyles );
-
-
-          let itemIcon = null;
 
           let iconStyles: any = { root: {
             //color: h.color ? h.color : "blue",
           }};
 
           let normalIcon = <Icon iconName={ "Info"} className={ iconClassInfo } styles = { iconStyles }/>;
-          let keys = W.meta ? <div><h3>Properties</h3><ul> { W.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
+          let keys = thisItem.meta ? <div><h3>Properties</h3><ul> { thisItem.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
 
           const onRenderHoverCard = (item: any): JSX.Element => {
             let hoverWebStyle = { fontWeight: 700};
             return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
               <div>
                 { /* Basic information */ }
-                <p><span style={hoverWebStyle}>Title:</span> { W.Title }</p>
-                <p><span style={hoverWebStyle}>Created:</span> { W.timeCreated.dayYYYYMMDD + '(' + W.timeCreated.daysAgo + ' days)'   }</p>
-
-                <p><span style={hoverWebStyle}>IsHomepageModernized:</span> { W.IsHomepageModernized }</p>
-                <p><span style={hoverWebStyle}>EnableMinimalDownload:</span> { W.EnableMinimalDownload }</p>
-                <p><span style={hoverWebStyle}>QuickLaunchEnabled:</span> { W.QuickLaunchEnabled }</p>
-                <p><span style={hoverWebStyle}>MegaMenuEnabled:</span> { W.MegaMenuEnabled }</p>
-                <p><span style={hoverWebStyle}>LastItemUserModifiedDate:</span> { W.LastItemUserModifiedDate }</p>
-                <p><span style={hoverWebStyle}>Language:</span> { W.Language }</p>
-
-                <p><span style={hoverWebStyle}>Meta:</span> { W.meta.join('; ') }</p>
-
-                { /* Types information */ }
-                <p><span style={hoverWebStyle}>odata.type:</span> { /* F['odata.type'] */ '' }</p>
-
-                
-                { /* Exceptions information */ }
-                <p style={{ display: W.FillInChoice === true ? '' : 'none' }}>
-                    <span style={hoverWebStyle}>ClassicWelcomePage:</span> { W.ClassicWelcomePage }</p>
-
+                <p><span style={hoverWebStyle}>Property:</span> { thisItem.property }</p>
+                <p><span style={hoverWebStyle}>Value:</span> { thisItem.value }</p>
+                <p><span style={hoverWebStyle}>Meta:</span> { thisItem.meta.join('; ') }</p>
                 <p><br></br></p>
-                <p><span style={hoverWebStyle}>Search String:</span> { W.searchString }</p>
+                <p><span style={hoverWebStyle}>Search String:</span> { thisItem.searchString }</p>
               </div>
             </div>;
           };
@@ -221,34 +174,31 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
             </HoverCard>
             </div>;
 
-            let webCreated = this.props.showDates ?
-                W.timeCreated.dayYYYYMMDD + ' ( ' + W.timeCreated.daysAgo + ' days )' : 
-                W.bestCreate;
-
-              let webModified = this.props.showDates ?
-                W.timeModified.dayYYYYMMDD + ' ( ' + W.timeModified.daysAgo + ' days )' : 
-                W.bestMod;
-
             //columnsToVisible
+            console.log('building row:', thisItem );
+            //let valueCell = thisItem.element;
+
+            /**
+             * Check if type is object if you get this react error:
+             * 
+             *   Objects are not valid as a React child (found: object with keys {StringValue}).
+             *   If you meant to render a collection of children, use an array instead.
+             */
+            let valueCell = null;
+            if ( typeof thisItem.value === 'object' ) { 
+                valueCell = JSON.stringify(thisItem.value);
+            } else { valueCell = thisItem.value; }
+
+
             return <tr>
-                <td className={ '' }> { 'Add Site Icon' }</td> 
-                <td className={ styles.nowWrapping }> { W.Title }</td>
+                <td className={ styles.nowWrapping }> {  thisItem.meta[0]  }</td> 
+                <td className={ styles.nowWrapping }> {  thisItem.property  }</td> 
+                <td> {  valueCell }</td>
 
-                <td> { webCreated } </td>
-                <td> { webModified } </td>
+                { /*<td className={ styleSpecial }> this.getWebSpecialValue( F )  </td> */ }
+                { /*<td className= { styleRailsOff }>Rails Off Content</td> */ }
 
-                <td> { W.WebTemplate } </td>
-                <td> { W.ServerRelativeUrl } </td>
-                <td className={ styleDesc }> { W.Description.length > this.state.maxChars ? W.Description.slice(0,this.state.maxChars) + '...' : W.Description } </td>
-
-                <td className={ columnsToVisible }> { W.ServerRelativeUrl } </td>
-
-                <td className={ styleSPFx }> { this.props.showSPFx ? /*this.getWebSPFx(F)*/ '' : null } </td>
-
-                <td className={ styleSpecial }> { /*this.getWebSpecialValue( F ) */ '' } </td>
-                <td className= { styleRailsOff }>Rails Off Content</td>
-
-                <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
+                <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  {  detailsCard  }</td>
 
                 </tr>;
 
@@ -266,39 +216,34 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
  *                                                                      
  */
 
-        let webTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
+        let propTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
-                <th>Icon</th>
-                <th>Title</th>
+                <th>Category</th>           
+                <th>Property</th>
+                <th>Value</th>
 
-                <th>Created</th>
-                <th>Last Update</th>
-                <th>Template</th>
-
-                <th className={ styleDesc }>Description</th>
 
                 { /* <th className={ columnsToVisible }>Group</th> */ }
                 { /* <th className={ columnsToVisible }>Default</th> */ }
-
-                <th className={ '' }> { 'URL' } </th>
-
-                <th className={ styleSpecial }> TBD Special </th>
 
                 <th className= { styleRailsOff }>Rails Off Heading</th>
                 <th>Details</th>
 
             </tr>
-            { itemRows }
+            {  itemRows  }
         </table>;
 
-        let webTitle = this.props.items.bucketLabel == '' ? null :
+        let propTitle = this.props.items.bucketLabel == '' ? null :
             <div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
+
+        //Set to null to remove blue bar above buckets (for when there is only one bucket)
+        //propTitle = null;
 
         return (
           <div className={ styles.logListView }>
               <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
-                { webTitle }
-                { webTable }
+                { propTitle }
+                {  propTable  }
             </div>
           </div>
           );

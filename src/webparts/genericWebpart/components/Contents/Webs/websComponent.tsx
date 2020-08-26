@@ -12,11 +12,11 @@ import { IWebAddResult, IWebInfo, IWeb, } from "@pnp/sp/webs/types";
 import "@pnp/sp/webs";
 
 import { IValidTemplate, allAvailableWebs } from './websFunctions';
-import { addItemToArrayIfItDoesNotExist } from './websFunctions';
+import {  } from './websFunctions';
 
 import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
-import { doesObjectExistInArray } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
 
 import { ITheTime } from '../../../../../services/dateServices';
 
@@ -398,6 +398,11 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
                     { webWeb }
                 </Stack>
                 </div></div></div>;
+
+                if ( this.state.allWebs.length === 0 ) {
+                    thisPage = <div style={{ paddingBottom: 30 }}className={styles.contents}>
+                    { errMessage }</div>;
+                }
 
 /***
  *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
