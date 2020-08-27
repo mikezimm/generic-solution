@@ -128,7 +128,7 @@ public constructor(props:IInfoAboutMeProps){
                 {/* 3 files to update version number:  package-solution.json, package-lock.json, package.json*/}
                 <table className={styles.infoTable}>
                     <tr><th>Date</th><th>Version</th><th>Focus</th><th>Notes</th></tr>
-                    <tr><td>2020-08-14</td><td>{'1.1.2.1'}</td><td>Add Webs and ThisSite</td><td></td></tr>
+                    <tr><td>2020-08-14</td><td>{'1.1.2.2'}</td><td>Add Webs and ThisSite</td><td>2.2 fixed WebParts error</td></tr>
                     <tr><td>2020-08-14</td><td>{'1.1.1.1'}</td><td>Columns almost done</td><td>Also moved WebParts under Contents pivot</td></tr>
                     <tr><td>2020-08-09</td><td>{'1.1.1.0'}</td><td>List Contents Updated, almost done</td><td>Set as default component, added Advanced and Rails Off mode</td></tr>
                     <tr><td>2020-08-09</td><td>{'1.1.0.0'}</td><td>Contents added</td><td>Nothing special</td></tr>

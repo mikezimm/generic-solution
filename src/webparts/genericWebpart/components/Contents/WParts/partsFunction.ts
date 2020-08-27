@@ -82,12 +82,12 @@ export async function allAvailableWebParts( addThesePartsToState: any, setProgre
         // find the definition we want, here by id
         //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
         //ff5f0cc8-b7e7-4e75-b46c-c0091483d2c2
-        const partDef = partDefs.filter(c => c.Name === "Weather");
+        //const partDef = partDefs.filter(c => c.Name === "Weather");
         //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
     
     
         // create a ClientWebPart instance from the definition
-        const part = ClientsideWebpart.fromComponentDef(partDef[0]);
+        //const part = ClientsideWebpart.fromComponentDef(partDef[0]);
     
         for (let i in partDefs ) {
     
