@@ -36,6 +36,8 @@ import {  } from '../Fields/fieldsFunctions';
 
 import { allSiteProps } from './thisSiteFunctions';
 
+import { allWebProps } from './thisWebFunctions';
+
 import MyLogProps from './thisSiteListView';
 
 import { createLink } from '../../HelpInfo/AllLinks';
@@ -534,7 +536,8 @@ public _onSearchForMeta = (item): void => {
     private getPropDefs() {
         let listGuid = '';
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
-        let result : any = allSiteProps( this.state.webURL, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
+    //    let resultWeb : any = allWebProps( this.state.webURL, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
+        let resultSite : any = allWebProps( this.state.webURL, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
 
     }
 
