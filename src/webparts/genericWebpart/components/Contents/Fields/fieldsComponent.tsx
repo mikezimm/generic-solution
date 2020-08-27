@@ -359,7 +359,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             </div>;
 
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
-            let searchBox =  
+            let searchBox = 
             <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
               <SearchBox
                 className={styles.searchBox}
