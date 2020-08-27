@@ -313,6 +313,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           pageContext={ this.props.pageContext }
           showPane={true}
           allLoaded={false}
+          webURL = { this.state.parentListWeb }
           currentUser = {this.state.currentUser }
           pages = { this.state.allPages }
 

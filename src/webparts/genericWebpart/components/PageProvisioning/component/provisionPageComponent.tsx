@@ -43,6 +43,7 @@ export interface IProvisionPagesProps {
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning pages on other sites.
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
 
+    webURL: string;
     showPane: boolean;
     allLoaded: boolean;
 
@@ -69,6 +70,8 @@ export interface IProvisionPagesState {
 
     allLoaded: boolean;
 
+    webURL: string;
+
     progress: IMyProgress;
     history: IMyHistory;
 
@@ -94,7 +97,7 @@ private clearHistory() {
 
 }
 
-private createRandom(str: string) {
+private createRandom(str: string, webURL: string) {
 
     let rightNow = new Date();
     let todayTime = rightNow.getTime() ;
@@ -103,7 +106,7 @@ private createRandom(str: string) {
     let makeThisPage:  IMakeThisPage = {
         title: title,
         name: title,
-        webURL: 'https://mcclickster.sharepoint.com/sites/Templates/Testing/',
+        webURL: webURL,
         pageLayout: 'Article',
         onCurrentSite: true,
         webExists: true,
@@ -115,10 +118,10 @@ private createRandom(str: string) {
 
 }
 
-private createRandomPages(){
+private createRandomPages(webURL: string){
     let pages : IMakeThisPage[] = [];
-    pages.push(this.createRandom('a'));
-    pages.push(this.createRandom('b'));
+    pages.push(this.createRandom('a', webURL));
+    pages.push(this.createRandom('b', webURL));
     return pages;
 
 }
@@ -136,7 +139,7 @@ private createRandomPages(){
 public constructor(props:IProvisionPagesProps){
     super(props);
 
-    let thePages = this.createRandomPages(); //this.props.pages.length > 0 ? this.props.pages : 
+    let thePages = this.createRandomPages(this.props.webURL); //this.props.pages.length > 0 ? this.props.pages : 
 
     this.state = { 
 
@@ -146,6 +149,8 @@ public constructor(props:IProvisionPagesProps){
         allLoaded: this.props.allLoaded,
         progress: null,
         history: this.clearHistory(),
+
+        webURL: this.props.webURL,
 
         pages: thePages,
 
