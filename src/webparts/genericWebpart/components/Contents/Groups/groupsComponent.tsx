@@ -61,11 +61,14 @@ export const pivCats = {
     all: {title: 'All', desc: '', order: 1},
     associatedGroups: {title: 'Associated' , desc: '', order: 1},
     system:  {title: 'System' , desc: '', order: 1},
-    teams: {title: 'Teams', desc: '', order: 9 },
+    security: {title: 'Security', desc: '', order: 9 },
     sharepoint: {title: 'SharePoint', desc: '', order: 9 },
     visible: {title: 'Visible', desc: '', order: 9 },
     notvisible: {title: 'NotVisible', desc: '', order: 9 },
     hidden: {title: 'Hidden', desc: '', order: 9 },
+    oGroups: {title: 'O', desc: '', order: 9 },
+    mGroups: {title: 'M', desc: '', order: 9 },
+    vGroups: {title: 'V', desc: '', order: 9 },
     empty: {title: 'Empty', desc: '', order: 9 },
     other: {title: 'Other', desc: '', order: 9 },
 };
@@ -81,6 +84,7 @@ export interface IContentsGroupInfo extends Partial<ISiteGroupInfo>{
     CanBeDeleted?: boolean;
     searchString: string;
     meta: string[];
+    typeString: string;
 
     users: [];
 
@@ -153,6 +157,8 @@ export interface IInspectGroupsState {
     groupBuckets: IGroupBucketInfo[];
     // 2 - Source and destination list information
     allGroups: IContentsGroupInfo[];
+
+    blueBar: string;
     meta: string[];
 
     allowSettings: boolean;  //property that determines if the related toggle is visible or not
@@ -223,6 +229,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
             groupBuckets : this.createSearchBuckets(),
 
             meta: [],
+            blueBar: null,
 
             webURL: this.props.webURL,
 
@@ -319,7 +326,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
                     return <MyLogGroup 
                         showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
-                        showUsers = { this.state.showUsers } 
+                        showUsers = { this.state.showUsers } blueBar={ this.state.blueBar }
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         webURL = { this.state.webURL } descending={false} titles={null} 
@@ -590,6 +597,8 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
     let newFilteredItems : IContentsGroupInfo[] = this.getNewFilteredItems( text, meta, searchItems );
 
+    let blueBar = meta != null ? meta : null;
+
     groupBuckets  = this.bucketGroups( newFilteredItems, groupBuckets );
 
     console.log('Searched for:' + text);
@@ -600,6 +609,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
     this.setState({
       searchedItems: newFilteredItems,
       searchCount: searchCount,
+      blueBar: blueBar,
       groupBuckets: groupBuckets,
       searchText: text.toLowerCase(),
       searchMeta: meta,
@@ -664,17 +674,21 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
         let associatedGroups = this.buildFilterPivot(pivCats.associatedGroups);
 
         let system = this.buildFilterPivot(pivCats.system);
-        let teams = this.buildFilterPivot(pivCats.teams);
+        let security = this.buildFilterPivot(pivCats.security);
         let sharepoint = this.buildFilterPivot(pivCats.sharepoint);
         let other = this.buildFilterPivot(pivCats.other);
 
         let empty = this.buildFilterPivot(pivCats.empty);
 
+        let oGroups = this.buildFilterPivot(pivCats.oGroups);
+        let mGroups = this.buildFilterPivot(pivCats.mGroups);
+        let vGroups = this.buildFilterPivot(pivCats.vGroups);
+
         let visible = this.buildFilterPivot(pivCats.visible);
         let notVisible = this.buildFilterPivot(pivCats.notvisible);
         let hidden = this.buildFilterPivot(pivCats.hidden);
         
-        let thesePivots = [all, associatedGroups, system, teams, sharepoint, other,visible, notVisible, hidden, empty ];
+        let thesePivots = [all, associatedGroups, oGroups, mGroups, vGroups, security, sharepoint, other,visible,  system, notVisible, hidden, empty ];
 
         return thesePivots;
     }

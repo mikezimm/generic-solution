@@ -1,4 +1,6 @@
-import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, } from "@pnp/sp/presets/all";
+
+
+import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, IPrincipalInfo, PrincipalType, PrincipalSource } from "@pnp/sp/presets/all";
 
 import { sp } from "@pnp/sp";
 import "@pnp/sp/webs";
@@ -75,6 +77,7 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
             console.log('Users for group: ' + allGroups[i].Id + ' - ' + allGroups[i].Title ,users );
         }
 
+        allGroups[i].typeString = getGroupTypeString( allGroups[i].PrincipalType );
         allGroups[i].sort = groupBuckets[idx]['sort'];
         allGroups[i].bucketCategory = groupBuckets[idx]['bucketCategory'];
         allGroups[i].bucketLabel = groupBuckets[idx]['bucketLabel'];
@@ -91,6 +94,15 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
     addTheseGroupsToState(allGroups, scope, errMessage);
     return allGroups;
 
+}
+
+function getGroupTypeString( type: PrincipalType ) {
+    if ( type === 0 ) { return 'None'; }
+    if ( type === 1 ) { return 'User'; }
+    if ( type === 2 ) { return 'Distribution'; }
+    if ( type === 4 ) { return 'Security'; }
+    if ( type === 8 ) { return 'SharePoint'; }
+    if ( type === 15 ) { return 'All'; }
 }
 
 function getGroupSort( theGroup: IContentsGroupInfo, groupBuckets: IGroupBucketInfo[] ) {
@@ -136,6 +148,20 @@ function buildMetaFromGroup( theGroup: IContentsGroupInfo ) {
     if ( systemGroups.indexOf( theGroup.Title ) > -1 ) {
         meta = addItemToArrayIfItDoesNotExist(meta, "System" );
     }
+    if ( theGroup.typeString != 'All' && theGroup.typeString != 'None' ) {
+        meta = addItemToArrayIfItDoesNotExist(meta, theGroup.typeString );
+    }
+    if ( theGroup.Title.indexOf('Owners') > 0 ) {
+        meta = addItemToArrayIfItDoesNotExist(meta, "O" );
+
+    } else if ( theGroup.Title.indexOf('Members') > 0 ) {
+        meta = addItemToArrayIfItDoesNotExist(meta, "M" );
+
+    } else if ( theGroup.Title.indexOf('Visitors') > 0 ) {
+        meta = addItemToArrayIfItDoesNotExist(meta, "V" );
+        
+    } 
+
     meta = addItemToArrayIfItDoesNotExist(meta, theGroup.sort );
     meta = addItemToArrayIfItDoesNotExist(meta, theGroup.bucketLabel );
     meta = theGroup.OnlyAllowMembersViewMembership === true ?  addItemToArrayIfItDoesNotExist(meta, "NotVisible" ) :  addItemToArrayIfItDoesNotExist(meta, "Visible" ) ; 
@@ -145,29 +171,31 @@ function buildMetaFromGroup( theGroup: IContentsGroupInfo ) {
 
 function createWebItem( responseWeb: any) {
 
-//let newWeb : IContentsGroupInfo = {
+//let newGroup : IContentsGroupInfo = {
 
 
 //}
 
-//return newWeb;
+//return newGroup;
 
 }
 
-function buildSearchStringFromGroup (newWeb : IContentsGroupInfo) {
+function buildSearchStringFromGroup (newGroup : IContentsGroupInfo) {
 
     let result = '';
     let delim = '|||';
 
-    if ( newWeb.Title ) { result += 'Title=' + newWeb.Title + delim ; }
+    if ( newGroup.Title ) { result += 'Title=' + newGroup.Title + delim ; }
 
-    if ( newWeb.Id ) { result += 'Id=' + newWeb.Id + delim ; }
+    if ( newGroup.Id ) { result += 'Id=' + newGroup.Id + delim ; }
 
-    if ( newWeb.FillInChoice === true ) { result += 'FillInChoice' + delim ; }
+    if ( newGroup.Description != null ) { result += 'Description=' + newGroup.Description + delim ; }
 
-    if ( newWeb['odata.type'] ) { result += newWeb['odata.type'] + delim ; }
+    if ( newGroup.OwnerTitle != null ) { result += 'Owner=' + newGroup.OwnerTitle + delim ; }
 
-    if ( newWeb.meta.length > 0 ) { result += 'Meta=' + newWeb.meta.join(',') + delim ; }
+    if ( newGroup['odata.type'] ) { result += newGroup['odata.type'] + delim ; }
+
+    if ( newGroup.meta.length > 0 ) { result += 'Meta=' + newGroup.meta.join(',') + delim ; }
 
     result = result.toLowerCase();
 

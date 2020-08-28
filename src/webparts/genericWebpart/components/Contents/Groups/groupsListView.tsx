@@ -23,6 +23,7 @@ export interface IMyLogGroupProps {
     titles: [];
     searchMeta: string;
     webURL: string;
+    blueBar?: string;
 
     items: IGroupBucketInfo;
     showSettings: boolean;
@@ -127,9 +128,9 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
 
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
-        let columnsToVisible = !this.props.railsOff && ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.showCell : styles.hideMe;
-        let styleSpecial = this.props.railsOff || ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.hideMe : styles.showCell;
-        let styleDesc = this.props.showDesc && ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.showCell : styles.hideMe;
+        let columnsToVisible = !this.props.railsOff ? styles.showCell : styles.hideMe;
+        let styleSpecial = this.props.railsOff ? styles.hideMe : styles.showCell;
+        let styleDesc = this.props.showDesc ? styles.showCell : styles.hideMe;
 
         let styleRailsOff = this.props.railsOff ? styles.showCell : styles.hideMe;
         let styleOnRailsOn = this.props.railsOff ? styles.hideMe : styles.showCell;
@@ -195,7 +196,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
 
             //columnsToVisible
             return <tr>
-                <td className={ '' }> { 'Add Site Icon' }</td> 
+                <td className={ '' }> { '' }</td> 
                 <td className={ styles.nowWrapping }> {  Grp.Title != null && Grp.Title.indexOf('SharingLinks') === 0 ? Grp.Title.slice(0, 20) : Grp.Title }</td>
 
                 <td className={ styleDesc }> { Grp.Description != null ? Grp.Description.slice(0,this.state.maxChars) + '...' : Grp.Description } </td>
@@ -223,17 +224,14 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
 
         let webTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
-                <th>Icon</th>
+                <th></th>
                 <th>Title</th>
 
                 <th className={ styleDesc }>Description</th>
 
                 { /* <th className={ columnsToVisible }>Group</th> */ }
                 { /* <th className={ columnsToVisible }>Default</th> */ }
-
-                <th className={ '' }> { 'URL' } </th>
-
-                <th className={ styleSpecial }> TBD Special </th>
+                <th className={ styleSpecial }></th>
 
                 <th className= { styleRailsOff }>Rails Off Heading</th>
                 <th>Details</th>
@@ -241,10 +239,21 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
             </tr>
             { itemRows }
         </table>;
+        let barText = this.props.blueBar && this.props.blueBar != null ? this.props.blueBar : this.props.items.bucketLabel;
+        if (barText === 'O') { barText = 'Groups with \"Owner\" in the Title' ; }
+        else if (barText === 'M') { barText = 'Groups with \"Member\" in the Title' ; }
+        else if (barText === 'V') { barText = 'Groups with \"Visitor\" in the Title' ; }
+        else if (barText != '') { barText = barText + 'Groups' ; }
 
-        let webTitle = this.props.items.bucketLabel == '' ? null :
-            <div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
+        let webTitle = null;
+ 
+        if ( barText != null ) {
+          webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ barText } - ( { this.props.items.count } )</span></div>;
 
+        } else if ( this.props.items.bucketLabel !== '' ) {
+          webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
+        }
+            
         return (
           <div className={ styles.logListView }>
               <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
