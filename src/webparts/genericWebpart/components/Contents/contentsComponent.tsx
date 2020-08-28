@@ -23,6 +23,8 @@ import InspectColumns from './Fields/fieldsComponent';
 
 import InspectWebs from './Webs/websComponent';
 
+import InspectGroups from './Groups/groupsComponent';
+
 import InspectParts from './WParts/partsComponent';
 
 import InspectThisSite from './ThisSite/thisSiteComponent';
@@ -262,7 +264,15 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         </div>;
 
         const groupsPage = <div>
-                { noPageAvailable }
+            <InspectGroups
+                allowOtherSites={ false }
+                pageContext={ this.props.pageContext }
+                pickedWeb = { this.state.pickedWeb }
+                showPane={true}
+                allLoaded={false}
+                currentUser = {this.props.currentUser }
+                webURL = { this.state.webURL }
+            ></InspectGroups>
         </div>;
 
         const railsPage = <div>
