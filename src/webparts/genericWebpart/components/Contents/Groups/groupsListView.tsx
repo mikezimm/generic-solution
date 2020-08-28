@@ -127,10 +127,13 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
         let logItems : IContentsGroupInfo[] = this.props.items.groups;
 
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
+        let styleTitle = this.props.showSettings ? styles.hideMe : styles.nowWrapping;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
         let columnsToVisible = !this.props.railsOff ? styles.showCell : styles.hideMe;
         let styleSpecial = this.props.railsOff ? styles.hideMe : styles.showCell;
         let styleDesc = this.props.showDesc ? styles.showCell : styles.hideMe;
+
+        let styleUsers = this.props.showUsers ? styles.showCell : styles.hideMe;
 
         let styleRailsOff = this.props.railsOff ? styles.showCell : styles.hideMe;
         let styleOnRailsOn = this.props.railsOff ? styles.hideMe : styles.showCell;
@@ -149,11 +152,10 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
            },
           };
 
-          
+          let groupTitle = Grp.Title != null && Grp.Title.indexOf('SharingLinks') === 0 ? Grp.Title.slice(0, 20) : Grp.Title;
+          let groupLink = createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipGroupId=' + Grp.Id, '_blank', groupTitle );
+
           let groupInfo = '|Splitme|' + Grp.Id + '|Splitme|' + Grp.Title  + '|Splitme|' + Grp.Title;
-
-          let gotoColumns = null; //createIconButton('Pause', 'Columns', this.props.pickThisWeb, 'Columns' + groupInfo , columnsStyles );
-
 
           let itemIcon = null;
 
@@ -164,6 +166,8 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
           let normalIcon = <Icon iconName={ "Info"} className={ iconClassInfo } styles = { iconStyles }/>;
           let keys = Grp.meta ? <div><h3>Properties</h3><ul> { Grp.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
 
+          let userString = Grp.userString;
+
           const onRenderHoverCard = (item: any): JSX.Element => {
             let hoverWebStyle = { fontWeight: 700};
             return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
@@ -173,8 +177,18 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
 
                 <p><span style={hoverWebStyle}>Meta:</span> { Grp.meta.join('; ') }</p>
 
+                <p><span style={hoverWebStyle}>Description:</span> { Grp.Description }</p>
+
+                <p><span style={hoverWebStyle}>Users:</span> { userString }</p>
+
                 { /* Types information */ }
                 <p><span style={hoverWebStyle}>odata.type:</span> { /* F['odata.type'] */ '' }</p>
+
+                <p><span style={hoverWebStyle}>AllowMembersEditMembership:</span> { Grp.AllowMembersEditMembership }</p>
+                <p><span style={hoverWebStyle}>AutoAcceptRequestToJoinLeave:</span> { Grp.AutoAcceptRequestToJoinLeave }</p>
+                <p><span style={hoverWebStyle}>OnlyAllowMembersViewMembership:</span> { Grp.OnlyAllowMembersViewMembership }</p>
+                <p><span style={hoverWebStyle}>RequestToJoinLeaveEmailSetting:</span> { Grp.RequestToJoinLeaveEmailSetting }</p>
+                <p><span style={hoverWebStyle}>typeString:</span> { Grp.typeString }</p>
 
                 <p><br></br></p>
                 <p><span style={hoverWebStyle}>Search String:</span> { Grp.searchString }</p>
@@ -197,13 +211,17 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
             //columnsToVisible
             return <tr>
                 <td className={ '' }> { '' }</td> 
-                <td className={ styles.nowWrapping }> {  Grp.Title != null && Grp.Title.indexOf('SharingLinks') === 0 ? Grp.Title.slice(0, 20) : Grp.Title }</td>
+                <td className={ styleTitle }> {  groupTitle }</td>
+
+                <td className= { styleAdvanced }> { groupLink }</td>
 
                 <td className={ styleDesc }> { Grp.Description != null ? Grp.Description.slice(0,this.state.maxChars) + '...' : Grp.Description } </td>
 
                 <td className={ styleSpecial }> { /*this.getWebSpecialValue( F ) */ '' } </td>
                 <td className= { styleRailsOff }>Rails Off Content</td>
-
+                <td className= { styleUsers }> {Grp.userCount } </td>
+                <td className= { styleUsers }> { userString } </td>
+                
                 <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 
                 </tr>;
@@ -225,7 +243,8 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
         let webTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
                 <th></th>
-                <th>Title</th>
+                <th className={ styleTitle }>Title</th>
+                <th className={ styleAdvanced }>Link to Group</th>
 
                 <th className={ styleDesc }>Description</th>
 
@@ -234,6 +253,8 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
                 <th className={ styleSpecial }></th>
 
                 <th className= { styleRailsOff }>Rails Off Heading</th>
+                <th className= { styleUsers }>Users</th>
+                <th className= { styleUsers }></th>
                 <th>Details</th>
 
             </tr>

@@ -154,7 +154,7 @@ export default class MyLogProps extends React.Component<IMyLogPropsProps, IMyLog
               <div>
                 { /* Basic information */ }
                 <p><span style={hoverWebStyle}>Property:</span> { thisItem.property }</p>
-                <p><span style={hoverWebStyle}>Value:</span> { thisItem.value }</p>
+                <p><span style={hoverWebStyle}>Value:</span> { JSON.stringify(thisItem.value) }</p>
                 <p><span style={hoverWebStyle}>Meta:</span> { thisItem.meta.join('; ') }</p>
                 <p><br></br></p>
                 <p><span style={hoverWebStyle}>Search String:</span> { thisItem.searchString }</p>
@@ -185,14 +185,20 @@ export default class MyLogProps extends React.Component<IMyLogPropsProps, IMyLog
              *   If you meant to render a collection of children, use an array instead.
              */
             let valueCell = null;
-            if ( typeof thisItem.value === 'object' ) { 
+
+            if ( thisItem.element != null ) {
+              valueCell = thisItem.element;
+
+            } else if ( typeof thisItem.value === 'object' ) { 
                 valueCell = JSON.stringify(thisItem.value);
+
             } else { valueCell = thisItem.value; }
 
+            let shortProperty = thisItem.property != null && thisItem.property.length > 30 ? thisItem.property.slice(0, 30) + '...' : thisItem.property;
 
             return <tr>
                 <td className={ styles.nowWrapping }> {  thisItem.meta[0]  }</td> 
-                <td className={ styles.nowWrapping }> {  thisItem.property  }</td> 
+                <td className={ styles.nowWrapping }> {  shortProperty  }</td> 
                 <td> {  valueCell }</td>
 
                 { /*<td className={ styleSpecial }> this.getWebSpecialValue( F )  </td> */ }

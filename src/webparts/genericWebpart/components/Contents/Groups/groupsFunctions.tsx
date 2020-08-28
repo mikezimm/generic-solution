@@ -92,10 +92,13 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
             */
 
           //setProgress(false, "C", i, n , 'darkgray', 'CalculatorSubtract', f.name, 'Adding fields to list (' + step +'): ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name , step + ' fieldsToDo ~ 102' );
-            let label = i + ' of ' + n + ' - Getting users for ' + allGroups[i].Title;
+            let label = (i + ' of ' + n + ' - Getting users for ' + allGroups[i].Title).substring( 0, 40 );
             let description = 'Fetching users';
             setProgress( false ,'V', indx, n, null, null, null, label, description );
             console.log('Users for group: ' + allGroups[i].Id + ' - ' + allGroups[i].Title ,users );
+            allGroups[i].users = users;
+            allGroups[i].userCount = users.length;
+            allGroups[i].userString = allGroups[i].users != null ? allGroups[i].users.map( u => { return u.Title ; }).join('; ') : '';
 
         }
 
@@ -186,6 +189,7 @@ function buildMetaFromGroup( theGroup: IContentsGroupInfo ) {
 
     } 
 
+    if ( theGroup.userCount === 0 ) { meta = addItemToArrayIfItDoesNotExist(meta, "Empty" ); }
     meta = addItemToArrayIfItDoesNotExist(meta, theGroup.sort );
     meta = addItemToArrayIfItDoesNotExist(meta, theGroup.bucketLabel );
     meta = theGroup.OnlyAllowMembersViewMembership === true ?  addItemToArrayIfItDoesNotExist(meta, "NotVisible" ) :  addItemToArrayIfItDoesNotExist(meta, "Visible" ) ; 
@@ -216,6 +220,8 @@ function buildSearchStringFromGroup (newGroup : IContentsGroupInfo) {
     if ( newGroup.Description != null ) { result += 'Description=' + newGroup.Description + delim ; }
 
     if ( newGroup.OwnerTitle != null ) { result += 'Owner=' + newGroup.OwnerTitle + delim ; }
+
+    if ( newGroup.users != null && newGroup.users.length > 0 ) { result += 'User=' + newGroup.userString + delim ; }
 
     if ( newGroup['odata.type'] ) { result += newGroup['odata.type'] + delim ; }
 

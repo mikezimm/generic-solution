@@ -5,7 +5,10 @@ import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
 
 import { sp } from "@pnp/sp";
-import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, ISiteUserProps, ISiteUser, } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+
+import "@pnp/sp/site-users";
+import { ISiteUserInfo } from '@pnp/sp/site-users/types';
 
 import { IWebAddResult, IWebInfo, IWeb, } from "@pnp/sp/webs/types";
 
@@ -86,7 +89,9 @@ export interface IContentsGroupInfo extends Partial<ISiteGroupInfo>{
     meta: string[];
     typeString: string;
 
-    users: [];
+    users: ISiteUserInfo[];
+    userCount: number | string;
+    userString: string;
 
     timeCreated : ITheTime;
     bestCreate: string;
@@ -371,7 +376,8 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
             let groupPivots = this.createPivotObject(this.state.searchMeta, '');
 
-            let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
+//            let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
+            let settings = null;
 
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
@@ -699,8 +705,8 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
         let notVisible = this.buildFilterPivot(pivCats.notvisible);
         let hidden = this.buildFilterPivot(pivCats.hidden);
         
-        let thesePivots = [all, associatedGroups, oGroups, mGroups, vGroups, security, sharepoint, other,visible,  system, notVisible, hidden, empty ];
-
+        let thesePivots = [all, associatedGroups, oGroups, mGroups, vGroups, security, sharepoint, other,visible,  system, notVisible, hidden ];
+        if ( this.state.showUsers === true ) { thesePivots.push(empty); }
         return thesePivots;
     }
 
@@ -767,7 +773,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
         //let theseToggles = [togDesc, togSet ];
         //if ( this.props.allowRailsOff === true ) { theseToggles.push( togXML, togJSON, togSPFx, togRails ); }
-        let theseToggles = [togDesc , togUsers];
+        let theseToggles = [ togSet, togDesc , togUsers];
 
         let pageToggles : IContentsToggles = {
             toggles: theseToggles,
@@ -821,7 +827,6 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Webs */}
                     { createLink( this.state.webURL + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
                     { createLink( this.state.webURL + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
-
 
                 </Stack>
         </div>;

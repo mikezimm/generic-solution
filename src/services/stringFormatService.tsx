@@ -1,4 +1,4 @@
-//import * as React from 'react';
+import * as React from 'react';
 
     export function buildMLineDiv ( indent: number, element: string | JSX.Element ) {
         let spaces4 = indent > 0 ? '\u00a0' + '\u00a0' + '\u00a0' + '\u00a0' : null;
