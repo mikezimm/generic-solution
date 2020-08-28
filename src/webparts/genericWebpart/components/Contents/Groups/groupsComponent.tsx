@@ -378,10 +378,20 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
             if ( this.state.searchText != '' ) { noInfo.push( <p>{'Search Text: ' + this.state.searchText}</p> )  ; }
             if ( this.state.searchMeta != '' ) { noInfo.push( <p>{'Refiner: ' + this.state.searchMeta}</p> ) ; }
 
+            let showProgress = false;
+            if ( this.state.progress != null && this.state.progress.progressHidden === false ) { 
+                showProgress = this.state.progress.percentComplete === 100 ? false : true; }
+
+            let myProgress = showProgress === false ? null : <ProgressIndicator
+                label={this.state.progress.label}
+                description={this.state.progress.description}
+                percentComplete={this.state.progress.percentComplete}
+                progressHidden={this.state.progress.progressHidden}/>;
+
             thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
 
                 <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
-
+                <div className={ showProgress === true ? styles.showSearch : styles.hideSearch}> { myProgress }</div>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
                      { searchBox } { toggles }
                 </Stack>
@@ -433,10 +443,11 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
     }   //End Public Render
 
 
-    private getGroupDefs() {
+    private getGroupDefs( showUsers = null ) {
         let listGuid = '';
+        if ( showUsers === null ) { showUsers = this.state.showUsers; }
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
-        let result : any = allAvailableGroups( this.state.webURL, this.state.showUsers, this.state.groupBuckets, this.addTheseGroupsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableGroups( this.state.webURL, showUsers, this.state.groupBuckets, this.addTheseGroupsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -778,9 +789,15 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
     }
 
     private updateTogggleUsers() {
+
+        let showUser = this.state.showUsers === true ? false : true;
+
         this.setState({
             showUsers: !this.state.showUsers,
         });
+
+        this.getGroupDefs(showUser);
+
     }
 
     private updateTogggleSettings() {

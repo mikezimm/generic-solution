@@ -65,16 +65,38 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
     console.log('allAvailableGroups thisGroupInfos:' , thisGroupInfos);
 
     let thisIsNow = new Date().toLocaleString();
+    let indx = 0;
+    let n = allGroups.length;
 
     for (let i in allGroups ) {
 
+        indx ++;
         let idx = getGroupSort(allGroups[i], groupBuckets);
 
 //        allGroups[i].timeCreated = makeSmallTimeObject(allGroups[i].Created);
         let thisGroup = allGroups[i];
         if ( showUsers === true ) {
             const users = await sp.web.siteGroups.getById(allGroups[i].Id).users();
+
+        /**
+            * 
+            * @param progressHidden 
+            * @param page : page you want to add this to 'E' | 'C' | 'V' | 'I'
+            * @param current : current index of progress
+            * @param ofThese : total count of items in progress
+            * @param color : color of label like red, yellow, green, null
+            * @param icon : Fabric Icon name if desired
+            * @param logLabel : short label of item used for displaying in page
+            * @param label : longer label used in Progress Indicator and hover card
+            * @param description 
+            */
+
+          //setProgress(false, "C", i, n , 'darkgray', 'CalculatorSubtract', f.name, 'Adding fields to list (' + step +'): ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name , step + ' fieldsToDo ~ 102' );
+            let label = i + ' of ' + n + ' - Getting users for ' + allGroups[i].Title;
+            let description = 'Fetching users';
+            setProgress( false ,'V', indx, n, null, null, null, label, description );
             console.log('Users for group: ' + allGroups[i].Id + ' - ' + allGroups[i].Title ,users );
+
         }
 
         allGroups[i].typeString = getGroupTypeString( allGroups[i].PrincipalType );
@@ -87,6 +109,8 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
         allGroups[i].searchString = buildSearchStringFromGroup(allGroups[i]);
 
     }
+
+    setProgress(true,'V', n, n, null, null, null, null, null );
 
     if ( errMessage === '' && allGroups.length === 0 ) { 
         errMessage = 'This site/web does not have any subsites that you can see.';
@@ -159,7 +183,7 @@ function buildMetaFromGroup( theGroup: IContentsGroupInfo ) {
 
     } else if ( theGroup.Title.indexOf('Visitors') > 0 ) {
         meta = addItemToArrayIfItDoesNotExist(meta, "V" );
-        
+
     } 
 
     meta = addItemToArrayIfItDoesNotExist(meta, theGroup.sort );
