@@ -21,6 +21,8 @@ import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '../../..
 
 import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
 
+import { buildMLineDiv } from '../../../../../services/stringFormatService';
+
 import { getHelpfullError } from '../../../../../services/ErrorHandler';
 
 import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
@@ -34,8 +36,37 @@ import { pivCats } from './thisSiteComponent';
 
 function getThisElement(K: string, val: any) {
     let result = null;
+    let elements : string[] = [];
+    if ( K === 'SiteLogoUrl') {
+        let val2 : string = val;
+        elements = val2.split('?');
+        elements[0] += '?';
+        result = elements.map( e => { return buildMLineDiv(0, e); });
+
+    } else if ( K === 'CurrentChangeToken') {
+        let val2 : string = JSON.stringify(val).replace(";",""); //Replace first semi-colon
+        elements = val2.split(';');
+        result = elements.map( e => { return buildMLineDiv(0, e); });
+
+    } else if ( K = 'odata.metadata') {
+        let val2 : string = val;
+        elements = val2.split('$');
+        elements[1] = '$' + elements[1];
+        result = elements.map( e => { return buildMLineDiv(0, e); });
+
+    } else if ( K = 'ResourcePath') {
+        let val2 : string = val;
+        elements = val2.split(':');
+        elements[0] = elements[0] + ':' ;
+        result = elements.map( e => { return buildMLineDiv(0, e); });
+
+    } else if ( K === 'Created' || K === 'LastItemModifiedDate' || K === 'LastItemUserModifiedDate') {
+        let thisTime = makeSmallTimeObject( val );
+        result = val + ' ( ' + thisTime.dayDDDMMMDD + ' ) ' + thisTime.daysAgo.toString() + ' days ago';
+    }
+
     return result;
-   }
+}
 
 //export async function provisionTestPage( makeThisPage:  IContentsSiteInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allSiteProps( webURL: string, propBuckets: ISitePropsBucketInfo[], addThesePropsToState: any, setProgress: any, markComplete: any ): Promise<IContentsSiteInfo[]>{
