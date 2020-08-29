@@ -76,7 +76,7 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
 //        allGroups[i].timeCreated = makeSmallTimeObject(allGroups[i].Created);
         let thisGroup = allGroups[i];
         if ( showUsers === true ) {
-            const users = await sp.web.siteGroups.getById(allGroups[i].Id).users();
+            const users = await thisGroupObject.siteGroups.getById(allGroups[i].Id).users();
 
         /**
             * 
