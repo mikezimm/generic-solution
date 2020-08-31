@@ -386,7 +386,7 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
 
             thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
 
-                <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
+                <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ errMessage } </div>
                 <div className={ showProgress === true ? styles.showSearch : styles.hideSearch}> { myProgress }</div>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
                      { searchBox } { toggles }
@@ -396,14 +396,12 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
 
                 <div style={{ height:30, paddingBottom: 15} }> { featurePivots } </div>
 
-                <div>
-
                 <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
 
                 <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
                     { webFeature }
                 </Stack>
-                </div>
+
                 </div></div>;
 
                 if ( this.state.allFeatures.length === 0 ) {
@@ -433,7 +431,7 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
         } else {
             console.log('provisionPage.tsx return null');
             return (  <div className={ styles.contents }>
-                <h2>There are no Webs to see</h2>
+                <h2>There are no Features to see</h2>
             </div> );
         }
 

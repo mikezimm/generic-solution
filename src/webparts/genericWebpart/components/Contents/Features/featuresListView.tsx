@@ -163,7 +163,7 @@ export default class MyLogFeature extends React.Component<IMyLogFeatureProps, IM
           let keys = Fetr.meta ? <div><h3>Properties</h3><ul> { Fetr.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
 
           const onRenderHoverCard = (item: any): JSX.Element => {
-            let hoverWebStyle = { fontWeight: 700};
+            let hoverWebStyle = { fontWeight: 700, paddingRight: 15};
             return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
               <div>
                 { /* Basic information */ }
@@ -230,7 +230,7 @@ export default class MyLogFeature extends React.Component<IMyLogFeatureProps, IM
             <tr>
                 <th></th>
                 <th className={ styleTitle }>Name</th>
-                <th className={ styleAdvanced }>DefinitonId</th>
+                <th className={ styleTitle }>DefinitonId</th>
 
                 <th className={ styleDesc }>Description</th>
 
@@ -245,6 +245,7 @@ export default class MyLogFeature extends React.Component<IMyLogFeatureProps, IM
             </tr>
             { itemRows }
         </table>;
+
         let barText = this.props.blueBar && this.props.blueBar != null ? this.props.blueBar : this.props.items.bucketLabel;
         if (barText === 'O') { barText = 'Groups with \"Owner\" in the Title' ; }
         else if (barText === 'M') { barText = 'Groups with \"Member\" in the Title' ; }

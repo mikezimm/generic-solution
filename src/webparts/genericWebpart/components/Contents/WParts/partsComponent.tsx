@@ -260,8 +260,12 @@ public constructor(props:IInspectPartsProps){
 
 
             let thisPage = null;
-            let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
            
+            let errMessage = this.state.errMessage === '' ? null : <div>
+                { this.state.errMessage }
+            </div>;
+
+
             const buttons: ISingleButtonProps[] =
             [{  disabled: false,  checked: true, primary: false,
                 label: "Test Button", buttonOnClick: this.getPartDefs.bind(this),
@@ -275,12 +279,6 @@ public constructor(props:IInspectPartsProps){
                     { provisionButtons }
                     {  }
                 </Stack>;
-
-            let myProgress = this.state.progress == null ? null : <ProgressIndicator 
-                label={this.state.progress.label} 
-                description={this.state.progress.description} 
-                percentComplete={this.state.progress.percentComplete} 
-                progressHidden={this.state.progress.progressHidden}/>;
 
             let partList = <div> {
                 this.state.partBuckets.map( bucket => {
@@ -312,15 +310,6 @@ public constructor(props:IInspectPartsProps){
               </div>
             </div>;
 
-            let disclaimers = <div>
-                <h2>Next steps</h2>
-                <ul>
-                    <li>Icons in first column for meta tags</li>
-                    <li>See if there are any other parts of the webpart def object that might be helpful</li>
-                    <li>Meta Tags: { this.state.meta.join(', ') }</li>
-                </ul>
-            </div>;
-
             let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
             let partPivots = this.createPivotObject(this.state.searchMeta, '');
@@ -335,29 +324,35 @@ public constructor(props:IInspectPartsProps){
             if ( this.state.progress != null && this.state.progress.progressHidden === false ) { 
                 showProgress = this.state.progress.percentComplete === 100 ? false : true; }
 
-            thisPage = <div className={styles.contents}>
-                <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
-                <div>{ disclaimers }</div>
+                
+            let myProgress = this.state.progress == null ? null : <ProgressIndicator 
+            label={this.state.progress.label} 
+            description={this.state.progress.description} 
+            percentComplete={this.state.progress.percentComplete} 
+            progressHidden={this.state.progress.progressHidden}/>;
 
+            thisPage = <div className={styles.contents}><div>
+
+                <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ errMessage } </div>
                 <div className={ showProgress === true ? styles.showSearch : styles.hideSearch}> { myProgress }</div>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
                      { searchBox } { toggles }
                 </Stack>
 
-                <div className={ styles.rightPivot } style={{ height:30, paddingBottom: 15} }> { partPivots } </div>
+                <div style={{ height:30, paddingBottom: 15} }> { partPivots } </div>
 
-                <div>
+                <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
 
-                    <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
+                <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
+                    { partList }
+                </Stack>
 
-                    <div> { myProgress } </div>
-                    <div>
-                    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
-                        { partList }
-                    </Stack>
-                    </div>
-                </div>
-            </div>;
+            </div></div>;
+
+            if ( this.state.allParts.length === 0 ) {
+                thisPage = <div style={{ paddingBottom: 30 }}className={styles.contents}>
+                { errMessage }</div>;
+            }
 
 /***
  *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -370,10 +365,13 @@ public constructor(props:IInspectPartsProps){
  *                                                                 
  */
 
+
             return (
                 <div className={ styles.contents }>
-                    { thisPage }
-                </div>
+                <div className={ styles.container }>
+                <div className={ styles.rightPivot }>
+                        { thisPage }
+                </div></div></div>
             );
             
         } else {

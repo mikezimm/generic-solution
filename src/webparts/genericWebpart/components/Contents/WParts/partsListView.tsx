@@ -108,9 +108,8 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
       let thisLog = null;
 
-      if ( this.props.items != null) {
+      if ( this.props.items.parts != null && this.props.items.count > 0 ) { 
 
-        
         let logItems : IWPart[] = this.props.items.parts;
         let styleDesc = this.props.showDesc ? styles.showCell : styles.hideMe;
         let styleIDs = this.props.showIDs ? styles.showCell : styles.hideMe;
@@ -213,24 +212,16 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
         }
 
-        thisLog = <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
-          { webTitle }
-          { logTable }
-        </div>;
+        return (
+          <div className={ styles.logListView }>
+              <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
+                { webTitle }
+                { logTable }
+            </div>
+          </div>
+          );
 
-      }
-
-
-  /***
- *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
- *                   88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
- *                   88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
- *                   88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
- *                   88 `88. 88.        88    88b  d88 88 `88. 88  V888 
- *                   88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
- *                                                                      
- *                                                                      
- */
+      } else {
 
         // <div className={ styles.container }></div>
         return (
@@ -238,6 +229,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               { thisLog }
           </div>
           );
+        } 
 
-    }
+    } 
 }
