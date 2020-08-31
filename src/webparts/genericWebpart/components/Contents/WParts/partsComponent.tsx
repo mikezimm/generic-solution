@@ -44,13 +44,15 @@ export interface IMyPivCat {
 }
 
 export const pivCats = {
-    visible: {title: 'Visible', desc: '', order: 1},
 
+    visible: {title: 'Visible', desc: '', order: 1},
+    base: {title: 'Base', desc: '', order: 1},   
     mixed: {title: 'Mixed', desc: '', order: 9 },
     conn: {title: 'Connectors', desc: '', order: 9 },
     media: {title: 'Media', desc: '', order: 9 },
     dev: {title: 'Development', desc: '', order: 9 },
     corp: {title: 'Corporate', desc: '', order: 9 },
+    msft: {title: 'MSFT', desc: '', order: 9 },
     open: {title: 'Open Source', desc: '', order: 9 },
     hidden: {title: 'Hidden', desc: '', order: 9 },
     classic: {title: 'Classic', desc: '', order: 9 },    
@@ -288,6 +290,7 @@ public constructor(props:IInspectPartsProps){
                             showIDs = { this.state.showIDs }
                             showDesc = { this.state.showDesc }
                             showProps = { this.state.showProps }
+                            blueBar={ this.state.blueBar }
                         ></MyLogList>;
                     })
                 }
@@ -312,7 +315,7 @@ public constructor(props:IInspectPartsProps){
 
             let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
-            let partPivots = this.createPivotObject(this.state.searchMeta, '');
+            let partPivots = this.createPivotObject(this.state.searchMeta, '', this._onSearchForMeta.bind(this), this.getFeaturePivots());
 
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
@@ -614,10 +617,7 @@ public _onSearchForMeta = (item): void => {
  *                                                             
  */
 
-
-public createPivotObject(setPivot, display){
-
-    let theseStyles = null;
+public createPivotObject(setPivot, display, onLinkClick, pivotItems, theseStyles = null){
 
     let pivotWeb = 
     <Pivot 
@@ -625,10 +625,10 @@ public createPivotObject(setPivot, display){
       styles={ theseStyles }
       linkSize= { pivotOptionsGroup.getPivSize('normal') }
       linkFormat= { pivotOptionsGroup.getPivFormat('links') }
-      onLinkClick= { this._onSearchForMeta.bind(this) }  //{this.specialClick.bind(this)}
+      onLinkClick= { onLinkClick }  //{this.specialClick.bind(this)}
       selectedKey={ setPivot }
       headersOnly={true}>
-        {this.getFeaturePivots()}
+        { pivotItems }
     </Pivot>;
     return pivotWeb;
   }
@@ -637,11 +637,15 @@ private getFeaturePivots() {
 
     let visible = this.buildFilterPivot( pivCats.visible );
 
+    let base = this.buildFilterPivot( pivCats.base );
+
     let mixed = this.buildFilterPivot(pivCats.mixed);
     let conn = this.buildFilterPivot(pivCats.conn);
     let media = this.buildFilterPivot(pivCats.media);
     let dev = this.buildFilterPivot(pivCats.dev);
     let corp = this.buildFilterPivot(pivCats.corp);
+    let msft = this.buildFilterPivot(pivCats.msft);
+    
 
     let open = this.buildFilterPivot(pivCats.open);
 
@@ -650,8 +654,7 @@ private getFeaturePivots() {
     let other = this.buildFilterPivot(pivCats.other);
     let classic = this.buildFilterPivot(pivCats.classic);
     
-    
-    let thesePivots = [visible, corp , conn , mixed , media , dev , open, other, classic , hidden];
+    let thesePivots = [ visible, corp , conn , mixed , media , dev , msft, open, classic , base, hidden];
 
     return thesePivots;
 }

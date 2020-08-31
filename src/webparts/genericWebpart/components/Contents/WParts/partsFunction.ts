@@ -27,7 +27,7 @@ import { getHelpfullError, } from '../../../../../services/ErrorHandler';
 
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
-import { corpFeatures }  from '../Features/featuresFunctions';
+import { corpFeatures, openSourceFeatures }  from '../Features/featuresFunctions';
 
 import { IPartsBucketInfo }  from './partsComponent';
 
@@ -64,7 +64,7 @@ export interface IWPart {
 
     desc?: string;
     template?: IValidTemplate;
-    keys?: string[];
+    keys?: string[];  //These are the Pre-Configured Properties - object keys of that object.
     disabledOnClassicSharepoint: boolean;
     hiddenFromToolbox: boolean;
     isolatedDomain: any;
@@ -135,20 +135,38 @@ function getAllPreConfiguredEntries(partBuckets: IPartsBucketInfo[],  webPartDef
 
     if ( !thisManifest.preconfiguredEntries ) {
         baseManifest.alias = thisManifest.alias ? thisManifest.alias : thisManifest.title;
-        baseManifest.name = thisManifest.name;
+        baseManifest.name = thisManifest.name ? thisManifest.name : '';
         baseManifest.title = thisManifest.title ? thisManifest.title : thisManifest.alias;
-        baseManifest.desc = thisManifest.description;
+        baseManifest.desc = thisManifest.description ? thisManifest.description : '';
         baseManifest.version = thisManifest.version;
+
+        let idx = getPartSort(baseManifest, partBuckets);
+
+        baseManifest.sort = partBuckets[idx]['sort'];
+        baseManifest.bucketCategory = partBuckets[idx]['bucketCategory'];
+        baseManifest.bucketLabel = partBuckets[idx]['bucketLabel'];
+        baseManifest.bucketIdx = idx;
+ 
+        baseManifest.group = 'Base';
+
+        baseManifest.desc = 'Base configuration manifest';
+
+        baseManifest.meta = addItemToArrayIfItDoesNotExist(baseManifest.meta, 'All');
+        baseManifest.meta = addItemToArrayIfItDoesNotExist(baseManifest.meta, 'Base');
+        baseManifest.tags = addItemToArrayIfItDoesNotExist(baseManifest.tags, 'All');
+        baseManifest.tags = addItemToArrayIfItDoesNotExist(baseManifest.tags, 'Base');
+        /*
+                */
         baseManifest.searchString = buildSearchStringFromDef(baseManifest);
+
+        console.log('baseManifest', baseManifest);
 
         webPartDefs.push(baseManifest);
 
     } else {
         let allPreConfigProps : any = JSON.parse(JSON.stringify( thisManifest.preconfiguredEntries ));
 
-        if ( allPreConfigProps.length > 1 ) {
-            console.log('Hi!');
-        }
+        console.log('allPreConfigProps', allPreConfigProps);
         for ( let e = 0; e < allPreConfigProps.length; e++) {
 
             let thisEntry = JSON.parse(JSON.stringify(allPreConfigProps[e]));
@@ -187,10 +205,15 @@ function getAllPreConfiguredEntries(partBuckets: IPartsBucketInfo[],  webPartDef
             if ( newManifest.group.indexOf('Connectors') > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta, 'Connectors'); }
             if ( newManifest.group.indexOf('Media') > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta, 'Media'); }
             if ( newManifest.group.indexOf('Under dev') > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta, 'Development'); }
+
             if ( doesObjectExistInArray(corpFeatures, 'DefinitionId', newManifest.partId) ) {
                 meta = addItemToArrayIfItDoesNotExist(meta, 'Corporate');
                 newManifest.group = "Corporate";
-             }
+
+             } else if ( doesObjectExistInArray(openSourceFeatures, 'DefinitionId', newManifest.partId) ) {
+                meta = addItemToArrayIfItDoesNotExist(meta, 'Open Source');
+                newManifest.group = "Open Source";
+            }
 
             if ( newManifest.supportsFullBleed ) { tags = addItemToArrayIfItDoesNotExist(tags, 'FullBleed'); }
             if ( newManifest.supportsThemeVariants ) { tags = addItemToArrayIfItDoesNotExist(tags, 'Themes'); }
@@ -203,9 +226,8 @@ function getAllPreConfiguredEntries(partBuckets: IPartsBucketInfo[],  webPartDef
                 meta = addItemToArrayIfItDoesNotExist(meta, 'Visible');
              }
 
-
-            tags = addItemToArrayIfItDoesNotExist(tags, newManifest.isInternal ? 'Internal' : 'External');
-            meta = addItemToArrayIfItDoesNotExist(meta, newManifest.isInternal ? 'Internal' : 'External');
+            tags = addItemToArrayIfItDoesNotExist(tags, newManifest.isInternal ? 'MSFT' : 'Open Source');
+            meta = addItemToArrayIfItDoesNotExist(meta, newManifest.isInternal ? 'MSFT' : 'Open Source');
 
             if ( newManifest.disabledOnClassicSharepoint == false ) { 
                 tags = addItemToArrayIfItDoesNotExist(tags, 'Classic'); 
@@ -221,6 +243,18 @@ function getAllPreConfiguredEntries(partBuckets: IPartsBucketInfo[],  webPartDef
                     meta = addItemToArrayIfItDoesNotExist(meta, h);
                 }
             }
+
+            console.log('Meta.length :' , e, newManifest.meta );
+
+            if ( meta.length === 0 ) { meta = addItemToArrayIfItDoesNotExist(meta, 'Other'); }
+
+            if ( allPreConfigProps.length > 1 ) { 
+                meta = addItemToArrayIfItDoesNotExist(meta, 'isMulti' + allPreConfigProps.length ); 
+                tags = addItemToArrayIfItDoesNotExist(tags, 'isMulti' + allPreConfigProps.length ); 
+            }
+
+            meta = addItemToArrayIfItDoesNotExist(meta, 'All');
+
             newManifest.tags = tags;
             newManifest.meta = meta;
 
@@ -368,6 +402,7 @@ function makeBaseManifest (thisManifest, parentIndex) {
 
     let preconfiguredCount = thisManifest.preconfiguredEntries ? thisManifest.preconfiguredEntries.length : 0;
     let copyManifest = JSON.parse(JSON.stringify(thisManifest));
+
     let thisDef : IWPart = {
         title: 'Child',
         alias: 'Child',
@@ -381,6 +416,7 @@ function makeBaseManifest (thisManifest, parentIndex) {
         searchString: '',
         tags: [],
         meta: [],
+        keys: [],
         bucketCategory: '',
         bucketIdx: '',
         bucketLabel: '',

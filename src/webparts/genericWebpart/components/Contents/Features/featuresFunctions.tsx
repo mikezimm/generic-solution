@@ -40,6 +40,10 @@ export const corpFeatures = [
 
 ];
 
+export const openSourceFeatures = [
+
+];
+
 let webFeatures = [
 
 { name: "AccSvcAddAccessApp" ,  DefinitionId: "d2b9ec23-526b-42c5-87b6-852bd83e0364" },
@@ -149,7 +153,10 @@ export async function allAvailableFeatures( webURL: string, featureBuckets: IFea
         if (featIdx == false ) {
             featIdx = doesObjectExistInArray(corpFeatures, 'DefinitionId', allFeatures[i].DefinitionId);
         }
-
+        if (featIdx == false ) {
+            featIdx = doesObjectExistInArray(openSourceFeatures, 'DefinitionId', allFeatures[i].DefinitionId);
+        }
+        
         // Had this error:  Objects are not valid as a React child (found: object with keys {name, DefinitionId}). If you meant to render a collection of children, use an array instead.
         // When I had this code:  allFeatures[i].name = featIdx ? webFeatures[featIdx] : 'Unknown';
         // Basically I was trying to make a string type an object.

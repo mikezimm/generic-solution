@@ -691,7 +691,9 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
         let notVisible = this.buildFilterPivot(pivCats.notvisible);
         let hidden = this.buildFilterPivot(pivCats.hidden);
         
-        let thesePivots = [all, , , , , security, sharepoint, other,visible,  system, notVisible, hidden ];
+        //let thesePivots = [all, , , , , security, sharepoint, other,visible,  system, notVisible, hidden ];
+        let thesePivots = [ all ];
+
         if ( this.state.showUsers === true ) { thesePivots.push(empty); }
         return thesePivots;
     }
@@ -759,7 +761,7 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
 
         //let theseToggles = [togDesc, togSet ];
         //if ( this.props.allowRailsOff === true ) { theseToggles.push( togXML, togJSON, togSPFx, togRails ); }
-        let theseToggles = [ togSet, togDesc , togUsers];
+        let theseToggles = [ togSet ];
 
         let pageToggles : IContentsToggles = {
             toggles: theseToggles,
