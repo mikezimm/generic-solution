@@ -33,6 +33,13 @@ export const systemFeatures = ["Approvers","Designers" ,"Excel Services Viewers"
 
 //Courtesy of:  https://www.technologytobusiness.com/microsoft-sharepoint/sharepoint-web-feature-id-office-365
 
+export const corpFeatures = [
+    { name: "TrackMyTime7" ,  DefinitionId: "a0aaa00b-6a20-4543-8059-2bb990b56a96" },
+    { name: "Generic Contents" ,  DefinitionId: "44f426eb-86a2-41d0-bf5d-3db469b93ab6" },
+    { name: "Socialiis" ,  DefinitionId: "44f426eb-86a2-41d0-bf5d-3db469b93ab6" },
+
+];
+
 let webFeatures = [
 
 { name: "AccSvcAddAccessApp" ,  DefinitionId: "d2b9ec23-526b-42c5-87b6-852bd83e0364" },
@@ -54,6 +61,8 @@ let webFeatures = [
 { name: "FollowingContent" ,  DefinitionId: "a7a2793e-67cd-4dc1-9fd0-43f61581207a" },
 { name: "GanttTasksList" ,  DefinitionId: "00bfea71-513d-4ca0-96c2-6a47775c0119" },
 { name: "GettingStarted" ,  DefinitionId: "4aec7207-0d02-4f4f-aa07-b370199cd0c7" },
+
+
 { name: "GridList" ,  DefinitionId: "00bfea71-3a1d-41d3-a0ee-651d11570120" },
 { name: "GroupifyMenuButton" ,  DefinitionId: "5007df5b-1eea-49f8-9c02-5debc81ce3f2" },
 { name: "HierarchyTasksList" ,  DefinitionId: "f9ce21f8-f437-4f7e-8bc6-946378c850f0" },
@@ -78,7 +87,7 @@ let webFeatures = [
 { name: "TaskListNewsFeed" ,  DefinitionId: "ff13819a-a9ac-46fb-8163-9d53357ef98d" },
 { name: "TasksList" ,  DefinitionId: "00bfea71-a83e-497e-9ba0-7a5c597d0107" },
 { name: "TeamCollab" ,  DefinitionId: "00bfea71-4ea5-48d4-a4ad-7ea5c011abe5" },
-{ name: "TrackMyTime7" ,  DefinitionId: "a0aaa00b-6a20-4543-8059-2bb990b56a96" },
+
 
 { name: "WebPageLibrary" ,  DefinitionId: "00bfea71-c796-4402-9f2f-0eb9a6e71b18" },
 { name: "WikiPageHomePage" ,  DefinitionId: "00bfea71-d8fe-4fec-8dad-01c19a6e4053" },
@@ -136,6 +145,10 @@ export async function allAvailableFeatures( webURL: string, featureBuckets: IFea
         allFeatures[i].bucketLabel = featureBuckets[idx]['bucketLabel'];
         allFeatures[i].bucketIdx = idx;
         let featIdx = doesObjectExistInArray(webFeatures, 'DefinitionId', allFeatures[i].DefinitionId);
+
+        if (featIdx == false ) {
+            featIdx = doesObjectExistInArray(corpFeatures, 'DefinitionId', allFeatures[i].DefinitionId);
+        }
 
         // Had this error:  Objects are not valid as a React child (found: object with keys {name, DefinitionId}). If you meant to render a collection of children, use an array instead.
         // When I had this code:  allFeatures[i].name = featIdx ? webFeatures[featIdx] : 'Unknown';

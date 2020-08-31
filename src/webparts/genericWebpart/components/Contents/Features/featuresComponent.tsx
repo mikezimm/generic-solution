@@ -328,10 +328,8 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         webURL = { this.state.webURL } descending={false} titles={null} 
                         ></MyLogFeature>;
-                })
-
-            }
-
+                    })
+                }
             </div>;
 
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
@@ -405,7 +403,8 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
                 <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
                     { webFeature }
                 </Stack>
-                </div></div></div>;
+                </div>
+                </div></div>;
 
                 if ( this.state.allFeatures.length === 0 ) {
                     thisPage = <div style={{ paddingBottom: 30 }}className={styles.contents}>
@@ -577,26 +576,7 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
     this.searchForFeatures( item, this.state.searchMeta, true );
   }
   
-  private getNewFilteredItems(text: string, meta: string , searchItems : IContentsFeatureInfo[] ) {
-
-    let newFilteredItems : IContentsFeatureInfo[] = [];
-
-    for (let thisSearchItem of searchItems) {
-
-        let searchString = thisSearchItem.searchString;
-        let featureMeta = thisSearchItem.meta;
   
-        if ( meta === undefined || meta == null || meta == '' || featureMeta.indexOf(meta) > -1 ) {
-          if( searchString.indexOf(text.toLowerCase()) > -1 ) {
-            newFilteredItems.push(thisSearchItem);
-            }
-        }
-      }
-
-      return newFilteredItems;
-
-  }
-
   public searchForFeatures = (text: string, meta: string , resetSpecialAlt: boolean ): void => {
 
     let searchItems : IContentsFeatureInfo[] = this.state.allFeatures;
@@ -628,7 +608,28 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
 
     return ;
     
-  } //End searchForItems
+  } //End searchForFeatures
+
+  private getNewFilteredItems(text: string, meta: string , searchItems : IContentsFeatureInfo[] ) {
+
+    let newFilteredItems : IContentsFeatureInfo[] = [];
+
+    for (let thisSearchItem of searchItems) {
+
+        let searchString = thisSearchItem.searchString;
+        let featureMeta = thisSearchItem.meta;
+  
+        if ( meta === undefined || meta == null || meta == '' || featureMeta.indexOf(meta) > -1 ) {
+          if( searchString.indexOf(text.toLowerCase()) > -1 ) {
+            newFilteredItems.push(thisSearchItem);
+            }
+        }
+      }
+
+      return newFilteredItems;
+
+  }
+
 
   
 /***

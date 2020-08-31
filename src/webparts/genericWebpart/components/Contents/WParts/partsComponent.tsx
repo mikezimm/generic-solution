@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
+import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
 
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
@@ -18,6 +19,10 @@ import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator'
 import ButtonCompound from '../../createButtons/ICreateButtons';
 import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
 
+import { pivotOptionsGroup, } from '../../../../../services/propPane';
+
+import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
+
 import { PageContext } from '@microsoft/sp-page-context';
 
 import MyLogList from './partsListView';
@@ -30,8 +35,29 @@ import { getHelpfullError, } from '../../../../../services/ErrorHandler';
 
 import { addItemToArrayIfItDoesNotExist, } from '../../../../../services/arrayServices';
 
-
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
+
+export interface IMyPivCat {
+    title: string;
+    desc: string;
+    order: number;
+}
+
+export const pivCats = {
+    visible: {title: 'Visible', desc: '', order: 1},
+
+    mixed: {title: 'Mixed', desc: '', order: 9 },
+    conn: {title: 'Connectors', desc: '', order: 9 },
+    media: {title: 'Media', desc: '', order: 9 },
+    dev: {title: 'Development', desc: '', order: 9 },
+    corp: {title: 'Corporate', desc: '', order: 9 },
+    open: {title: 'Open Source', desc: '', order: 9 },
+    hidden: {title: 'Hidden', desc: '', order: 9 },
+    classic: {title: 'Classic', desc: '', order: 9 },    
+
+    other: {title: 'Other', desc: '', order: 9 },
+
+};
 
 export interface IInspectPartsProps {
     // 0 - Context
@@ -59,6 +85,16 @@ export interface IMyHistory {
 
 }
 
+
+export interface IPartsBucketInfo {
+    parts: IWPart[];
+    count: number;
+    sort: string;
+    bucketCategory: string;
+    bucketLabel: string;
+
+}
+
 export interface IInspectPartsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
@@ -71,29 +107,50 @@ export interface IInspectPartsState {
     currentPage: string;
     searchCount: number;
     
-    searchedParts: IWPart[];
+    searchText: string;
+    searchMeta: string;
+
+    searchedItems: IWPart[];
     first20SearchedParts: IWPart[];
+
+    partBuckets: IPartsBucketInfo[];
     // 2 - Source and destination list information
-    parts: IWPart[];
+    allParts: IWPart[];
+
+    blueBar: string;
     meta: string[];
 
     errMessage: string | JSX.Element;
+
+    showIDs: boolean;
+    showDesc: boolean;
+    showProps: boolean;
+
 
 }
 
 export default class InspectParts extends React.Component<IInspectPartsProps, IInspectPartsState> {
 
-private clearHistory() {
-    let history: IMyHistory = {
-        count: 0,
-        errors: [],
-        columns: [],
-        views: [],
-        items: [],
-    };
-    return history;
+    private createSearchBuckets() {
+        let result : IPartsBucketInfo[] = [
+            { parts: [], count: 0, sort : '0' , bucketCategory: 'All' , bucketLabel: ''} ,
+//            { parts: [], count: 0, sort : '3' , bucketCategory: 'ReadOnly', bucketLabel: '3. ReadOnly - Calculated/Lookup?' } ,
+//            { parts: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
+//            { parts: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
+        ];
+        return result;
+    }
+    private clearHistory() {
+        let history: IMyHistory = {
+            count: 0,
+            errors: [],
+            columns: [],
+            views: [],
+            items: [],
+        };
+        return history;
 
-}
+    }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -117,13 +174,25 @@ public constructor(props:IInspectPartsProps){
         history: this.clearHistory(),
         allLoaded: false,
 
-        parts: [],
+        partBuckets : this.createSearchBuckets(),
+
+        allParts: [],
         meta: [],
-        searchedParts: [],
+        blueBar: null,
+
+        searchedItems: [],
         first20SearchedParts: [],
         searchCount: 0,
 
+        searchMeta: pivCats.visible.title,
+        searchText: '',
+
         errMessage: '',
+
+        showIDs: false,
+        showDesc: true,
+        showProps: false,
+
     };
 
     // because our event handler needs access to the component, bind 
@@ -213,21 +282,29 @@ public constructor(props:IInspectPartsProps){
                 percentComplete={this.state.progress.percentComplete} 
                 progressHidden={this.state.progress.progressHidden}/>;
 
-            let partList = <MyLogList 
-                title={ 'WebPart'}           items={ this.state.searchedParts }
-                descending={false}          titles={null}            ></MyLogList>;
-
+            let partList = <div> {
+                this.state.partBuckets.map( bucket => {
+                    return <MyLogList 
+                            title={ 'WebPart'} items={ bucket }
+                            descending={false} titles={null}
+                            showIDs = { this.state.showIDs }
+                            showDesc = { this.state.showDesc }
+                            showProps = { this.state.showProps }
+                        ></MyLogList>;
+                    })
+                }
+            </div>;
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
             let searchBox =           
-            <div className={[styles.floatLeft, styles.padLeft20 ].join(' ')} >
+            <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
               <SearchBox
                 className={styles.searchBox}
                 styles={{ root: { maxWidth: 300 } }}
                 placeholder="Search"
-                onSearch={ this.searchForItems.bind(this) }
-                onFocus={ () => console.log('this.state',  this.state) }
-                onBlur={ () => console.log('onBlur called') }
-                onChange={ this.searchForItems.bind(this) }
+                onSearch={ this._searchForItems.bind(this) }
+                //onFocus={ () => console.log('this.state',  this.state) }
+                //onBlur={ () => console.log('onBlur called') }
+                onChange={ this._searchForItems.bind(this) }
               />
               <div className={styles.searchStatus}>
                 { 'Searching about ' + this.state.searchCount + ' parts' }
@@ -244,21 +321,43 @@ public constructor(props:IInspectPartsProps){
                 </ul>
             </div>;
 
+            let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
+
+            let partPivots = this.createPivotObject(this.state.searchMeta, '');
+
+            let noInfo = [];
+            noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
+            if ( this.state.searchText != '' ) { noInfo.push( <p>{'Search Text: ' + this.state.searchText}</p> )  ; }
+            if ( this.state.searchMeta != '' ) { noInfo.push( <p>{'Refiner: ' + this.state.searchMeta}</p> ) ; }
+
             const stackPageTokens: IStackTokens = { childrenGap: 10 };
+            let showProgress = false;
+            if ( this.state.progress != null && this.state.progress.progressHidden === false ) { 
+                showProgress = this.state.progress.percentComplete === 100 ? false : true; }
 
             thisPage = <div className={styles.contents}>
                 <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
-                <div><div>{ disclaimers }</div>
-                <div> { searchBox } </div>                
-                <div style={{ height:30} }> {  } </div>
-                <div> { myProgress } </div>
-                <div>
-                <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
-                    { partList }
-                </Stack>
-                </div>
+                <div>{ disclaimers }</div>
 
-            </div></div>;
+                <div className={ showProgress === true ? styles.showSearch : styles.hideSearch}> { myProgress }</div>
+                <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
+                     { searchBox } { toggles }
+                </Stack>
+
+                <div className={ styles.rightPivot } style={{ height:30, paddingBottom: 15} }> { partPivots } </div>
+
+                <div>
+
+                    <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
+
+                    <div> { myProgress } </div>
+                    <div>
+                    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
+                        { partList }
+                    </Stack>
+                    </div>
+                </div>
+            </div>;
 
 /***
  *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -288,14 +387,18 @@ public constructor(props:IInspectPartsProps){
 
 
     private getPartDefs() {
-        let result : any = allAvailableWebParts( this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableWebParts( this.state.partBuckets, this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
-    private addThesePartsToState( allWebParts, errMessage : string ) {
+    private addThesePartsToState( allParts, errMessage : string ) {
+
+        let newFilteredItems : IWPart[] = this.getNewFilteredItems( '', this.state.searchMeta, allParts );
+
+        let partBuckets  : IPartsBucketInfo[] = this.bucketParts( newFilteredItems, this.state.partBuckets );
 
         let meta: string[] = [];
-        for ( let p of allWebParts ) {
+        for ( let p of allParts ) {
             if ( p.meta ) {
                 for ( let x of p.meta ) {
                     meta = addItemToArrayIfItDoesNotExist( meta, x );
@@ -304,11 +407,14 @@ public constructor(props:IInspectPartsProps){
         }
 
         this.setState({
-            parts: allWebParts,
-            meta: meta,
-            searchedParts: allWebParts,
-            searchCount: allWebParts.length,
+            allParts: allParts,
+            searchedItems: newFilteredItems,
+            searchCount: newFilteredItems.length,
             errMessage: errMessage,
+            meta: meta,
+            partBuckets: partBuckets,
+            searchText: '',
+            searchMeta: this.state.searchMeta,
         });
         return true;
     }
@@ -378,46 +484,111 @@ public constructor(props:IInspectPartsProps){
 
   }
 
+
   
-  public searchForItems = (item): void => {
+
+/***
+ *         .d8888. d88888b  .d8b.  d8888b.  .o88b. db   db 
+ *         88'  YP 88'     d8' `8b 88  `8D d8P  Y8 88   88 
+ *         `8bo.   88ooooo 88ooo88 88oobY' 8P      88ooo88 
+ *           `Y8b. 88~~~~~ 88~~~88 88`8b   8b      88~~~88 
+ *         db   8D 88.     88   88 88 `88. Y8b  d8 88   88 
+ *         `8888Y' Y88888P YP   YP 88   YD  `Y88P' YP   YP 
+ *                                                         
+ *                                                         
+ */
+
+public _onSearchForMeta = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     let e: any = event;
- 
     console.log('searchForItems: e',e);
-
     console.log('searchForItems: item', item);
     console.log('searchForItems: this', this);
-          /*
-    */
 
-    let searchItems : IWPart[] = this.state.parts;
+    //Be sure to pass item.props.itemKey to get filter value
+    this.searchForParts( this.state.searchText, item.props.itemKey, false );
+  }
+
+  public _searchForItems = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+    console.log('searchForItems: e',e);
+    console.log('searchForItems: item', item);
+    console.log('searchForItems: this', this);
+
+    this.searchForParts( item, this.state.searchMeta, true );
+  }
+  
+  
+  public searchForParts = (text: string, meta: string , resetSpecialAlt: boolean ): void => {
+
+    let searchItems : IWPart[] = this.state.allParts;
     let searchCount = searchItems.length;
 
-    let newFilteredParts : IWPart[] = [];
+    let partBuckets : IPartsBucketInfo[] = this.createSearchBuckets();
 
-    for (let thisSearcPart of searchItems) {
+    let newFilteredItems : IWPart[] = this.getNewFilteredItems( text, meta, searchItems );
 
-      let searchString = thisSearcPart.searchString;
-      if(searchString.indexOf(item.toLowerCase()) > -1) {
-        newFilteredParts.push(thisSearcPart);
-      }
-    }
+    let blueBar = meta != null ? meta : null;
 
-    console.log('Searched for:' + item);
-    console.log('and found these parts:', newFilteredParts);
-    searchCount = newFilteredParts.length;
+    partBuckets  = this.bucketParts( newFilteredItems, partBuckets );
+
+    console.log('Searched for:' + text);
+    console.log('Web Meta:' + meta);
+    console.log('and found these Parts:', newFilteredItems);
+    searchCount = newFilteredItems.length;
 
     this.setState({
-      searchedParts: newFilteredParts,
+      searchedItems: newFilteredItems,
       searchCount: searchCount,
+      blueBar: blueBar,
+      partBuckets: partBuckets,
+      searchText: text.toLowerCase(),
+      searchMeta: meta,
     });
 
 
     return ;
     
-  } //End searchForItems
-
+  } //End searchForParts
   
+      /**
+     * This puts all the parts into the buckets
+     * @param allParts 
+     * @param partBuckets 
+     */
+    private bucketParts( allParts : IWPart[], partBuckets : IPartsBucketInfo[] ) {
+
+        for (let i in allParts ) {
+            partBuckets[allParts[i].bucketIdx].parts.push( allParts[i] );
+            partBuckets[allParts[i].bucketIdx].count ++;
+        }
+        console.log('bucketParts:  partBuckets', partBuckets);
+
+        return partBuckets;
+    }
+
+  private getNewFilteredItems(text: string, meta: string , searchItems : IWPart[] ) {
+
+    let newFilteredItems : IWPart[] = [];
+
+    for (let thisSearchItem of searchItems) {
+
+        let searchString = thisSearchItem.searchString;
+        let partMeta = thisSearchItem.meta;
+  
+        if ( meta === undefined || meta == null || meta == '' || partMeta.indexOf(meta) > -1 ) {
+          if( searchString.indexOf(text.toLowerCase()) > -1 ) {
+            newFilteredItems.push(thisSearchItem);
+            }
+        }
+      }
+
+      return newFilteredItems;
+
+  }
+
+    
 /***
  *         db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b 
  *         88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'     
@@ -433,44 +604,162 @@ public constructor(props:IInspectPartsProps){
         this.getPartDefs();
     }
 
-    private checkThisWeb(index: number, testPages : IWPart[] ){
-        //const thisWeb = Web(testPages[index].webURL);
-        //testPages[index].webExists = false;
-        //testPages[index].pageExists = false;
 
-        /*
-        thisWeb.pages.get().then((response) => {
-            testPages[index].webExists = true;
-            this.checkThisPage(index, testPages, thisWeb);
+    /***
+ *         d8888b. d888888b db    db  .d88b.  d888888b .d8888. 
+ *         88  `8D   `88'   88    88 .8P  Y8. `~~88~~' 88'  YP 
+ *         88oodD'    88    Y8    8P 88    88    88    `8bo.   
+ *         88~~~      88    `8b  d8' 88    88    88      `Y8b. 
+ *         88        .88.    `8bd8'  `8b  d8'    88    db   8D 
+ *         88      Y888888P    YP     `Y88P'     YP    `8888Y' 
+ *                                                             
+ *                                                             
+ */
 
-        }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
-            console.log('checkThisWeb', errMessage);
-            this.updateStatePages(index, testPages);
-        });
-    */
 
-    }
+public createPivotObject(setPivot, display){
+
+    let theseStyles = null;
+
+    let pivotWeb = 
+    <Pivot 
+      style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
+      styles={ theseStyles }
+      linkSize= { pivotOptionsGroup.getPivSize('normal') }
+      linkFormat= { pivotOptionsGroup.getPivFormat('links') }
+      onLinkClick= { this._onSearchForMeta.bind(this) }  //{this.specialClick.bind(this)}
+      selectedKey={ setPivot }
+      headersOnly={true}>
+        {this.getFeaturePivots()}
+    </Pivot>;
+    return pivotWeb;
+  }
+
+private getFeaturePivots() {
+
+    let visible = this.buildFilterPivot( pivCats.visible );
+
+    let mixed = this.buildFilterPivot(pivCats.mixed);
+    let conn = this.buildFilterPivot(pivCats.conn);
+    let media = this.buildFilterPivot(pivCats.media);
+    let dev = this.buildFilterPivot(pivCats.dev);
+    let corp = this.buildFilterPivot(pivCats.corp);
+
+    let open = this.buildFilterPivot(pivCats.open);
+
+    let hidden = this.buildFilterPivot(pivCats.hidden);
+
+    let other = this.buildFilterPivot(pivCats.other);
+    let classic = this.buildFilterPivot(pivCats.classic);
     
-    private checkThisPage(index: number, testPages : IWPart[], thisWeb: any ){
-        //const thisWeb = Web(testPages[index].webURL);
-        thisWeb.pages.getByTitle(testPages[index].title).get().then((response) => {
-            //testPages[index].pageExists = true;
-            //testPages[index].pageExistedB4 = true;   
-            this.updateStatePages(index,testPages);
+    
+    let thesePivots = [visible, corp , conn , mixed , media , dev , open, other, classic , hidden];
 
-        }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
-            console.log('checkThisPage', errMessage);
-            this.updateStatePages(index, testPages);
-        });
-    }
+    return thesePivots;
+}
 
-    private updateStatePages(index: number, testPages : IWPart[] ) {
-        let stateParts = this.state.parts;
-        //if (statePages === undefined ) { statePages = this.props.webURL ; }
-        this.setState({
-            parts: stateParts,
-        });
-    }
+private buildFilterPivot(pivCat: IMyPivCat) {
+    let p = <PivotItem 
+        headerText={ pivCat.title }
+        itemKey={ pivCat.title }
+        >
+        { pivCat.desc }
+    </PivotItem>;
+
+    return p;
+}
+
+/***
+*         d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
+*         `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'     88'  YP 
+*            88    88    88 88      88      88      88ooooo `8bo.   
+*            88    88    88 88  ooo 88  ooo 88      88~~~~~   `Y8b. 
+*            88    `8b  d8' 88. ~8~ 88. ~8~ 88booo. 88.     db   8D 
+*            YP     `Y88P'   Y888P   Y888P  Y88888P Y88888P `8888Y' 
+*                                                                   
+*                                                                   
+*/
+
+private getPageToggles() {
+
+    let togDesc = {
+        //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+        label: <span>Description</span>,
+        key: 'togggleDescription',
+        _onChange: this.updateTogggleDesc.bind(this),
+        checked: this.state.showDesc,
+        onText: '-',
+        offText: '-',
+        className: '',
+        styles: '',
+    };
+
+    let togIDs = {
+        //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+        label: <span>IDs</span>,
+        key: 'togggleIDs',
+        _onChange: this.updateTogggleIDs.bind(this),
+        checked: this.state.showIDs,
+        onText: '',
+        offText: '',
+        className: '',
+        styles: '',
+    };
+
+    let togProps = {
+        //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+        label: <span>Props</span>,
+        key: 'togggleProps',
+        _onChange: this.updateTogggleProps.bind(this),
+        checked: this.state.showProps,
+        onText: '-',
+        offText: '-',
+        className: '',
+        styles: '',
+    };
+
+
+    //let theseToggles = [togDesc, togSet ];
+    //if ( this.props.allowRailsOff === true ) { theseToggles.push( togXML, togJSON, togSPFx, togRails ); }
+    let theseToggles = [ togDesc , togIDs,  togProps];
+
+    let pageToggles : IContentsToggles = {
+        toggles: theseToggles,
+        childGap: 30,
+        vertical: false,
+        hAlign: 'end',
+        vAlign: 'start',
+        rootStyle: { width: 120 , paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+    };
+
+    return pageToggles;
+
+}
+
+private updateTogggleDesc() {
+    let showIDs = this.state.showDesc === false ? false : true;
+    this.setState({
+        showDesc: !this.state.showDesc,
+        showIDs: showIDs,
+    });
+}
+
+private updateTogggleIDs() {
+
+    let showDesc = this.state.showIDs === false ? false : true;
+
+    this.setState({
+        showIDs: !this.state.showIDs,
+        showDesc: showDesc,
+
+    });
+
+}
+
+private updateTogggleProps() {
+    this.setState({
+        showProps: !this.state.showProps,
+    });
+}
+
 }

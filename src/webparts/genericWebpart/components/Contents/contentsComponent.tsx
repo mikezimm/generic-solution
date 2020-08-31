@@ -331,7 +331,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 { typesPage }
             </PivotItem>
             <PivotItem headerText={ contentsTabs[6] }>
-                <h3>WebParts</h3>
                 { partsPage }
             </PivotItem>
             <PivotItem headerText={ contentsTabs[7] }>
