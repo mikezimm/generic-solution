@@ -4,6 +4,7 @@ import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { IMyProgress } from '../../IReUsableInterfaces';
 import { IWPart } from './partsFunction';
+import { IPartsBucketInfo } from './partsComponent';
 import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
@@ -15,9 +16,16 @@ import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 export interface IMyLogListProps {
     title: string;
     titles: [];
-    items: IWPart[];
+    items: IPartsBucketInfo;
     descending: boolean;
     maxChars?: number;
+
+    blueBar?: string;
+
+    showIDs: boolean;
+    showDesc: boolean;
+    showProps: boolean;
+
 }
 
 export interface IMyLogListState {
@@ -100,9 +108,12 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
       let thisLog = null;
 
-      if ( this.props.items != null) {
+      if ( this.props.items.parts != null && this.props.items.count > 0 ) { 
 
-        let logItems : IWPart[] = this.props.items;
+        let logItems : IWPart[] = this.props.items.parts;
+        let styleDesc = this.props.showDesc ? styles.showCell : styles.hideMe;
+        let styleIDs = this.props.showIDs ? styles.showCell : styles.hideMe;
+        let styleProps = this.props.showProps ? styles.showCell : styles.hideMe;
 
         let itemRows = logItems.length === 0 ? null : logItems.map( h => { 
 
@@ -127,25 +138,28 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             }};
 
             let normalIcon = <Icon iconName={ h.officeFabricIconFontName ? h.officeFabricIconFontName : "Info"} className={iconClassInfo} styles = {iconStyles}/>;
-            let keys = h.keys ? <div><h3>Properties</h3><ul> { h.keys.map(k => <li>{ k }</li>) } </ul></div> : null;
+            let partProps = <ul> { h.keys.map(k => <li>{ k }</li>) } </ul>;
+            let keys = h.keys ? <div><h3>Pre-Configured Properties</h3> { partProps } </div> : null;
 
             let supported = h.supportedHosts ? <div><h3>Supported Hosts</h3><ul> { h.supportedHosts.map(k => <li>{ k }</li>) } </ul></div> : null;
 
+
             const onRenderHoverCard = (item: any): JSX.Element => {
+              let hoverWebStyle = { fontWeight: 700, paddingRight: 15 };
               return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
                 <div>
-                  <div>{  }</div>
-                  <div></div>
-                  <div>Type: { h.componentType }</div>
-                  <div>Alias: { h.alias } Parent: { h.parentAlias }</div>
-                  <div>Description: { h.desc }</div>
-                  <div>Id: { h.partId }</div>
-                  <div>Group: { h.group }</div>
-                  <div><h3>Tags:</h3>{ h.tags.join() }</div>
-                  <div>{ supported }</div>
-                  <div>{ keys }</div>
-                  <div></div>
-                  <div>Search String: { h.searchString }</div>
+                  <p><span style={hoverWebStyle}> </span> {  }</p>
+                  <p><span style={hoverWebStyle}> </span> </p>
+                  <p><span style={hoverWebStyle}>Type:</span> { h.componentType }</p>
+                  <p><span style={hoverWebStyle}>Alias:</span> { h.alias } Parent: { h.parentAlias }</p>
+                  <p><span style={hoverWebStyle}>Description:</span> { h.desc }</p>
+                  <p><span style={hoverWebStyle}>Id:</span> { h.partId }</p>
+                  <p><span style={hoverWebStyle}>Group:</span> { h.group }</p>
+                  <p><span style={hoverWebStyle}>Tags:</span>{ h.tags.join() }</p>
+                  <p><span style={hoverWebStyle}>Supported:</span>{ supported }</p>
+                  <p><span style={hoverWebStyle}>Keys:</span>{ keys }</p>
+                  <p><span style={hoverWebStyle}> </span></p>
+                  <p><span style={hoverWebStyle}>Search String:</span> { h.searchString }</p>
                 </div>
               </div>;
             };
@@ -166,33 +180,48 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               <td> { group } </td>
               <td className={ styles.nowWrapping }> {  actionCell  }</td>
               <td>{detailsCard}</td>
-              <td> { description } </td>
+              <td className={ styleDesc }> {  description  }</td>
+              <td className={ styleIDs }> {  h.partId  }</td>
+              <td className={ styleProps }> { partProps }</td>
             </tr>; 
         });
 
 //        let logTable = itemRows === null ? <div>Nothing to show</div> : <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
-        let logTable = <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
-            <tr><th>Group</th><th>{ this.props.title }</th><th>Icon</th><th>Description</th></tr>
+
+        let logTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
+            <tr>
+              <th>Group</th>
+              <th>{ this.props.title }</th>
+              <th>Icon</th>
+              <th className={ styleDesc }>Description</th>
+              <th className={ styleIDs }>ID</th>
+              <th className={ styleProps }>Keys</th>
+            </tr>
             { itemRows }
         </table>;
 
-        thisLog = <div className={ stylesInfo.infoPane }><h2>{this.props.title + 's'}</h2>
-        { logTable }
-        </div>;
+        let barText = this.props.blueBar && this.props.blueBar != null ? this.props.blueBar : this.props.items.bucketLabel;
+        if (barText != '') { barText = barText + 'Webparts' ; }
 
-      }
+        let webTitle = null;
+        
+        if ( barText != null ) {
+          webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ barText } - ( { this.props.items.count } )</span></div>;
 
+        } else if ( this.props.items.bucketLabel !== '' ) {
+          webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
+        }
 
-  /***
- *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
- *                   88  `8D 88'     `~~88~~' 88    88 88  `8D 888o  88 
- *                   88oobY' 88ooooo    88    88    88 88oobY' 88V8o 88 
- *                   88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
- *                   88 `88. 88.        88    88b  d88 88 `88. 88  V888 
- *                   88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
- *                                                                      
- *                                                                      
- */
+        return (
+          <div className={ styles.logListView }>
+              <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
+                { webTitle }
+                { logTable }
+            </div>
+          </div>
+          );
+
+      } else {
 
         // <div className={ styles.container }></div>
         return (
@@ -200,6 +229,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               { thisLog }
           </div>
           );
+        } 
 
-    }
+    } 
 }

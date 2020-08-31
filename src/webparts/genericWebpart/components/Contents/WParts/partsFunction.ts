@@ -21,11 +21,16 @@ import { IViewLog, addTheseViews } from '../../../../../services/listServices/vi
 
 import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
-import { addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices'; //Import view arrays for Time list
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices'; //Import view arrays for Time list
 
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
 
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
+
+import { corpFeatures, openSourceFeatures }  from '../Features/featuresFunctions';
+
+import { IPartsBucketInfo }  from './partsComponent';
+
 
 export type IValidTemplate = 100 | 101;
 
@@ -46,6 +51,12 @@ export interface IWPart {
     tags: string[];
     meta: string[];
 
+    sort: string;
+    bucketCategory: string;
+    bucketLabel: string;
+    bucketIdx: any;
+    typeString: string;
+
     officeFabricIconFontName: string;
 
     parentAlias: string;
@@ -53,7 +64,7 @@ export interface IWPart {
 
     desc?: string;
     template?: IValidTemplate;
-    keys?: string[];
+    keys?: string[];  //These are the Pre-Configured Properties - object keys of that object.
     disabledOnClassicSharepoint: boolean;
     hiddenFromToolbox: boolean;
     isolatedDomain: any;
@@ -68,9 +79,10 @@ export interface IWPart {
 
 }
 
+export const CorpWebparts = [];
 
 //export async function provisionTestPage( makeThisPage:  IWPart, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableWebParts( addThesePartsToState: any, setProgress: any, markComplete: any ): Promise<IWPart[]>{
+export async function allAvailableWebParts( partBuckets: IPartsBucketInfo[], addThesePartsToState: any, setProgress: any, markComplete: any ): Promise<IWPart[]>{
 
     let webPartDefs : IWPart[] = [];
 
@@ -92,9 +104,10 @@ export async function allAvailableWebParts( addThesePartsToState: any, setProgre
         for (let i in partDefs ) {
     
             let thisManifest = JSON.parse(partDefs[i].Manifest);
+            console.log('thisManifest:', thisManifest);
             //let entries: any = getAllPreConfiguredEntries(thisManifest);
             //let theseEntries : any = getAllPreConfiguredEntries(thisManifest);
-            webPartDefs = getAllPreConfiguredEntries(webPartDefs, thisManifest, i );
+            webPartDefs = getAllPreConfiguredEntries(partBuckets, webPartDefs, thisManifest, i );
             //webPartDefs.splice(webPartDefs.length, 0, theseEntries );
     
         }
@@ -110,7 +123,7 @@ export async function allAvailableWebParts( addThesePartsToState: any, setProgre
     return result;
 }
 
-function getAllPreConfiguredEntries(webPartDefs : IWPart[], thisManifest, parentIndex) {
+function getAllPreConfiguredEntries(partBuckets: IPartsBucketInfo[],  webPartDefs : IWPart[], thisManifest, parentIndex) {
 
 //    console.log('thisManifest', thisManifest);
 
@@ -122,20 +135,38 @@ function getAllPreConfiguredEntries(webPartDefs : IWPart[], thisManifest, parent
 
     if ( !thisManifest.preconfiguredEntries ) {
         baseManifest.alias = thisManifest.alias ? thisManifest.alias : thisManifest.title;
-        baseManifest.name = thisManifest.name;
+        baseManifest.name = thisManifest.name ? thisManifest.name : '';
         baseManifest.title = thisManifest.title ? thisManifest.title : thisManifest.alias;
-        baseManifest.desc = thisManifest.description;
+        baseManifest.desc = thisManifest.description ? thisManifest.description : '';
         baseManifest.version = thisManifest.version;
+
+        let idx = getPartSort(baseManifest, partBuckets);
+
+        baseManifest.sort = partBuckets[idx]['sort'];
+        baseManifest.bucketCategory = partBuckets[idx]['bucketCategory'];
+        baseManifest.bucketLabel = partBuckets[idx]['bucketLabel'];
+        baseManifest.bucketIdx = idx;
+ 
+        baseManifest.group = 'Base';
+
+        baseManifest.desc = 'Base configuration manifest';
+
+        baseManifest.meta = addItemToArrayIfItDoesNotExist(baseManifest.meta, 'All');
+        baseManifest.meta = addItemToArrayIfItDoesNotExist(baseManifest.meta, 'Base');
+        baseManifest.tags = addItemToArrayIfItDoesNotExist(baseManifest.tags, 'All');
+        baseManifest.tags = addItemToArrayIfItDoesNotExist(baseManifest.tags, 'Base');
+        /*
+                */
         baseManifest.searchString = buildSearchStringFromDef(baseManifest);
+
+        console.log('baseManifest', baseManifest);
 
         webPartDefs.push(baseManifest);
 
     } else {
         let allPreConfigProps : any = JSON.parse(JSON.stringify( thisManifest.preconfiguredEntries ));
 
-        if ( allPreConfigProps.length > 1 ) {
-            console.log('Hi!');
-        }
+        console.log('allPreConfigProps', allPreConfigProps);
         for ( let e = 0; e < allPreConfigProps.length; e++) {
 
             let thisEntry = JSON.parse(JSON.stringify(allPreConfigProps[e]));
@@ -170,18 +201,33 @@ function getAllPreConfiguredEntries(webPartDefs : IWPart[], thisManifest, parent
             tags = addItemToArrayIfItDoesNotExist(tags, newManifest.group);
             tags = addItemToArrayIfItDoesNotExist(tags, newManifest.officeFabricIconFontName);
 
-            
+            if ( newManifest.group.indexOf('Mixed Reality') > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta, 'Mixed'); }
+            if ( newManifest.group.indexOf('Connectors') > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta, 'Connectors'); }
+            if ( newManifest.group.indexOf('Media') > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta, 'Media'); }
+            if ( newManifest.group.indexOf('Under dev') > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta, 'Development'); }
+
+            if ( doesObjectExistInArray(corpFeatures, 'DefinitionId', newManifest.partId) ) {
+                meta = addItemToArrayIfItDoesNotExist(meta, 'Corporate');
+                newManifest.group = "Corporate";
+
+             } else if ( doesObjectExistInArray(openSourceFeatures, 'DefinitionId', newManifest.partId) ) {
+                meta = addItemToArrayIfItDoesNotExist(meta, 'Open Source');
+                newManifest.group = "Open Source";
+            }
+
             if ( newManifest.supportsFullBleed ) { tags = addItemToArrayIfItDoesNotExist(tags, 'FullBleed'); }
             if ( newManifest.supportsThemeVariants ) { tags = addItemToArrayIfItDoesNotExist(tags, 'Themes'); }
 
             if ( newManifest.hiddenFromToolbox ) { 
                 tags = addItemToArrayIfItDoesNotExist(tags, 'Hidden');
                 meta = addItemToArrayIfItDoesNotExist(meta, 'Hidden');
+             } else {
+                tags = addItemToArrayIfItDoesNotExist(tags, 'Visible');
+                meta = addItemToArrayIfItDoesNotExist(meta, 'Visible');
              }
 
-
-            tags = addItemToArrayIfItDoesNotExist(tags, newManifest.isInternal ? 'Internal' : 'External');
-            meta = addItemToArrayIfItDoesNotExist(meta, newManifest.isInternal ? 'Internal' : 'External');
+            tags = addItemToArrayIfItDoesNotExist(tags, newManifest.isInternal ? 'MSFT' : 'Open Source');
+            meta = addItemToArrayIfItDoesNotExist(meta, newManifest.isInternal ? 'MSFT' : 'Open Source');
 
             if ( newManifest.disabledOnClassicSharepoint == false ) { 
                 tags = addItemToArrayIfItDoesNotExist(tags, 'Classic'); 
@@ -194,11 +240,30 @@ function getAllPreConfiguredEntries(webPartDefs : IWPart[], thisManifest, parent
             if ( newManifest.supportedHosts ) {
                 for (let h of newManifest.supportedHosts ) {
                     tags = addItemToArrayIfItDoesNotExist(tags, h);
-                    meta = addItemToArrayIfItDoesNotExist(meta, h);               
+                    meta = addItemToArrayIfItDoesNotExist(meta, h);
                 }
             }
+
+            console.log('Meta.length :' , e, newManifest.meta );
+
+            if ( meta.length === 0 ) { meta = addItemToArrayIfItDoesNotExist(meta, 'Other'); }
+
+            if ( allPreConfigProps.length > 1 ) { 
+                meta = addItemToArrayIfItDoesNotExist(meta, 'isMulti' + allPreConfigProps.length ); 
+                tags = addItemToArrayIfItDoesNotExist(tags, 'isMulti' + allPreConfigProps.length ); 
+            }
+
+            meta = addItemToArrayIfItDoesNotExist(meta, 'All');
+
             newManifest.tags = tags;
             newManifest.meta = meta;
+
+            let idx = getPartSort(newManifest, partBuckets);
+
+            newManifest.sort = partBuckets[idx]['sort'];
+            newManifest.bucketCategory = partBuckets[idx]['bucketCategory'];
+            newManifest.bucketLabel = partBuckets[idx]['bucketLabel'];
+            newManifest.bucketIdx = idx;
 
             webPartDefs.push(newManifest);
 
@@ -211,6 +276,37 @@ function getAllPreConfiguredEntries(webPartDefs : IWPart[], thisManifest, parent
     return webPartDefs;
 
 }
+
+
+function getPartSort( thePart: IWPart, featureBuckets: IPartsBucketInfo[] ) {
+    /*
+        { features: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content'} ,
+        { features: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
+        { features: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
+    */
+    
+        let bucketCategory = 'All';
+    
+        /*
+        } else if ( SystemWebs.indexOf(thePart.StaticName) > -1 ) {
+            bucketCategory = 'System';
+    
+        } else if ( thePart.CanBeDeleted === false ) {
+            bucketCategory = 'System';
+    
+        } else if ( thePart.ReadOnlyWeb === true ) {
+            bucketCategory = 'ReadOnly';
+            
+        } else { bucketCategory = 'Custom'; }
+    */
+    
+        let idx : any = doesObjectExistInArray(featureBuckets, 'bucketCategory', bucketCategory ); 
+    
+        if ( idx === false ) { alert('getPartSort issue... bucketCategory (' + bucketCategory + ')not found in featureBuckets.'); idx = -1; }
+    
+        return idx;
+    
+    }
 
 function buildSearchStringFromDef (newManifest : IWPart) {
 
@@ -306,6 +402,7 @@ function makeBaseManifest (thisManifest, parentIndex) {
 
     let preconfiguredCount = thisManifest.preconfiguredEntries ? thisManifest.preconfiguredEntries.length : 0;
     let copyManifest = JSON.parse(JSON.stringify(thisManifest));
+
     let thisDef : IWPart = {
         title: 'Child',
         alias: 'Child',
@@ -319,6 +416,12 @@ function makeBaseManifest (thisManifest, parentIndex) {
         searchString: '',
         tags: [],
         meta: [],
+        keys: [],
+        bucketCategory: '',
+        bucketIdx: '',
+        bucketLabel: '',
+        typeString: '',
+        sort: '',
 
         partId: copyManifest.id ,
         group: null,

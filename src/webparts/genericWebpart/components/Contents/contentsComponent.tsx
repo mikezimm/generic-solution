@@ -25,6 +25,8 @@ import InspectWebs from './Webs/websComponent';
 
 import InspectGroups from './Groups/groupsComponent';
 
+import InspectFeatures from './Features/featuresComponent';
+
 import InspectParts from './WParts/partsComponent';
 
 import InspectThisSite from './ThisSite/thisSiteComponent';
@@ -103,7 +105,7 @@ export interface IInspectContentsState {
 
 }
 
-export const contentsTabs = ['ThisSite','Subsites','Lists','Columns','Views','Types','WebParts','Groups', 'RailsOff'];
+export const contentsTabs = ['ThisSite','Subsites','Lists','Columns','Views','Types','WebParts','Groups', 'Features', 'RailsOff'];
 
 export default class InspectContents extends React.Component<IInspectContentsProps, IInspectContentsState> {
 
@@ -275,6 +277,18 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             ></InspectGroups>
         </div>;
 
+        const featurePage = <div>
+        <InspectFeatures
+            allowOtherSites={ false }
+            pageContext={ this.props.pageContext }
+            pickedWeb = { this.state.pickedWeb }
+            showPane={true}
+            allLoaded={false}
+            currentUser = {this.props.currentUser }
+            webURL = { this.state.webURL }
+        ></InspectFeatures>
+        </div>;
+
         const railsPage = <div>
                 { noPageAvailable }
         </div>;
@@ -317,16 +331,21 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 { typesPage }
             </PivotItem>
             <PivotItem headerText={ contentsTabs[6] }>
-                <h3>WebParts</h3>
                 { partsPage }
             </PivotItem>
             <PivotItem headerText={ contentsTabs[7] }>
                 <h3>Groups</h3>
                 { groupsPage }
             </PivotItem>
+            <PivotItem headerText={ contentsTabs[8] }>
+                <h3>Features</h3>
+                { featurePage }
+            </PivotItem>
+
+            
 
             {  !this.state.allowRailsOff ? null : 
-            <PivotItem headerText={ contentsTabs[8] }>
+            <PivotItem headerText={ contentsTabs[9] }>
                 <h3>RailsOff</h3>
                 { railsPage }
             </PivotItem>

@@ -5,7 +5,7 @@ import { sp } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
-import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
+import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText, IClientsidePage } from "@pnp/sp/clientside-pages";
 
 import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
@@ -63,17 +63,32 @@ export interface IMakeThisPage {
         // find the definition we want, here by id
         //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
         //ff5f0cc8-b7e7-4e75-b46c-c0091483d2c2
-        const partDef = partDefs.filter(c => c.Name === "TrackMyTime7");
+        //const partDef = partDefs.filter(c => c.Name === "TrackMyTime7");
         //const partDef = partDefs.filter(c => c.Id === "490d7c76-1824-45b2-9de3-676421c997fa");
-    
-    
+
+        /*
+            LIST webpart ID:  f92bf067-bc19-489e-a556-7fe95f508720
+            listId: e.properties.selectedListId,
+            viewId: e.properties.selectedViewId,
+            folderKey: e.properties.selectedFolderKey,
+            title: e.properties.listTitle,
+            isDocumentLibrary: e.properties.isDocumentLibrary,
+            forceRefresh: e.forceRefreshOnce,
+            theme: e._variantTheme,
+            hideCommandBar: e.properties.hideCommandBar,
+            this.properties.showDefaultDocumentLibrary
+            this.properties.webRelativeListUrl
+            this.properties.selectedListUrl
+            showFilterByControl
+        */
+        const partDef = partDefs.filter(c => c.Id === "f92bf067-bc19-489e-a556-7fe95f508720");
     
         console.log('provisionTestPage' , makeThisPage.title);
         alert('Building page ' + makeThisPage.title);
                     //export declare type ClientsidePageLayoutType = "Article" | "Home" | "SingleWebPartAppPage" | "RepostPage";
         // use the web factory to create a page in a specific web
-        const page3 = await CreateClientsidePage(Web("https://mcclickster.sharepoint.com/sites/Templates/Testing"), makeThisPage.title, makeThisPage.title, makeThisPage.pageLayout );
-    
+        const page3 : IClientsidePage = await CreateClientsidePage(Web(makeThisPage.webURL), makeThisPage.title, makeThisPage.title, makeThisPage.pageLayout );
+        console.log('Created this page3: ', page3 );
         // add two columns with factor 6 - this is a two column layout as the total factor in a section should add up to 12
         const section1 = page3.addSection();
     
@@ -82,12 +97,25 @@ export interface IMakeThisPage {
             for (let d in partDef ) {
 
                 const thisPart = ClientsideWebpart.fromComponentDef(partDef[d]);
-                thisPart.setProperties<{ timeTrackListTitle: string, pivotFormat: string }>({
+
+/*                thisPart.setProperties<{ timeTrackListTitle: string, pivotFormat: string }>({
                     timeTrackListTitle: "PNPTest",
                     pivotFormat: "tabs"
 
                 });
-    
+
+                thisPart.setProperties<{ selectedListId: string, selectedViewId: string, hideCommandBar: boolean }>({
+                    selectedListId: "db9efe6a-d1ea-4449-8527-a3ff84436d87",
+                    selectedViewId: "8274B88A-1944-43B0-84DF-95DCA0568222",
+                    hideCommandBar: false
+                });
+*/
+                thisPart.setProperties({
+                    selectedListId: "db9efe6a-d1ea-4449-8527-a3ff84436d87",
+                    selectedViewId: "91defb23-3f2d-4f20-b592-3f2427318a53".toUpperCase(),
+                    hideCommandBar: true
+                });
+
                 try {
                     const section2 = page3.addSection().addControl(thisPart);
                 } catch (e) {
@@ -95,12 +123,19 @@ export interface IMakeThisPage {
                 }
 
         }
-    
+
         const vertSection = page3.addVerticalSection();
-    
+
         // you must publish the new page
         await page3.save();
-    
+        console.log('Saved this page3: ', page3 );
+
+        window.open(
+            makeThisPage.webURL + '/SitePages/' + makeThisPage.title.replace(/\ /g, '-') + '.aspx', "_blank"); 
+
+//        window.open(
+//            "https://mcclickster.sharepoint.com/sites/Templates/Testing/SitePages/Forms/RecentChanges.aspx", "_blank"); 
+
         return statusLog;
     }
 
