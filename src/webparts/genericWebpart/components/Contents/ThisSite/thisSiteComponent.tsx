@@ -18,9 +18,9 @@ import styles from '../contents.module.scss';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../../IReUsableInterfaces';
+import { IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../../IReUsableInterfaces';
 
-import { IPickedWebBasic } from '../contentsComponent';
+import {  } from '../contentsComponent';
 
 //import { analyticsList } from 'InspectThisSiteWebPartStrings';
 

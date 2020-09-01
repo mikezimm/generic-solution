@@ -1,6 +1,22 @@
 
 import { IGenericWebpartProps } from './IGenericWebpartProps';
 
+
+export interface IPickedWebBasic {
+  title: string;
+  ServerRelativeUrl: string;
+  guid: string;
+  url: string;
+  siteIcon: string;
+}
+
+export interface IPickedList {
+  title: string;
+  name: string;
+  guid: string;
+  isLibrary: boolean;
+}
+
 export interface IMyProgress {
 
   time: string;

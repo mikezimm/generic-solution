@@ -19,11 +19,11 @@ import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../..
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 
-import { IPickedList } from '../contentsComponent';
+import {  } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
-import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IPickedList, IMyProgress, IUser } from '../../IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 

@@ -18,6 +18,7 @@ export interface IGenericWebpartProps {
   today: ITheTime;
   WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
+  parentListFieldTitles?: string;
   // 1 - Analytics options
   useListAnalytics: boolean;
   analyticsWeb?: string;

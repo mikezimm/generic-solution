@@ -36,6 +36,8 @@ import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/co
 import { defineThePage } from './PageProvisioning/FinancePages/defineThisPage';
 import ProvisionPages from './PageProvisioning/component/provisionPageComponent';
 
+import DrillDown from './Drill/drillComponent';
+
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
 
 
@@ -88,6 +90,12 @@ export default class GenericWebpart extends React.Component<IGenericWebpartProps
             data: "Get webpart definitions",
             lastIndex: null,
           },
+          { headerText: "DrillDown",
+          filter: "drillDown",
+          itemKey: "drillDown",
+          data: "Test Drilldown",
+          lastIndex: null,
+        },
         ]
       ,
     };
@@ -349,6 +357,25 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         ></InspectContents>
       </div>;
 
+      const drillPage = <div>
+      <DrillDown 
+          allowOtherSites={ false }
+          pageContext={ this.props.pageContext }
+          showPane={true}
+          allLoaded={false}
+          currentUser = {this.state.currentUser }
+          webURL = { this.state.parentListWeb }
+          allowSettings = { true }
+          listName = { this.props.parentListTitle }
+          parentListFieldTitles = { this.props.parentListFieldTitles }
+
+          WebpartHeight = { this.state.WebpartHeight }
+          WebpartWidth = { this.state.WebpartWidth }
+
+      ></DrillDown>
+      </div>;
+
+
       const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
         root: { marginTop: 10 },
       };
@@ -357,7 +384,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       let MyPivot = <div style={{ paddingLeft: 10, paddingRight: 20 }}>
         <Pivot aria-label="Provision Options"
           defaultSelectedIndex ={2}>
-            
+
           <PivotItem headerText="Lists">
                 { provisionListPage }
           </PivotItem>
@@ -366,6 +393,9 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           </PivotItem>
           <PivotItem headerText="Contents">
               { contentsPage }
+          </PivotItem>
+          <PivotItem headerText="DrillDown">
+              { drillPage }
           </PivotItem>
 
           <PivotItem headerText="Help">
