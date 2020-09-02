@@ -1,6 +1,29 @@
 
 import { IGenericWebpartProps } from './IGenericWebpartProps';
 
+  
+export interface IRefinerRules {
+  rules: RefineRuleValues[];
+}
+
+export type RefineRuleValues = 
+  'parseBySemiColons' | 'parseByCommas' | 'groupBy10s' |  'groupBy100s' |  'groupBy1000s' |  'groupByMillions' | 'isDate' | 'groupByDays' |  'groupByMonths' |  'groupByYears' | 'groupByUsers' |  '' | 'invalidRules'
+;
+
+export interface IItemRefiners {
+  lev0: any[]; lev1: any[]; lev2: any[];
+}
+
+export interface IRefiners {
+  childrenKeys: string[];
+  childrenObjs: IRefinerLayer[];
+}
+
+export interface IRefinerLayer {
+  thisKey: string;
+  childrenKeys: string[];
+  childrenObjs?: IRefinerLayer[];
+}
 
 export interface IPickedWebBasic {
   title: string;

@@ -28,9 +28,11 @@ import { createAdvancedContentChoices } from '../fields/choiceFieldBuilder';
 
 import { IContentsToggles, makeToggles } from '../fields/toggleFieldBuilder';
 
-import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyProgress, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../IReUsableInterfaces';
+import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyProgress, IMyIcons, IMyFonts, IChartSeries, ICharNote, IRefinerRules, RefineRuleValues } from '../IReUsableInterfaces';
 
 import { createLink } from '../HelpInfo/AllLinks';
+
+import { IRefiners, IRefinerLayer, IItemRefiners } from '../IReUsableInterfaces';
 
 import { PageContext } from '@microsoft/sp-page-context';
 
@@ -52,14 +54,17 @@ export interface IDrillWeb extends Partial<IPickedWebBasic> {
     url: string;
     siteIcon?: string;
   }
-  
+
+
   export interface IDrillList extends Partial<IPickedList> {
     title: string;
     name?: string;
     guid?: string;
     isLibrary?: boolean;
     webURL?: string;
-    
+    refiners: string[]; //String of Keys representing the static name of the column used for drill downs
+    emptyRefiner: string;
+    refinerRules: IRefinerRules[][]; 
   }
 
 export interface IMyPivCat {
@@ -97,6 +102,8 @@ export interface IDrillItemInfo extends Partial<any>{
     author: IUser;
     editor: IUser;
 
+    refiners: IItemRefiners; //String of Keys representing the static name of the column used for drill downs
+
 }
 
 
@@ -125,6 +132,25 @@ export interface IDrillDownProps {
 
     WebpartHeight: number;
     WebpartWidth: number;
+
+    refiners: string[]; //String of Keys representing the static name of the column used for drill downs
+
+    /**    
+     * 'parseBySemiColons' |
+     * 'groupBy10s' |  'groupBy100s' |  'groupBy1000s' |  'groupByMillions' |
+     * 'groupByDays' |  'groupByMonths' |  'groupByYears' |
+     * 'groupByUsers' | 
+     * 
+     * rules string formatted as JSON : [ string[] ]  =  [['parseBySemiColons''groupByMonths'],['groupByMonths'],['groupByUsers']]
+     * [ ['parseBySemiColons''groupByMonths'],
+     * ['groupByMonths'],
+     * ['groupByUsers'] ]
+     * 
+    */
+
+    rules: string; 
+
+
 
 }
 
@@ -158,6 +184,8 @@ export interface IDrillDownState {
     WebpartHeight: number;
     WebpartWidth: number;
 
+    refinerObj: IRefiners;
+    
 }
 
 export default class DrillDown extends React.Component<IDrillDownProps, IDrillDownState> {
@@ -173,7 +201,18 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  *                                                                                                       
  */
 
-    private createDrillList(webURL: string, name: string, isLibrary: boolean, title: string = null) {
+    private createEmptyRefinerRules( rules: string ) {
+        let emptyRules : any = null;
+        try {
+            emptyRules = JSON.parse(rules);
+        } catch(e) {
+            emptyRules = undefined;
+        }
+
+        return emptyRules;
+    }
+
+    private createDrillList(webURL: string, name: string, isLibrary: boolean, refiners: string[], rules: string, title: string = null) {
 
         let list: IDrillList = {
             title: title,
@@ -181,6 +220,9 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             guid: '',
             isLibrary: isLibrary,
             webURL: webURL,
+            refiners: refiners,
+            emptyRefiner: 'Unknown',
+            refinerRules: this.createEmptyRefinerRules( rules ),
             
         };
 
@@ -190,13 +232,17 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     public constructor(props:IDrillDownProps){
         super(props);
 
+        let drillList = this.createDrillList(this.props.webURL, this.props.listName, false, this.props.refiners, this.props.rules, '');
+        let errMessage = drillList.refinerRules === undefined ? 'Invalid Rule set: ' +  this.props.rules : '';
+        if ( drillList.refinerRules === undefined ) { drillList.refinerRules = [[],[],[]] ; } 
+
         this.state = { 
 
             //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
             WebpartHeight: this.props.WebpartHeight ,
             WebpartWidth:  this.props.WebpartWidth ,
 
-            drillList: this.createDrillList(this.props.webURL, this.props.listName, false, ''),
+            drillList: drillList,
 
             allowOtherSites: this.props.allowOtherSites === true ? true : false,
             currentPage: 'Click Button to start',
@@ -214,9 +260,11 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             searchMeta: pivCats.all.title,
             searchText: '',
 
-            errMessage: '',
+            errMessage: errMessage,
 
             progress: null,
+
+            refinerObj: {childrenKeys: this.props.refiners, childrenObjs: [] },
 
         };
 

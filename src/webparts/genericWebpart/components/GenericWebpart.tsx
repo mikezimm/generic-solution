@@ -372,6 +372,10 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           WebpartHeight = { this.state.WebpartHeight }
           WebpartWidth = { this.state.WebpartWidth }
 
+          refiners= { ['SSChoice1', 'MSChoice2', 'Created'] }
+
+          rules = { undefined }
+
       ></DrillDown>
       </div>;
 
