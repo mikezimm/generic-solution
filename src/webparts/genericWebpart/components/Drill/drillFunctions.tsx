@@ -72,10 +72,13 @@ export async function getAllItems( drillList: IDrillList, addTheseItemsToState: 
      }
     
     console.log('drillList.refiners =', drillList.refiners );
-    for ( let i = 0 ; i < 500 ; i++ ) {
+    for ( let i = 0 ; i < 5000 ; i++ ) {
         allRefiners = buildRefinersObject( allItems );
+        console.log(i);
     }
-    
+
+    console.log('getAllItems', allRefiners);
+
     addTheseItemsToState(allItems, errMessage, allRefiners );
     return allItems;
 
@@ -164,7 +167,6 @@ export function buildRefinersObject ( items: IDrillItemInfo[] ) {
 
         }
     }
-    console.log('buildRefinersObject', refiners);
 
     return refiners;
 

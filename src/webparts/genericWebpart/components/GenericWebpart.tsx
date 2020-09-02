@@ -357,6 +357,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         ></InspectContents>
       </div>;
 
+      let testRules = '[[],[],[\'groupByDays\']]';
+
       const drillPage = <div>
       <DrillDown 
           allowOtherSites={ false }
@@ -374,7 +376,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
           refiners= { ['SSChoice1', 'MSChoice2', 'Created'] }
 
-          rules = { undefined }
+          rules = { testRules }
 
       ></DrillDown>
       </div>;
