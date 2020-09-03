@@ -183,6 +183,9 @@ export interface IDrillDownState {
     WebpartWidth: number;
 
     refinerObj: IRefiners;
+
+    pivotCats: IMyPivCat[];
+
     
 }
 
@@ -263,6 +266,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             progress: null,
 
             refinerObj: {childrenKeys: this.props.refiners, childrenObjs: [] , multiCount: 0, itemCount: 0 },
+
+            pivotCats: [],
 
         };
 
@@ -347,7 +352,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 onChange={ this._searchForText.bind(this) }
               />
               <div className={styles.searchStatus}>
-                { 'Searching ' + this.state.searchCount + ' webs' }
+                { 'Searching ' + this.state.searchCount + ' items' }
                 { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
               </div>
             </div>;
@@ -356,7 +361,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
-            let drillPivots1 = this.createPivotObject(this.state.searchMeta, '');
+            let drillPivots1 = this.createPivotObject(this.state.searchMeta, '', 0);
 
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
@@ -438,10 +443,11 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
     }
 
-    private addTheseItemsToState( allItems , errMessage : string ) {
+    private addTheseItemsToState( allItems , errMessage : string, refinerObj: IRefiners ) {
 
         let newFilteredItems : IDrillItemInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allItems );
-        
+        let pivotCats : any = refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); });
+
         this.setState({
             allItems: allItems,
             searchedItems: newFilteredItems,
@@ -449,8 +455,22 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             errMessage: errMessage,
             searchText: '',
             searchMeta: this.state.searchMeta,
+            refinerObj: refinerObj,
+            pivotCats: pivotCats,
         });
         return true;
+    }
+
+    private createThisPivotCat ( title, desc, order ) {
+
+        let pivCat : IMyPivCat = {
+            title: title,
+            desc: desc,
+            order: order,
+        };
+
+        return pivCat;
+
     }
 
 /***
@@ -495,7 +515,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
     console.log('Searched for:' + text);
     console.log('Web Meta:' + meta);
-    console.log('and found these webs:', newFilteredItems);
+    console.log('and found these items:', newFilteredItems);
     searchCount = newFilteredItems.length;
 
     this.setState({
@@ -595,7 +615,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  */
 
 
-    public createPivotObject(setPivot, display){
+    public createPivotObject(setPivot, display, layer){
 
         let theseStyles = null;
     
@@ -608,11 +628,25 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
           onLinkClick= { this._onSearchForMeta.bind(this) }  //{this.specialClick.bind(this)}
           selectedKey={ setPivot }
           headersOnly={true}>
-            {this.getWebPivots()}
+            {this.getRefinerPivots(layer)}
         </Pivot>;
         return pivotWeb;
       }
 
+      private getRefinerPivots(layer) {
+
+        let thesePivots = [ ];
+        if ( this.state.pivotCats.length === 0 ) {
+            thesePivots = [this.buildFilterPivot( pivCats.all )];
+        } else  {
+            thesePivots = [this.buildFilterPivot( pivCats.all )];
+
+            thesePivots = thesePivots.concat(this.state.pivotCats.map( pC => { return this.buildFilterPivot( pC ) ; }) ) ;
+        }
+
+        return thesePivots;
+
+      }
     private getWebPivots() {
 
         let all = this.buildFilterPivot( pivCats.all );
@@ -630,6 +664,16 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     }
 
     private buildFilterPivot(pivCat: IMyPivCat) {
+
+        if ( pivCat === undefined || pivCat === null ) {
+            let p = <PivotItem 
+                headerText={ 'ErrPivCat' }
+                itemKey={ 'ErrPivCat' }
+                >
+                { 'ErrPivCat' }
+            </PivotItem>;
+
+        } else {
         let p = <PivotItem 
             headerText={ pivCat.title }
             itemKey={ pivCat.title }
@@ -638,6 +682,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         </PivotItem>;
 
         return p;
+        }
+
     }
 
 /***

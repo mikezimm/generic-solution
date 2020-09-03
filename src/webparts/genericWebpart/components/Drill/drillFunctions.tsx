@@ -43,7 +43,7 @@ export async function getAllItems( drillList: IDrillList, addTheseItemsToState: 
     let errMessage = '';
     try {
         thisListObject = Web(drillList.webURL);
-        allItems = await thisListObject.lists.getByTitle(drillList.name).items.get();
+        allItems = await thisListObject.lists.getByTitle(drillList.name).items.orderBy('ID',false).top(300).get();
     
     } catch (e) {
         errMessage = getHelpfullError(e, true, true);
@@ -60,10 +60,10 @@ export async function getAllItems( drillList: IDrillList, addTheseItemsToState: 
         allItems[i].bestCreate = getBestTimeDelta(allItems[i].Created, thisIsNow);
         allItems[i].bestMod = getBestTimeDelta(allItems[i].Modified, thisIsNow);
 
-        allItems[i].meta = buildMetaFromItem(allItems[i]);
-        allItems[i].searchString = buildSearchStringFromWeb(allItems[i]);
-
         allItems[i].refiners = getItemRefiners( drillList, allItems[i] );
+
+        allItems[i].meta = buildMetaFromItem(allItems[i]);
+        allItems[i].searchString = buildSearchStringFromItem(allItems[i]);
 
     }
 
@@ -74,7 +74,7 @@ export async function getAllItems( drillList: IDrillList, addTheseItemsToState: 
     console.log('drillList.refiners =', drillList.refiners );
     for ( let i = 0 ; i < 5000 ; i++ ) {
         allRefiners = buildRefinersObject( allItems );
-//        console.log(i);
+        console.log(i);
     }
 
     console.log('Pre-Sort: getAllItems', allRefiners);
@@ -340,34 +340,40 @@ let thisType = 'unknown';
 
 
 
-function buildMetaFromItem( theWeb: IDrillItemInfo ) {
+function buildMetaFromItem( theItem: IDrillItemInfo ) {
     let meta: string[] = ['All'];
 
-    if ( theWeb.timeCreated.daysAgo === 0 ) {
+    if ( theItem.timeCreated.daysAgo === 0 ) {
         meta = addItemToArrayIfItDoesNotExist(meta, 'New');
     } else {
-        meta = theWeb.timeCreated.daysAgo < 180 ? addItemToArrayIfItDoesNotExist(meta, 'RecentlyCreated') : addItemToArrayIfItDoesNotExist(meta, 'Old');
+        meta = theItem.timeCreated.daysAgo < 180 ? addItemToArrayIfItDoesNotExist(meta, 'RecentlyCreated') : addItemToArrayIfItDoesNotExist(meta, 'Old');
     }
 
-    meta = theWeb.timeModified.daysAgo < 180 ? addItemToArrayIfItDoesNotExist(meta, 'RecentlyUpdated') : addItemToArrayIfItDoesNotExist(meta, 'Stale');
+    meta = theItem.timeModified.daysAgo < 180 ? addItemToArrayIfItDoesNotExist(meta, 'RecentlyUpdated') : addItemToArrayIfItDoesNotExist(meta, 'Stale');
 
-    meta = addItemToArrayIfItDoesNotExist(meta, theWeb.sort );
+    for ( let L of Object.keys(theItem.refiners) ) {
+        for ( let R in theItem.refiners[L] ) {
+            meta = addItemToArrayIfItDoesNotExist(meta, theItem.refiners[L][R]);
+        }
+    }
+
+    meta = addItemToArrayIfItDoesNotExist(meta, theItem.sort );
 
     return meta;
 }
 
-function buildSearchStringFromWeb (newWeb : IDrillItemInfo) {
+function buildSearchStringFromItem (newItem : IDrillItemInfo) {
 
     let result = '';
     let delim = '|||';
 
-    if ( newWeb.Title ) { result += 'Title=' + newWeb.Title + delim ; }
+    if ( newItem.Title ) { result += 'Title=' + newItem.Title + delim ; }
 
-    if ( newWeb.Id ) { result += 'Id=' + newWeb.Id + delim ; }
+    if ( newItem.Id ) { result += 'Id=' + newItem.Id + delim ; }
 
-    if ( newWeb['odata.type'] ) { result += newWeb['odata.type'] + delim ; }
+    if ( newItem['odata.type'] ) { result += newItem['odata.type'] + delim ; }
 
-    if ( newWeb.meta.length > 0 ) { result += 'Meta=' + newWeb.meta.join(',') + delim ; }
+    if ( newItem.meta.length > 0 ) { result += 'Meta=' + newItem.meta.join(',') + delim ; }
 
     result = result.toLowerCase();
 
