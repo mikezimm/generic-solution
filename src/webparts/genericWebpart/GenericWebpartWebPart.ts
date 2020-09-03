@@ -145,6 +145,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         tenant: this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,""),
         urlVars: this.getUrlVars(),
         today: makeTheTimeObject(''),
+        parentListFieldTitles: this.properties.parentListFieldTitles,
 
         //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
         WebpartElement: this.domElement,
@@ -211,9 +212,11 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     const r = await list.fields();
 
     //2020-05-13:  Remove Active since it's replaced with StatusTMT which is not applicable here
-    let getFields=["Title","ProjectID1","ProjectID2","Category1","Category2","Activity","Story","Chapter","ActivityTMT","ActivityType"];
+    let defFields = ["Title","Author","Editor","Created","Modified"];
+    let filterFields=["SSChoice1","SSChoiceA","MSChoice2","MSChoiceB"];
+    let allFields = defFields.concat(filterFields);
 
-    let fieldTitles = r.filter(f => f.Hidden !== true && getFields.indexOf(f.StaticName) > -1).map( 
+    let fieldTitles = r.filter(f => f.Hidden !== true && allFields.indexOf(f.StaticName) > -1).map( 
       f => {return [f.StaticName,f.Title,f.Description,f.Required,f.FieldTypeKind];});
     
     //Update properties here:

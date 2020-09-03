@@ -15,7 +15,7 @@ import { IGenericWebpartState } from './IGenericWebpartState';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from './IReUsableInterfaces';
+import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IRefinerRules, RefineRuleValues } from './IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 import InfoPage from './HelpInfo/infoPages';
@@ -35,6 +35,8 @@ import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList
 import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/component/provisionPageComponent';
 import { defineThePage } from './PageProvisioning/FinancePages/defineThisPage';
 import ProvisionPages from './PageProvisioning/component/provisionPageComponent';
+
+import DrillDown from './Drill/drillComponent';
 
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
 
@@ -88,6 +90,12 @@ export default class GenericWebpart extends React.Component<IGenericWebpartProps
             data: "Get webpart definitions",
             lastIndex: null,
           },
+          { headerText: "DrillDown",
+          filter: "drillDown",
+          itemKey: "drillDown",
+          data: "Test Drilldown",
+          lastIndex: null,
+        },
         ]
       ,
     };
@@ -348,6 +356,39 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
         ></InspectContents>
       </div>;
+      let rules1: RefineRuleValues[] = ['parseBySemiColons'];
+      let rules2: RefineRuleValues[] = ['parseBySemiColons'];
+      let rules3: RefineRuleValues[] = ['groupByMonths'];
+      let testRules = [
+        rules1, rules2, rules3
+      ];
+
+      let stringRules = JSON.stringify( testRules );
+
+      console.log('stringRules', stringRules);
+
+      const drillPage = <div>
+      <DrillDown 
+          allowOtherSites={ false }
+          pageContext={ this.props.pageContext }
+          showPane={true}
+          allLoaded={false}
+          currentUser = {this.state.currentUser }
+          webURL = { this.state.parentListWeb }
+          allowSettings = { true }
+          listName = { this.props.parentListTitle }
+          parentListFieldTitles = { this.props.parentListFieldTitles }
+
+          WebpartHeight = { this.state.WebpartHeight }
+          WebpartWidth = { this.state.WebpartWidth }
+
+          refiners= { ['Story', 'Chapter', 'Created'] }
+
+          rules = { stringRules }
+
+      ></DrillDown>
+      </div>;
+
 
       const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
         root: { marginTop: 10 },
@@ -357,7 +398,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       let MyPivot = <div style={{ paddingLeft: 10, paddingRight: 20 }}>
         <Pivot aria-label="Provision Options"
           defaultSelectedIndex ={2}>
-            
+
           <PivotItem headerText="Lists">
                 { provisionListPage }
           </PivotItem>
@@ -366,6 +407,9 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           </PivotItem>
           <PivotItem headerText="Contents">
               { contentsPage }
+          </PivotItem>
+          <PivotItem headerText="DrillDown">
+              { drillPage }
           </PivotItem>
 
           <PivotItem headerText="Help">

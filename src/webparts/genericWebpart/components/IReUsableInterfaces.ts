@@ -1,6 +1,51 @@
 
 import { IGenericWebpartProps } from './IGenericWebpartProps';
 
+  
+export interface IRefinerRules {
+  rules: RefineRuleValues[];
+}
+
+export type RefineRuleValues = 
+  'parseBySemiColons' | 'parseByCommas' | 'groupBy10s' |  'groupBy100s' |  'groupBy1000s' |  'groupByMillions' | 
+  'isDate' | 'groupByDays' | 'groupByWeeks' |  'groupByMonths' |  'groupByYears' | 'groupByDayOfWeek' |  'groupByDateBuckets' |
+  'groupByUsers' | 'invalidRules' | ''
+;
+
+export interface IItemRefiners {
+  lev0: any[]; lev1: any[]; lev2: any[];
+}
+
+export interface IRefiners {
+  multiCount: number; // Count when counting multi-value fields each time
+  itemCount: number; // Count when only counting multi-value fields once
+  childrenKeys: string[];
+  childrenObjs: IRefinerLayer[];
+}
+
+export interface IRefinerLayer {
+  thisKey: string;
+  multiCount: number; // Count when counting multi-value fields each time
+  itemCount: number; // Count when only counting multi-value fields once
+  childrenKeys: string[];
+  childrenObjs?: IRefinerLayer[];
+}
+
+export interface IPickedWebBasic {
+  title: string;
+  ServerRelativeUrl: string;
+  guid: string;
+  url: string;
+  siteIcon: string;
+}
+
+export interface IPickedList {
+  title: string;
+  name: string;
+  guid: string;
+  isLibrary: boolean;
+}
+
 export interface IMyProgress {
 
   time: string;
