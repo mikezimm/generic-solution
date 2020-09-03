@@ -17,7 +17,7 @@ import { IMyView,  } from '../../../../services/listServices/viewTypes'; //Impor
 
 import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../services/listServices/listServices';
 
-import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '../../../../services/dateServices';
+import { makeSmallTimeObject, makeTheTimeObject,ITheTime, getAge, getBestTimeDelta, isStringValidDate} from '../../../../services/dateServices';
 
 import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../services/arrayServices';
 
@@ -54,8 +54,8 @@ export async function getAllItems( drillList: IDrillList, addTheseItemsToState: 
 
     for (let i in allItems ) {
 
-        allItems[i].timeCreated = makeSmallTimeObject(allItems[i].Created);
-        allItems[i].timeModified = makeSmallTimeObject(allItems[i].Modified);
+        allItems[i].timeCreated = makeTheTimeObject(allItems[i].Created);
+        allItems[i].timeModified = makeTheTimeObject(allItems[i].Modified);
 
         allItems[i].bestCreate = getBestTimeDelta(allItems[i].Created, thisIsNow);
         allItems[i].bestMod = getBestTimeDelta(allItems[i].Modified, thisIsNow);
@@ -74,18 +74,46 @@ export async function getAllItems( drillList: IDrillList, addTheseItemsToState: 
     console.log('drillList.refiners =', drillList.refiners );
     for ( let i = 0 ; i < 5000 ; i++ ) {
         allRefiners = buildRefinersObject( allItems );
-        console.log(i);
+//        console.log(i);
     }
 
-    console.log('getAllItems', allRefiners);
+    console.log('Pre-Sort: getAllItems', allRefiners);
+
+    allRefiners = sortRefinerObject(allRefiners);
+
+    console.log('Post-Sort: getAllItems', allRefiners);
 
     addTheseItemsToState(allItems, errMessage, allRefiners );
     return allItems;
 
 }
 
+function sortRefinerObject ( allRefiners: IRefiners ) {
+
+    //webPartDefs.sort((a, b) => (a.alias > b.alias) ? 1 : -1);
+    allRefiners.childrenKeys.sort();
+    allRefiners.childrenObjs.sort((a, b) => (a.thisKey > b.thisKey) ? 1 : -1);
+    allRefiners.childrenObjs = sortRefinerLayer( allRefiners.childrenObjs );
+
+    return allRefiners;
+
+}
+
+function sortRefinerLayer ( allRefiners: IRefinerLayer[] ) {
+
+    for ( let r in allRefiners ) { //Go through all list items
+        allRefiners[r].childrenKeys.sort();
+        allRefiners[r].childrenObjs.sort((a, b) => (a.thisKey > b.thisKey) ? 1 : -1);
+        allRefiners[r].childrenObjs = sortRefinerLayer( allRefiners[r].childrenObjs );
+    }
+
+    return allRefiners;
+}
+
 function createNewRefinerLayer( thisKey: string) {
     let newRefiner : IRefinerLayer = {
+        multiCount: 0,
+        itemCount: 0,
         thisKey: thisKey,
         childrenKeys: [],
         childrenObjs: [],
@@ -96,6 +124,8 @@ function createNewRefinerLayer( thisKey: string) {
 export function buildRefinersObject ( items: IDrillItemInfo[] ) {
 
     let refiners : IRefiners = {
+        multiCount: 0,
+        itemCount: 0,
         childrenKeys: [],
         childrenObjs: [],
     };
@@ -120,6 +150,8 @@ export function buildRefinersObject ( items: IDrillItemInfo[] ) {
                     refiners.childrenObjs.push( createNewRefinerLayer (thisRefiner0) );
                     topKey0 = refiners.childrenKeys.length -1;
                 }
+                refiners.multiCount ++;
+                if ( r0 == '0') { refiners.itemCount ++; }
 
                 let thisRefinerValuesLev1 = i.refiners['lev' + 1];
 
@@ -134,9 +166,11 @@ export function buildRefinersObject ( items: IDrillItemInfo[] ) {
 
                     if ( topKey1 < 0 ) { //Add to topKeys and create keys child object
                         refiners1.childrenKeys.push( thisRefiner1 );
-                        refiners1.childrenObjs.push( createNewRefinerLayer (thisRefiner1) );
+                        refiners1.childrenObjs.push( createNewRefinerLayer (thisRefiner1 ) );
                         topKey1 = refiners1.childrenKeys.length -1;
                     }
+                    refiners1.multiCount ++;
+                    if ( r1 == '0') { refiners1.itemCount ++; }
 
                     let thisRefinerValuesLev2 = i.refiners['lev' + 2];
 
@@ -154,7 +188,8 @@ export function buildRefinersObject ( items: IDrillItemInfo[] ) {
                             refiners2.childrenObjs.push( createNewRefinerLayer (thisRefiner2) );
                             topKey2 = refiners2.childrenKeys.length -1;
                         }
-
+                        refiners2.multiCount ++;
+                        if ( r2 == '0') { refiners2.itemCount ++; }
                         //now with topKey values, do second layer
                     }
 
@@ -209,21 +244,59 @@ function getRefinerFromField ( fieldValue : any, ruleSet: RefineRuleValues[], em
 
     } else if ( fieldType === 'string' ){
 
-        //parse by semiColon or comma if rule dictates
-        if ( ruleSet.indexOf('parseBySemiColons') > -1 ) {
-            fieldValue = getRefinerFromField ( fieldValue.split(';') , ruleSet, emptyRefiner );
-
-        } else if (ruleSet.indexOf('parseByCommas') > -1 ) {
-            fieldValue = getRefinerFromField ( fieldValue.split(',') , ruleSet, emptyRefiner );
-
-        } else if ( isNaN(fieldValue) ) { //This is a string or date string
+        if ( isNaN(fieldValue) ) { //This is a string or date string
 
             //If it's a string, then test if it's a date, return the best date in an array.   Object.prototype.toString.call(date) === '[object Date]'  //https://stackoverflow.com/a/643827
             //As of 2020-09-01:  This does not accurately detect dates.
-            if ( Object.prototype.toString.call(fieldValue) === '[object Date]' ) {
-                result = [ fieldValue ];
 
-            } else {
+                    //parse by semiColon or comma if rule dictates
+            if ( ruleSet.indexOf('parseBySemiColons')  > -1 && fieldValue.indexOf(';') > -1 ) {
+                fieldValue = getRefinerFromField ( fieldValue.split(';') , ruleSet, emptyRefiner );
+
+            } else if (ruleSet.indexOf('parseByCommas')  > -1 && fieldValue.indexOf(',') > -1 ) {
+                fieldValue = getRefinerFromField ( fieldValue.split(',') , ruleSet, emptyRefiner );
+
+            } else if ( isStringValidDate(fieldValue, 'common') ) {
+                //This is a date!
+
+                let tempDate = makeTheTimeObject( fieldValue );
+                let reFormattedDate = null;
+                // 'groupByDays' | 'groupByWeeks' |  'groupByMonths' |  'groupByYears' | 'groupByDayOfWeek' | 
+                if ( ruleSet.indexOf('groupByDays') > -1 ) {
+                    reFormattedDate = tempDate.dayYYYYMMDD;
+
+                } else if ( ruleSet.indexOf('groupByWeeks') > -1 ) {
+                    reFormattedDate = tempDate.year + '-'+ tempDate.isoWeek;
+
+                } else if ( ruleSet.indexOf('groupByMonths') > -1 ) {
+                    reFormattedDate = tempDate.year + '-'+ ("0" + (tempDate.month + 1)).slice(-2) ;
+
+                } else if ( ruleSet.indexOf('groupByYears') > -1 ) {
+                    reFormattedDate = tempDate.year;
+
+                } else if ( ruleSet.indexOf('groupByDayOfWeek') > -1 ) {
+                    reFormattedDate = tempDate.dayStr;
+
+                } else if ( ruleSet.indexOf('groupByDateBuckets') > -1 ) {
+                    if ( tempDate.daysAgo > 360 ) {
+                        reFormattedDate = '\> 1 Year' ;
+
+                    } else if ( tempDate.daysAgo > 30 ) {
+                        reFormattedDate = '\> 1 Month' ;
+
+                    } else if ( tempDate.daysAgo > 7 ) {
+                        reFormattedDate = '\> 1 Week' ;
+
+                    } else if ( tempDate.daysAgo > 1 ) {
+                        reFormattedDate = '\> 1 Day' ;                       
+                        
+                    } else { reFormattedDate = 'Today' ; }
+
+                } 
+
+                result = [ reFormattedDate ];
+
+            } else { // This should be a string
                 result = [ fieldValue ];
 
             }

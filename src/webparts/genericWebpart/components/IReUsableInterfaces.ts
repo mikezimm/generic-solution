@@ -7,7 +7,9 @@ export interface IRefinerRules {
 }
 
 export type RefineRuleValues = 
-  'parseBySemiColons' | 'parseByCommas' | 'groupBy10s' |  'groupBy100s' |  'groupBy1000s' |  'groupByMillions' | 'isDate' | 'groupByDays' |  'groupByMonths' |  'groupByYears' | 'groupByUsers' |  '' | 'invalidRules'
+  'parseBySemiColons' | 'parseByCommas' | 'groupBy10s' |  'groupBy100s' |  'groupBy1000s' |  'groupByMillions' | 
+  'isDate' | 'groupByDays' | 'groupByWeeks' |  'groupByMonths' |  'groupByYears' | 'groupByDayOfWeek' |  'groupByDateBuckets' |
+  'groupByUsers' | 'invalidRules' | ''
 ;
 
 export interface IItemRefiners {
@@ -15,12 +17,16 @@ export interface IItemRefiners {
 }
 
 export interface IRefiners {
+  multiCount: number; // Count when counting multi-value fields each time
+  itemCount: number; // Count when only counting multi-value fields once
   childrenKeys: string[];
   childrenObjs: IRefinerLayer[];
 }
 
 export interface IRefinerLayer {
   thisKey: string;
+  multiCount: number; // Count when counting multi-value fields each time
+  itemCount: number; // Count when only counting multi-value fields once
   childrenKeys: string[];
   childrenObjs?: IRefinerLayer[];
 }

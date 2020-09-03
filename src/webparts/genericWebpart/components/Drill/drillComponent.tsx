@@ -148,9 +148,7 @@ export interface IDrillDownProps {
      * 
     */
 
-    rules: string; 
-
-
+    rules: string;
 
 }
 
@@ -264,7 +262,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             progress: null,
 
-            refinerObj: {childrenKeys: this.props.refiners, childrenObjs: [] },
+            refinerObj: {childrenKeys: this.props.refiners, childrenObjs: [] , multiCount: 0, itemCount: 0 },
 
         };
 

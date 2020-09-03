@@ -15,7 +15,7 @@ import { IGenericWebpartState } from './IGenericWebpartState';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from './IReUsableInterfaces';
+import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IRefinerRules, RefineRuleValues } from './IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 import InfoPage from './HelpInfo/infoPages';
@@ -356,8 +356,16 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
         ></InspectContents>
       </div>;
+      let rules1: RefineRuleValues[] = ['parseBySemiColons'];
+      let rules2: RefineRuleValues[] = ['parseBySemiColons'];
+      let rules3: RefineRuleValues[] = ['groupByMonths'];
+      let testRules = [
+        rules1, rules2, rules3
+      ];
 
-      let testRules = '[[],[],[\'groupByDays\']]';
+      let stringRules = JSON.stringify( testRules );
+
+      console.log('stringRules', stringRules);
 
       const drillPage = <div>
       <DrillDown 
@@ -374,9 +382,9 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           WebpartHeight = { this.state.WebpartHeight }
           WebpartWidth = { this.state.WebpartWidth }
 
-          refiners= { ['SSChoice1', 'MSChoice2', 'Created'] }
+          refiners= { ['Story', 'Chapter', 'Created'] }
 
-          rules = { testRules }
+          rules = { stringRules }
 
       ></DrillDown>
       </div>;
