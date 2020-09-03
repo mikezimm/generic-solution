@@ -7,6 +7,7 @@ import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../serv
 
 import { IContentsUserInfo, IUserBucketInfo} from './usersComponent';
 
+import { iconSiteAdmin } from './usersFunctions';
 import { createIconButton } from '../../createButtons/IconButton';
 
 import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
@@ -31,7 +32,7 @@ export interface IMyLogUserProps {
     descending: boolean;
     maxChars?: number;
 
-    showUsers: boolean;
+    showGroups: boolean;
 
     showDesc?: boolean;
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
@@ -133,7 +134,7 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
         let styleSpecial = this.props.railsOff ? styles.hideMe : styles.showCell;
         let styleDesc = this.props.showDesc ? styles.showCell : styles.hideMe;
 
-        let styleUsers = this.props.showUsers ? styles.showCell : styles.hideMe;
+        let styleUsers = this.props.showGroups ? styles.showCell : styles.hideMe;
 
         let styleRailsOff = this.props.railsOff ? styles.showCell : styles.hideMe;
         let styleOnRailsOn = this.props.railsOff ? styles.hideMe : styles.showCell;
@@ -152,8 +153,11 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
            },
           };
 
-          let groupTitle = Usr.Title != null && Usr.Title.indexOf('SharingLinks') === 0 ? Usr.Title.slice(0, 20) : Usr.Title;
-          let groupLink = createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipUserId=' + Usr.Id, '_blank', groupTitle );
+          let userTitle = Usr.Title != null && Usr.Title.indexOf('SharingLinks') === 0 ? Usr.Title.slice(0, 20) : Usr.Title;
+
+          let userBold = <span style={{ fontWeight: 600, color: 'purple' }}>{ userTitle }</span>;
+
+          let groupLink = createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipUserId=' + Usr.Id, '_blank', userTitle );
 
           let groupInfo = '|Splitme|' + Usr.Id + '|Splitme|' + Usr.Title  + '|Splitme|' + Usr.Title;
 
@@ -166,26 +170,40 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
           let normalIcon = <Icon iconName={ "Info"} className={ iconClassInfo } styles = { iconStyles }/>;
           let keys = Usr.meta ? <div><h3>Properties</h3><ul> { Usr.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
 
-          let userString = Usr.userString;
+          let userString = Usr.groupString;
 
           const onRenderHoverCard = (item: any): JSX.Element => {
             let hoverWebStyle = { fontWeight: 700};
+
+            let highlightKeys = ["Title","Email","IsSiteAdmin","LoginName", "Id"];
+
+            let highlightProps = highlightKeys.map( prop => {
+                let propType = typeof Usr[prop];
+                let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(Usr[prop]) : Usr[prop];
+                return <p><span style={hoverWebStyle}>{ prop }:</span> { propVal }</p>;
+            });
+
+            let specialKeys = highlightKeys.concat("meta","searchString");
+            console.log('spespecialKeys', specialKeys);
+            highlightProps.push( <p><span style={hoverWebStyle}>Meta:</span> { Usr.meta.join('; ') }</p> );
+            highlightProps.push( <p><span style={hoverWebStyle}>Search String:</span> { Usr.searchString }</p> );           
+
+            let hoverMinorPropStyle = { fontSize: 'smaller' };
+
+            let allProps = highlightProps.concat(Object.keys(Usr).map( prop => {
+
+              if (specialKeys.indexOf(prop) < 0 ) {
+                let propType = typeof Usr[prop];
+                let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(Usr[prop]) : Usr[prop];
+                return <p style={hoverMinorPropStyle}><span style={hoverWebStyle}>{ prop }:</span> { propVal }</p>;
+              } else { return null; }
+            }) );
+
+
             return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
               <div>
-                { /* Basic information */ }
-                <p><span style={hoverWebStyle}>Title:</span> { Usr.Title }</p>
+                { allProps }
 
-                <p><span style={hoverWebStyle}>Meta:</span> { Usr.meta.join('; ') }</p>
-
-                <p><span style={hoverWebStyle}>Users:</span> { userString }</p>
-
-                { /* Types information */ }
-                <p><span style={hoverWebStyle}>odata.type:</span> { /* F['odata.type'] */ '' }</p>
-
-                <p><span style={hoverWebStyle}>typeString:</span> { Usr.typeString }</p>
-
-                <p><br></br></p>
-                <p><span style={hoverWebStyle}>Search String:</span> { Usr.searchString }</p>
               </div>
             </div>;
           };
@@ -202,10 +220,13 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
             </HoverCard>
             </div>;
 
+            let adminIcon = Usr.IsSiteAdmin === true ? iconSiteAdmin : null;
             //columnsToVisible
             return <tr>
-                <td className={ '' }> { '' }</td> 
-                <td className={ styleTitle }> {  groupTitle }</td>
+                <td className={ '' }> { Usr.fabricIcon }</td> 
+
+                <td className={ styleTitle }> { ( Usr.IsSiteAdmin ? userBold : userTitle) } { adminIcon } </td>
+                <td className={ styleTitle }> { Usr.Id }</td>
 
                 <td className= { styleAdvanced }> { groupLink }</td>
 
@@ -213,7 +234,7 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
 
                 <td className={ styleSpecial }> { /*this.getWebSpecialValue( F ) */ '' } </td>
                 <td className= { styleRailsOff }>Rails Off Content</td>
-                <td className= { styleUsers }> {Usr.userCount } </td>
+                <td className= { styleUsers }> {Usr.groupCount } </td>
                 <td className= { styleUsers }> { userString } </td>
                 
                 <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
@@ -238,6 +259,7 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
             <tr>
                 <th></th>
                 <th className={ styleTitle }>Title</th>
+                <th className={ styleTitle }>Id</th>
                 <th className={ styleAdvanced }>Link to User</th>
 
                 <th className={ styleDesc }>Description</th>
@@ -255,10 +277,9 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
             { itemRows }
         </table>;
         let barText = this.props.blueBar && this.props.blueBar != null ? this.props.blueBar : this.props.items.bucketLabel;
-        if (barText === 'O') { barText = 'Users with \"Owner\" in the Title' ; }
-        else if (barText === 'M') { barText = 'Users with \"Member\" in the Title' ; }
-        else if (barText === 'V') { barText = 'Users with \"Visitor\" in the Title' ; }
-        else if (barText != '') { barText = barText + 'Users' ; }
+        if (barText === 'Security') { barText = barText + ' Principal=4' ; }
+        else if (barText === 'User' || barText === 'NoID' || barText === 'AD' || barText === 'Trusted') { barText = barText + ' Principal=1' ; }
+        else if (barText != '') { barText = barText + ' Users' ; }
 
         let webTitle = null;
  

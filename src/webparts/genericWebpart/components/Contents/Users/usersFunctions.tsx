@@ -1,6 +1,7 @@
 
+import * as React from 'react';
 
-import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, IPrincipalInfo, PrincipalType, PrincipalSource } from "@pnp/sp/presets/all";
+import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, IPrincipalInfo, PrincipalType, PrincipalSource, SiteUsers, SiteUser, } from "@pnp/sp/presets/all";
 
 import { sp } from "@pnp/sp";
 import "@pnp/sp/webs";
@@ -32,51 +33,83 @@ import { mergeAriaAttributeValues } from "office-ui-fabric-react";
 
 import { pivCats } from './usersComponent';
 
-export type IValidTemplate = 'SITEPAGEPUBLISHING#0' | 'STS#3';
-export type IValidWebTemplate2 = 64 | 68 ; //64 = Team; 68 = Communication
+import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
+import stylesL from '../listView.module.scss';
+
+import { getPrincipalTypeString } from '../Groups/groupsFunctions';
 
 export const systemGroups = ["Approvers","Designers" ,"Excel Services Viewers" ,"External Editors" ,
 "External Readers" ,"Hierarchy Managers", "Quick Deploy Users", "Restricted Readers"];
 
+/**
+ * Only certain props can go in the root.  fontWeight is not allowed so I use class for those props.
+ */
+
+const rootSiteAdmin = { root: { paddingLeft: 7, color: "purple" ,   fontSize: 12}};
+const rootUser      = { root: { paddingLeft: 7, color: ""                       }};
+const rootNoID      = { root: { paddingLeft: 7, color: "red"                    }};
+const rootGuest     = { root: { paddingLeft: 7, color: "pink",                  }};
+const rootShare     = { root: { paddingLeft: 7, color: "orangered", fontSize: 16}};
+
+const rootSecurity  = { root: { paddingLeft: 7, color: "darkblue"               }};
+const rootAD        = { root: { paddingLeft: 7, color: "darkred"                }};
+const rootTrusted   = { root: { paddingLeft: 7, color: "darkgreen" ,            }};
+
+const rootOther     = { root: { paddingLeft: 7, color: "darkblue"  ,            }};
+const rootOther2    = { root: { paddingLeft: 7, color: "red"       ,            }};
+
+const rootHidden    = { root: { paddingLeft: 7, color: "red"       ,            }};
+
+
+export const iconSiteAdmin = <Icon iconName={ "Settings"        } title={ 'SiteAdmin' }     className={ '' } styles = { rootSiteAdmin }/>;
+export const iconUser =     <Icon iconName={ "UserFollowed"     } title={ 'User' }     className={ '' } styles = { rootUser }/>;
+export const iconNoID =     <Icon iconName={ "BlockContact"     } title={ 'Has no ID' }     className={ '' } styles = { rootNoID }/>;
+export const iconGuest =    <Icon iconName={ "ArrangeByFrom"    } title={ 'Authenticated Guest' }     className={ stylesL.isBold } styles = { rootGuest }/>;
+export const iconShare =    <Icon iconName={ "MailForward"      } title={ 'Shared by Email' }     className={ '' } styles = { rootShare }/>;
+
+export const iconSecurity = <Icon iconName={ "SecurityGroup"    } title={ 'Security Group' }     className={ '' } styles = { rootSecurity }/>;
+export const iconAD =       <Icon iconName={ "OpenSource"       } title={ 'Active Directory' }     className={ stylesL.isBold } styles = { rootAD }/>;
+export const iconTrusted =  <Icon iconName={ "Lock12"           } title={ 'Trusted ID' }     className={ stylesL.isBold } styles = { rootTrusted }/>;
+
+export const iconOther =    <Icon iconName={ "Info"             } title={ 'Other' }     className={ stylesL.isBold } styles = { rootOther }/>;
+export const iconOther2 =   <Icon iconName={ "InfoSolid"        } title={ 'Other 2' }     className={ stylesL.isBold } styles = { rootOther2 }/>;
+
+export const iconHidden =   <Icon iconName={ "Hide3"            } title={ 'Hidden from UI' }     className={ stylesL.isBold } styles = { rootHidden }/>;
+
 //export async function provisionTestPage( makeThisPage:  IContentsUserInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableUsers( webURL: string, showUsers: boolean, groupBuckets: IUserBucketInfo[], addTheseGroupsToState: any, setProgress: any, markComplete: any ): Promise<IContentsUserInfo[]>{
+export async function allAvailableUsers( webURL: string, showUsers: boolean, groupBuckets: IUserBucketInfo[], addTheseUsersToState: any, setProgress: any, markComplete: any ): Promise<IContentsUserInfo[]>{
 
-    let contentsWebs : IContentsUserInfo = null;
+    let thisWebInstance = null;
 
-    //lists.getById(listGUID).groups.orderBy("Title", true).get().then(function(result) {
-    //let allGroups : IContentsUserInfo[] = await sp.web.groups.get();
-
-    let thisGroupObject = null;
-    let thisUserInfos = null;
-
-    let allGroups : IContentsUserInfo[] = [];
+    let allUsers : IContentsUserInfo[] = [];
     let scope = '';
     let errMessage = '';
+
     try {
-        thisGroupObject = Web(webURL);
-        allGroups = await thisGroupObject.siteGroups();
+        thisWebInstance = Web(webURL);
+        allUsers = await thisWebInstance.siteUsers();
 
     } catch (e) {
         errMessage = getHelpfullError(e, true, true);
 
     }
 
-    console.log('allAvailableUsers thisUserInfos:' , thisUserInfos);
+    console.log('allAvailableUsers allUsers:' , allUsers);
 
     let thisIsNow = new Date().toLocaleString();
     let indx = 0;
-    let n = allGroups.length;
+    let n = allUsers.length;
 
-    for (let i in allGroups ) {
+    for (let i in allUsers ) {
 
         indx ++;
-        let idx = getGroupSort(allGroups[i], groupBuckets);
+        let idx = getUserSort(allUsers[i], groupBuckets);
 
-//        allGroups[i].timeCreated = makeSmallTimeObject(allGroups[i].Created);
-        let thisGroup = allGroups[i];
+//        allUsers[i].timeCreated = makeSmallTimeObject(allUsers[i].Created);
+        let thisUser = allUsers[i];
         if ( showUsers === true ) {
-            const users = await thisGroupObject.siteGroups.getById(allGroups[i].Id).users();
+            const users = await thisWebInstance.siteUsers.getById(allUsers[i].Id).users();
 
         /**
             * 
@@ -92,47 +125,39 @@ export async function allAvailableUsers( webURL: string, showUsers: boolean, gro
             */
 
           //setProgress(false, "C", i, n , 'darkgray', 'CalculatorSubtract', f.name, 'Adding fields to list (' + step +'): ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name , step + ' fieldsToDo ~ 102' );
-            let label = (i + ' of ' + n + ' - Getting users for ' + allGroups[i].Title).substring( 0, 40 );
+            let label = (i + ' of ' + n + ' - Getting users for ' + allUsers[i].Title).substring( 0, 40 );
             let description = 'Fetching users';
             setProgress( false ,'V', indx, n, null, null, null, label, description );
-            console.log('Users for group: ' + allGroups[i].Id + ' - ' + allGroups[i].Title ,users );
-            allGroups[i].users = users;
-            allGroups[i].userCount = users.length;
-            allGroups[i].userString = allGroups[i].users != null ? allGroups[i].users.map( u => { return u.Title ; }).join('; ') : '';
+            console.log('Users for group: ' + allUsers[i].Id + ' - ' + allUsers[i].Title ,users );
+            allUsers[i].groups = users;
+            allUsers[i].groupCount = users.length;
+            allUsers[i].groupString = allUsers[i].groups != null ? allUsers[i].groups.map( u => { return u.Title ; }).join('; ') : '';
 
         }
 
-        allGroups[i].typeString = getGroupTypeString( allGroups[i].PrincipalType );
-        allGroups[i].sort = groupBuckets[idx]['sort'];
-        allGroups[i].bucketCategory = groupBuckets[idx]['bucketCategory'];
-        allGroups[i].bucketLabel = groupBuckets[idx]['bucketLabel'];
-        allGroups[i].bucketIdx = idx;
+        allUsers[i].fabricIcon = [];
+        allUsers[i].typeString = getPrincipalTypeString( allUsers[i].PrincipalType );
+        allUsers[i].sort = groupBuckets[idx]['sort'];
+        allUsers[i].bucketCategory = groupBuckets[idx]['bucketCategory'];
+        allUsers[i].bucketLabel = groupBuckets[idx]['bucketLabel'];
+        allUsers[i].bucketIdx = idx;
 
-        allGroups[i].meta = buildMetaFromGroup(allGroups[i]);
-        allGroups[i].searchString = buildSearchStringFromGroup(allGroups[i]);
+        allUsers[i].meta = buildMetaFromUser(allUsers[i]);
+        allUsers[i].searchString = buildSearchStringFromUser(allUsers[i]);
 
     }
 
     setProgress(true,'V', n, n, null, null, null, null, null );
 
-    if ( errMessage === '' && allGroups.length === 0 ) { 
+    if ( errMessage === '' && allUsers.length === 0 ) { 
         errMessage = 'This site/web does not have any subsites that you can see.';
      }
-    addTheseGroupsToState(allGroups, scope, errMessage);
-    return allGroups;
+    addTheseUsersToState(allUsers, scope, errMessage);
+    return allUsers;
 
 }
 
-function getGroupTypeString( type: PrincipalType ) {
-    if ( type === 0 ) { return 'None'; }
-    if ( type === 1 ) { return 'User'; }
-    if ( type === 2 ) { return 'Distribution'; }
-    if ( type === 4 ) { return 'Security'; }
-    if ( type === 8 ) { return 'SharePoint'; }
-    if ( type === 15 ) { return 'All'; }
-}
-
-function getGroupSort( theUser: IContentsUserInfo, groupBuckets: IUserBucketInfo[] ) {
+function getUserSort( theUser: IContentsUserInfo, groupBuckets: IUserBucketInfo[] ) {
 /*
     { groups: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content'} ,
     { groups: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
@@ -156,13 +181,13 @@ function getGroupSort( theUser: IContentsUserInfo, groupBuckets: IUserBucketInfo
 
     let idx : any = doesObjectExistInArray(groupBuckets, 'bucketCategory', bucketCategory ); 
 
-    if ( idx === false ) { alert('getGroupSort issue... bucketCategory (' + bucketCategory + ')not found in groupBuckets.'); idx = -1; }
+    if ( idx === false ) { alert('getUserSort issue... bucketCategory (' + bucketCategory + ')not found in groupBuckets.'); idx = -1; }
 
     return idx;
 
 }
 
-function buildMetaFromGroup( theUser: IContentsUserInfo ) {
+function buildMetaFromUser( theUser: IContentsUserInfo ) {
     let meta: string[] = ['All'];
 
     /*
@@ -176,7 +201,35 @@ function buildMetaFromGroup( theUser: IContentsUserInfo ) {
         meta = addItemToArrayIfItDoesNotExist(meta, "System" );
     }
     if ( theUser.typeString != 'All' && theUser.typeString != 'None' ) {
-        meta = addItemToArrayIfItDoesNotExist(meta, theUser.typeString );
+        //
+        if ( theUser.UserPrincipalName === null ) { //This is not a real group
+            if ( theUser.typeString == 'Security' ) { 
+                meta = addItemToArrayIfItDoesNotExist(meta, theUser.typeString );
+                theUser.fabricIcon.push( iconSecurity );
+
+            } else if ( theUser.UserId != null && theUser.UserId.NameIdIssuer.toLowerCase().indexOf('activedirectory') > -1 ) { 
+                meta = addItemToArrayIfItDoesNotExist(meta, 'AD' );
+                theUser.fabricIcon.push( iconAD );
+
+            } else if ( theUser.UserId != null && theUser.UserId.NameIdIssuer.toLowerCase().indexOf('trusted') === 0 ) { 
+                meta = addItemToArrayIfItDoesNotExist(meta, 'Trusted' );
+                theUser.fabricIcon.push( iconTrusted );
+            } else {
+                meta = addItemToArrayIfItDoesNotExist(meta, 'Other' );
+                theUser.fabricIcon.push( iconOther );
+            }
+
+        } else { //It might be a real group
+            if ( theUser.UserId == null ) { 
+                meta = addItemToArrayIfItDoesNotExist(meta, 'NoID' );
+                theUser.fabricIcon.push( iconNoID ) ;
+            } else {
+                meta = addItemToArrayIfItDoesNotExist(meta, theUser.typeString );
+                theUser.fabricIcon.push( iconUser ) ;
+            }
+
+        }
+
     }
     if ( theUser.Title.indexOf('Owners') > 0 ) {
         meta = addItemToArrayIfItDoesNotExist(meta, "O" );
@@ -189,11 +242,28 @@ function buildMetaFromGroup( theUser: IContentsUserInfo ) {
 
     } 
 
-    if ( theUser.userCount === 0 ) { meta = addItemToArrayIfItDoesNotExist(meta, "Empty" ); }
+    if ( theUser.groupCount === 0 ) { meta = addItemToArrayIfItDoesNotExist(meta, "Empty" ); }
     meta = addItemToArrayIfItDoesNotExist(meta, theUser.sort );
     meta = addItemToArrayIfItDoesNotExist(meta, theUser.bucketLabel );
     //meta = theUser.OnlyAllowMembersViewMembership === true ?  addItemToArrayIfItDoesNotExist(meta, "NotVisible" ) :  addItemToArrayIfItDoesNotExist(meta, "Visible" ) ; 
-    if ( theUser.IsHiddenInUI === true ) { addItemToArrayIfItDoesNotExist(meta, "Hidden" ) ; }
+
+    if ( theUser.IsHiddenInUI === true ) { 
+        addItemToArrayIfItDoesNotExist(meta, "Hidden" ) ;
+        theUser.fabricIcon.push( iconHidden ) ;
+    }
+    if ( theUser.IsEmailAuthenticationGuestUser === true ) { 
+        addItemToArrayIfItDoesNotExist(meta, "Guest" ) ;
+        theUser.fabricIcon.push( iconGuest );
+    }
+    if ( theUser.IsShareByEmailGuestUser === true ) { 
+        addItemToArrayIfItDoesNotExist(meta, "Guest" ) ;
+        addItemToArrayIfItDoesNotExist(meta, "Mail" ) ;
+        theUser.fabricIcon.push( iconShare );
+    }
+    if ( theUser.IsSiteAdmin === true ) { 
+        addItemToArrayIfItDoesNotExist(meta, "Admin" ) ;
+        //theUser.fabricIcon = [ iconSiteAdmin ].concat( theUser.fabricIcon );
+    }
     return meta;
 }
 
@@ -208,7 +278,7 @@ function createWebItem( responseWeb: any) {
 
 }
 
-function buildSearchStringFromGroup (newUser : IContentsUserInfo) {
+function buildSearchStringFromUser (newUser : IContentsUserInfo) {
 
     let result = '';
     let delim = '|||';
@@ -221,7 +291,7 @@ function buildSearchStringFromGroup (newUser : IContentsUserInfo) {
 
     //if ( newUser.OwnerTitle != null ) { result += 'Owner=' + newUser.OwnerTitle + delim ; }
 
-    if ( newUser.users != null && newUser.users.length > 0 ) { result += 'User=' + newUser.userString + delim ; }
+    if ( newUser.groups != null && newUser.groups.length > 0 ) { result += 'User=' + newUser.groupString + delim ; }
 
     if ( newUser['odata.type'] ) { result += newUser['odata.type'] + delim ; }
 

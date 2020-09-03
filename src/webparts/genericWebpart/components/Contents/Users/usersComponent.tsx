@@ -5,7 +5,7 @@ import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
 
 import { sp } from "@pnp/sp";
-import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, ISiteUserProps, ISiteUser, } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, ISiteUserProps, ISiteUser, SiteUsers, SiteUser } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import "@pnp/sp/site-users";
 import { ISiteUserInfo } from '@pnp/sp/site-users/types';
@@ -14,7 +14,7 @@ import { IWebAddResult, IWebInfo, IWeb, } from "@pnp/sp/webs/types";
 
 import "@pnp/sp/webs";
 
-import { IValidTemplate, allAvailableUsers } from './usersFunctions';
+import { allAvailableUsers } from './usersFunctions';
 import {  } from './usersFunctions';
 
 import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
@@ -62,16 +62,15 @@ export interface IMyPivCat {
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},
-    associatedGroups: {title: 'Associated' , desc: '', order: 1},
-    system:  {title: 'System' , desc: '', order: 1},
+    admin: {title: 'Admin', desc: '', order: 9 },
+    user: {title: 'User', desc: '', order: 9 },
+    ad: {title: 'AD', desc: '', order: 9 },
+    noId: {title: 'NoID', desc: '', order: 9 },
+    guest: {title: 'Guest', desc: '', order: 9 },
     security: {title: 'Security', desc: '', order: 9 },
     sharepoint: {title: 'SharePoint', desc: '', order: 9 },
-    visible: {title: 'Visible', desc: '', order: 9 },
-    notvisible: {title: 'NotVisible', desc: '', order: 9 },
+    trusted: {title: 'Trusted', desc: '', order: 9 },
     hidden: {title: 'Hidden', desc: '', order: 9 },
-    oGroups: {title: 'O', desc: '', order: 9 },
-    mGroups: {title: 'M', desc: '', order: 9 },
-    vGroups: {title: 'V', desc: '', order: 9 },
     empty: {title: 'Empty', desc: '', order: 9 },
     other: {title: 'Other', desc: '', order: 9 },
 };
@@ -88,10 +87,11 @@ export interface IContentsUserInfo extends Partial<ISiteUserInfo>{
     searchString: string;
     meta: string[];
     typeString: string;
+    fabricIcon: any[];
 
-    users: ISiteUserInfo[];
-    userCount: number | string;
-    userString: string;
+    groups: ISiteUserInfo[];
+    groupCount: number | string;
+    groupString: string;
 
     timeCreated : ITheTime;
     bestCreate: string;
@@ -99,7 +99,7 @@ export interface IContentsUserInfo extends Partial<ISiteUserInfo>{
 }
 
 
-export interface IInspectGroupsProps {
+export interface IInspectUsersProps {
     // 0 - Context
     
     pageContext: PageContext;
@@ -139,7 +139,7 @@ export interface IUserBucketInfo {
 
 }
 
-export interface IInspectGroupsState {
+export interface IInspectUsersState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
 
@@ -161,7 +161,7 @@ export interface IInspectGroupsState {
 
     userBuckets: IUserBucketInfo[];
     // 2 - Source and destination list information
-    allGroups: IContentsUserInfo[];
+    allUsers: IContentsUserInfo[];
 
     blueBar: string;
     meta: string[];
@@ -169,7 +169,7 @@ export interface IInspectGroupsState {
     allowSettings: boolean;  //property that determines if the related toggle is visible or not
     allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
 
-    showUsers: boolean;
+    showGroups: boolean;
 
     showDesc: boolean;      //property set by toggle to actually show or hide this content
     showSettings: boolean;  //property set by toggle to actually show or hide this content
@@ -183,7 +183,7 @@ export interface IInspectGroupsState {
 
 }
 
-export default class InspectGroups extends React.Component<IInspectGroupsProps, IInspectGroupsState> {
+export default class InspectUsers extends React.Component<IInspectUsersProps, IInspectUsersState> {
 
     private createSearchBuckets() {
         let result : IUserBucketInfo[] = [
@@ -215,7 +215,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
  *                                                                                                       
  */
 
-    public constructor(props:IInspectGroupsProps){
+    public constructor(props:IInspectUsersProps){
         super(props);
 
         this.state = { 
@@ -226,7 +226,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
             history: this.clearHistory(),
             allLoaded: false,
 
-            allGroups: [],
+            allUsers: [],
             searchedItems: [],
             first20searchedItems: [],
             searchCount: 0,
@@ -241,7 +241,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
             allowSettings: this.props.allowSettings === true ? true : false,
             allowRailsOff: this.props.allowRailsOff === true ? true : false,
 
-            showUsers: false,
+            showGroups: false,
             showDesc: false,
             showSettings: false,
             showRailsOff: false,
@@ -300,7 +300,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
  *                                                          
  */
 
-    public render(): React.ReactElement<IInspectGroupsProps> {
+    public render(): React.ReactElement<IInspectUsersProps> {
 
 
         let x = 1;
@@ -317,7 +317,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
  *                                                                                     
  */
 
-            console.log('renderStateGroups', this.state.allGroups );
+            console.log('renderStateUsers', this.state.allUsers );
 
             let thisPage = null;
 
@@ -331,7 +331,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
                     return <MyLogUser 
                         showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
-                        showUsers = { this.state.showUsers } blueBar={ this.state.blueBar }
+                        showGroups = { this.state.showGroups } blueBar={ this.state.blueBar }
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         webURL = { this.state.webURL } descending={false} titles={null} 
@@ -415,7 +415,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
                 </Stack>
                 </div></div></div>;
 
-                if ( this.state.allGroups.length === 0 ) {
+                if ( this.state.allUsers.length === 0 ) {
                     thisPage = <div style={{ paddingBottom: 30 }}className={styles.contents}>
                     { errMessage }</div>;
                 }
@@ -449,22 +449,22 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
     }   //End Public Render
 
 
-    private getGroupDefs( showUsers = null ) {
+    private getGroupDefs( showGroups = null ) {
         let listGuid = '';
-        if ( showUsers === null ) { showUsers = this.state.showUsers; }
+        if ( showGroups === null ) { showGroups = this.state.showGroups; }
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
-        let result : any = allAvailableUsers( this.state.webURL, showUsers, this.state.userBuckets, this.addTheseGroupsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableUsers( this.state.webURL, showGroups, this.state.userBuckets, this.addTheseGroupsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
-    private addTheseGroupsToState( allGroups, scope : 'Web' | 'Web' , errMessage : string ) {
+    private addTheseGroupsToState( allUsers, scope : 'Web' | 'Web' , errMessage : string ) {
 
-        let newFilteredItems : IContentsUserInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allGroups );
+        let newFilteredItems : IContentsUserInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allUsers );
 
         let userBuckets  : IUserBucketInfo[] = this.bucketGroups( newFilteredItems, this.state.userBuckets );
         
         this.setState({
-            allGroups: allGroups,
+            allUsers: allUsers,
             searchedItems: newFilteredItems,
             searchCount: newFilteredItems.length,
             errMessage: errMessage,
@@ -477,14 +477,14 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
     /**
      * This puts all the users into the buckets
-     * @param allGroups 
+     * @param allUsers 
      * @param userBuckets 
      */
-    private bucketGroups( allGroups : IContentsUserInfo[], userBuckets : IUserBucketInfo[] ) {
+    private bucketGroups( allUsers : IContentsUserInfo[], userBuckets : IUserBucketInfo[] ) {
 
-        for (let i in allGroups ) {
-            userBuckets[allGroups[i].bucketIdx].users.push( allGroups[i] );
-            userBuckets[allGroups[i].bucketIdx].count ++;
+        for (let i in allUsers ) {
+            userBuckets[allUsers[i].bucketIdx].users.push( allUsers[i] );
+            userBuckets[allUsers[i].bucketIdx].count ++;
         }
         console.log('bucketGroups:  userBuckets', userBuckets);
 
@@ -607,7 +607,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
   public searchForGroups = (text: string, meta: string , resetSpecialAlt: boolean ): void => {
 
-    let searchItems : IContentsUserInfo[] = this.state.allGroups;
+    let searchItems : IContentsUserInfo[] = this.state.allUsers;
     let searchCount = searchItems.length;
 
     let userBuckets : IUserBucketInfo[] = this.createSearchBuckets();
@@ -688,25 +688,23 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
     private getGroupPivots() {
 
         let all = this.buildFilterPivot( pivCats.all );
-        let associatedGroups = this.buildFilterPivot(pivCats.associatedGroups);
-
-        let system = this.buildFilterPivot(pivCats.system);
+        let admin = this.buildFilterPivot(pivCats.admin);
         let security = this.buildFilterPivot(pivCats.security);
         let sharepoint = this.buildFilterPivot(pivCats.sharepoint);
         let other = this.buildFilterPivot(pivCats.other);
 
+        
+        let guest = this.buildFilterPivot(pivCats.guest);  
+        let ad = this.buildFilterPivot(pivCats.ad);
+        let noId = this.buildFilterPivot(pivCats.noId);
+        let user = this.buildFilterPivot(pivCats.user);
+        let trusted = this.buildFilterPivot(pivCats.trusted);
         let empty = this.buildFilterPivot(pivCats.empty);
 
-        let oGroups = this.buildFilterPivot(pivCats.oGroups);
-        let mGroups = this.buildFilterPivot(pivCats.mGroups);
-        let vGroups = this.buildFilterPivot(pivCats.vGroups);
-
-        let visible = this.buildFilterPivot(pivCats.visible);
-        let notVisible = this.buildFilterPivot(pivCats.notvisible);
         let hidden = this.buildFilterPivot(pivCats.hidden);
         
-        let thesePivots = [all, associatedGroups, oGroups, mGroups, vGroups, security, sharepoint, other,visible,  system, notVisible, hidden ];
-        if ( this.state.showUsers === true ) { thesePivots.push(empty); }
+        let thesePivots = [ all, admin, user, noId, guest, security, ad, sharepoint, trusted, other, hidden ];
+        if ( this.state.showGroups === true ) { thesePivots.push(empty); }
         return thesePivots;
     }
 
@@ -746,12 +744,12 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
             styles: '',
         };
 
-        let togUsers = {
+        let togGroups = {
             //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
-            label: <span>Users</span>,
-            key: 'togggleUsers',
-            _onChange: this.updateTogggleUsers.bind(this),
-            checked: this.state.showUsers,
+            label: <span>Groups</span>,
+            key: 'togggleGroups',
+            _onChange: this.updateTogggleGroups.bind(this),
+            checked: this.state.showGroups,
             onText: '',
             offText: '',
             className: '',
@@ -773,7 +771,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
         //let theseToggles = [togDesc, togSet ];
         //if ( this.props.allowRailsOff === true ) { theseToggles.push( togXML, togJSON, togSPFx, togRails ); }
-        let theseToggles = [ togSet, togDesc , togUsers];
+        let theseToggles = [ togSet, togDesc , togGroups];
 
         let pageToggles : IContentsToggles = {
             toggles: theseToggles,
@@ -794,12 +792,12 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
         });
     }
 
-    private updateTogggleUsers() {
+    private updateTogggleGroups() {
 
-        let showUser = this.state.showUsers === true ? false : true;
+        let showUser = this.state.showGroups === true ? false : true;
 
         this.setState({
-            showUsers: !this.state.showUsers,
+            showGroups: !this.state.showGroups,
         });
 
         this.getGroupDefs(showUser);
