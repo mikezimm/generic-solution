@@ -164,7 +164,7 @@ export interface IDrillDownState {
     searchCount: number;
 
     searchText: string;
-    searchMeta: string;
+    searchMeta: string[];
 
     searchedItems: IDrillItemInfo[];
     first20searchedItems: IDrillItemInfo[];
@@ -258,7 +258,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             webURL: this.props.webURL,
 
-            searchMeta: pivCats.all.title,
+            searchMeta: [pivCats.all.title],
             searchText: '',
 
             errMessage: errMessage,
@@ -366,7 +366,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
             if ( this.state.searchText != '' ) { noInfo.push( <p>{'Search Text: ' + this.state.searchText}</p> )  ; }
-            if ( this.state.searchMeta != '' ) { noInfo.push( <p>{'Refiner: ' + this.state.searchMeta}</p> ) ; }
+            if ( this.state.searchMeta[0] != '' ) { noInfo.push( <p>{'Refiner: ' + this.state.searchMeta[0]}</p> ) ; }
 
 
             if ( this.state.allItems.length === 0 ) {
@@ -377,14 +377,14 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 
                 let drillItems = this.state.searchedItems.length === 0 ? <div>NO ITEMS FOUND</div> : <div>
                     <MyDrillItems 
-                                items={ this.state.searchedItems }
-                        ></MyDrillItems>
+                        items={ this.state.searchedItems }
+                    ></MyDrillItems>
                     </div>;
 
                 thisPage = <div className={styles.contents}><div>
 
                 <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
-
+                <p><mark>Pick up by looking at the searchMeta[] array in search.</mark>  It's currently thinking the array is just a string.  line 542 - getNewFilteredItems()</p>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
                      { searchBox } { toggles }
                 </Stack>
@@ -506,7 +506,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
   }
 
 
-  public searchForItems = (text: string, meta: string , resetSpecialAlt: boolean ): void => {
+  public searchForItems = (text: string, meta: string[] , resetSpecialAlt: boolean ): void => {
 
     let searchItems : IDrillItemInfo[] = this.state.allItems;
     let searchCount = searchItems.length;
@@ -531,18 +531,22 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
   } //End searchForItems
 
     
-  private getNewFilteredItems(text: string, meta: string , searchItems : IDrillItemInfo[] ) {
+  private getNewFilteredItems(text: string, meta: string[] , searchItems : IDrillItemInfo[] ) {
 
     let newFilteredItems : IDrillItemInfo[] = [];
 
     for (let thisSearchItem of searchItems) {
 
         let searchString = thisSearchItem.searchString;
-        let webMeta = thisSearchItem.meta;
-  
-        if ( meta === undefined || meta == null || meta == '' || webMeta.indexOf(meta) > -1 ) {
-          if( searchString.indexOf(text.toLowerCase()) > -1 ) {
-            newFilteredItems.push(thisSearchItem);
+
+        if ( meta === undefined || meta == null  ) {
+            for ( let m in meta ) {
+                let itemMeta = thisSearchItem.refiners['lev' + m];
+                if ( meta[m] == '' || itemMeta.indexOf(meta[m]) > -1 ) {
+                    if( searchString.indexOf(text.toLowerCase()) > -1 ) {
+                        newFilteredItems.push(thisSearchItem);
+                    }
+                }
             }
         }
       }
