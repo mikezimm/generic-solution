@@ -7,6 +7,8 @@ import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
+import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+
 import styles from './listView.module.scss';
 
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
@@ -116,6 +118,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             let iconStyles: any = { root: {
               color: h.color ? h.color : "blue",
             }};
+
             let ref: any = h.ref;
 
             if  ( ref != null && ref.indexOf('\n') > 0 ) {
@@ -125,33 +128,13 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
                 }</ul>;
             }
 
+            h.refElement = ref;
+
             let normalIcon = <Icon iconName={ h.icon ? h.icon : "Info"} className={iconClassInfo} styles = {iconStyles}/>;
 
-            const onRenderHoverCard = (item: any): JSX.Element => {
-              return <div className={styles.hoverCard} style={{padding: 30}}>
-                <div>
-                  <div>{ ref }</div>
-                  <div><br/></div>
-                  <div>{ h.time }</div>
-                  <div>{ h.logLabel }</div>
-                  <div>{ h.label }</div>
-                  <div>{ h.description }</div>
-                </div>
-              </div>;
-            };
-
-            let detailsCard = <div>
-              <HoverCard
-                cardDismissDelay={300}
-                type={HoverCardType.plain}
-                plainCardProps={{
-                  onRenderPlainCard: onRenderHoverCard,
-                  renderData: 'testRenderData'
-                }}>
-                { normalIcon }
-              </HoverCard>
-            </div>;
-
+            //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+            let detailsCard = buildPropsHoverCard(h, ["refElement","time","logLabel","label","description"], [] , false, normalIcon );
+            
             return <tr>
               <td className={ styles.nowWrapping }> {  actionCell  }</td>
               <td>{detailsCard}</td>
