@@ -184,7 +184,7 @@ export interface IDrillDownState {
 
     refinerObj: IRefiners;
 
-    pivotCats: IMyPivCat[];
+    pivotCats: IMyPivCat[][];
 
     
 }
@@ -363,6 +363,10 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             let drillPivots0 = this.createPivotObject(this.state.searchMeta[0], '', 0);
 
+            let drillPivots1 = this.state.pivotCats.length >= 1 ? this.createPivotObject(this.state.searchMeta[1], '', 1) : null;
+
+            let drillPivots2 = this.state.pivotCats.length >= 2 ? this.createPivotObject(this.state.searchMeta[2], '', 2) : null;
+
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
             if ( this.state.searchText != '' ) { noInfo.push( <p>{'Search Text: ' + this.state.searchText}</p> )  ; }
@@ -374,7 +378,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 { errMessage }</div>;
             } else {
 
-                
+
                 let drillItems = this.state.searchedItems.length === 0 ? <div>NO ITEMS FOUND</div> : <div>
                     <MyDrillItems 
                         items={ this.state.searchedItems }
@@ -391,6 +395,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
                 <div style={{ height:30, paddingBottom: 15} }> { drillPivots0 } </div>
 
+                <div  className={ drillPivots1 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { drillPivots1 } </div>
+                <div  className={ drillPivots2 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { drillPivots2 } </div>
                 <div>
 
                 <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
@@ -445,8 +451,9 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
     private addTheseItemsToState( allItems , errMessage : string, refinerObj: IRefiners ) {
 
-        let newFilteredItems : IDrillItemInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allItems );
-        let pivotCats : any = refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); });
+        let newFilteredItems : IDrillItemInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allItems, 0 );
+        let pivotCats : any = [];
+        pivotCats.push ( refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); }));
 
         this.setState({
             allItems: allItems,
@@ -484,38 +491,75 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  *                                                         
  */
 
-  public _onSearchForMeta = (item): void => {
+  public _onSearchForMeta0 = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
-    let e: any = event;
-    console.log('searchForItems: e',e);
-    console.log('searchForItems: item', item);
-    console.log('searchForItems: this', this);
-
-    //Be sure to pass item.props.itemKey to get filter value
-    this.searchForItems( this.state.searchText, [item.props.itemKey], false );
+    this.searchForItems( this.state.searchText, [item.props.itemKey], 0, 'meta' );
   }
 
   public _searchForText = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
-    let e: any = event;
-    console.log('searchForItems: e',e);
-    console.log('searchForItems: item', item);
-    console.log('searchForItems: this', this);
-
-    this.searchForItems( item, this.state.searchMeta, true );
+    this.searchForItems( item, this.state.searchMeta, 0, 'text' );
   }
 
+  public _onSearchForMeta1 = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    //let e: any = event;
+    //console.log('searchForItems: e',e);
+    //console.log('searchForItems: item', item);
+    //console.log('searchForItems: this', this);
 
-  public searchForItems = (text: string, meta: string[] , resetSpecialAlt: boolean ): void => {
+    //Be sure to pass item.props.itemKey to get filter value
+    this.searchForItems( this.state.searchText, [item.props.itemKey], 1, 'meta' );
+  }
+
+  public _onSearchForMeta2 = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    //let e: any = event;
+    //console.log('searchForItems: e',e);
+    //console.log('searchForItems: item', item);
+    //console.log('searchForItems: this', this);
+
+    //Be sure to pass item.props.itemKey to get filter value
+    this.searchForItems( this.state.searchText, [item.props.itemKey], 2, 'meta' );
+  }
+
+  public searchForItems = (text: string, meta: string[] , layer: number, searchType: 'meta' | 'text' ): void => {
 
     let searchItems : IDrillItemInfo[] = this.state.allItems;
     let searchCount = searchItems.length;
 
-    let newFilteredItems : IDrillItemInfo[] = this.getNewFilteredItems( text, meta, searchItems );
+    let newFilteredItems : IDrillItemInfo[] = this.getNewFilteredItems( text, meta, searchItems, layer );
 
-    console.log('Searched for:' + text);
-    console.log('Web Meta:' + meta);
-    console.log('and found these items:', newFilteredItems);
+    let pivotCats : any = [];
+    let prevLayer = this.state.pivotCats.length -1 ;
+    if ( searchType === 'meta' && layer !== prevLayer ) {
+
+        pivotCats.push ( this.state.refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
+
+        if ( layer < prevLayer ) {
+            //Need to remove previous layer
+        } else { // Add new layer
+            let searchMeta0 = this.state.searchMeta[ 0 ]; //Should not be used because it should always have something.
+            let newKeyIndex0 = this.state.refinerObj.childrenKeys[0].indexOf(this.state.searchMeta[ 0 ]);
+
+            let searchMeta1 = this.state.searchMeta.length > 1 ? this.state.searchMeta[ 1 ] : null;
+            let newKeyIndex1 = searchMeta1 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.indexOf(this.state.searchMeta[ 1 ]) : null;
+
+            let searchMeta2 =  this.state.searchMeta.length > 2 ? this.state.searchMeta[ 2 ] : null;
+            let newKeyIndex2 = searchMeta2 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.indexOf(this.state.searchMeta[ 1 ]) : null;
+
+        }
+
+
+    } else {
+        pivotCats = this.state.pivotCats;
+    }
+    
+
+
+    //console.log('Searched for:' + text);
+    //console.log('Web Meta:' + meta);
+    //console.log('and found these items:', newFilteredItems);
     searchCount = newFilteredItems.length;
 
     this.setState({
@@ -523,6 +567,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
       searchCount: searchCount,
       searchText: text.toLowerCase(),
       searchMeta: meta,
+      pivotCats: pivotCats,
+
     });
 
 
@@ -531,12 +577,13 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
   } //End searchForItems
 
     
-  private getNewFilteredItems(text: string, meta: string[] , searchItems : IDrillItemInfo[] ) {
+  private getNewFilteredItems(text: string, meta: string[] , searchItems : IDrillItemInfo[], layer: number ) {
 
     let newFilteredItems : IDrillItemInfo[] = [];
 
     for (let thisSearchItem of searchItems) {
 
+        let showItem = false;
         let searchString = thisSearchItem.searchString;
 
         if ( meta !== undefined && meta !== null && meta.length > 0 ) {
@@ -544,11 +591,16 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 let itemMeta = thisSearchItem.refiners['lev' + m];
                 if ( meta[m] == 'All' || meta[m] == '' || itemMeta.indexOf(meta[m]) > -1 ) {
                     if( searchString.indexOf(text.toLowerCase()) > -1 ) {
-                        newFilteredItems.push(thisSearchItem);
+                        showItem = true;
                     }
                 }
             }
         }
+
+        if ( showItem === true ) {
+            newFilteredItems.push(thisSearchItem);
+        }
+
       }
 
       return newFilteredItems;
@@ -622,14 +674,21 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     public createPivotObject(setPivot, display, layer){
 
         let theseStyles = null;
-    
+        let onLinkClick : any = null;
+
+        if ( layer === 2 ) {
+            onLinkClick = this._onSearchForMeta2.bind(this);
+        } else if ( layer === 1 ) {
+            onLinkClick = this._onSearchForMeta1.bind(this);
+        } else {  onLinkClick = this._onSearchForMeta0.bind(this); }
+
         let pivotWeb = 
         <Pivot 
           style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
           styles={ theseStyles }
           linkSize= { pivotOptionsGroup.getPivSize('normal') }
           linkFormat= { pivotOptionsGroup.getPivFormat('links') }
-          onLinkClick= { this._onSearchForMeta.bind(this) }  //{this.specialClick.bind(this)}
+          onLinkClick= { onLinkClick }  //{this.specialClick.bind(this)}
           selectedKey={ setPivot }
           headersOnly={true}>
             {this.getRefinerPivots(layer)}
@@ -644,28 +703,15 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             thesePivots = [this.buildFilterPivot( pivCats.all )];
         } else  {
             thesePivots = [this.buildFilterPivot( pivCats.all )];
+            if ( layer <= this.state.pivotCats.length - 1 ) {
+                thesePivots = thesePivots.concat(this.state.pivotCats[layer].map( pC => { return this.buildFilterPivot( pC ) ; }) ) ;
+            }
 
-            thesePivots = thesePivots.concat(this.state.pivotCats.map( pC => { return this.buildFilterPivot( pC ) ; }) ) ;
         }
 
         return thesePivots;
 
       }
-    private getWebPivots() {
-
-        let all = this.buildFilterPivot( pivCats.all );
-        let newWebs = this.buildFilterPivot(pivCats.newWebs);
-
-        let recCreate = this.buildFilterPivot(pivCats.recCreate);
-        let oldCreate = this.buildFilterPivot(pivCats.oldCreate);
-        let recUpdate = this.buildFilterPivot(pivCats.recUpdate);
-        let oldUpdate = this.buildFilterPivot(pivCats.oldUpdate);
-
-        
-        let thesePivots = [all, newWebs, recCreate, oldCreate, recUpdate, oldUpdate ];
-
-        return thesePivots;
-    }
 
     private buildFilterPivot(pivCat: IMyPivCat) {
 
