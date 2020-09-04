@@ -361,7 +361,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
-            let drillPivots1 = this.createPivotObject(this.state.searchMeta, '', 0);
+            let drillPivots0 = this.createPivotObject(this.state.searchMeta[0], '', 0);
 
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
@@ -389,7 +389,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                      { searchBox } { toggles }
                 </Stack>
 
-                <div style={{ height:30, paddingBottom: 15} }> { drillPivots1 } </div>
+                <div style={{ height:30, paddingBottom: 15} }> { drillPivots0 } </div>
 
                 <div>
 
@@ -492,7 +492,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     console.log('searchForItems: this', this);
 
     //Be sure to pass item.props.itemKey to get filter value
-    this.searchForItems( this.state.searchText, item.props.itemKey, false );
+    this.searchForItems( this.state.searchText, [item.props.itemKey], false );
   }
 
   public _searchForText = (item): void => {
@@ -539,10 +539,10 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
         let searchString = thisSearchItem.searchString;
 
-        if ( meta === undefined || meta == null  ) {
+        if ( meta !== undefined && meta !== null && meta.length > 0 ) {
             for ( let m in meta ) {
                 let itemMeta = thisSearchItem.refiners['lev' + m];
-                if ( meta[m] == '' || itemMeta.indexOf(meta[m]) > -1 ) {
+                if ( meta[m] == 'All' || meta[m] == '' || itemMeta.indexOf(meta[m]) > -1 ) {
                     if( searchString.indexOf(text.toLowerCase()) > -1 ) {
                         newFilteredItems.push(thisSearchItem);
                     }
