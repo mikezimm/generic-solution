@@ -130,11 +130,11 @@ export interface IMakeThisPage {
         await page3.save();
         console.log('Saved this page3: ', page3 );
 
-        window.open(
-            makeThisPage.webURL + '/SitePages/' + makeThisPage.title.replace(/\ /g, '-') + '.aspx', "_blank"); 
+        let pageTitle = makeThisPage.title.replace(/\ /g, '-') + '.aspx';
+        let pageURL = makeThisPage.webURL;
+        let openURL = pageURL + 'SitePages/' + pageTitle;
 
-//        window.open(
-//            "https://mcclickster.sharepoint.com/sites/Templates/Testing/SitePages/Forms/RecentChanges.aspx", "_blank"); 
+        window.open( openURL, "_blank"); 
 
         return statusLog;
     }

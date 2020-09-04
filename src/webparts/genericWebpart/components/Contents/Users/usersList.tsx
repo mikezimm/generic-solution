@@ -3,12 +3,13 @@ import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { IMyProgress } from '../../IReUsableInterfaces';
-
 import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
 
-import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+import { convertTextToListItems } from '../../../../../services/basicElements';
 
-import { IContentsSiteInfo, ISitePropsBucketInfo } from  './thisSiteComponent';
+import { IContentsUserInfo, IUserBucketInfo} from './usersComponent';
+
+import { iconSiteAdmin } from './usersFunctions';
 
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
@@ -18,25 +19,31 @@ import { createLink } from '../../HelpInfo/AllLinks';
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
-export interface IMyLogPropsProps {
+import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+
+export interface IMyLogUserProps {
     //title: string;
     titles: [];
     searchMeta: string;
     webURL: string;
+    blueBar?: string;
 
-    items: ISitePropsBucketInfo;
-    showSettings: boolean;
+    items: IUserBucketInfo;
+    showProfile: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     descending: boolean;
     maxChars?: number;
 
+    showGroups: boolean;
+
+    showDesc?: boolean;
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
 
     specialAlt: boolean;
 
 }
 
-export interface IMyLogPropsState {
+export interface IMyLogUserState {
   maxChars?: number;
 }
 
@@ -59,7 +66,7 @@ const iconClassInfo = mergeStyles({
 });
 
 
-export default class MyLogProps extends React.Component<IMyLogPropsProps, IMyLogPropsState> {
+export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUserState> {
 
 
     /***
@@ -73,7 +80,7 @@ export default class MyLogProps extends React.Component<IMyLogPropsProps, IMyLog
  *                                                                                                       
  */ 
 
-    constructor(props: IMyLogPropsProps) {
+    constructor(props: IMyLogUserProps) {
         super(props);
         this.state = {
           maxChars: this.props.maxChars ? this.props.maxChars : 50,
@@ -98,7 +105,7 @@ export default class MyLogProps extends React.Component<IMyLogPropsProps, IMyLog
  *                                                                                         
  */
 
-    public componentDidUpdate(prevProps: IMyLogPropsProps): void {
+    public componentDidUpdate(prevProps: IMyLogUserProps): void {
     //this._updateWebPart(prevProps);
     }
 
@@ -114,20 +121,29 @@ export default class MyLogProps extends React.Component<IMyLogPropsProps, IMyLog
  */
 
 
-    public render(): React.ReactElement<IMyLogPropsProps> {
+    public render(): React.ReactElement<IMyLogUserProps> {
 
       let thisLog = null;
 
-      if ( this.props.items.items != null && this.props.items.count > 0 ) { 
+      if ( this.props.items.users != null && this.props.items.count > 0 ) { 
 
-        let logItems : IContentsSiteInfo[] = this.props.items.items;
+        let logItems : IContentsUserInfo[] = this.props.items.users;
 
+        let styleAdvanced = this.props.showProfile ? styles.showMe : styles.hideMe;
+        let styleTitle = styles.nowWrapping;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
-        let styleSpecial = this.props.railsOff || ['Visible','9','Hidden',''].indexOf( this.props.searchMeta ) > -1 ? styles.hideMe : styles.showCell;
+        let columnsToVisible = !this.props.railsOff ? styles.showCell : styles.hideMe;
+        let styleSpecial = this.props.railsOff ? styles.hideMe : styles.showCell;
+        let styleDesc = this.props.showDesc ? styles.showCell : styles.hideMe;
+
+        let styleUsers = this.props.showGroups ? styles.showCell : styles.hideMe;
+
         let styleRailsOff = this.props.railsOff ? styles.showCell : styles.hideMe;
         let styleOnRailsOn = this.props.railsOff ? styles.hideMe : styles.showCell;
 
-        let itemRows = logItems.length === 0 ? null : logItems.map( thisItem => { 
+        if ( this.props.railsOff ) { columnsToVisible = styles.hideMe ; }
+
+        let itemRows = logItems.length === 0 ? null : logItems.map( Usr => { 
 
           let defButtonStyles = {
             root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
@@ -139,36 +155,40 @@ export default class MyLogProps extends React.Component<IMyLogPropsProps, IMyLog
            },
           };
 
-          //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
-          let detailsCard = buildPropsHoverCard(thisItem, ["property","value"], ["meta","searchString"] , true, null );
+          let userTitle = Usr.Title != null && Usr.Title.indexOf('SharingLinks') === 0 ? Usr.Title.slice(0, 20) : Usr.Title;
 
-            /**
-             * Check if type is object if you get this react error:
-             * 
-             *   Objects are not valid as a React child (found: object with keys {StringValue}).
-             *   If you meant to render a collection of children, use an array instead.
-             */
-            let valueCell = null;
+          let userBold = <span style={{ fontWeight: 600, color: 'purple' }}>{ userTitle }</span>;
 
-            if ( thisItem.element != null ) {
-              valueCell = thisItem.element;
+          let groupLink = null; //createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipUserId=' + Usr.Id, '_blank', userTitle );
 
-            } else if ( typeof thisItem.value === 'object' ) { 
-                valueCell = JSON.stringify(thisItem.value);
+          let groupString = Usr.groupString;
+          
+          if  ( Usr.groupString === undefined || Usr.groupString === null ) {
 
-            } else { valueCell = thisItem.value; }
+          } else if ( this.props.specialAlt === true ) {
+              groupString = convertTextToListItems( Usr.groupString, ';', 15, 'ul');
+          }
 
-            let shortProperty = thisItem.property != null && thisItem.property.length > 30 ? thisItem.property.slice(0, 30) + '...' : thisItem.property;
+          let detailsCard = buildPropsHoverCard(Usr, ["Title","Email","IsSiteAdmin","LoginName", "Id"], ["meta","searchString"] , true, null );
 
+            let adminIcon = Usr.IsSiteAdmin === true ? iconSiteAdmin : null;
+            //columnsToVisible
             return <tr>
-                <td className={ styles.nowWrapping }> {  thisItem.meta[0]  }</td> 
-                <td className={ styles.nowWrapping }> {  shortProperty  }</td> 
-                <td> {  valueCell }</td>
+                <td className={ '' }> { Usr.fabricIcon }</td> 
 
-                { /*<td className={ styleSpecial }> this.getWebSpecialValue( F )  </td> */ }
-                { /*<td className= { styleRailsOff }>Rails Off Content</td> */ }
+                <td className={ styleTitle }> { ( Usr.IsSiteAdmin ? userBold : userTitle) } { adminIcon } </td>
+                <td className={ '' }> { Usr.Id }</td>
 
-                <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  {  detailsCard  }</td>
+                <td className= { styleAdvanced }> { groupLink }</td>
+
+                <td className={ styleDesc }> { /* Usr.Description != null ? Usr.Description.slice(0,this.state.maxChars) + '...' : Usr.Description */ } </td>
+
+                <td className={ styleSpecial }> { /*this.getWebSpecialValue( F ) */ '' } </td>
+                <td className= { styleRailsOff }>Rails Off Content</td>
+                <td className= { styleUsers }> {Usr.groupCount } </td>
+                <td className= { styleUsers }> { groupString } </td>
+                
+                <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 
                 </tr>;
 
@@ -186,34 +206,46 @@ export default class MyLogProps extends React.Component<IMyLogPropsProps, IMyLog
  *                                                                      
  */
 
-        let propTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
+        let webTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
-                <th>Category</th>           
-                <th>Property</th>
-                <th>Value</th>
+                <th style={{minWidth: 50}}></th>
+                <th className={ styleTitle }>Title</th>
+                <th className={ '' }>Id</th>
+                <th className={ styleAdvanced }>Profile</th>
 
+                <th className={ styleDesc }>Description</th>
 
-                { /* <th className={ columnsToVisible }>Group</th> */ }
+                { /* <th className={ columnsToVisible }>User</th> */ }
                 { /* <th className={ columnsToVisible }>Default</th> */ }
+                <th className={ styleSpecial }></th>
 
                 <th className= { styleRailsOff }>Rails Off Heading</th>
+                <th className= { styleUsers }>Groups</th>
+                <th className= { styleUsers }></th>
                 <th>Details</th>
 
             </tr>
-            {  itemRows  }
+            { itemRows }
         </table>;
+        let barText = this.props.blueBar && this.props.blueBar != null ? this.props.blueBar : this.props.items.bucketLabel;
+        if (barText === 'Security') { barText = barText + ' Principal=4' ; }
+        else if (barText === 'User' || barText === 'NoID' || barText === 'AD' || barText === 'Trusted') { barText = barText + ' Principal=1' ; }
+        else if (barText != '') { barText = barText + ' Users' ; }
 
-        let propTitle = this.props.items.bucketLabel == '' ? null :
-            <div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
+        let webTitle = null;
+ 
+        if ( barText != null ) {
+          webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ barText } - ( { this.props.items.count } )</span></div>;
 
-        //Set to null to remove blue bar above buckets (for when there is only one bucket)
-        //propTitle = null;
-
+        } else if ( this.props.items.bucketLabel !== '' ) {
+          webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ this.props.items.bucketLabel } - ( { this.props.items.count } )</span></div>;
+        }
+            
         return (
           <div className={ styles.logListView }>
               <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
-                { propTitle }
-                {  propTable  }
+                { webTitle }
+                { webTable }
             </div>
           </div>
           );

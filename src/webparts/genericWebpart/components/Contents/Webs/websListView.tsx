@@ -3,13 +3,13 @@ import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { IMyProgress } from '../../IReUsableInterfaces';
+
 import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
+
+import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
 import { IContentsWebInfo, IWebBucketInfo} from './websComponent';
 
-import { createIconButton } from '../../createButtons/IconButton';
-
-import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
@@ -163,63 +163,10 @@ export default class MyLogWeb extends React.Component<IMyLogWebProps, IMyLogWebS
 
           let typesStyles = JSON.parse(JSON.stringify(defButtonStyles));
           typesStyles.root.color = 'green !important';
-          
-          let webInfo = '|Splitme|' + W.Id + '|Splitme|' + W.Title  + '|Splitme|' + W.Title;
 
-          let gotoColumns = null; //createIconButton('Pause', 'Columns', this.props.pickThisWeb, 'Columns' + webInfo , columnsStyles );
-
-
-          let itemIcon = null;
-
-          let iconStyles: any = { root: {
-            //color: h.color ? h.color : "blue",
-          }};
-
-          let normalIcon = <Icon iconName={ "Info"} className={ iconClassInfo } styles = { iconStyles }/>;
-          let keys = W.meta ? <div><h3>Properties</h3><ul> { W.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
-
-          const onRenderHoverCard = (item: any): JSX.Element => {
-            let hoverWebStyle = { fontWeight: 700};
-            return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
-              <div>
-                { /* Basic information */ }
-                <p><span style={hoverWebStyle}>Title:</span> { W.Title }</p>
-                <p><span style={hoverWebStyle}>Created:</span> { W.timeCreated.dayYYYYMMDD + '(' + W.timeCreated.daysAgo + ' days)'   }</p>
-
-                <p><span style={hoverWebStyle}>IsHomepageModernized:</span> { W.IsHomepageModernized }</p>
-                <p><span style={hoverWebStyle}>EnableMinimalDownload:</span> { W.EnableMinimalDownload }</p>
-                <p><span style={hoverWebStyle}>QuickLaunchEnabled:</span> { W.QuickLaunchEnabled }</p>
-                <p><span style={hoverWebStyle}>MegaMenuEnabled:</span> { W.MegaMenuEnabled }</p>
-                <p><span style={hoverWebStyle}>LastItemUserModifiedDate:</span> { W.LastItemUserModifiedDate }</p>
-                <p><span style={hoverWebStyle}>Language:</span> { W.Language }</p>
-
-                <p><span style={hoverWebStyle}>Meta:</span> { W.meta.join('; ') }</p>
-
-                { /* Types information */ }
-                <p><span style={hoverWebStyle}>odata.type:</span> { /* F['odata.type'] */ '' }</p>
-
-                
-                { /* Exceptions information */ }
-                <p style={{ display: W.FillInChoice === true ? '' : 'none' }}>
-                    <span style={hoverWebStyle}>ClassicWelcomePage:</span> { W.ClassicWelcomePage }</p>
-
-                <p><br></br></p>
-                <p><span style={hoverWebStyle}>Search String:</span> { W.searchString }</p>
-              </div>
-            </div>;
-          };
-
-          let detailsCard = <div>
-            <HoverCard
-              cardDismissDelay={300}
-              type={HoverCardType.plain}
-              plainCardProps={{
-                onRenderPlainCard: onRenderHoverCard,
-                renderData: 'testRenderData'
-              }}>
-              { normalIcon }
-            </HoverCard>
-            </div>;
+          //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+          let detailsCard = buildPropsHoverCard(W, ["Title","timeCreated","LastItemUserModifiedDate","IsHomepageModernized","MegaMenuEnabled","QuickLaunchEnabled",
+            "EnableMinimalDownload","Language","odata.type","type","ClassicWelcomePage"], ["meta","searchString"] , true, null );
 
             let webCreated = this.props.showDates ?
                 W.timeCreated.dayYYYYMMDD + ' ( ' + W.timeCreated.daysAgo + ' days )' : 

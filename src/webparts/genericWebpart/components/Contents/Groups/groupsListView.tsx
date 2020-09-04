@@ -1,15 +1,12 @@
 
 import * as React from 'react';
-import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { IMyProgress } from '../../IReUsableInterfaces';
-import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
+import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+
+import { convertTextToListItems } from '../../../../../services/basicElements';
 
 import { IContentsGroupInfo, IGroupBucketInfo} from './groupsComponent';
 
-import { createIconButton } from '../../createButtons/IconButton';
-
-import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
@@ -103,7 +100,9 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
  */
 
     public componentDidUpdate(prevProps: IMyLogGroupProps): void {
-    //this._updateWebPart(prevProps);
+      //this._updateWebPart(prevProps);
+      let doUpdate = false;
+
     }
 
 /***
@@ -155,58 +154,17 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
           let groupTitle = Grp.Title != null && Grp.Title.indexOf('SharingLinks') === 0 ? Grp.Title.slice(0, 20) : Grp.Title;
           let groupLink = createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipGroupId=' + Grp.Id, '_blank', groupTitle );
 
-          let groupInfo = '|Splitme|' + Grp.Id + '|Splitme|' + Grp.Title  + '|Splitme|' + Grp.Title;
-
-          let itemIcon = null;
-
-          let iconStyles: any = { root: {
-            //color: h.color ? h.color : "blue",
-          }};
-
-          let normalIcon = <Icon iconName={ "Info"} className={ iconClassInfo } styles = { iconStyles }/>;
-          let keys = Grp.meta ? <div><h3>Properties</h3><ul> { Grp.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
-
           let userString = Grp.userString;
+          
+          if  ( Grp.userString === undefined || Grp.userString === null ) {
 
-          const onRenderHoverCard = (item: any): JSX.Element => {
-            let hoverWebStyle = { fontWeight: 700};
-            return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
-              <div>
-                { /* Basic information */ }
-                <p><span style={hoverWebStyle}>Title:</span> { Grp.Title }</p>
+          } else if ( this.props.specialAlt === true ) {
+              userString = convertTextToListItems( Grp.userString, ';', 15, 'ul');
+          }
 
-                <p><span style={hoverWebStyle}>Meta:</span> { Grp.meta.join('; ') }</p>
-
-                <p><span style={hoverWebStyle}>Description:</span> { Grp.Description }</p>
-
-                <p><span style={hoverWebStyle}>Users:</span> { userString }</p>
-
-                { /* Types information */ }
-                <p><span style={hoverWebStyle}>odata.type:</span> { /* F['odata.type'] */ '' }</p>
-
-                <p><span style={hoverWebStyle}>AllowMembersEditMembership:</span> { Grp.AllowMembersEditMembership }</p>
-                <p><span style={hoverWebStyle}>AutoAcceptRequestToJoinLeave:</span> { Grp.AutoAcceptRequestToJoinLeave }</p>
-                <p><span style={hoverWebStyle}>OnlyAllowMembersViewMembership:</span> { Grp.OnlyAllowMembersViewMembership }</p>
-                <p><span style={hoverWebStyle}>RequestToJoinLeaveEmailSetting:</span> { Grp.RequestToJoinLeaveEmailSetting }</p>
-                <p><span style={hoverWebStyle}>typeString:</span> { Grp.typeString }</p>
-
-                <p><br></br></p>
-                <p><span style={hoverWebStyle}>Search String:</span> { Grp.searchString }</p>
-              </div>
-            </div>;
-          };
-
-          let detailsCard = <div>
-            <HoverCard
-              cardDismissDelay={300}
-              type={HoverCardType.plain}
-              plainCardProps={{
-                onRenderPlainCard: onRenderHoverCard,
-                renderData: 'testRenderData'
-              }}>
-              { normalIcon }
-            </HoverCard>
-            </div>;
+          // && this.props.specialAlt === true
+          //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+          let detailsCard = buildPropsHoverCard(Grp, ["Title","Description","Id","odata.type", "typeString"], ["meta","searchString"] , true, null );
 
             //columnsToVisible
             return <tr>
@@ -214,6 +172,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
                 <td className={ styleTitle }> {  groupTitle }</td>
 
                 <td className= { styleAdvanced }> { groupLink }</td>
+                <td className={ '' }> { Grp.Id }</td> 
 
                 <td className={ styleDesc }> { Grp.Description != null ? Grp.Description.slice(0,this.state.maxChars) + '...' : Grp.Description } </td>
 
@@ -245,7 +204,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
                 <th></th>
                 <th className={ styleTitle }>Title</th>
                 <th className={ styleAdvanced }>Link to Group</th>
-
+                <th className={ '' }>Id</th>
                 <th className={ styleDesc }>Description</th>
 
                 { /* <th className={ columnsToVisible }>Group</th> */ }

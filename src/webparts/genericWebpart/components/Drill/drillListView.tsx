@@ -4,7 +4,9 @@ import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { IMyProgress } from '../IReUsableInterfaces';
 import { IDrillItemInfo } from './drillComponent';
-import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
+
+import { buildPropsHoverCard } from '../../../../services/hoverCardService';
+
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
@@ -121,33 +123,8 @@ export default class MyDrillItems extends React.Component<IMyDrillItemsProps, IM
 
             let normalIcon = <Icon iconName={ "Info"} className={iconClassInfo} styles = {iconStyles}/>;
 
-            const onRenderHoverCard = (item: any): JSX.Element => {
-                let hoverWebStyle = { fontWeight: 700, paddingRight: 15 };
-                return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
-                <div>
-                    <p><span style={hoverWebStyle}>aaa</span> {  }</p>
-                    <p><span style={hoverWebStyle}>bbb</span> </p>
-                    <p><span style={hoverWebStyle}>ccc:</span> { '' }</p>
-                    <p><span style={hoverWebStyle}>ddd:</span> { '' }</p>
-                    <p><span style={hoverWebStyle}>Id:</span> { '' }</p>
-
-                    <p><span style={hoverWebStyle}> </span></p>
-                    <p><span style={hoverWebStyle}>Search String:</span> { h.searchString }</p>
-                </div>
-                </div>;
-            };
-
-            let detailsCard = <div>
-                <HoverCard
-                cardDismissDelay={300}
-                type={HoverCardType.plain}
-                plainCardProps={{
-                    onRenderPlainCard: onRenderHoverCard,
-                    renderData: 'testRenderData'
-                }}>
-                { normalIcon }
-                </HoverCard>
-            </div>;
+            //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+            let detailsCard = buildPropsHoverCard(h, ["property","value"], ["meta","searchString"] , true, null );
 
             return <tr>
                 <td> { h.Title } </td>

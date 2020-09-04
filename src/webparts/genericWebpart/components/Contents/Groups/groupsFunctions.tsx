@@ -39,6 +39,16 @@ export type IValidWebTemplate2 = 64 | 68 ; //64 = Team; 68 = Communication
 export const systemGroups = ["Approvers","Designers" ,"Excel Services Viewers" ,"External Editors" ,
 "External Readers" ,"Hierarchy Managers", "Quick Deploy Users", "Restricted Readers"];
 
+
+export function getPrincipalTypeString( type: PrincipalType ) {
+    if ( type === 0 ) { return 'None'; }
+    if ( type === 1 ) { return 'User'; }
+    if ( type === 2 ) { return 'Distribution'; }
+    if ( type === 4 ) { return 'Security'; }
+    if ( type === 8 ) { return 'SharePoint'; }
+    if ( type === 15 ) { return 'All'; }
+}
+
 //export async function provisionTestPage( makeThisPage:  IContentsGroupInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allAvailableGroups( webURL: string, showUsers: boolean, groupBuckets: IGroupBucketInfo[], addTheseGroupsToState: any, setProgress: any, markComplete: any ): Promise<IContentsGroupInfo[]>{
 
@@ -47,15 +57,15 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
     //lists.getById(listGUID).groups.orderBy("Title", true).get().then(function(result) {
     //let allGroups : IContentsGroupInfo[] = await sp.web.groups.get();
 
-    let thisGroupObject = null;
+    let thisWebInstance = null;
     let thisGroupInfos = null;
 
     let allGroups : IContentsGroupInfo[] = [];
     let scope = '';
     let errMessage = '';
     try {
-        thisGroupObject = Web(webURL);
-        allGroups = await thisGroupObject.siteGroups();
+        thisWebInstance = Web(webURL);
+        allGroups = await thisWebInstance.siteGroups();
 
     } catch (e) {
         errMessage = getHelpfullError(e, true, true);
@@ -76,7 +86,7 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
 //        allGroups[i].timeCreated = makeSmallTimeObject(allGroups[i].Created);
         let thisGroup = allGroups[i];
         if ( showUsers === true ) {
-            const users = await thisGroupObject.siteGroups.getById(allGroups[i].Id).users();
+            const users = await thisWebInstance.siteGroups.getById(allGroups[i].Id).users();
 
         /**
             * 
@@ -95,14 +105,14 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
             let label = (i + ' of ' + n + ' - Getting users for ' + allGroups[i].Title).substring( 0, 40 );
             let description = 'Fetching users';
             setProgress( false ,'V', indx, n, null, null, null, label, description );
-            console.log('Users for group: ' + allGroups[i].Id + ' - ' + allGroups[i].Title ,users );
+//            console.log('Users for group: ' + allGroups[i].Id + ' - ' + allGroups[i].Title ,users );
             allGroups[i].users = users;
             allGroups[i].userCount = users.length;
             allGroups[i].userString = allGroups[i].users != null ? allGroups[i].users.map( u => { return u.Title ; }).join('; ') : '';
 
         }
 
-        allGroups[i].typeString = getGroupTypeString( allGroups[i].PrincipalType );
+        allGroups[i].typeString = getPrincipalTypeString( allGroups[i].PrincipalType );
         allGroups[i].sort = groupBuckets[idx]['sort'];
         allGroups[i].bucketCategory = groupBuckets[idx]['bucketCategory'];
         allGroups[i].bucketLabel = groupBuckets[idx]['bucketLabel'];
@@ -121,15 +131,6 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
     addTheseGroupsToState(allGroups, scope, errMessage);
     return allGroups;
 
-}
-
-function getGroupTypeString( type: PrincipalType ) {
-    if ( type === 0 ) { return 'None'; }
-    if ( type === 1 ) { return 'User'; }
-    if ( type === 2 ) { return 'Distribution'; }
-    if ( type === 4 ) { return 'Security'; }
-    if ( type === 8 ) { return 'SharePoint'; }
-    if ( type === 15 ) { return 'All'; }
 }
 
 function getGroupSort( theGroup: IContentsGroupInfo, groupBuckets: IGroupBucketInfo[] ) {

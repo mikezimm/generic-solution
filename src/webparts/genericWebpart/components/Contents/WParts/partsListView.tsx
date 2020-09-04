@@ -5,10 +5,11 @@ import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 import { IMyProgress } from '../../IReUsableInterfaces';
 import { IWPart } from './partsFunction';
 import { IPartsBucketInfo } from './partsComponent';
-import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
+
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
+import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
@@ -133,48 +134,14 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
                 { h.desc.length > 50 ? h.desc.slice(0,50) + '...' : h.desc }</span>
             </div>;
 
-            let iconStyles: any = { root: {
-              //color: h.color ? h.color : "blue",
-            }};
+            let partProps = <ul> { h.keys.map(k => <li>{ k }</li>) } </ul>;
+
+            let iconStyles: any = { root: {  /*color: h.color ? h.color : "blue",*/   }};
 
             let normalIcon = <Icon iconName={ h.officeFabricIconFontName ? h.officeFabricIconFontName : "Info"} className={iconClassInfo} styles = {iconStyles}/>;
-            let partProps = <ul> { h.keys.map(k => <li>{ k }</li>) } </ul>;
-            let keys = h.keys ? <div><h3>Pre-Configured Properties</h3> { partProps } </div> : null;
-
-            let supported = h.supportedHosts ? <div><h3>Supported Hosts</h3><ul> { h.supportedHosts.map(k => <li>{ k }</li>) } </ul></div> : null;
-
-
-            const onRenderHoverCard = (item: any): JSX.Element => {
-              let hoverWebStyle = { fontWeight: 700, paddingRight: 15 };
-              return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
-                <div>
-                  <p><span style={hoverWebStyle}> </span> {  }</p>
-                  <p><span style={hoverWebStyle}> </span> </p>
-                  <p><span style={hoverWebStyle}>Type:</span> { h.componentType }</p>
-                  <p><span style={hoverWebStyle}>Alias:</span> { h.alias } Parent: { h.parentAlias }</p>
-                  <p><span style={hoverWebStyle}>Description:</span> { h.desc }</p>
-                  <p><span style={hoverWebStyle}>Id:</span> { h.partId }</p>
-                  <p><span style={hoverWebStyle}>Group:</span> { h.group }</p>
-                  <p><span style={hoverWebStyle}>Tags:</span>{ h.tags.join() }</p>
-                  <p><span style={hoverWebStyle}>Supported:</span>{ supported }</p>
-                  <p><span style={hoverWebStyle}>Keys:</span>{ keys }</p>
-                  <p><span style={hoverWebStyle}> </span></p>
-                  <p><span style={hoverWebStyle}>Search String:</span> { h.searchString }</p>
-                </div>
-              </div>;
-            };
-
-            let detailsCard = <div>
-              <HoverCard
-                cardDismissDelay={300}
-                type={HoverCardType.plain}
-                plainCardProps={{
-                  onRenderPlainCard: onRenderHoverCard,
-                  renderData: 'testRenderData'
-                }}>
-                { normalIcon }
-              </HoverCard>
-            </div>;
+            //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+            let detailsCard = buildPropsHoverCard(h, ["componentType","alias","parentAlias","desc","partId","group",
+              "tags","supportedHosts","keys","type","ClassicWelcomePage"], ["meta","searchString"] , true, normalIcon );
 
             return <tr>
               <td> { group } </td>
