@@ -19,6 +19,8 @@ import { createLink } from '../../HelpInfo/AllLinks';
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
+import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+
 export interface IMyLogUserProps {
     //title: string;
     titles: [];

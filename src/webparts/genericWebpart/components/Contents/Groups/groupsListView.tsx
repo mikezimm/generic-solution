@@ -170,28 +170,36 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
 
           const onRenderHoverCard = (item: any): JSX.Element => {
             let hoverWebStyle = { fontWeight: 700};
+
+            let highlightKeys = ["Title","Description","Id","odata.type", "typeString"];
+
+            let highlightProps = highlightKeys.map( prop => {
+                let propType = typeof Grp[prop];
+                let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(Grp[prop]) : Grp[prop];
+                return <p><span style={hoverWebStyle}>{ prop }:</span> { propVal }</p>;
+            });
+
+            let specialKeys = highlightKeys.concat("meta","searchString");
+            console.log('spespecialKeys', specialKeys);
+            highlightProps.push( <p><span style={hoverWebStyle}>Meta:</span> { Grp.meta.join('; ') }</p> );
+            highlightProps.push( <p><span style={hoverWebStyle}>Search String:</span> { Grp.searchString }</p> );           
+
+            let hoverMinorPropStyle = { fontSize: 'smaller' };
+
+            let allProps = highlightProps.concat(Object.keys(Grp).map( prop => {
+
+              if (specialKeys.indexOf(prop) < 0 ) {
+                let propType = typeof Grp[prop];
+                let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(Grp[prop]) : Grp[prop];
+                return <p style={hoverMinorPropStyle}><span style={hoverWebStyle}>{ prop }:</span> { propVal }</p>;
+              } else { return null; }
+            }) );
+
+
             return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
               <div>
-                { /* Basic information */ }
-                <p><span style={hoverWebStyle}>Title:</span> { Grp.Title }</p>
+                { allProps }
 
-                <p><span style={hoverWebStyle}>Meta:</span> { Grp.meta.join('; ') }</p>
-
-                <p><span style={hoverWebStyle}>Description:</span> { Grp.Description }</p>
-
-                <p><span style={hoverWebStyle}>Users:</span> { userString }</p>
-
-                { /* Types information */ }
-                <p><span style={hoverWebStyle}>odata.type:</span> { /* F['odata.type'] */ '' }</p>
-
-                <p><span style={hoverWebStyle}>AllowMembersEditMembership:</span> { Grp.AllowMembersEditMembership }</p>
-                <p><span style={hoverWebStyle}>AutoAcceptRequestToJoinLeave:</span> { Grp.AutoAcceptRequestToJoinLeave }</p>
-                <p><span style={hoverWebStyle}>OnlyAllowMembersViewMembership:</span> { Grp.OnlyAllowMembersViewMembership }</p>
-                <p><span style={hoverWebStyle}>RequestToJoinLeaveEmailSetting:</span> { Grp.RequestToJoinLeaveEmailSetting }</p>
-                <p><span style={hoverWebStyle}>typeString:</span> { Grp.typeString }</p>
-
-                <p><br></br></p>
-                <p><span style={hoverWebStyle}>Search String:</span> { Grp.searchString }</p>
               </div>
             </div>;
           };
@@ -214,6 +222,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
                 <td className={ styleTitle }> {  groupTitle }</td>
 
                 <td className= { styleAdvanced }> { groupLink }</td>
+                <td className={ '' }> { Grp.Id }</td> 
 
                 <td className={ styleDesc }> { Grp.Description != null ? Grp.Description.slice(0,this.state.maxChars) + '...' : Grp.Description } </td>
 
@@ -245,7 +254,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
                 <th></th>
                 <th className={ styleTitle }>Title</th>
                 <th className={ styleAdvanced }>Link to Group</th>
-
+                <th className={ '' }>Id</th>
                 <th className={ styleDesc }>Description</th>
 
                 { /* <th className={ columnsToVisible }>Group</th> */ }
