@@ -8,9 +8,7 @@ import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../serv
 import { IContentsUserInfo, IUserBucketInfo} from './usersComponent';
 
 import { iconSiteAdmin } from './usersFunctions';
-import { createIconButton } from '../../createButtons/IconButton';
 
-import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
@@ -161,66 +159,9 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
 
           let groupLink = createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipUserId=' + Usr.Id, '_blank', userTitle );
 
-          let groupInfo = '|Splitme|' + Usr.Id + '|Splitme|' + Usr.Title  + '|Splitme|' + Usr.Title;
-
-          let itemIcon = null;
-
-          let iconStyles: any = { root: {
-            //color: h.color ? h.color : "blue",
-          }};
-
-          let normalIcon = <Icon iconName={ "Info"} className={ iconClassInfo } styles = { iconStyles }/>;
-          let keys = Usr.meta ? <div><h3>Properties</h3><ul> { Usr.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
-
           let userString = Usr.groupString;
 
-          const onRenderHoverCard = (item: any): JSX.Element => {
-            let hoverWebStyle = { fontWeight: 700};
-
-            let highlightKeys = ["Title","Email","IsSiteAdmin","LoginName", "Id"];
-
-            let highlightProps = highlightKeys.map( prop => {
-                let propType = typeof Usr[prop];
-                let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(Usr[prop]) : Usr[prop];
-                return <p><span style={hoverWebStyle}>{ prop }:</span> { propVal }</p>;
-            });
-
-            let specialKeys = highlightKeys.concat("meta","searchString");
-            console.log('spespecialKeys', specialKeys);
-            highlightProps.push( <p><span style={hoverWebStyle}>Meta:</span> { Usr.meta.join('; ') }</p> );
-            highlightProps.push( <p><span style={hoverWebStyle}>Search String:</span> { Usr.searchString }</p> );           
-
-            let hoverMinorPropStyle = { fontSize: 'smaller' };
-
-            let allProps = highlightProps.concat(Object.keys(Usr).map( prop => {
-
-              if (specialKeys.indexOf(prop) < 0 ) {
-                let propType = typeof Usr[prop];
-                let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(Usr[prop]) : Usr[prop];
-                return <p style={hoverMinorPropStyle}><span style={hoverWebStyle}>{ prop }:</span> { propVal }</p>;
-              } else { return null; }
-            }) );
-
-
-            return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
-              <div>
-                { allProps }
-
-              </div>
-            </div>;
-          };
-
-          let detailsCard = <div>
-            <HoverCard
-              cardDismissDelay={300}
-              type={HoverCardType.plain}
-              plainCardProps={{
-                onRenderPlainCard: onRenderHoverCard,
-                renderData: 'testRenderData'
-              }}>
-              { normalIcon }
-            </HoverCard>
-            </div>;
+          let detailsCard = buildPropsHoverCard(Usr, ["Title","Email","IsSiteAdmin","LoginName", "Id"], ["meta","searchString"] , true, null );
 
             let adminIcon = Usr.IsSiteAdmin === true ? iconSiteAdmin : null;
             //columnsToVisible

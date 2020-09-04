@@ -5,9 +5,10 @@ import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 import { IMyProgress } from '../../IReUsableInterfaces';
 import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '../../../../../services/listServices/listTypes';
 
+import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+
 import { createIconButton } from '../../createButtons/IconButton';
 
-import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
@@ -120,7 +121,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
         let styleDesc = this.props.showDesc ? styles.showMe : styles.hideMe;
 
-        let itemRows = logItems.length === 0 ? null : logItems.map( L => { 
+        let itemRows = logItems.length === 0 ? null : logItems.map( Lst => { 
 
           let defButtonStyles = {
             root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
@@ -144,8 +145,8 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           typesStyles.root.color = 'green !important';
           typesStyles.root.fontWeight = "900 !important";
           
-          let listOrLibrary = L.meta.indexOf('Libraries') > -1 ? 'Libraries' : 'Other';
-          let listInfo = '|Splitme|' + L.Id + '|Splitme|' + L.EntityTypeName  + '|Splitme|' + L.Title + '|Splitme|' + listOrLibrary;
+          let listOrLibrary = Lst.meta.indexOf('Libraries') > -1 ? 'Libraries' : 'Other';
+          let listInfo = '|Splitme|' + Lst.Id + '|Splitme|' + Lst.EntityTypeName  + '|Splitme|' + Lst.Title + '|Splitme|' + listOrLibrary;
 
 //          console.log('listInfo', listInfo);
 //          console.log(' this.props.pickThisList',  this.props.pickThisList);
@@ -153,75 +154,33 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           let gotoViews = createIconButton('ChevronDown', 'Views', this.props.pickThisList, 'Views' + listInfo, viewsStyles );
           let gotoTypes = createIconButton('TypeScriptLanguage', 'Types', this.props.pickThisList, 'Types' + listInfo, typesStyles );
 
-          let itemIcon = null;
+          //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+          let detailsCard = buildPropsHoverCard(Lst, ["Title","BaseTemplate","Description","EntityTypeName","Id"], ["meta","searchString"] , true, null );
 
-          let iconStyles: any = { root: {
-            //color: h.color ? h.color : "blue",
-          }};
+          let listSettingsURL = !this.props.showSettings ? Lst.EntityTypeName : createLink(this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + Lst.Id + ")", '_blank', Lst.EntityTypeName);
+          let listVersionURL = !this.props.showSettings ? Lst.MajorVersionLimit : createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + Lst.Id + ")", '_blank', Lst.MajorVersionLimit.toString() );
+          let listPermissionURL = !this.props.showSettings ? '' : createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', 'Perms');
+          let listAdvancedURL = !this.props.showSettings ? '-' : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'Adv');
 
-          let normalIcon = <Icon iconName={ "Info"} className={ iconClassInfo } styles = { iconStyles }/>;
-          let keys = L.meta ? <div><h3>Properties</h3><ul> { L.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
-
-          const onRenderHoverCard = (item: any): JSX.Element => {
-            let hoverFieldStyle = { fontWeight: 700};
-            return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
-              <div>
-                <p><span style={hoverFieldStyle}>Title:</span> { L.Title }</p>
-                <p><span style={hoverFieldStyle}>Type:</span> { L.BaseTemplate }</p>
-                <p><span style={hoverFieldStyle}>Description:</span> { L.Description }</p>
-                <p><span style={hoverFieldStyle}>EntityName:</span> { L.EntityTypeName }</p>
-                <p><span style={hoverFieldStyle}>Id:</span> { L.Id }</p>
-
-                <p><span style={hoverFieldStyle}>Meta:</span> { L.meta.join('; ') }</p>
-
-                <p><br></br></p>
-                <p><span style={hoverFieldStyle}>Search String:</span> { L.searchString }</p>
-              </div>
-            </div>;
-          };
-
-          let detailsCard = <div>
-            <HoverCard
-              cardDismissDelay={300}
-              type={HoverCardType.plain}
-              plainCardProps={{
-                onRenderPlainCard: onRenderHoverCard,
-                renderData: 'testRenderData'
-              }}>
-              { normalIcon }
-            </HoverCard>
-            </div>;
-
-
-//.logListView {
-//.listButtons {
-//.buttons{
-
-
-          let listSettingsURL = !this.props.showSettings ? L.EntityTypeName : createLink(this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + L.Id + ")", '_blank', L.EntityTypeName);
-          let listVersionURL = !this.props.showSettings ? L.MajorVersionLimit : createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + L.Id + ")", '_blank', L.MajorVersionLimit.toString() );
-          let listPermissionURL = !this.props.showSettings ? '' : createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + L.Id + "},doclib&List={" + L.Id + "}", '_blank', 'Perms');
-          let listAdvancedURL = !this.props.showSettings ? '-' : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + L.Id + ")", '_blank', 'Adv');
-
-          let listAdvancedCT = !this.props.showSettings ? L.ContentTypesEnabled : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + L.Id + ")", '_blank', 'CT');
+          let listAdvancedCT = !this.props.showSettings ? Lst.ContentTypesEnabled : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'CT');
 
 
           let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes }  </div>;
 
           return <tr>
-            <td className={ styles.nowWrapping }> { L.Title } </td>
+            <td className={ styles.nowWrapping }> { Lst.Title } </td>
             <td className={ styles.nowWrapping }> { listSettingsURL }</td>
-            <td className={ styleDesc }> { L.Description.length > this.state.maxChars ? L.Description.slice(0,this.state.maxChars) + '...' : L.Description } </td>
-            <td> { L.ItemCount } </td>
+            <td className={ styleDesc }> { Lst.Description.length > this.state.maxChars ? Lst.Description.slice(0,this.state.maxChars) + '...' : Lst.Description } </td>
+            <td> { Lst.ItemCount } </td>
 
-            <td className={ styles.nowWrapping }> { L.Created } </td>
-            <td> { L.LastItemModifiedDate } </td>
+            <td className={ styles.nowWrapping }> { Lst.Created } </td>
+            <td> { Lst.LastItemModifiedDate } </td>
             <td> { listVersionURL } </td>
             <td> { listPermissionURL } </td>
-            <td> { L.NoCrawl } </td>
+            <td> { Lst.NoCrawl } </td>
             <td> { listAdvancedCT } </td>
             <td> { listAdvancedURL } </td>
-            <td> { L.BaseTemplate } </td>
+            <td> { Lst.BaseTemplate } </td>
             <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }> { other } </td>
             <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 

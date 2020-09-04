@@ -1,15 +1,10 @@
 
 import * as React from 'react';
-import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { IMyProgress } from '../../IReUsableInterfaces';
-import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
+import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
 import { IContentsGroupInfo, IGroupBucketInfo} from './groupsComponent';
 
-import { createIconButton } from '../../createButtons/IconButton';
-
-import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
@@ -155,66 +150,10 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
           let groupTitle = Grp.Title != null && Grp.Title.indexOf('SharingLinks') === 0 ? Grp.Title.slice(0, 20) : Grp.Title;
           let groupLink = createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipGroupId=' + Grp.Id, '_blank', groupTitle );
 
-          let groupInfo = '|Splitme|' + Grp.Id + '|Splitme|' + Grp.Title  + '|Splitme|' + Grp.Title;
-
-          let itemIcon = null;
-
-          let iconStyles: any = { root: {
-            //color: h.color ? h.color : "blue",
-          }};
-
-          let normalIcon = <Icon iconName={ "Info"} className={ iconClassInfo } styles = { iconStyles }/>;
-          let keys = Grp.meta ? <div><h3>Properties</h3><ul> { Grp.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
-
           let userString = Grp.userString;
 
-          const onRenderHoverCard = (item: any): JSX.Element => {
-            let hoverWebStyle = { fontWeight: 700};
-
-            let highlightKeys = ["Title","Description","Id","odata.type", "typeString"];
-
-            let highlightProps = highlightKeys.map( prop => {
-                let propType = typeof Grp[prop];
-                let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(Grp[prop]) : Grp[prop];
-                return <p><span style={hoverWebStyle}>{ prop }:</span> { propVal }</p>;
-            });
-
-            let specialKeys = highlightKeys.concat("meta","searchString");
-            console.log('spespecialKeys', specialKeys);
-            highlightProps.push( <p><span style={hoverWebStyle}>Meta:</span> { Grp.meta.join('; ') }</p> );
-            highlightProps.push( <p><span style={hoverWebStyle}>Search String:</span> { Grp.searchString }</p> );           
-
-            let hoverMinorPropStyle = { fontSize: 'smaller' };
-
-            let allProps = highlightProps.concat(Object.keys(Grp).map( prop => {
-
-              if (specialKeys.indexOf(prop) < 0 ) {
-                let propType = typeof Grp[prop];
-                let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(Grp[prop]) : Grp[prop];
-                return <p style={hoverMinorPropStyle}><span style={hoverWebStyle}>{ prop }:</span> { propVal }</p>;
-              } else { return null; }
-            }) );
-
-
-            return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
-              <div>
-                { allProps }
-
-              </div>
-            </div>;
-          };
-
-          let detailsCard = <div>
-            <HoverCard
-              cardDismissDelay={300}
-              type={HoverCardType.plain}
-              plainCardProps={{
-                onRenderPlainCard: onRenderHoverCard,
-                renderData: 'testRenderData'
-              }}>
-              { normalIcon }
-            </HoverCard>
-            </div>;
+          //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+          let detailsCard = buildPropsHoverCard(Grp, ["Title","Description","Id","odata.type", "typeString"], ["meta","searchString"] , true, null );
 
             //columnsToVisible
             return <tr>

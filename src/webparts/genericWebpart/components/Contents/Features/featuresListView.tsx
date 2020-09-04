@@ -3,13 +3,13 @@ import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
 import { IMyProgress } from '../../IReUsableInterfaces';
+
 import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
+
+import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
 import { IContentsFeatureInfo, IFeatureBucketInfo} from './featuresComponent';
 
-import { createIconButton } from '../../createButtons/IconButton';
-
-import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
@@ -152,48 +152,8 @@ export default class MyLogFeature extends React.Component<IMyLogFeatureProps, IM
            },
           };
 
-          //let featureTitle = Fetr.Title != null && Fetr.Title.indexOf('SharingLinks') === 0 ? Fetr.Title.slice(0, 20) : Fetr.Title;
-          //let featureLink = createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipGroupId=' + Fetr.Id, '_blank', featureTitle );
-
-          let iconStyles: any = { root: {
-            //color: h.color ? h.color : "blue",
-          }};
-
-          let normalIcon = <Icon iconName={ "Info"} className={ iconClassInfo } styles = { iconStyles }/>;
-          let keys = Fetr.meta ? <div><h3>Properties</h3><ul> { Fetr.meta.map(k => <li>{ k }</li>) } </ul></div> : null;
-
-          const onRenderHoverCard = (item: any): JSX.Element => {
-            let hoverWebStyle = { fontWeight: 700, paddingRight: 15};
-            return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
-              <div>
-                { /* Basic information */ }
-                <p><span style={hoverWebStyle}>Name:</span> { Fetr.name }</p>
-                <p><span style={hoverWebStyle}>Title:</span> { Fetr.DefinitionId }</p>
-
-                <p><span style={hoverWebStyle}>Meta:</span> { Fetr.meta.join('; ') }</p>
-
-                { /* Types information */ }
-                <p><span style={hoverWebStyle}>odata.type:</span> { /* F['odata.type'] */ '' }</p>
-
-                <p><span style={hoverWebStyle}>typeString:</span> { Fetr.typeString }</p>
-
-                <p><br></br></p>
-                <p><span style={hoverWebStyle}>Search String:</span> { Fetr.searchString }</p>
-              </div>
-            </div>;
-          };
-
-          let detailsCard = <div>
-            <HoverCard
-              cardDismissDelay={300}
-              type={HoverCardType.plain}
-              plainCardProps={{
-                onRenderPlainCard: onRenderHoverCard,
-                renderData: 'testRenderData'
-              }}>
-              { normalIcon }
-            </HoverCard>
-            </div>;
+          //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+          let detailsCard = buildPropsHoverCard(Fetr, ["name","DefinitionId","type","typeString","odata.type"], ["meta","searchString"] , true, null );
 
             //columnsToVisible
             return <tr>

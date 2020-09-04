@@ -57,6 +57,7 @@ export interface IMyProgress {
   icon?: string;
   color?: string;
   ref?: string;
+  refElement?: any;
 }
 
 export interface IPivot {
