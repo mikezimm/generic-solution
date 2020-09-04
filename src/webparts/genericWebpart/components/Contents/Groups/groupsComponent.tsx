@@ -334,7 +334,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
                         showUsers = { this.state.showUsers } blueBar={ this.state.blueBar }
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
-                        webURL = { this.state.webURL } descending={false} titles={null} 
+                        webURL = { this.state.webURL } descending={false} titles={null}
                         ></MyLogGroup>;
                 })
 
@@ -463,6 +463,8 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
         let groupBuckets  : IGroupBucketInfo[] = this.bucketGroups( newFilteredItems, this.state.groupBuckets );
         
+        console.log('addTheseGroupsToState count and items:',allGroups, newFilteredItems.length, newFilteredItems );
+
         this.setState({
             allGroups: allGroups,
             searchedItems: newFilteredItems,
@@ -472,6 +474,11 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
             searchText: '',
             searchMeta: this.state.searchMeta,
         });
+
+        //This is required so that the old list items are removed and it's re-rendered.
+        //If you do not re-run it, the old list items will remain and new results get added to the list.
+        //However the list will show correctly if you click on a pivot.
+        this.searchForGroups( '', this.state.searchMeta, false );
         return true;
     }
 

@@ -105,7 +105,7 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
             let label = (i + ' of ' + n + ' - Getting users for ' + allGroups[i].Title).substring( 0, 40 );
             let description = 'Fetching users';
             setProgress( false ,'V', indx, n, null, null, null, label, description );
-            console.log('Users for group: ' + allGroups[i].Id + ' - ' + allGroups[i].Title ,users );
+//            console.log('Users for group: ' + allGroups[i].Id + ' - ' + allGroups[i].Title ,users );
             allGroups[i].users = users;
             allGroups[i].userCount = users.length;
             allGroups[i].userString = allGroups[i].users != null ? allGroups[i].users.map( u => { return u.Title ; }).join('; ') : '';

@@ -172,7 +172,7 @@ export interface IInspectUsersState {
     showGroups: boolean;
 
     showDesc: boolean;      //property set by toggle to actually show or hide this content
-    showSettings: boolean;  //property set by toggle to actually show or hide this content
+    showProfile: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
 
     showMinWebs: boolean;
@@ -243,7 +243,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
 
             showGroups: false,
             showDesc: false,
-            showSettings: false,
+            showProfile: false,
             showRailsOff: false,
 
             searchMeta: pivCats.all.title,
@@ -317,7 +317,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
  *                                                                                     
  */
 
-            console.log('renderStateUsers', this.state.allUsers );
+            //console.log('renderStateUsers', this.state.allUsers );
 
             let thisPage = null;
 
@@ -330,7 +330,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
                 this.state.userBuckets.map( bucket => {
 
                     return <MyLogUser 
-                        showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
+                        showProfile = { this.state.showProfile } railsOff= { this.state.showRailsOff }
                         showGroups = { this.state.showGroups } blueBar={ this.state.blueBar }
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
@@ -376,7 +376,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
 
             let userPivots = this.createPivotObject(this.state.searchMeta, '');
 
-//            let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
+//            let settings = this.state.showProfile ? this.getSiteSettingsLinks() : null;
             let settings = null;
 
             let noInfo = [];
@@ -453,11 +453,11 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
         let listGuid = '';
         if ( showGroups === null ) { showGroups = this.state.showGroups; }
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
-        let result : any = allAvailableUsers( this.state.webURL, showGroups, this.state.userBuckets, this.addTheseGroupsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableUsers( this.state.webURL, showGroups, this.state.userBuckets, this.addTheseUsersToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
-    private addTheseGroupsToState( allUsers, scope : 'Web' | 'Web' , errMessage : string ) {
+    private addTheseUsersToState( allUsers, scope : 'Web' | 'Web' , errMessage : string ) {
 
         let newFilteredItems : IContentsUserInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allUsers );
 
@@ -472,6 +472,12 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
             searchText: '',
             searchMeta: this.state.searchMeta,
         });
+
+        //This is required so that the old list items are removed and it's re-rendered.
+        //If you do not re-run it, the old list items will remain and new results get added to the list.
+        //However the list will show correctly if you click on a pivot.
+        this.searchForUsers( '', this.state.searchMeta, false );
+
         return true;
     }
 
@@ -572,7 +578,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
     console.log('searchForItems: this', this);
 
     //Be sure to pass item.props.itemKey to get filter value
-    this.searchForGroups( this.state.searchText, item.props.itemKey, false );
+    this.searchForUsers( this.state.searchText, item.props.itemKey, false );
   }
 
   public _searchForItems = (item): void => {
@@ -582,7 +588,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
     console.log('searchForItems: item', item);
     console.log('searchForItems: this', this);
 
-    this.searchForGroups( item, this.state.searchMeta, true );
+    this.searchForUsers( item, this.state.searchMeta, true );
   }
   
   private getNewFilteredItems(text: string, meta: string , searchItems : IContentsUserInfo[] ) {
@@ -605,7 +611,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
 
   }
 
-  public searchForGroups = (text: string, meta: string , resetSpecialAlt: boolean ): void => {
+  public searchForUsers = (text: string, meta: string , resetSpecialAlt: boolean ): void => {
 
     let searchItems : IContentsUserInfo[] = this.state.allUsers;
     let searchCount = searchItems.length;
@@ -630,7 +636,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
       userBuckets: userBuckets,
       searchText: text.toLowerCase(),
       searchMeta: meta,
-      specialAlt: resetSpecialAlt === true || this.state.searchMeta !== meta ? false : !this.state.specialAlt , 
+      specialAlt: resetSpecialAlt === true || this.state.searchMeta !== meta ? false : !this.state.specialAlt ,
     });
 
 
@@ -756,12 +762,12 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
             styles: '',
         };
 
-        let togSet = {
+        let togProfile = {
             //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
-            label: <span>Settings</span>,
-            key: 'togggleSettings',
-            _onChange: this.updateTogggleSettings.bind(this),
-            checked: this.state.showSettings,
+            label: <span>Profile</span>,
+            key: 'togggleProfile',
+            _onChange: this.updateTogggleProfile.bind(this),
+            checked: this.state.showProfile,
             onText: '-',
             offText: '-',
             className: '',
@@ -771,7 +777,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
 
         //let theseToggles = [togDesc, togSet ];
         //if ( this.props.allowRailsOff === true ) { theseToggles.push( togXML, togJSON, togSPFx, togRails ); }
-        let theseToggles = [ togSet, togDesc , togGroups];
+        let theseToggles = [ togProfile, togDesc , togGroups];
 
         let pageToggles : IContentsToggles = {
             toggles: theseToggles,
@@ -804,9 +810,9 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
 
     }
 
-    private updateTogggleSettings() {
+    private updateTogggleProfile() {
         this.setState({
-            showSettings: !this.state.showSettings,
+            showProfile: !this.state.showProfile,
         });
     }
 

@@ -3,6 +3,8 @@ import * as React from 'react';
 
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
+import { convertTextToListItems } from '../../../../../services/basicElements';
+
 import { IContentsGroupInfo, IGroupBucketInfo} from './groupsComponent';
 
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
@@ -98,7 +100,9 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
  */
 
     public componentDidUpdate(prevProps: IMyLogGroupProps): void {
-    //this._updateWebPart(prevProps);
+      //this._updateWebPart(prevProps);
+      let doUpdate = false;
+
     }
 
 /***
@@ -151,7 +155,14 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
           let groupLink = createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipGroupId=' + Grp.Id, '_blank', groupTitle );
 
           let userString = Grp.userString;
+          
+          if  ( Grp.userString === undefined || Grp.userString === null ) {
 
+          } else if ( this.props.specialAlt === true ) {
+              userString = convertTextToListItems( Grp.userString, ';', 15, 'ul');
+          }
+
+          // && this.props.specialAlt === true
           //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
           let detailsCard = buildPropsHoverCard(Grp, ["Title","Description","Id","odata.type", "typeString"], ["meta","searchString"] , true, null );
 

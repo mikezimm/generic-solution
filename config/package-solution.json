@@ -3,7 +3,7 @@
   "solution": {
     "name": "generic-solution-client-side-solution",
     "id": "bd2cf944-5fb9-4f48-bde1-a5970368de0d",
-    "version": "1.1.4.1",
+    "version": "1.1.5.1",
     "includeClientSideAssets": true,
     "isDomainIsolated": false
   },

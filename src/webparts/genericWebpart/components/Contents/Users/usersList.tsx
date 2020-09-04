@@ -5,6 +5,8 @@ import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 import { IMyProgress } from '../../IReUsableInterfaces';
 import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes';
 
+import { convertTextToListItems } from '../../../../../services/basicElements';
+
 import { IContentsUserInfo, IUserBucketInfo} from './usersComponent';
 
 import { iconSiteAdmin } from './usersFunctions';
@@ -27,7 +29,7 @@ export interface IMyLogUserProps {
     blueBar?: string;
 
     items: IUserBucketInfo;
-    showSettings: boolean;
+    showProfile: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     descending: boolean;
     maxChars?: number;
@@ -127,8 +129,8 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
 
         let logItems : IContentsUserInfo[] = this.props.items.users;
 
-        let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
-        let styleTitle = this.props.showSettings ? styles.hideMe : styles.nowWrapping;
+        let styleAdvanced = this.props.showProfile ? styles.showMe : styles.hideMe;
+        let styleTitle = styles.nowWrapping;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
         let columnsToVisible = !this.props.railsOff ? styles.showCell : styles.hideMe;
         let styleSpecial = this.props.railsOff ? styles.hideMe : styles.showCell;
@@ -157,9 +159,15 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
 
           let userBold = <span style={{ fontWeight: 600, color: 'purple' }}>{ userTitle }</span>;
 
-          let groupLink = createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipUserId=' + Usr.Id, '_blank', userTitle );
+          let groupLink = null; //createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipUserId=' + Usr.Id, '_blank', userTitle );
 
-          let userString = Usr.groupString;
+          let groupString = Usr.groupString;
+          
+          if  ( Usr.groupString === undefined || Usr.groupString === null ) {
+
+          } else if ( this.props.specialAlt === true ) {
+              groupString = convertTextToListItems( Usr.groupString, ';', 15, 'ul');
+          }
 
           let detailsCard = buildPropsHoverCard(Usr, ["Title","Email","IsSiteAdmin","LoginName", "Id"], ["meta","searchString"] , true, null );
 
@@ -169,7 +177,7 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
                 <td className={ '' }> { Usr.fabricIcon }</td> 
 
                 <td className={ styleTitle }> { ( Usr.IsSiteAdmin ? userBold : userTitle) } { adminIcon } </td>
-                <td className={ styleTitle }> { Usr.Id }</td>
+                <td className={ '' }> { Usr.Id }</td>
 
                 <td className= { styleAdvanced }> { groupLink }</td>
 
@@ -178,7 +186,7 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
                 <td className={ styleSpecial }> { /*this.getWebSpecialValue( F ) */ '' } </td>
                 <td className= { styleRailsOff }>Rails Off Content</td>
                 <td className= { styleUsers }> {Usr.groupCount } </td>
-                <td className= { styleUsers }> { userString } </td>
+                <td className= { styleUsers }> { groupString } </td>
                 
                 <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 
@@ -200,10 +208,10 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
 
         let webTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
-                <th></th>
+                <th style={{minWidth: 50}}></th>
                 <th className={ styleTitle }>Title</th>
-                <th className={ styleTitle }>Id</th>
-                <th className={ styleAdvanced }>Link to User</th>
+                <th className={ '' }>Id</th>
+                <th className={ styleAdvanced }>Profile</th>
 
                 <th className={ styleDesc }>Description</th>
 
@@ -212,7 +220,7 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
                 <th className={ styleSpecial }></th>
 
                 <th className= { styleRailsOff }>Rails Off Heading</th>
-                <th className= { styleUsers }>Users</th>
+                <th className= { styleUsers }>Groups</th>
                 <th className= { styleUsers }></th>
                 <th>Details</th>
 

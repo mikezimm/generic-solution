@@ -78,7 +78,7 @@ export const iconOther2 =   <Icon iconName={ "InfoSolid"        } title={ 'Other
 export const iconHidden =   <Icon iconName={ "Hide3"            } title={ 'Hidden from UI' }     className={ stylesL.isBold } styles = { rootHidden }/>;
 
 //export async function provisionTestPage( makeThisPage:  IContentsUserInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableUsers( webURL: string, showUsers: boolean, groupBuckets: IUserBucketInfo[], addTheseUsersToState: any, setProgress: any, markComplete: any ): Promise<IContentsUserInfo[]>{
+export async function allAvailableUsers( webURL: string, showGroups: boolean, groupBuckets: IUserBucketInfo[], addTheseUsersToState: any, setProgress: any, markComplete: any ): Promise<IContentsUserInfo[]>{
 
     let thisWebInstance = null;
 
@@ -108,8 +108,8 @@ export async function allAvailableUsers( webURL: string, showUsers: boolean, gro
 
 //        allUsers[i].timeCreated = makeSmallTimeObject(allUsers[i].Created);
         let thisUser = allUsers[i];
-        if ( showUsers === true ) {
-            const users = await thisWebInstance.siteUsers.getById(allUsers[i].Id).users();
+        if ( showGroups === true ) {
+            const usersGroups = await thisWebInstance.siteUsers.getById(allUsers[i].Id).groups.get();
 
         /**
             * 
@@ -125,12 +125,12 @@ export async function allAvailableUsers( webURL: string, showUsers: boolean, gro
             */
 
           //setProgress(false, "C", i, n , 'darkgray', 'CalculatorSubtract', f.name, 'Adding fields to list (' + step +'): ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name , step + ' fieldsToDo ~ 102' );
-            let label = (i + ' of ' + n + ' - Getting users for ' + allUsers[i].Title).substring( 0, 40 );
-            let description = 'Fetching users';
+            let label = (i + ' of ' + n + ' - Getting usersGroups for ' + allUsers[i].Title).substring( 0, 40 );
+            let description = 'Fetching usersGroups';
             setProgress( false ,'V', indx, n, null, null, null, label, description );
-            console.log('Users for group: ' + allUsers[i].Id + ' - ' + allUsers[i].Title ,users );
-            allUsers[i].groups = users;
-            allUsers[i].groupCount = users.length;
+            //console.log('Users for group: ' + allUsers[i].Id + ' - ' + allUsers[i].Title ,usersGroups );
+            allUsers[i].groups = usersGroups;
+            allUsers[i].groupCount = usersGroups.length;
             allUsers[i].groupString = allUsers[i].groups != null ? allUsers[i].groups.map( u => { return u.Title ; }).join('; ') : '';
 
         }
