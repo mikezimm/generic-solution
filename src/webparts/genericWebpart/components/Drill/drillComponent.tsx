@@ -532,7 +532,13 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
     let pivotCats : any = [];
     let prevLayer = this.state.pivotCats.length -1 ;
-    if ( searchType === 'meta' && layer !== prevLayer ) {
+
+    let prevMetaString = JSON.stringify( this.state.meta );
+    let thisMetaString = JSON.stringify( meta );
+    let metaChanged = prevMetaString === thisMetaString ? false : true;
+
+    //if ( searchType === 'meta' && layer !== prevLayer ) {
+    if ( searchType === 'meta' ) {
 
         pivotCats.push ( this.state.refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
 
@@ -540,11 +546,16 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             //Need to remove previous layer
         } else { // Add new layer
             let searchMeta0 = this.state.searchMeta[ 0 ]; //Should not be used because it should always have something.
-            let newKeyIndex0 = this.state.refinerObj.childrenKeys[0].indexOf(this.state.searchMeta[ 0 ]);
+            let newKeyIndex0 = this.state.refinerObj.childrenKeys[0].indexOf(meta[ 0 ]);
+            if ( newKeyIndex0 > -1 ) { 
+                pivotCats.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
+            }
 
             let searchMeta1 = this.state.searchMeta.length > 1 ? this.state.searchMeta[ 1 ] : null;
             let newKeyIndex1 = searchMeta1 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.indexOf(this.state.searchMeta[ 1 ]) : null;
-
+            if ( newKeyIndex1 !== null && newKeyIndex1 > -1 ) { 
+                pivotCats.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
+            }
             let searchMeta2 =  this.state.searchMeta.length > 2 ? this.state.searchMeta[ 2 ] : null;
             let newKeyIndex2 = searchMeta2 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.indexOf(this.state.searchMeta[ 1 ]) : null;
 
@@ -554,7 +565,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     } else {
         pivotCats = this.state.pivotCats;
     }
-    
+
 
 
     //console.log('Searched for:' + text);
@@ -681,6 +692,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         } else if ( layer === 1 ) {
             onLinkClick = this._onSearchForMeta1.bind(this);
         } else {  onLinkClick = this._onSearchForMeta0.bind(this); }
+
+        if ( setPivot === undefined ) { setPivot = 'All' ; }
 
         let pivotWeb = 
         <Pivot 
