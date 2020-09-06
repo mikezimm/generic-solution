@@ -391,7 +391,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 thisPage = <div className={styles.contents}><div>
 
                 <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
-                { /* <p><mark>Pick up by looking at the searchMeta[] array in search.</mark>  It's currently thinking the array is just a string.  line 542 - getNewFilteredItems()</p> */ }
+                {  <p><mark>Check why picking Assists does not show Help as a chapter even though it's the only chapter...</mark></p>  }
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
                      { searchBox } { toggles }
                 </Stack>
