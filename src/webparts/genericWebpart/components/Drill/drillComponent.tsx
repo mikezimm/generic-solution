@@ -517,7 +517,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
     let lastMeta = this.state.searchMeta;
     let newMeta : string[] = [];
-    if ( lastMeta.length === 1 || lastMeta.length === 2 ) { 
+    if ( lastMeta.length === 1 || lastMeta.length === 2 || lastMeta.length === 3 ) { 
         newMeta.push( lastMeta[0] );
         newMeta.push( item.props.itemKey ) ; 
     } else { alert('Had unexpected error in _onSearchForMeta1, lastMeta.length = ' + lastMeta.length); }
@@ -575,7 +575,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         if ( !metaChanged ) {
             //Need to remove previous layer
             pivotCats = this.state.pivotCats;
-            
+
         } else { // Add new layer
 
             /**
@@ -596,7 +596,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             console.log('561: searchMeta0, newKeyIndex0, pivotCats', searchMeta0, newKeyIndex0, pivotCats);
 
             let searchMeta1 = this.state.searchMeta.length > 1 ? this.state.searchMeta[ 1 ] : null;
-            let newKeyIndex1 = searchMeta1 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.indexOf(this.state.searchMeta[ 1 ]) : null;
+            let newKeyIndex1 = searchMeta1 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.indexOf(newMeta[ 1 ]) : null;
             if ( newKeyIndex1 !== null && newKeyIndex1 > -1 ) { 
                 pivotCats.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
             }
@@ -606,7 +606,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             console.log('568: searchMeta1, newKeyIndex1, pivotCats', searchMeta1, newKeyIndex1, pivotCats);
 
             let searchMeta2 =  this.state.searchMeta.length > 2 ? this.state.searchMeta[ 2 ] : null;
-            let newKeyIndex2 = searchMeta2 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.indexOf(this.state.searchMeta[ 1 ]) : null;
+            let newKeyIndex2 = searchMeta2 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.indexOf(newMeta[ 2 ]) : null;
             console.log('572: searchMeta2, newKeyIndex2, pivotCats', searchMeta2, newKeyIndex2, pivotCats);
         }
 
