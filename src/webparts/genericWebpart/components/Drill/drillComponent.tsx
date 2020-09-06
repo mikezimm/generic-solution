@@ -361,11 +361,14 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
+            let showRefiner0 = true;
             let drillPivots0 = this.createPivotObject(this.state.searchMeta[0], '', 0);
 
-            let drillPivots1 = this.state.searchMeta.length >= 1 ? this.createPivotObject(this.state.searchMeta[1], '', 1) : null;
+            let showRefiner1 = this.state.searchMeta.length >= 1 && this.state.searchMeta[0] !== 'All' ? true : false;
+            let drillPivots1 = showRefiner1 ? this.createPivotObject(this.state.searchMeta[1], '', 1) : null;
 
-            let drillPivots2 = this.state.searchMeta.length >= 2 ? this.createPivotObject(this.state.searchMeta[2], '', 2) : null;
+            let showRefiner2 = this.state.searchMeta.length >= 2 && this.state.searchMeta[1] !== 'All' ? true : false;
+            let drillPivots2 = showRefiner2 ? this.createPivotObject(this.state.searchMeta[2], '', 2) : null;
 
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
@@ -572,7 +575,9 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
         pivotCats.push ( this.state.refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
 
-        if ( !metaChanged ) {
+        if ( newMeta.length === 1 && newMeta[0] === 'All'){  //For some reason this was giving False when it should be true: if ( newMeta === ['All'] ) { }
+            //Nothing is needed.
+        } else if ( !metaChanged ) {
             //Need to remove previous layer
             pivotCats = this.state.pivotCats;
 
@@ -585,7 +590,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
              * If I click Track My Time, Dashboard, I expect:  newMeta: ["TrackMyTime","Dashboard"], 
              */
             console.log('555: layer, newMeta', layer, newMeta);
-            let searchMeta0 = this.state.searchMeta[ 0 ]; //Should not be used because it should always have something.
+            //let searchMeta0 = this.state.searchMeta[ 0 ]; //Should not be used because it should always have something.
             let newKeyIndex0 = this.state.refinerObj.childrenKeys.indexOf(newMeta[ 0 ]);
             if ( newKeyIndex0 > -1 ) { 
                 pivotCats.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
@@ -593,21 +598,20 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             /**
              * If I click Track My Time, Dashboard, I expect:  newMeta: ["TrackMyTime","Dashboard"], 
              */
-            console.log('561: searchMeta0, newKeyIndex0, pivotCats', searchMeta0, newKeyIndex0, pivotCats);
+            console.log('561:  newKeyIndex0, pivotCats',  newKeyIndex0, pivotCats);
 
-            let searchMeta1 = this.state.searchMeta.length > 1 ? this.state.searchMeta[ 1 ] : null;
-            let newKeyIndex1 = searchMeta1 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.indexOf(newMeta[ 1 ]) : null;
+            //let searchMeta1 = this.state.searchMeta.length > 1 ? this.state.searchMeta[ 1 ] : null;
+            let newKeyIndex1 = this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.indexOf(newMeta[ 1 ]);
             if ( newKeyIndex1 !== null && newKeyIndex1 > -1 ) { 
                 pivotCats.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
-            }
-                        /**
-             * If I click Track My Time, I expect:  newMeta: ["TrackMyTime"]
-             */
-            console.log('568: searchMeta1, newKeyIndex1, pivotCats', searchMeta1, newKeyIndex1, pivotCats);
 
-            let searchMeta2 =  this.state.searchMeta.length > 2 ? this.state.searchMeta[ 2 ] : null;
-            let newKeyIndex2 = searchMeta2 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.indexOf(newMeta[ 2 ]) : null;
-            console.log('572: searchMeta2, newKeyIndex2, pivotCats', searchMeta2, newKeyIndex2, pivotCats);
+                //let searchMeta2 =  this.state.searchMeta.length > 2 ? this.state.searchMeta[ 2 ] : null;
+                let newKeyIndex2 = this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.indexOf(newMeta[ 2 ]);
+                console.log('572:  newKeyIndex2, pivotCats',  newKeyIndex2, pivotCats);
+
+            }
+
+
         }
 
 
