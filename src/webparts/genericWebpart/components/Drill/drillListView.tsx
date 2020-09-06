@@ -126,8 +126,19 @@ export default class MyDrillItems extends React.Component<IMyDrillItemsProps, IM
             //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
             let detailsCard = buildPropsHoverCard(h, ["property","value"], ["meta","searchString"] , true, null );
 
+            let comments = '';
+            if (  h.Comments === null || h.Comments === undefined ) {}
+            else if ( h.Comments.length < 40 ) {comments = h.Comments ; }
+            else ( comments = h.Comments.slice(0,40) + '...');
+
+
             return <tr>
-                <td> { h.Title } </td>
+                <td> { h.Id } </td>
+                <td> { h.Story } </td>
+                <td> { h.Chapter } </td>
+                <td> { h.StartTime } </td>
+                <td> { comments } </td>
+                <td> { detailsCard } </td>
             </tr>;
         });
 
@@ -135,8 +146,12 @@ export default class MyDrillItems extends React.Component<IMyDrillItemsProps, IM
 
         let logTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
-                <th>Title</th>
-
+                <th>Id</th>
+                <th>Story</th>
+                <th>Chapter</th>
+                <th>StartTime</th>
+                <th>Comments</th>
+                <th>Details</th>
             </tr>
             { itemRows }
         </table>;

@@ -29,6 +29,7 @@ import { IAnyArray } from  '../../../../services/listServices/listServices';
 import { mergeAriaAttributeValues } from "office-ui-fabric-react";
 
 import { IRefiners, IRefinerLayer, IItemRefiners, RefineRuleValues } from '../IReUsableInterfaces';
+import { ProjectID1, Comments } from '../ListProvisioning/ListsTMT/columnsWebPart';
 
 export async function getAllItems( drillList: IDrillList, addTheseItemsToState: any, setProgress: any, markComplete: any ): Promise<IDrillItemInfo[]>{
 
@@ -368,6 +369,14 @@ function buildSearchStringFromItem (newItem : IDrillItemInfo) {
     let delim = '|||';
 
     if ( newItem.Title ) { result += 'Title=' + newItem.Title + delim ; }
+
+    if ( newItem.Comments ) { result += 'Comments=' + newItem.Comments + delim ; }
+    if ( newItem.Story ) { result += 'Story=' + newItem.Story + delim ; }
+    if ( newItem.Chapter ) { result += 'Chapter=' + newItem.Chapter + delim ; }
+    if ( newItem.ProjectID1 ) { result += 'ProjectID1=' + newItem.ProjectID1 + delim ; }
+    if ( newItem.ProjectID2 ) { result += 'ProjectID2=' + newItem.ProjectID1 + delim ; }
+
+    if ( newItem.StartTime ) { result += 'StartTime=' + newItem.StartTime + delim ; }
 
     if ( newItem.Id ) { result += 'Id=' + newItem.Id + delim ; }
 

@@ -78,8 +78,11 @@ export function buildPropsHoverCard (item: any, highlightKeys: string[], special
             });
         }
 
+        let tipLine = showTheseProps.length > 20 ?  <p><span style={{fontSize: 'x-large', fontWeight: 600, color: 'darkblue'}}><mark>TIP: </mark>Use Mouse Wheel to scroll down page, Don't use scroll bar!</span></p> : null ;
+
         return <div className={styles.hoverCard} style={{padding: 30, maxWidth: 800 }}>
           <div>
+            { tipLine }
             { showTheseProps }
 
           </div>
