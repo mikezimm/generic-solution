@@ -331,7 +331,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  *                                                                                     
  */
 
-            console.log('renderStateWebs', this.state.allItems );
+            //console.log('renderStateWebs', this.state.allItems );
 
             let thisPage = null;
 
@@ -361,11 +361,14 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
+            let showRefiner0 = true;
             let drillPivots0 = this.createPivotObject(this.state.searchMeta[0], '', 0);
 
-            let drillPivots1 = this.state.pivotCats.length >= 1 ? this.createPivotObject(this.state.searchMeta[1], '', 1) : null;
+            let showRefiner1 = this.state.searchMeta.length >= 1 && this.state.searchMeta[0] !== 'All' ? true : false;
+            let drillPivots1 = showRefiner1 ? this.createPivotObject(this.state.searchMeta[1], '', 1) : null;
 
-            let drillPivots2 = this.state.pivotCats.length >= 2 ? this.createPivotObject(this.state.searchMeta[2], '', 2) : null;
+            let showRefiner2 = this.state.searchMeta.length >= 2 && this.state.searchMeta[1] !== 'All' ? true : false;
+            let drillPivots2 = showRefiner2 ? this.createPivotObject(this.state.searchMeta[2], '', 2) : null;
 
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
@@ -388,7 +391,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 thisPage = <div className={styles.contents}><div>
 
                 <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
-                <p><mark>Pick up by looking at the searchMeta[] array in search.</mark>  It's currently thinking the array is just a string.  line 542 - getNewFilteredItems()</p>
+                {  <p><mark>Check why picking Assists does not show Help as a chapter even though it's the only chapter...</mark></p>  }
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
                      { searchBox } { toggles }
                 </Stack>
@@ -465,6 +468,11 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             refinerObj: refinerObj,
             pivotCats: pivotCats,
         });
+
+        //This is required so that the old list items are removed and it's re-rendered.
+        //If you do not re-run it, the old list items will remain and new results get added to the list.
+        //However the list will show correctly if you click on a pivot.
+        //this.searchForItems( '', this.state.searchMeta, 0, 'meta' );
         return true;
     }
 
@@ -509,7 +517,15 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     //console.log('searchForItems: this', this);
 
     //Be sure to pass item.props.itemKey to get filter value
-    this.searchForItems( this.state.searchText, [item.props.itemKey], 1, 'meta' );
+
+    let lastMeta = this.state.searchMeta;
+    let newMeta : string[] = [];
+    if ( lastMeta.length === 1 || lastMeta.length === 2 || lastMeta.length === 3 ) { 
+        newMeta.push( lastMeta[0] );
+        newMeta.push( item.props.itemKey ) ; 
+    } else { alert('Had unexpected error in _onSearchForMeta1, lastMeta.length = ' + lastMeta.length); }
+
+    this.searchForItems( this.state.searchText, newMeta, 1, 'meta' );
   }
 
   public _onSearchForMeta2 = (item): void => {
@@ -520,33 +536,81 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     //console.log('searchForItems: this', this);
 
     //Be sure to pass item.props.itemKey to get filter value
-    this.searchForItems( this.state.searchText, [item.props.itemKey], 2, 'meta' );
+
+    let lastMeta = this.state.searchMeta;
+    let newMeta : string[] = [];
+    if ( lastMeta.length === 1 || lastMeta.length === 2 || lastMeta.length === 3 ) { 
+        newMeta.push( lastMeta[0] );
+        newMeta.push( lastMeta[1] );
+        newMeta.push( item.props.itemKey ) ; 
+    } else { alert('Had unexpected error in _onSearchForMeta2, lastMeta.length = ' + lastMeta.length); }
+
+
+    this.searchForItems( this.state.searchText, newMeta, 2, 'meta' );
   }
 
-  public searchForItems = (text: string, meta: string[] , layer: number, searchType: 'meta' | 'text' ): void => {
+  public searchForItems = (text: string, newMeta: string[] , layer: number, searchType: 'meta' | 'text' ): void => {
 
     let searchItems : IDrillItemInfo[] = this.state.allItems;
     let searchCount = searchItems.length;
 
-    let newFilteredItems : IDrillItemInfo[] = this.getNewFilteredItems( text, meta, searchItems, layer );
+    let newFilteredItems : IDrillItemInfo[] = this.getNewFilteredItems( text, newMeta, searchItems, layer );
 
     let pivotCats : any = [];
-    let prevLayer = this.state.pivotCats.length -1 ;
-    if ( searchType === 'meta' && layer !== prevLayer ) {
+    let prevLayer = this.state.pivotCats.length ;
+
+    let prevMetaString = JSON.stringify( this.state.searchMeta );
+    let thisMetaString = JSON.stringify( newMeta );
+    let metaChanged = prevMetaString === thisMetaString ? false : true;
+
+    /**
+     * example of newMeta:
+     * Clicking on 1st refiner:     newMeta: ["Daily"]
+     * Clicking on 2nd refiner:     newMeta: ["Daily","Break"]
+     * Clicking on 3rd refiner:     newMeta: ["Daily","Break","Third"]
+     */
+
+    //if ( searchType === 'meta' && layer !== prevLayer ) {
+    if ( searchType === 'meta' ) {
 
         pivotCats.push ( this.state.refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
 
-        if ( layer < prevLayer ) {
+        if ( newMeta.length === 1 && newMeta[0] === 'All'){  //For some reason this was giving False when it should be true: if ( newMeta === ['All'] ) { }
+            //Nothing is needed.
+        } else if ( !metaChanged ) {
             //Need to remove previous layer
+            pivotCats = this.state.pivotCats;
+
         } else { // Add new layer
-            let searchMeta0 = this.state.searchMeta[ 0 ]; //Should not be used because it should always have something.
-            let newKeyIndex0 = this.state.refinerObj.childrenKeys[0].indexOf(this.state.searchMeta[ 0 ]);
 
-            let searchMeta1 = this.state.searchMeta.length > 1 ? this.state.searchMeta[ 1 ] : null;
-            let newKeyIndex1 = searchMeta1 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.indexOf(this.state.searchMeta[ 1 ]) : null;
+            /**
+             * If I click Track My Time, I expect:  newMeta: ["TrackMyTime"], 
+             */
+            /**
+             * If I click Track My Time, Dashboard, I expect:  newMeta: ["TrackMyTime","Dashboard"], 
+             */
+            console.log('555: layer, newMeta', layer, newMeta);
+            //let searchMeta0 = this.state.searchMeta[ 0 ]; //Should not be used because it should always have something.
+            let newKeyIndex0 = this.state.refinerObj.childrenKeys.indexOf(newMeta[ 0 ]);
+            if ( newKeyIndex0 > -1 ) { 
+                pivotCats.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
+            }
+            /**
+             * If I click Track My Time, Dashboard, I expect:  newMeta: ["TrackMyTime","Dashboard"], 
+             */
+            console.log('561:  newKeyIndex0, pivotCats',  newKeyIndex0, pivotCats);
 
-            let searchMeta2 =  this.state.searchMeta.length > 2 ? this.state.searchMeta[ 2 ] : null;
-            let newKeyIndex2 = searchMeta2 !== null ? this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.indexOf(this.state.searchMeta[ 1 ]) : null;
+            //let searchMeta1 = this.state.searchMeta.length > 1 ? this.state.searchMeta[ 1 ] : null;
+            let newKeyIndex1 = this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.indexOf(newMeta[ 1 ]);
+            if ( newKeyIndex1 !== null && newKeyIndex1 > -1 ) { 
+                pivotCats.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
+
+                //let searchMeta2 =  this.state.searchMeta.length > 2 ? this.state.searchMeta[ 2 ] : null;
+                let newKeyIndex2 = this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.indexOf(newMeta[ 2 ]);
+                console.log('572:  newKeyIndex2, pivotCats',  newKeyIndex2, pivotCats);
+
+            }
+
 
         }
 
@@ -554,11 +618,11 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     } else {
         pivotCats = this.state.pivotCats;
     }
-    
+
 
 
     //console.log('Searched for:' + text);
-    //console.log('Web Meta:' + meta);
+    //console.log('Web Meta:' + newMeta);
     //console.log('and found these items:', newFilteredItems);
     searchCount = newFilteredItems.length;
 
@@ -566,7 +630,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
       searchedItems: newFilteredItems,
       searchCount: searchCount,
       searchText: text.toLowerCase(),
-      searchMeta: meta,
+      searchMeta: newMeta,
       pivotCats: pivotCats,
 
     });
@@ -584,20 +648,25 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     for (let thisSearchItem of searchItems) {
 
         let showItem = false;
+        let searchFails = 0;
         let searchString = thisSearchItem.searchString;
 
         if ( meta !== undefined && meta !== null && meta.length > 0 ) {
             for ( let m in meta ) {
                 let itemMeta = thisSearchItem.refiners['lev' + m];
+                let metaM = meta[m]; //Only make this so it's easier to debug.
                 if ( meta[m] == 'All' || meta[m] == '' || itemMeta.indexOf(meta[m]) > -1 ) {
-                    if( searchString.indexOf(text.toLowerCase()) > -1 ) {
+                    if( searchString === '' || searchString.indexOf(text.toLowerCase()) > -1 ) {
                         showItem = true;
-                    }
-                }
+                    } else { showItem = false; searchFails ++; }
+                } else { showItem = false; searchFails ++;}
             }
         }
 
-        if ( showItem === true ) {
+//        console.log('checking item.refiners: ' , thisSearchItem.refiners );
+//        console.log('For searchMeta: ' , meta );
+//        console.log('Results: showItem, searchFails' ,showItem , searchFails );        
+        if ( showItem === true && searchFails === 0 ) {
             newFilteredItems.push(thisSearchItem);
         }
 
@@ -681,6 +750,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         } else if ( layer === 1 ) {
             onLinkClick = this._onSearchForMeta1.bind(this);
         } else {  onLinkClick = this._onSearchForMeta0.bind(this); }
+
+        if ( setPivot === undefined ) { setPivot = 'All' ; }
 
         let pivotWeb = 
         <Pivot 

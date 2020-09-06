@@ -29,6 +29,7 @@ import { IAnyArray } from  '../../../../services/listServices/listServices';
 import { mergeAriaAttributeValues } from "office-ui-fabric-react";
 
 import { IRefiners, IRefinerLayer, IItemRefiners, RefineRuleValues } from '../IReUsableInterfaces';
+import { ProjectID1, Comments } from '../ListProvisioning/ListsTMT/columnsWebPart';
 
 export async function getAllItems( drillList: IDrillList, addTheseItemsToState: any, setProgress: any, markComplete: any ): Promise<IDrillItemInfo[]>{
 
@@ -72,10 +73,10 @@ export async function getAllItems( drillList: IDrillList, addTheseItemsToState: 
      }
     
     console.log('drillList.refiners =', drillList.refiners );
-    for ( let i = 0 ; i < 5000 ; i++ ) {
+    //for ( let i = 0 ; i < 5000 ; i++ ) {
         allRefiners = buildRefinersObject( allItems );
-        console.log(i);
-    }
+        //console.log(i);
+    //}
 
     console.log('Pre-Sort: getAllItems', allRefiners);
 
@@ -175,14 +176,14 @@ export function buildRefinersObject ( items: IDrillItemInfo[] ) {
                     let thisRefinerValuesLev2 = i.refiners['lev' + 2];
 
                     //  const found = arr1.some(r=> arr2.indexOf(r) >= 0)     https://stackoverflow.com/a/39893636  
-    
+
                     //Go through each array of refiners... 
                     for ( let r2 in thisRefinerValuesLev2 ) { //Go through all list items
-    
+
                         let thisRefiner2 = thisRefinerValuesLev2[r2];
                         let refiners2 = refiners1.childrenObjs[topKey1];
                         let topKey2 = refiners2.childrenKeys.indexOf( thisRefiner2 );
-    
+
                         if ( topKey2 < 0 ) { //Add to topKeys and create keys child object
                             refiners2.childrenKeys.push( thisRefiner2 );
                             refiners2.childrenObjs.push( createNewRefinerLayer (thisRefiner2) );
@@ -368,6 +369,14 @@ function buildSearchStringFromItem (newItem : IDrillItemInfo) {
     let delim = '|||';
 
     if ( newItem.Title ) { result += 'Title=' + newItem.Title + delim ; }
+
+    if ( newItem.Comments ) { result += 'Comments=' + newItem.Comments + delim ; }
+    if ( newItem.Story ) { result += 'Story=' + newItem.Story + delim ; }
+    if ( newItem.Chapter ) { result += 'Chapter=' + newItem.Chapter + delim ; }
+    if ( newItem.ProjectID1 ) { result += 'ProjectID1=' + newItem.ProjectID1 + delim ; }
+    if ( newItem.ProjectID2 ) { result += 'ProjectID2=' + newItem.ProjectID1 + delim ; }
+
+    if ( newItem.StartTime ) { result += 'StartTime=' + newItem.StartTime + delim ; }
 
     if ( newItem.Id ) { result += 'Id=' + newItem.Id + delim ; }
 
