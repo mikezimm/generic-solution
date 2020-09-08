@@ -387,6 +387,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           refiners= { ['Story', 'Chapter', 'Created'] }
 
           rules = { stringRules }
+          
+          onRefiner0Selected = { this.props.onRefiner0Selected }
 
       ></DrillDown>
       </div>;

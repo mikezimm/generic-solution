@@ -124,26 +124,6 @@ export interface IMyCommandBarItem {
   onClick?: any;
   iconName?: string;
 }
-    
-export function buildCommandBarProps ( thisAction: IMyCommandBarItem ) {
-  let onClick =   thisAction.onClick ?  thisAction.onClick() : alert( thisAction.text );
-  let text = thisAction.text ?  thisAction.text : 'No Idea';
-
-  let iconName = thisAction.iconName ? thisAction.iconName : 'Info';
-  let key = thisAction.key ?  thisAction.key : text;
-  let ariaLabel = thisAction.ariaLabel ?  thisAction.ariaLabel : text;
-  let name = thisAction.name ?  thisAction.name : text;
-
-
-  const newProps: ICommandBarItemProps = { key: key, text: text,  name: name  , ariaLabel: ariaLabel , commandBarButtonAs: customButton,
-      iconProps: {  iconName: iconName, },
-      onClick: () => onClick,
-  };
-
-  return newProps;
-}
-
-
 
 function computeCacheKey(primaryControls: IContextualMenuItem[]): string {
   return primaryControls.reduce((acc, current) => acc + current.key, '');

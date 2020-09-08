@@ -154,6 +154,11 @@ export interface IDrillDownProps {
 
     rules: string;
 
+    /**
+     * 2020-09-08:  Add for dynamic data refiners.   onRefiner0Selected  -- callback to update main web part dynamic data props.
+     */
+    onRefiner0Selected?: any;
+
 }
 
 export interface IDrillDownState {
@@ -319,7 +324,6 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  */
 
     public render(): React.ReactElement<IDrillDownProps> {
-
 
         let x = 1;
         if ( x === 1 ) {
@@ -543,6 +547,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     public _onCMDSearchForMeta0 = (item): void => {
         //This sends back the correct pivot category which matches the category on the tile.
         let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
+        this.props.onRefiner0Selected( this.props.refiners[0], validText);
         this.searchForItems( this.state.searchText, [validText], 0, 'meta' );
     }
 
