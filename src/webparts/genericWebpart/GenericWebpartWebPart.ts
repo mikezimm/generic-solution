@@ -92,6 +92,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
  */
   private _selectedRefiner0Name: string;
   private _selectedRefiner0Value: string;
+  private _filterBy: any;
 
 
 
@@ -150,6 +151,10 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         {
           id: 'refiner0Value',
           title: 'Value you are filtering on',
+        },
+        {
+          id: 'filterBy',
+          title: 'Filter by refiner component',
         }
       ];
     }
@@ -164,7 +169,8 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
           return this._selectedRefiner0Name;
         case 'refiner0Value':
           return this._selectedRefiner0Value;
-
+        case 'filterBy':
+          return this._filterBy;
       }
       throw new Error('Bad property ID');
 
@@ -267,16 +273,17 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     console.log( '_handleRefiner0Selected:', field, value );
     this._selectedRefiner0Name = field;
     this._selectedRefiner0Value = value;
+    this._filterBy = {
+      field: field,
+      value: value,
+    }
+
     console.log('Main Webpart: Refiners updated: ', field, value);
     this.context.dynamicDataSourceManager.notifyPropertyChanged('refiner0Name');
     this.context.dynamicDataSourceManager.notifyPropertyChanged('refiner0Value');
+    this.context.dynamicDataSourceManager.notifyPropertyChanged('filterBy');
 
   }
-
-  private _handleRefiner0Value = ( value: string ) : void => {
-    console.log( value );
-  }
-
 
   protected onDispose(): void {
     ReactDom.unmountComponentAtNode(this.domElement);
