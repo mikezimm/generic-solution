@@ -54,6 +54,16 @@ export interface IOverflowData {
   cacheKey?: string;
 }
 
+
+function  _functionOnClick(item){
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+    alert('Hi! you clicked: ' +  e.target.innerText );
+
+    console.log('searchForItems: e',e);
+    console.log('item', item);
+}
+
 function generateData(count: number, cachingEnabled: boolean, checked: boolean): IOverflowData {
   const icons = ['Add', 'Share', 'Upload'];
   const dataItems = [];
@@ -65,6 +75,7 @@ function generateData(count: number, cachingEnabled: boolean, checked: boolean):
       icon: icons[index % icons.length],
       checked: checked,
       commandBarButtonAs: customButton,
+      onClick: _functionOnClick,
     };
 
     cacheKey = cacheKey + item.key;
