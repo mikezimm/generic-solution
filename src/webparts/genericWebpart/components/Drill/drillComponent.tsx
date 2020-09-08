@@ -406,7 +406,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 thisPage = <div className={styles.contents}><div>
 
                 <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
-                {  <p><mark>Check why picking Assists does not show Help as a chapter even though it's the only chapter...</mark></p>  }
+                {  /* <p><mark>Check why picking Assists does not show Help as a chapter even though it's the only chapter...</mark></p> */ }
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
                      { searchBox } { toggles }
                 </Stack>
@@ -519,11 +519,34 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  *                                                         
  */
 
-  public _onCMDSearchForMeta0 = (item): void => {
-    //This sends back the correct pivot category which matches the category on the tile.
-    this.searchForItems( this.state.searchText, [item.currentTarget.innerText], 0, 'meta' );
-  }
+    private findMatchtingElementText(arr: string[], item: any ) {
 
+        let hasItemKey = item.props && item.props.itemKey ? true : false ;
+        let hasTargetInnerText = item.target && item.target.innerText ? true : false;
+        if ( hasTargetInnerText === true ) {  //This loop is just for debugging if needed.
+            let testString = item.target.innerText;
+            let testStringL = testString.length;
+            let arr0 = arr[0];
+            let arr0L = arr0.length;
+
+        }
+        let hasTargetChildInnerText = item.target && item.target.lastElementChild && item.target.lastElementChild.innerText ? true : false;
+
+        //Added the .trim() everywhere because of the "Assit" not being found.
+        if ( hasItemKey && arr.indexOf( item.props.itemKey ) > -1 ) { return item.props.itemKey; }  //This should catch Pivot values without count or icons.
+        else if ( hasTargetInnerText &&  arr.indexOf( item.target.innerText ) > -1 ) { return item.target.innerText; } //This should catch command bars without icons
+        else if ( hasTargetChildInnerText &&  arr.indexOf( item.target.lastElementChild.innerText ) > -1 ) { return item.target.lastElementChild.innerText; } //This should catch command bars with icon
+        alert('We had a problem with this filter.  It could be that you have a special character in the selection that I can\'t figure out.');
+        return '';
+    }
+
+    public _onCMDSearchForMeta0 = (item): void => {
+        //This sends back the correct pivot category which matches the category on the tile.
+        let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
+        this.searchForItems( this.state.searchText, [validText], 0, 'meta' );
+    }
+
+    //This function works great for Pivots, not neccessarily anything with icons.
   public _onSearchForMeta0 = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     this.searchForItems( this.state.searchText, [item.props.itemKey], 0, 'meta' );

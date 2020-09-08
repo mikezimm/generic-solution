@@ -206,7 +206,14 @@ export default class ResizeGroupOverflowSetExample extends React.Component<IResi
             );
           }}
         />
-        <div className={styles.settingsGroup}>
+
+      </div>
+    );
+  }
+
+  /**
+   * This was just the settings used in the ResizeGroup sample which was just after the command bar.
+   * <div className={styles.settingsGroup}>
           <Checkbox label="Enable caching" onChange={this._onCachingEnabledChanged} checked={cachingEnabled} />
           <Checkbox label="Set onGrowData" onChange={this._onGrowDataEnabledChanged} checked={onGrowDataEnabled} />
           <Checkbox label="Buttons checked" onChange={this._onButtonsCheckedChanged} checked={buttonsChecked} />
@@ -227,10 +234,7 @@ export default class ResizeGroupOverflowSetExample extends React.Component<IResi
             />
           </div>
         </div>
-      </div>
-    );
-  }
-
+   */
   private _onReduceData = (currentData: any): any => {
     if (currentData.primary.length === 0) {
       return undefined;
