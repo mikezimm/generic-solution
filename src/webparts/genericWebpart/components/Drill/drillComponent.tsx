@@ -47,6 +47,10 @@ import MyDrillItems from './drillListView';
 
 import { getAllItems } from './drillFunctions';
 
+import ResizeGroupOverflowSetExample from './refiners/commandBar';
+
+import { ICMDItem } from './refiners/commandBar';
+
 export interface IDrillWeb extends Partial<IPickedWebBasic> {
     title?: string;
     ServerRelativeUrl?: string;
@@ -361,6 +365,17 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
+
+
+                
+
+            let resizePage0 = <div><ResizeGroupOverflowSetExample
+                items={ this.convertCatsToCMDs(0)}
+                cachingEnabled = { true }
+                onClick = { this._onCMDSearchForMeta0.bind(this)}
+            ></ResizeGroupOverflowSetExample></div>;
+
+
             let showRefiner0 = true;
             let drillPivots0 = this.createPivotObject(this.state.searchMeta[0], '', 0);
 
@@ -398,8 +413,13 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
                 <div style={{ height:30, paddingBottom: 15} }> { drillPivots0 } </div>
 
+
+
                 <div  className={ drillPivots1 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { drillPivots1 } </div>
                 <div  className={ drillPivots2 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { drillPivots2 } </div>
+                <div> { resizePage0 } </div>
+
+                
                 <div>
 
                 <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
@@ -498,6 +518,11 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  *                                                         
  *                                                         
  */
+
+  public _onCMDSearchForMeta0 = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    this.searchForItems( this.state.searchText, [item.currentTarget.innerText], 0, 'meta' );
+  }
 
   public _onSearchForMeta0 = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
@@ -728,6 +753,29 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         this.getAllItems();
     }
 
+
+    private convertCatsToCMDs( layer: number ) {
+        let refiners = null;
+        if ( layer === 0 ) { refiners = this.state.refinerObj.childrenKeys; }
+        
+        let result = refiners.map( i => {  
+            
+            let thisItem : ICMDItem = {
+                name: i,
+                key: i,
+                checked: i === this.state.searchMeta[layer] ? true : false ,
+                icon: null,
+            };
+
+            return thisItem;
+
+        });
+
+        return result;
+    }
+
+
+
     /***
  *         d8888b. d888888b db    db  .d88b.  d888888b .d8888. 
  *         88  `8D   `88'   88    88 .8P  Y8. `~~88~~' 88'  YP 
@@ -738,6 +786,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  *                                                             
  *                                                             
  */
+
 
 
     public createPivotObject(setPivot, display, layer){

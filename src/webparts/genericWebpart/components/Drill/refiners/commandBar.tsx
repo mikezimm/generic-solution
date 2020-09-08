@@ -54,6 +54,12 @@ export interface IOverflowData {
   cacheKey?: string;
 }
 
+export interface ICMDItem {
+  name: string;
+  key: string;
+  checked: boolean;
+  icon?: string;
+}
 
 function  _functionOnClick(item){
     //This sends back the correct pivot category which matches the category on the tile.
@@ -64,18 +70,17 @@ function  _functionOnClick(item){
     console.log('item', item);
 }
 
-function generateData(count: number, cachingEnabled: boolean, checked: boolean): IOverflowData {
-  const icons = ['Add', 'Share', 'Upload'];
+function generateData(items: ICMDItem[], cachingEnabled: boolean, onClick: any): IOverflowData {
   const dataItems = [];
   let cacheKey = '';
-  for (let index = 0; index < count; index++) {
+  for (let index = 0; index < items.length; index++) {
     const item = {
-      key: `item${index}`,
-      name: `Item ${index}`,
-      icon: icons[index % icons.length],
-      checked: checked,
+      key: items[index].key,
+      name: items[index].name,
+      icon: items[index].name ? items[index].name : null,
+      checked: items[index].checked,
       commandBarButtonAs: customButton,
-      onClick: _functionOnClick,
+      onClick: onClick,
     };
 
     cacheKey = cacheKey + item.key;
@@ -92,6 +97,15 @@ function generateData(count: number, cachingEnabled: boolean, checked: boolean):
   }
 
   return result;
+}
+
+
+export interface IResizeGroupOverflowSetExampleProps {
+
+  items: ICMDItem[];
+  cachingEnabled: boolean;
+  onClick: any;
+
 }
 
 export interface IResizeGroupOverflowSetExampleState {
@@ -140,8 +154,11 @@ function computeCacheKey(primaryControls: IContextualMenuItem[]): string {
  */
 
  // export default class DrillDown extends React.Component<IDrillDownProps, IDrillDownState> {
-export default class ResizeGroupOverflowSetExample extends BaseComponent<{}, IResizeGroupOverflowSetExampleState> {
-  constructor(props: {}) {
+export default class ResizeGroupOverflowSetExample extends React.Component<IResizeGroupOverflowSetExampleProps, IResizeGroupOverflowSetExampleState> {
+
+//export default class ResizeGroupOverflowSetExample extends BaseComponent<IResizeGroupOverflowSetExampleProps, IResizeGroupOverflowSetExampleState> {
+
+  public constructor(props:IResizeGroupOverflowSetExampleProps){
     super(props);
     this.state = {
       short: false,
@@ -154,13 +171,15 @@ export default class ResizeGroupOverflowSetExample extends BaseComponent<{}, IRe
 
   public render(): JSX.Element {
     const { numberOfItems, cachingEnabled, buttonsChecked, short, onGrowDataEnabled } = this.state;
-    const dataToRender = generateData(numberOfItems, cachingEnabled, buttonsChecked);
+    //const dataToRender = generateData(numberOfItems, cachingEnabled, buttonsChecked);
+    const commandsToRender = generateData( this.props.items , this.props.cachingEnabled, this.props.onClick );
+
     return (
       <div className={short ? styles.resizeIsShort : 'notResized'}>
         <ResizeGroup
           role="tabpanel"
           aria-label="Resize Group with an Overflow Set"
-          data={dataToRender}
+          data={commandsToRender}
           onReduceData={this._onReduceData}
           onGrowData={onGrowDataEnabled ? this._onGrowData : undefined}
           // tslint:disable-next-line:jsx-no-lambda
@@ -173,14 +192,14 @@ export default class ResizeGroupOverflowSetExample extends BaseComponent<{}, IRe
                   return (
                     //Wraping button in div to get ID didn't work... makes buttons small
                     //<div id={ item.name.replace(' ','') }><CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={item.onClick} checked={item.checked} /></div>
-                    <CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={this._sampleOnClick.bind(this)} checked={item.checked} />
+                    <CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={ this.props.onClick } checked={item.checked} />
 
                   //<div>{  }</div>
                     //<div>{item.name}</div>
                   );
                 }}
                 onRenderOverflowButton={overflowItems => {
-                  return <CommandBarButton menuProps={{ items: overflowItems! }} onClick={this._sampleOnClick.bind(this)}/>;
+                  return <CommandBarButton menuProps={{ items: overflowItems! }} onClick={ this.props.onClick }/>;
                 }}
                 styles={{ root: { height: 40 } }}
               />

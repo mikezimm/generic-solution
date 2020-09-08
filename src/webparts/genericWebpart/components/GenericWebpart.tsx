@@ -391,8 +391,6 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       ></DrillDown>
       </div>;
 
-      let resizePage = <div><ResizeGroupOverflowSetExample></ResizeGroupOverflowSetExample></div>;
-
       const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
         root: { marginTop: 10 },
       };
@@ -415,7 +413,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               { drillPage }
           </PivotItem>
           <PivotItem headerText="ResizeGroup">
-              { resizePage }
+              {  }
           </PivotItem>
           
 

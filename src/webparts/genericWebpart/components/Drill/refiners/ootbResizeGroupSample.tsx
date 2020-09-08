@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { BaseComponent } from 'office-ui-fabric-react/lib/Utilities';
-import { CommandBarButton } from 'office-ui-fabric-react/lib/Button';
+import { CommandBarButton, IButtonProps, } from 'office-ui-fabric-react/lib/Button';
+import { CommandBar, ICommandBarItemProps } from 'office-ui-fabric-react/lib/CommandBar';
 import { ResizeGroup } from 'office-ui-fabric-react/lib/ResizeGroup';
 import { OverflowSet } from 'office-ui-fabric-react/lib/OverflowSet';
 import { Checkbox } from 'office-ui-fabric-react/lib/Checkbox';
@@ -8,10 +9,28 @@ import { IContextualMenuItem } from 'office-ui-fabric-react/lib/ContextualMenu';
 import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { mergeStyleSets } from 'office-ui-fabric-react';
 
-
 //import * as stylesImport from './ResizeGroup.Example.scss';
 //const styles: any = stylesImport;
 
+export const customButton = (props: IButtonProps) => {
+
+    return (
+      <CommandBarButton
+        {...props}
+        styles={{
+          ...props.styles,
+          root: {backgroundColor: 'white'  ,padding:'10px 20px 10px 10px !important', height: 32, borderColor: 'white'},
+          textContainer: { fontSize: 16, color: '#00457E' },
+          icon: { 
+            fontSize: 18,
+            fontWeight: "bolder",
+            margin: '0px 2px',
+         },
+         
+        }}
+      />
+    );
+  };
 
 const styles = mergeStyleSets({
     root: {
@@ -35,6 +54,16 @@ export interface IOverflowData {
   cacheKey?: string;
 }
 
+
+function  _functionOnClick(item){
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+    alert('Hi! you clicked: ' +  e.target.innerText );
+
+    console.log('searchForItems: e',e);
+    console.log('item', item);
+}
+
 function generateData(count: number, cachingEnabled: boolean, checked: boolean): IOverflowData {
   const icons = ['Add', 'Share', 'Upload'];
   const dataItems = [];
@@ -44,7 +73,9 @@ function generateData(count: number, cachingEnabled: boolean, checked: boolean):
       key: `item${index}`,
       name: `Item ${index}`,
       icon: icons[index % icons.length],
-      checked: checked
+      checked: checked,
+      commandBarButtonAs: customButton,
+      onClick: _functionOnClick,
     };
 
     cacheKey = cacheKey + item.key;
@@ -63,13 +94,42 @@ function generateData(count: number, cachingEnabled: boolean, checked: boolean):
   return result;
 }
 
-export interface IResizeGroupOverflowOOTBSampleState {
+export interface IResizeGroupOverflowSetExampleState {
   short: boolean;
   numberOfItems: number;
   buttonsChecked: boolean;
   cachingEnabled: boolean;
   onGrowDataEnabled: boolean;
 }
+
+export interface IMyCommandBarItem {
+  key?: string;
+  text: string;
+  name?: string;
+  ariaLabel?: string;
+  onClick?: any;
+  iconName?: string;
+}
+    
+export function buildCommandBarProps ( thisAction: IMyCommandBarItem ) {
+  let onClick =   thisAction.onClick ?  thisAction.onClick() : alert( thisAction.text );
+  let text = thisAction.text ?  thisAction.text : 'No Idea';
+
+  let iconName = thisAction.iconName ? thisAction.iconName : 'Info';
+  let key = thisAction.key ?  thisAction.key : text;
+  let ariaLabel = thisAction.ariaLabel ?  thisAction.ariaLabel : text;
+  let name = thisAction.name ?  thisAction.name : text;
+
+
+  const newProps: ICommandBarItemProps = { key: key, text: text,  name: name  , ariaLabel: ariaLabel , commandBarButtonAs: customButton,
+      iconProps: {  iconName: iconName, },
+      onClick: () => onClick,
+  };
+
+  return newProps;
+}
+
+
 
 function computeCacheKey(primaryControls: IContextualMenuItem[]): string {
   return primaryControls.reduce((acc, current) => acc + current.key, '');
@@ -80,7 +140,7 @@ function computeCacheKey(primaryControls: IContextualMenuItem[]): string {
  */
 
  // export default class DrillDown extends React.Component<IDrillDownProps, IDrillDownState> {
-export default class ResizeGroupOverflowOOTBSample extends BaseComponent<{}, IResizeGroupOverflowOOTBSampleState> {
+export default class ResizeGroupOverflowSetExample extends BaseComponent<{}, IResizeGroupOverflowSetExampleState> {
   constructor(props: {}) {
     super(props);
     this.state = {
@@ -111,11 +171,16 @@ export default class ResizeGroupOverflowOOTBSample extends BaseComponent<{}, IRe
                 overflowItems={data.overflow.length ? data.overflow : null}
                 onRenderItem={item => {
                   return (
-                    <CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={item.onClick} checked={item.checked} />
+                    //Wraping button in div to get ID didn't work... makes buttons small
+                    //<div id={ item.name.replace(' ','') }><CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={item.onClick} checked={item.checked} /></div>
+                    <CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={this._sampleOnClick.bind(this)} checked={item.checked} />
+
+                  //<div>{  }</div>
+                    //<div>{item.name}</div>
                   );
                 }}
                 onRenderOverflowButton={overflowItems => {
-                  return <CommandBarButton menuProps={{ items: overflowItems! }} />;
+                  return <CommandBarButton menuProps={{ items: overflowItems! }} onClick={this._sampleOnClick.bind(this)}/>;
                 }}
                 styles={{ root: { height: 40 } }}
               />
@@ -191,5 +256,32 @@ export default class ResizeGroupOverflowOOTBSample extends BaseComponent<{}, IRe
 
   private _onNumberOfItemsChanged = (event: React.FormEvent<HTMLDivElement>, option: IDropdownOption): void => {
     this.setState({ numberOfItems: parseInt(option.text, 10) });
+  }
+
+  
+  private _sampleOnClick = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+    alert('Hi! you clicked: ' +  e.target.innerText );
+
+    console.log('searchForItems: e',e);
+
+  /*  This confirms the text is possible to get as  e.target.innerText
+
+    for ( let c of e.target.innerText ) {
+      console.log('e.target.innerText: ', c);
+    }
+
+    */
+    /* These had various degress of success finding the text of the button.
+    console.log('', e.target.innerText.length, e.target.innerText );
+
+    console.log('lastElementChild.textContext', e.target.parentElement.lastElementChild.textContext);
+    console.log('lastElementChild.textContext', e.target.nextSibling.textContext);
+    console.log('searchForItems: item', item);
+    console.log('searchForItems: this', this);
+*/
+    //Be sure to pass item.props.itemKey to get filter value
+
   }
 }
