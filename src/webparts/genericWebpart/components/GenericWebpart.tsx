@@ -38,6 +38,8 @@ import ProvisionPages from './PageProvisioning/component/provisionPageComponent'
 
 import DrillDown from './Drill/drillComponent';
 
+import ResizeGroupOverflowSetExample from './Drill/refiners/commandBar';
+
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
 
 
@@ -385,10 +387,11 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           refiners= { ['Story', 'Chapter', 'Created'] }
 
           rules = { stringRules }
+          
+          onRefiner0Selected = { this.props.onRefiner0Selected }
 
       ></DrillDown>
       </div>;
-
 
       const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
         root: { marginTop: 10 },
@@ -411,6 +414,10 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           <PivotItem headerText="DrillDown">
               { drillPage }
           </PivotItem>
+          <PivotItem headerText="ResizeGroup">
+              {  }
+          </PivotItem>
+          
 
           <PivotItem headerText="Help">
               { infoPage }

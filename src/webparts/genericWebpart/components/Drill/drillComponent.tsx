@@ -47,6 +47,10 @@ import MyDrillItems from './drillListView';
 
 import { getAllItems } from './drillFunctions';
 
+import ResizeGroupOverflowSetExample from './refiners/commandBar';
+
+import { ICMDItem } from './refiners/commandBar';
+
 export interface IDrillWeb extends Partial<IPickedWebBasic> {
     title?: string;
     ServerRelativeUrl?: string;
@@ -149,6 +153,11 @@ export interface IDrillDownProps {
     */
 
     rules: string;
+
+    /**
+     * 2020-09-08:  Add for dynamic data refiners.   onRefiner0Selected  -- callback to update main web part dynamic data props.
+     */
+    onRefiner0Selected?: any;
 
 }
 
@@ -316,7 +325,6 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
     public render(): React.ReactElement<IDrillDownProps> {
 
-
         let x = 1;
         if ( x === 1 ) {
 
@@ -361,6 +369,17 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
+
+
+                
+
+            let resizePage0 = <div><ResizeGroupOverflowSetExample
+                items={ this.convertCatsToCMDs(0)}
+                cachingEnabled = { true }
+                onClick = { this._onCMDSearchForMeta0.bind(this)}
+            ></ResizeGroupOverflowSetExample></div>;
+
+
             let showRefiner0 = true;
             let drillPivots0 = this.createPivotObject(this.state.searchMeta[0], '', 0);
 
@@ -391,15 +410,20 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 thisPage = <div className={styles.contents}><div>
 
                 <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
-                {  <p><mark>Check why picking Assists does not show Help as a chapter even though it's the only chapter...</mark></p>  }
+                {  /* <p><mark>Check why picking Assists does not show Help as a chapter even though it's the only chapter...</mark></p> */ }
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
                      { searchBox } { toggles }
                 </Stack>
 
                 <div style={{ height:30, paddingBottom: 15} }> { drillPivots0 } </div>
 
+
+
                 <div  className={ drillPivots1 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { drillPivots1 } </div>
                 <div  className={ drillPivots2 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { drillPivots2 } </div>
+                <div> { resizePage0 } </div>
+
+                
                 <div>
 
                 <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
@@ -499,6 +523,35 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  *                                                         
  */
 
+    private findMatchtingElementText(arr: string[], item: any ) {
+
+        let hasItemKey = item.props && item.props.itemKey ? true : false ;
+        let hasTargetInnerText = item.target && item.target.innerText ? true : false;
+        if ( hasTargetInnerText === true ) {  //This loop is just for debugging if needed.
+            let testString = item.target.innerText;
+            let testStringL = testString.length;
+            let arr0 = arr[0];
+            let arr0L = arr0.length;
+
+        }
+        let hasTargetChildInnerText = item.target && item.target.lastElementChild && item.target.lastElementChild.innerText ? true : false;
+
+        //Added the .trim() everywhere because of the "Assit" not being found.
+        if ( hasItemKey && arr.indexOf( item.props.itemKey ) > -1 ) { return item.props.itemKey; }  //This should catch Pivot values without count or icons.
+        else if ( hasTargetInnerText &&  arr.indexOf( item.target.innerText ) > -1 ) { return item.target.innerText; } //This should catch command bars without icons
+        else if ( hasTargetChildInnerText &&  arr.indexOf( item.target.lastElementChild.innerText ) > -1 ) { return item.target.lastElementChild.innerText; } //This should catch command bars with icon
+        alert('We had a problem with this filter.  It could be that you have a special character in the selection that I can\'t figure out.');
+        return '';
+    }
+
+    public _onCMDSearchForMeta0 = (item): void => {
+        //This sends back the correct pivot category which matches the category on the tile.
+        let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
+        this.props.onRefiner0Selected( this.props.refiners[0], validText);
+        this.searchForItems( this.state.searchText, [validText], 0, 'meta' );
+    }
+
+    //This function works great for Pivots, not neccessarily anything with icons.
   public _onSearchForMeta0 = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     this.searchForItems( this.state.searchText, [item.props.itemKey], 0, 'meta' );
@@ -728,6 +781,29 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         this.getAllItems();
     }
 
+
+    private convertCatsToCMDs( layer: number ) {
+        let refiners = null;
+        if ( layer === 0 ) { refiners = this.state.refinerObj.childrenKeys; }
+        
+        let result = refiners.map( i => {  
+            
+            let thisItem : ICMDItem = {
+                name: i,
+                key: i,
+                checked: i === this.state.searchMeta[layer] ? true : false ,
+                icon: null,
+            };
+
+            return thisItem;
+
+        });
+
+        return result;
+    }
+
+
+
     /***
  *         d8888b. d888888b db    db  .d88b.  d888888b .d8888. 
  *         88  `8D   `88'   88    88 .8P  Y8. `~~88~~' 88'  YP 
@@ -738,6 +814,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  *                                                             
  *                                                             
  */
+
 
 
     public createPivotObject(setPivot, display, layer){
