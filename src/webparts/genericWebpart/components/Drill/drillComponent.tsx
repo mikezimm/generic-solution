@@ -51,6 +51,8 @@ import ResizeGroupOverflowSetExample from './refiners/commandBar';
 
 import { ICMDItem } from './refiners/commandBar';
 
+export type IRefinerStyles = 'pivot' | 'commandBar' | 'other';
+
 export interface IDrillWeb extends Partial<IPickedWebBasic> {
     title?: string;
     ServerRelativeUrl?: string;
@@ -159,6 +161,8 @@ export interface IDrillDownProps {
      */
     onRefiner0Selected?: any;
 
+    style: IRefinerStyles; //RefinerStyle
+
 }
 
 export interface IDrillDownState {
@@ -194,6 +198,8 @@ export interface IDrillDownState {
     refinerObj: IRefiners;
 
     pivotCats: IMyPivCat[][];
+
+    style: IRefinerStyles; //RefinerStyle
 
     
 }
@@ -277,6 +283,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             refinerObj: {childrenKeys: this.props.refiners, childrenObjs: [] , multiCount: 0, itemCount: 0 },
 
             pivotCats: [],
+
+            style: this.props.style ? this.props.style : 'commandBar',
 
         };
 
@@ -373,21 +381,44 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
                 
 
-            let resizePage0 = <div><ResizeGroupOverflowSetExample
+
+
+            //                <div> { resizePage0 } </div>
+            let showRefiner0 = true;
+            let drillPivots0 = this.state.style === 'pivot' ?  this.createPivotObject(this.state.searchMeta[0], '', 0) : null;
+
+
+
+
+            let showRefiner1 = this.state.searchMeta.length >= 1 && this.state.searchMeta[0] !== 'All' ? true : false;
+            let drillPivots1 = showRefiner1 && this.state.style === 'pivot' ? this.createPivotObject(this.state.searchMeta[1], '', 1) : null;
+
+            let showRefiner2 = this.state.searchMeta.length >= 2 && this.state.searchMeta[1] !== 'All' ? true : false;
+            let drillPivots2 = showRefiner2 && this.state.style === 'pivot' ?  this.createPivotObject(this.state.searchMeta[2], '', 2) : null;
+
+            let resizePage0 = this.state.style === 'commandBar' ?  <div><ResizeGroupOverflowSetExample
                 items={ this.convertCatsToCMDs(0)}
                 cachingEnabled = { true }
                 onClick = { this._onCMDSearchForMeta0.bind(this)}
-            ></ResizeGroupOverflowSetExample></div>;
+            ></ResizeGroupOverflowSetExample></div> : null;
+
+            let resizePage1 = showRefiner1 && this.state.style === 'commandBar' ?  <div><ResizeGroupOverflowSetExample
+                items={ this.convertCatsToCMDs(1)}
+                cachingEnabled = { true }
+                onClick = { this._onCMDSearchForMeta1.bind(this)}
+            ></ResizeGroupOverflowSetExample></div> : null;
+
+            let resizePage2 = showRefiner2 && this.state.style === 'commandBar' ?  <div><ResizeGroupOverflowSetExample
+                items={ this.convertCatsToCMDs(2)}
+                cachingEnabled = { true }
+                onClick = { this._onCMDSearchForMeta2.bind(this)}
+            ></ResizeGroupOverflowSetExample></div> : null;
 
 
-            let showRefiner0 = true;
-            let drillPivots0 = this.createPivotObject(this.state.searchMeta[0], '', 0);
+            let thisIsRefiner0 = showRefiner0 && this.state.style === 'pivot' ? drillPivots0 : resizePage0;
+            let thisIsRefiner1 = showRefiner1 && this.state.style === 'pivot' ? drillPivots1 : resizePage1;
+            let thisIsRefiner2 = showRefiner1 && this.state.style === 'pivot' ? drillPivots2 : resizePage2;
 
-            let showRefiner1 = this.state.searchMeta.length >= 1 && this.state.searchMeta[0] !== 'All' ? true : false;
-            let drillPivots1 = showRefiner1 ? this.createPivotObject(this.state.searchMeta[1], '', 1) : null;
-
-            let showRefiner2 = this.state.searchMeta.length >= 2 && this.state.searchMeta[1] !== 'All' ? true : false;
-            let drillPivots2 = showRefiner2 ? this.createPivotObject(this.state.searchMeta[2], '', 2) : null;
 
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
@@ -415,15 +446,11 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                      { searchBox } { toggles }
                 </Stack>
 
-                <div style={{ height:30, paddingBottom: 15} }> { drillPivots0 } </div>
+                <div style={{ height:30, paddingBottom: 15} }> { thisIsRefiner0 } </div>
 
+                <div  className={ drillPivots1 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { thisIsRefiner1 } </div>
+                <div  className={ drillPivots2 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { thisIsRefiner2 } </div>
 
-
-                <div  className={ drillPivots1 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { drillPivots1 } </div>
-                <div  className={ drillPivots2 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { drillPivots2 } </div>
-                <div> { resizePage0 } </div>
-
-                
                 <div>
 
                 <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
@@ -549,6 +576,42 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
         this.props.onRefiner0Selected( this.props.refiners[0], validText);
         this.searchForItems( this.state.searchText, [validText], 0, 'meta' );
+    }
+
+    public _onCMDSearchForMeta1 = (item): void => {
+        //This sends back the correct pivot category which matches the category on the tile.
+        let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
+        this.props.onRefiner0Selected( this.props.refiners[1], validText);
+
+
+        let lastMeta = this.state.searchMeta;
+        let newMeta : string[] = [];
+        if ( lastMeta.length === 1 || lastMeta.length === 2 || lastMeta.length === 3 ) { 
+            newMeta.push( lastMeta[0] );
+            newMeta.push( validText ) ; 
+        } else { alert('Had unexpected error in _onSearchForMeta1, lastMeta.length = ' + lastMeta.length); }
+
+
+        this.searchForItems( this.state.searchText, newMeta, 1, 'meta' );
+    }
+
+
+    public _onCMDSearchForMeta2 = (item): void => {
+        //This sends back the correct pivot category which matches the category on the tile.
+        let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
+        this.props.onRefiner0Selected( this.props.refiners[2], validText);
+
+
+        let lastMeta = this.state.searchMeta;
+        let newMeta : string[] = [];
+        if ( lastMeta.length === 1 || lastMeta.length === 2 || lastMeta.length === 3 ) { 
+            newMeta.push( lastMeta[0] );
+            newMeta.push( lastMeta[1] );
+            newMeta.push( validText ) ; 
+        } else { alert('Had unexpected error in _onSearchForMeta2, lastMeta.length = ' + lastMeta.length); }
+
+
+        this.searchForItems( this.state.searchText, newMeta, 2, 'meta' );
     }
 
     //This function works great for Pivots, not neccessarily anything with icons.
@@ -785,7 +848,9 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     private convertCatsToCMDs( layer: number ) {
         let refiners = null;
         if ( layer === 0 ) { refiners = this.state.refinerObj.childrenKeys; }
-        
+        if ( layer === 1 ) { refiners = this.state.refinerObj.childrenKeys; }
+        if ( layer === 2 ) { refiners = this.state.refinerObj.childrenKeys; }
+
         let result = refiners.map( i => {  
             
             let thisItem : ICMDItem = {
@@ -909,19 +974,19 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             styles: '',
         };
 
-        let togDates = {
+        let togRefinerStyle = {
             //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
-            label: <span>Dates</span>,
-            key: 'togggleDates',
-            _onChange: this.updateTogggleDates.bind(this),
-            checked: false,
-            onText: 'Actual',
-            offText: 'Friendly',
+            label: <span>Style</span>,
+            key: 'togggleRefinerStyle',
+            _onChange: this.updateTogggleRefinerStyle.bind(this),
+            checked: this.state.style === 'pivot' ? true : false,
+            onText: 'Pivot',
+            offText: 'CommandBar',
             className: '',
             styles: '',
         };
 
-        let theseToggles = [togDesc , togDates];
+        let theseToggles = [togDesc , togRefinerStyle];
 
         let pageToggles : IContentsToggles = {
             toggles: theseToggles,
@@ -942,9 +1007,20 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         });
     }
 
-    private updateTogggleDates() {
+    private updateTogggleRefinerStyle() {
+
+        let newStyle : IRefinerStyles = null;
+
+        if ( this.state.style === 'pivot' ) {
+            newStyle = 'commandBar';
+
+        } else if ( this.state.style === 'commandBar' ) {
+            newStyle = 'pivot';
+
+        }
+
         this.setState({
-            
+            style: newStyle,
         });
     }
 

@@ -390,6 +390,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           
           onRefiner0Selected = { this.props.onRefiner0Selected }
 
+          style = { 'commandBar' }
+
       ></DrillDown>
       </div>;
 
