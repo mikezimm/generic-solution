@@ -580,7 +580,9 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
     public _onCMDSearchForMeta1 = (item): void => {
         //This sends back the correct pivot category which matches the category on the tile.
+        //Need to get proper list of keys for the parent object here:
         let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
+
         this.props.onRefiner0Selected( this.props.refiners[1], validText);
 
 
@@ -644,6 +646,38 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     this.searchForItems( this.state.searchText, newMeta, 1, 'meta' );
   }
 
+  private getCurrentRefinerTree(newMeta: string[] ) {
+
+    let refinerTree: any[] = [];  
+    // End result would be something like this:
+    /**
+     * 
+     * newMeta = [Daily,Break]  -- the list of selected refiners
+     * 
+     * refiners = [             -- the array of all the refiner keys down to the last level
+     *  [Daily,Meetings,Training],
+     *  [Break,Email triage],
+     * ]
+     */
+    refinerTree.push ( this.state.refinerObj.childrenKeys);
+
+    let newKeyIndex0 = this.state.refinerObj.childrenKeys.indexOf(newMeta[ 0 ]);
+    if ( newKeyIndex0 > -1 ) { 
+        refinerTree.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys);
+
+        let newKeyIndex1 = this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.indexOf(newMeta[ 1 ]);
+        if ( newKeyIndex1 !== null && newKeyIndex1 > -1 ) { 
+            refinerTree.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys); // Recreate first layer of pivots
+
+            //let searchMeta2 =  this.state.searchMeta.length > 2 ? this.state.searchMeta[ 2 ] : null;
+            let newKeyIndex2 = this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.indexOf(newMeta[ 2 ]);
+        }
+    }
+    console.log('getCurrentRefinerTree: ', refinerTree);
+    return refinerTree;
+
+  }
+
   public _onSearchForMeta2 = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     //let e: any = event;
@@ -688,6 +722,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
     //if ( searchType === 'meta' && layer !== prevLayer ) {
     if ( searchType === 'meta' ) {
+
+        let refinerTree = this.getCurrentRefinerTree( newMeta );
 
         pivotCats.push ( this.state.refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
 
