@@ -402,18 +402,21 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 thisIsRefiner0 = showRefiner0 ? <div><ResizeGroupOverflowSetExample
                     items={ this.state.cmdCats[0] }
                     cachingEnabled = { true }
+                    checkedItem = { this.state.meta[0] }
                     onClick = { this._onSearchForMetaCmd0.bind(this)}
                 ></ResizeGroupOverflowSetExample></div> : null;
 
                 thisIsRefiner1 = showRefiner1 ?  <div><ResizeGroupOverflowSetExample
                     items={ this.state.cmdCats[1] }
                     cachingEnabled = { true }
+                    checkedItem = { this.state.meta[1] }
                     onClick = { this._onSearchForMetaCmd1.bind(this)}
                 ></ResizeGroupOverflowSetExample></div> : null;
 
                 thisIsRefiner2 = showRefiner2 ?  <div><ResizeGroupOverflowSetExample
                     items={ this.state.cmdCats[2] }
                     cachingEnabled = { true }
+                    checkedItem = { this.state.meta[2] }
                     onClick = { this._onSearchForMetaCmd2.bind(this)}
                 ></ResizeGroupOverflowSetExample></div> : null;
 

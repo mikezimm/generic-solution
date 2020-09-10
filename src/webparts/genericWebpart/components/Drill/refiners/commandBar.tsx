@@ -70,7 +70,7 @@ function  _functionOnClick(item){
     console.log('item', item);
 }
 
-function generateData(items: ICMDItem[], cachingEnabled: boolean, onClick: any): IOverflowData {
+function generateData(items: ICMDItem[], checkedItem: string, cachingEnabled: boolean, onClick: any): IOverflowData {
   const dataItems = [];
   let cacheKey = '';
   for (let index = 0; index < items.length; index++) {
@@ -78,7 +78,7 @@ function generateData(items: ICMDItem[], cachingEnabled: boolean, onClick: any):
       key: items[index].key,
       name: items[index].name,
       icon: items[index].name ? items[index].name : null,
-      checked: items[index].checked,
+      checked: items[index].name === checkedItem ? true : false,
       commandBarButtonAs: customButton,
       onClick: onClick,
     };
@@ -105,6 +105,7 @@ export interface IResizeGroupOverflowSetExampleProps {
   items: ICMDItem[];
   cachingEnabled: boolean;
   onClick: any;
+  checkedItem: string;
 
 }
 
@@ -152,7 +153,7 @@ export default class ResizeGroupOverflowSetExample extends React.Component<IResi
   public render(): JSX.Element {
     const { numberOfItems, cachingEnabled, buttonsChecked, short, onGrowDataEnabled } = this.state;
     //const dataToRender = generateData(numberOfItems, cachingEnabled, buttonsChecked);
-    const commandsToRender = generateData( this.props.items , this.props.cachingEnabled, this.props.onClick );
+    const commandsToRender = generateData( this.props.items , this.props.checkedItem, this.props.cachingEnabled, this.props.onClick );
 
     return (
       <div className={short ? styles.resizeIsShort : 'notResized'}>
