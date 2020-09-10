@@ -128,6 +128,7 @@ public constructor(props:IInfoAboutMeProps){
                 {/* 3 files to update version number:  package-solution.json, package-lock.json, package.json*/}
                 <table className={styles.infoTable}>
                     <tr><th>Date</th><th>Version</th><th>Focus</th><th>Notes</th></tr>
+                    <tr><td>2020-09-10</td><td>{'1.1.6.1'}</td><td>Add experimental DrillDown</td><td>With basic Pivot and Command bar options</td></tr>
                     <tr><td>2020-08-31</td><td>{'1.1.5.1'}</td><td>Add Groups and Users tab</td><td>Also refactor HoverCard code and others</td></tr>
                     <tr><td>2020-08-31</td><td>{'1.1.4.1'}</td><td>Add Features Tab</td><td>Improved WebParts tab as well</td></tr>
                     <tr><td>2020-08-14</td><td>{'1.1.3.1'}</td><td>Add Groups Tab</td><td>Includes getting Users based on groups</td></tr>

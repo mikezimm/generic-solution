@@ -1,0 +1,37 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+//Copied to chartsPage.module.scss so it can be more stand alone.
+
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+//Copied to chartsPage.module.scss so it can be more stand alone.
+
+.drillDown {
+
+      //  This affects all the commandButtons
+      .refiners *[type="button"]  {
+        //width: 200px;
+        background: transparent;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+
+      }
+
+      .refiners *[type="button"] :hover {
+        background-color: darkgray;
+        transition:all 0.4s ease;
+      }
+
+
+      //  This affects all the commandButtons
+      .refiners *[class="ms-OverflowSet-item"]  {
+        //width: 200px;
+        background: transparent;
+        border-collapse: collapse;
+
+      }
+
+
+}

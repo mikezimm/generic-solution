@@ -19,14 +19,13 @@ export const customButton = (props: IButtonProps) => {
         {...props}
         styles={{
           ...props.styles,
-          root: {backgroundColor: 'white'  ,padding:'10px 20px 10px 10px !important', height: 32, borderColor: 'white'},
+          root: {backgroundColor: 'white'  ,padding:'10px 20px 10px 10px !important', height: 32, borderColor: 'white', width: 200},
           textContainer: { fontSize: 16, color: '#00457E' },
           icon: { 
             fontSize: 18,
             fontWeight: "bolder",
             margin: '0px 2px',
          },
-         
         }}
       />
     );

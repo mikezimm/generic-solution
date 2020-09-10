@@ -51,6 +51,8 @@ import ResizeGroupOverflowSetExample from './refiners/commandBar';
 
 import { ICMDItem } from './refiners/commandBar';
 
+import stylesD from './drillComponent.module.scss';
+
 export type IRefinerStyles = 'pivot' | 'commandBar' | 'other';
 
 export interface IDrillWeb extends Partial<IPickedWebBasic> {
@@ -388,14 +390,16 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             let thisIsRefiner1 = null;
             let thisIsRefiner2 = null;
 
+            let refinersObjects = [];
             if ( this.state.style === 'pivot' ) {
+
                 let drillPivots0 = this.createPivotObject(this.state.searchMeta[0], '', 0);
                 let drillPivots1 = showRefiner1 ? this.createPivotObject(this.state.searchMeta[1], '', 1) : null;
                 let drillPivots2 = showRefiner2 ?  this.createPivotObject(this.state.searchMeta[2], '', 2) : null;
 
-                thisIsRefiner0 = showRefiner0 ? drillPivots0 : null;
-                thisIsRefiner1 = showRefiner1 ? drillPivots1 : null;
-                thisIsRefiner2 = showRefiner2 ? drillPivots2 : null;
+                if ( showRefiner0 ) { refinersObjects.push( drillPivots0 ) ; }
+                if ( showRefiner1 ) { refinersObjects.push( drillPivots1 ) ; }
+                if ( showRefiner2 ) { refinersObjects.push( drillPivots2 ) ; }
 
             } else if ( this.state.style === 'commandBar' ) {
 
@@ -420,6 +424,10 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                     onClick = { this._onSearchForMetaCmd2.bind(this)}
                 ></ResizeGroupOverflowSetExample></div> : null;
 
+                if ( showRefiner0 ) { refinersObjects.push( thisIsRefiner0 ) ; }
+                if ( showRefiner1 ) { refinersObjects.push( thisIsRefiner1 ) ; }
+                if ( showRefiner2 ) { refinersObjects.push( thisIsRefiner2 ) ; }
+
             }
 
             let noInfo = [];
@@ -439,27 +447,28 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                     ></MyDrillItems>
                     </div>;
 
-                thisPage = <div className={styles.contents}><div>
+                thisPage = <div className={[styles.contents, stylesD.drillDown].join(' ')}>
+                    <div>
+                        <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
+                            {  /* <p><mark>Check why picking Assists does not show Help as a chapter even though it's the only chapter...</mark></p> */ }
+                            <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
+                                { searchBox } { toggles }
+                            </Stack>
 
-                <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
-                {  /* <p><mark>Check why picking Assists does not show Help as a chapter even though it's the only chapter...</mark></p> */ }
-                <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
-                     { searchBox } { toggles }
-                </Stack>
+                            <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens} className={ stylesD.refiners }>{/* Stack for Buttons and Webs */}
+                                { refinersObjects  }
+                            </Stack>
 
-                <div style={{ height:30, paddingBottom: 15} }> { thisIsRefiner0 } </div>
+                            <div>
 
-                <div  className={ showRefiner1 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { thisIsRefiner1 } </div>
-                <div  className={ showRefiner2 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { thisIsRefiner2 } </div>
+                                <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
 
-                <div>
-
-                <div className={ this.state.searchCount !== 0 ? styles.hideMe : styles.showErrorMessage  }>{ noInfo } </div>
-
-                <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
-                    { drillItems  }
-                </Stack>
-                </div></div></div>;
+                                <Stack horizontal={false} wrap={true} horizontalAlign={"stretch"} tokens={stackPageTokens}>{/* Stack for Buttons and Webs */}
+                                    { drillItems  }
+                                </Stack>
+                            </div> { /* Close tag from above noInfo */}
+                        </div>
+                    </div>;
 
                 if ( this.state.allItems.length === 0 ) {
                     thisPage = <div style={{ paddingBottom: 30 }}className={styles.contents}>
