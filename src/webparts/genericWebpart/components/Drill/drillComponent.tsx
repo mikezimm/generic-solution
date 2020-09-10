@@ -198,6 +198,7 @@ export interface IDrillDownState {
     refinerObj: IRefiners;
 
     pivotCats: IMyPivCat[][];
+    cmdCats: ICMDItem[][];
 
     style: IRefinerStyles; //RefinerStyle
 
@@ -283,6 +284,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             refinerObj: {childrenKeys: this.props.refiners, childrenObjs: [] , multiCount: 0, itemCount: 0 },
 
             pivotCats: [],
+            cmdCats: [],
 
             style: this.props.style ? this.props.style : 'commandBar',
 
@@ -377,54 +379,50 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
-
-
-                
-
-
-
             //                <div> { resizePage0 } </div>
             let showRefiner0 = true;
-            let drillPivots0 = this.state.style === 'pivot' ?  this.createPivotObject(this.state.searchMeta[0], '', 0) : null;
-
-
-
-
             let showRefiner1 = this.state.searchMeta.length >= 1 && this.state.searchMeta[0] !== 'All' ? true : false;
-            let drillPivots1 = showRefiner1 && this.state.style === 'pivot' ? this.createPivotObject(this.state.searchMeta[1], '', 1) : null;
-
             let showRefiner2 = this.state.searchMeta.length >= 2 && this.state.searchMeta[1] !== 'All' ? true : false;
-            let drillPivots2 = showRefiner2 && this.state.style === 'pivot' ?  this.createPivotObject(this.state.searchMeta[2], '', 2) : null;
 
-            let resizePage0 = this.state.style === 'commandBar' ?  <div><ResizeGroupOverflowSetExample
-                items={ this.convertCatsToCMDs(0)}
-                cachingEnabled = { true }
-                onClick = { this._onCMDSearchForMeta0.bind(this)}
-            ></ResizeGroupOverflowSetExample></div> : null;
+            let thisIsRefiner0 = null;
+            let thisIsRefiner1 = null;
+            let thisIsRefiner2 = null;
 
-            let resizePage1 = showRefiner1 && this.state.style === 'commandBar' ?  <div><ResizeGroupOverflowSetExample
-                items={ this.convertCatsToCMDs(1)}
-                cachingEnabled = { true }
-                onClick = { this._onCMDSearchForMeta1.bind(this)}
-            ></ResizeGroupOverflowSetExample></div> : null;
+            if ( this.state.style === 'pivot' ) {
+                let drillPivots0 = this.createPivotObject(this.state.searchMeta[0], '', 0);
+                let drillPivots1 = showRefiner1 ? this.createPivotObject(this.state.searchMeta[1], '', 1) : null;
+                let drillPivots2 = showRefiner2 ?  this.createPivotObject(this.state.searchMeta[2], '', 2) : null;
 
-            let resizePage2 = showRefiner2 && this.state.style === 'commandBar' ?  <div><ResizeGroupOverflowSetExample
-                items={ this.convertCatsToCMDs(2)}
-                cachingEnabled = { true }
-                onClick = { this._onCMDSearchForMeta2.bind(this)}
-            ></ResizeGroupOverflowSetExample></div> : null;
+                thisIsRefiner0 = showRefiner0 ? drillPivots0 : null;
+                thisIsRefiner1 = showRefiner1 ? drillPivots1 : null;
+                thisIsRefiner2 = showRefiner2 ? drillPivots2 : null;
 
+            } else if ( this.state.style === 'commandBar' ) {
 
-            let thisIsRefiner0 = showRefiner0 && this.state.style === 'pivot' ? drillPivots0 : resizePage0;
-            let thisIsRefiner1 = showRefiner1 && this.state.style === 'pivot' ? drillPivots1 : resizePage1;
-            let thisIsRefiner2 = showRefiner1 && this.state.style === 'pivot' ? drillPivots2 : resizePage2;
+                thisIsRefiner0 = showRefiner0 ? <div><ResizeGroupOverflowSetExample
+                    items={ this.state.cmdCats[0] }
+                    cachingEnabled = { true }
+                    onClick = { this._onSearchForMetaCmd0.bind(this)}
+                ></ResizeGroupOverflowSetExample></div> : null;
 
+                thisIsRefiner1 = showRefiner1 ?  <div><ResizeGroupOverflowSetExample
+                    items={ this.state.cmdCats[1] }
+                    cachingEnabled = { true }
+                    onClick = { this._onSearchForMetaCmd1.bind(this)}
+                ></ResizeGroupOverflowSetExample></div> : null;
+
+                thisIsRefiner2 = showRefiner2 ?  <div><ResizeGroupOverflowSetExample
+                    items={ this.state.cmdCats[2] }
+                    cachingEnabled = { true }
+                    onClick = { this._onSearchForMetaCmd2.bind(this)}
+                ></ResizeGroupOverflowSetExample></div> : null;
+
+            }
 
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;
             if ( this.state.searchText != '' ) { noInfo.push( <p>{'Search Text: ' + this.state.searchText}</p> )  ; }
             if ( this.state.searchMeta[0] != '' ) { noInfo.push( <p>{'Refiner: ' + this.state.searchMeta[0]}</p> ) ; }
-
 
             if ( this.state.allItems.length === 0 ) {
                 thisPage = <div style={{ paddingBottom: 30 }}className={styles.contents}>
@@ -448,8 +446,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
                 <div style={{ height:30, paddingBottom: 15} }> { thisIsRefiner0 } </div>
 
-                <div  className={ drillPivots1 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { thisIsRefiner1 } </div>
-                <div  className={ drillPivots2 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { thisIsRefiner2 } </div>
+                <div  className={ showRefiner1 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { thisIsRefiner1 } </div>
+                <div  className={ showRefiner2 != null ? styles.showSearch : styles.hideSearch} style={{ height:30, paddingBottom: 15} }> { thisIsRefiner2 } </div>
 
                 <div>
 
@@ -496,7 +494,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     }   //End Public Render
 
 
-    private getAllItems() {
+    private getAllItemsCall() {
         let listGuid = '';
 
         let result : any = getAllItems( this.state.drillList, this.addTheseItemsToState.bind(this), this.setProgress.bind(this), null );
@@ -507,7 +505,9 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
         let newFilteredItems : IDrillItemInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allItems, 0 );
         let pivotCats : any = [];
+        let cmdCats : any = [];
         pivotCats.push ( refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); }));
+        cmdCats.push ( this.convertRefinersToCMDs( refinerObj.childrenKeys, 0) );
 
         this.setState({
             allItems: allItems,
@@ -518,6 +518,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             searchMeta: this.state.searchMeta,
             refinerObj: refinerObj,
             pivotCats: pivotCats,
+            cmdCats: cmdCats,
         });
 
         //This is required so that the old list items are removed and it's re-rendered.
@@ -550,7 +551,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  *                                                         
  */
 
-    private findMatchtingElementText(arr: string[], item: any ) {
+ //Can't use this
+    private findMatchtingElementTextOriginal(arr: string[], item: any ) {
 
         let hasItemKey = item.props && item.props.itemKey ? true : false ;
         let hasTargetInnerText = item.target && item.target.innerText ? true : false;
@@ -571,63 +573,83 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         return '';
     }
 
-    public _onCMDSearchForMeta0 = (item): void => {
+    private findMatchtingElementText( item: any ) {
+
+        let hasItemKey = item.props && item.props.itemKey ? true : false ;
+        let hasTargetInnerText = item.target && item.target.innerText ? true : false;
+        if ( hasTargetInnerText === true ) {  //This loop is just for debugging if needed.
+            let testString = item.target.innerText;
+            let testStringL = testString.length;
+
+        }
+        let hasTargetChildInnerText = item.target && item.target.lastElementChild && item.target.lastElementChild.innerText ? true : false;
+
+        //Added the .trim() everywhere because of the "Assit" not being found.
+        if ( hasItemKey ) { return item.props.itemKey; }  //This should catch Pivot values without count or icons.
+        else if ( hasTargetChildInnerText ) { return item.target.lastElementChild.innerText; } //This should catch command bars with icon
+        else if ( hasTargetInnerText ) { return item.target.innerText; } //This should catch command bars without icons
+        alert('We had a problem with this filter.  It could be that you have a special character in the selection that I can\'t figure out.');
+        return '';
+    }
+
+    public _searchForText = (item): void => {
         //This sends back the correct pivot category which matches the category on the tile.
-        let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
-        this.props.onRefiner0Selected( this.props.refiners[0], validText);
+        this.searchForItems( item, this.state.searchMeta, 0, 'text' );
+    }
+
+    //This function works great for Pivots, not neccessarily anything with icons.
+    public _onSearchForMetaPivot0 = (item): void => {
+        //This sends back the correct pivot category which matches the category on the tile.
+        let validText = item.props.itemKey;
         this.searchForItems( this.state.searchText, [validText], 0, 'meta' );
     }
 
-    public _onCMDSearchForMeta1 = (item): void => {
+    //This function works great for Pivots, not neccessarily anything with icons.
+    public _onSearchForMetaCmd0 = (item): void => {
         //This sends back the correct pivot category which matches the category on the tile.
-        //Need to get proper list of keys for the parent object here:
-        let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
+        let validText = this.findMatchtingElementText( item);
+        this.searchForItems( this.state.searchText, [validText], 0, 'meta' );
+    }
 
-        this.props.onRefiner0Selected( this.props.refiners[1], validText);
+    public _onSearchForMetaPivot1= (item): void => {
+        this._onSearchForMeta1(item.props.itemKey);
+    }
 
+    public _onSearchForMetaCmd1= (item): void => {
+        let validText = this.findMatchtingElementText(item);
+        this._onSearchForMeta1(validText);
+    }
 
+    public _onSearchForMeta1 (validText) {
+        //This sends back the correct pivot category which matches the category on the tile.
+        //let e: any = event;
+        //console.log('searchForItems: e',e);
+        //console.log('searchForItems: item', item);
+        //console.log('searchForItems: this', this);
+    
+        //Be sure to pass item.props.itemKey to get filter value
+        //let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
+    
         let lastMeta = this.state.searchMeta;
         let newMeta : string[] = [];
         if ( lastMeta.length === 1 || lastMeta.length === 2 || lastMeta.length === 3 ) { 
             newMeta.push( lastMeta[0] );
             newMeta.push( validText ) ; 
         } else { alert('Had unexpected error in _onSearchForMeta1, lastMeta.length = ' + lastMeta.length); }
-
-
+    
         this.searchForItems( this.state.searchText, newMeta, 1, 'meta' );
+      }
+
+    public _onSearchForMetaPivot2= (item): void => {
+        this._onSearchForMeta2(item.props.itemKey);
     }
 
-
-    public _onCMDSearchForMeta2 = (item): void => {
-        //This sends back the correct pivot category which matches the category on the tile.
-        let validText = this.findMatchtingElementText( this.state.refinerObj.childrenKeys , item);
-        this.props.onRefiner0Selected( this.props.refiners[2], validText);
-
-
-        let lastMeta = this.state.searchMeta;
-        let newMeta : string[] = [];
-        if ( lastMeta.length === 1 || lastMeta.length === 2 || lastMeta.length === 3 ) { 
-            newMeta.push( lastMeta[0] );
-            newMeta.push( lastMeta[1] );
-            newMeta.push( validText ) ; 
-        } else { alert('Had unexpected error in _onSearchForMeta2, lastMeta.length = ' + lastMeta.length); }
-
-
-        this.searchForItems( this.state.searchText, newMeta, 2, 'meta' );
+    public _onSearchForMetaCmd2= (item): void => {
+        let validText = this.findMatchtingElementText(item);
+        this._onSearchForMeta2(validText);
     }
 
-    //This function works great for Pivots, not neccessarily anything with icons.
-  public _onSearchForMeta0 = (item): void => {
-    //This sends back the correct pivot category which matches the category on the tile.
-    this.searchForItems( this.state.searchText, [item.props.itemKey], 0, 'meta' );
-  }
-
-  public _searchForText = (item): void => {
-    //This sends back the correct pivot category which matches the category on the tile.
-    this.searchForItems( item, this.state.searchMeta, 0, 'text' );
-  }
-
-  public _onSearchForMeta1 = (item): void => {
+  public _onSearchForMeta2 = (validText): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     //let e: any = event;
     //console.log('searchForItems: e',e);
@@ -640,11 +662,13 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     let newMeta : string[] = [];
     if ( lastMeta.length === 1 || lastMeta.length === 2 || lastMeta.length === 3 ) { 
         newMeta.push( lastMeta[0] );
-        newMeta.push( item.props.itemKey ) ; 
-    } else { alert('Had unexpected error in _onSearchForMeta1, lastMeta.length = ' + lastMeta.length); }
+        newMeta.push( lastMeta[1] );
+        newMeta.push( validText ) ; 
+    } else { alert('Had unexpected error in _onSearchForMeta2, lastMeta.length = ' + lastMeta.length); }
 
-    this.searchForItems( this.state.searchText, newMeta, 1, 'meta' );
+    this.searchForItems( this.state.searchText, newMeta, 2, 'meta' );
   }
+
 
   private getCurrentRefinerTree(newMeta: string[] ) {
 
@@ -678,27 +702,6 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
   }
 
-  public _onSearchForMeta2 = (item): void => {
-    //This sends back the correct pivot category which matches the category on the tile.
-    //let e: any = event;
-    //console.log('searchForItems: e',e);
-    //console.log('searchForItems: item', item);
-    //console.log('searchForItems: this', this);
-
-    //Be sure to pass item.props.itemKey to get filter value
-
-    let lastMeta = this.state.searchMeta;
-    let newMeta : string[] = [];
-    if ( lastMeta.length === 1 || lastMeta.length === 2 || lastMeta.length === 3 ) { 
-        newMeta.push( lastMeta[0] );
-        newMeta.push( lastMeta[1] );
-        newMeta.push( item.props.itemKey ) ; 
-    } else { alert('Had unexpected error in _onSearchForMeta2, lastMeta.length = ' + lastMeta.length); }
-
-
-    this.searchForItems( this.state.searchText, newMeta, 2, 'meta' );
-  }
-
   public searchForItems = (text: string, newMeta: string[] , layer: number, searchType: 'meta' | 'text' ): void => {
 
     let searchItems : IDrillItemInfo[] = this.state.allItems;
@@ -707,6 +710,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     let newFilteredItems : IDrillItemInfo[] = this.getNewFilteredItems( text, newMeta, searchItems, layer );
 
     let pivotCats : any = [];
+    let cmdCats : any = [];
     let prevLayer = this.state.pivotCats.length ;
 
     let prevMetaString = JSON.stringify( this.state.searchMeta );
@@ -725,57 +729,34 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
         let refinerTree = this.getCurrentRefinerTree( newMeta );
 
-        pivotCats.push ( this.state.refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
+        pivotCats.push ( refinerTree[0].map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
+        cmdCats.push ( this.convertRefinersToCMDs( refinerTree[0], layer));
 
         if ( newMeta.length === 1 && newMeta[0] === 'All'){  //For some reason this was giving False when it should be true: if ( newMeta === ['All'] ) { }
             //Nothing is needed.
         } else if ( !metaChanged ) {
             //Need to remove previous layer
             pivotCats = this.state.pivotCats;
+            cmdCats = this.state.cmdCats;
 
         } else { // Add new layer
 
-            /**
-             * If I click Track My Time, I expect:  newMeta: ["TrackMyTime"], 
-             */
-            /**
-             * If I click Track My Time, Dashboard, I expect:  newMeta: ["TrackMyTime","Dashboard"], 
-             */
-            console.log('555: layer, newMeta', layer, newMeta);
-            //let searchMeta0 = this.state.searchMeta[ 0 ]; //Should not be used because it should always have something.
-            let newKeyIndex0 = this.state.refinerObj.childrenKeys.indexOf(newMeta[ 0 ]);
-            if ( newKeyIndex0 > -1 ) { 
-                pivotCats.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
-            }
-            /**
-             * If I click Track My Time, Dashboard, I expect:  newMeta: ["TrackMyTime","Dashboard"], 
-             */
-            console.log('561:  newKeyIndex0, pivotCats',  newKeyIndex0, pivotCats);
-
-            //let searchMeta1 = this.state.searchMeta.length > 1 ? this.state.searchMeta[ 1 ] : null;
-            let newKeyIndex1 = this.state.refinerObj.childrenObjs[newKeyIndex0].childrenKeys.indexOf(newMeta[ 1 ]);
-            if ( newKeyIndex1 !== null && newKeyIndex1 > -1 ) { 
-                pivotCats.push ( this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
-
-                //let searchMeta2 =  this.state.searchMeta.length > 2 ? this.state.searchMeta[ 2 ] : null;
-                let newKeyIndex2 = this.state.refinerObj.childrenObjs[newKeyIndex0].childrenObjs[newKeyIndex1].childrenKeys.indexOf(newMeta[ 2 ]);
-                console.log('572:  newKeyIndex2, pivotCats',  newKeyIndex2, pivotCats);
-
+            if ( refinerTree.length > 1 ) { 
+                pivotCats.push ( refinerTree[1].map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
+                cmdCats.push ( this.convertRefinersToCMDs( refinerTree[1], layer));
             }
 
-
+            if ( refinerTree.length > 2 ) {
+                pivotCats.push ( refinerTree[2].map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
+                cmdCats.push ( this.convertRefinersToCMDs( refinerTree[2], layer));
+            }
         }
-
-
     } else {
+
         pivotCats = this.state.pivotCats;
+        cmdCats = this.state.cmdCats;
     }
 
-
-
-    //console.log('Searched for:' + text);
-    //console.log('Web Meta:' + newMeta);
-    //console.log('and found these items:', newFilteredItems);
     searchCount = newFilteredItems.length;
 
     this.setState({
@@ -784,6 +765,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
       searchText: text.toLowerCase(),
       searchMeta: newMeta,
       pivotCats: pivotCats,
+      cmdCats: cmdCats,
 
     });
 
@@ -877,26 +859,27 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
  */
 
     private _updateStateOnPropsChange(): void {
-        this.getAllItems();
+        this.getAllItemsCall();
     }
 
 
-    private convertCatsToCMDs( layer: number ) {
-        let refiners = null;
-        if ( layer === 0 ) { refiners = this.state.refinerObj.childrenKeys; }
-        if ( layer === 1 ) { refiners = this.state.refinerObj.childrenKeys; }
-        if ( layer === 2 ) { refiners = this.state.refinerObj.childrenKeys; }
+    private convertRefinersToCMDs( refiners: string[], layer: number ) {
+        let result = [];
+        result.push ({
+            name: 'All',
+            key: 'All',
+            checked: 'All' === this.state.searchMeta[layer] ? true : false ,
+            icon: null,
+        });
 
-        let result = refiners.map( i => {  
-            
+        refiners.map( i => {  
             let thisItem : ICMDItem = {
                 name: i,
                 key: i,
                 checked: i === this.state.searchMeta[layer] ? true : false ,
                 icon: null,
             };
-
-            return thisItem;
+            return result.push(thisItem);
 
         });
 
@@ -924,10 +907,10 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         let onLinkClick : any = null;
 
         if ( layer === 2 ) {
-            onLinkClick = this._onSearchForMeta2.bind(this);
+            onLinkClick = this._onSearchForMetaPivot2.bind(this);
         } else if ( layer === 1 ) {
-            onLinkClick = this._onSearchForMeta1.bind(this);
-        } else {  onLinkClick = this._onSearchForMeta0.bind(this); }
+            onLinkClick = this._onSearchForMetaPivot1.bind(this);
+        } else {  onLinkClick = this._onSearchForMetaPivot0.bind(this); }
 
         if ( setPivot === undefined ) { setPivot = 'All' ; }
 
