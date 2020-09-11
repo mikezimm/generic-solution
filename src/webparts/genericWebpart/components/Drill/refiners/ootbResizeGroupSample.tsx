@@ -173,7 +173,7 @@ export default class ResizeGroupOverflowSetExample extends BaseComponent<{}, IRe
                   return (
                     //Wraping button in div to get ID didn't work... makes buttons small
                     //<div id={ item.name.replace(' ','') }><CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={item.onClick} checked={item.checked} /></div>
-                    <CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={this._sampleOnClick.bind(this)} checked={item.checked} />
+                    <CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={this._sampleOnClick.bind(this)} />
 
                   //<div>{  }</div>
                     //<div>{item.name}</div>

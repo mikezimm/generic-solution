@@ -12,20 +12,34 @@ import { mergeStyleSets } from 'office-ui-fabric-react';
 //import * as stylesImport from './ResizeGroup.Example.scss';
 //const styles: any = stylesImport;
 
-export const customButton = (props: IButtonProps) => {
+export const customButtonWithIcon = (props: IButtonProps) => {
 
     return (
       <CommandBarButton
         {...props}
         styles={{
           ...props.styles,
-          root: {backgroundColor: 'white'  ,padding:'10px 20px 10px 10px !important', height: 32, borderColor: 'white', width: 200},
+          root: {backgroundColor: 'white'  ,padding:'10px 20px 10px 10px !important', height: 32, borderColor: 'white', width: 200, margin: '0px !important'},
           textContainer: { fontSize: 16, color: '#00457E' },
           icon: { 
             fontSize: 18,
             fontWeight: "bolder",
             margin: '0px 2px',
          },
+        }}
+      />
+    );
+  };
+
+  export const customButtonNoIcon = (props: IButtonProps) => {
+
+    return (
+      <CommandBarButton
+        {...props}
+        styles={{
+          ...props.styles,
+          root: {backgroundColor: 'white'  ,padding:'10px 20px 10px 10px !important', height: 32, borderColor: 'white', width: 200, margin: '0px !important'},
+          textContainer: { fontSize: 16, color: '#00457E' },
         }}
       />
     );
@@ -72,18 +86,22 @@ function  _functionOnClick(item){
 function generateData(items: ICMDItem[], checkedItem: string, cachingEnabled: boolean, onClick: any): IOverflowData {
   const dataItems = [];
   let cacheKey = '';
-  for (let index = 0; index < items.length; index++) {
-    const item = {
-      key: items[index].key,
-      name: items[index].name,
-      icon: items[index].name ? items[index].name : null,
-      checked: items[index].name === checkedItem ? true : false,
-      commandBarButtonAs: customButton,
-      onClick: onClick,
-    };
-
-    cacheKey = cacheKey + item.key;
-    dataItems.push(item);
+  if ( items ) {
+    for (let index = 0; index < items.length; index++) {
+      const item = {
+        key: items[index].key,
+        name: items[index].name,
+        icon: items[index].icon ? items[index].icon : null,
+        checked: items[index].checked,
+        commandBarButtonAs: items[index].icon ? customButtonWithIcon : customButtonNoIcon,
+        onClick: onClick,
+      };
+  
+      cacheKey = cacheKey + item.key;
+      dataItems.push(item);
+    }
+  } else {
+    alert('Opps!  For some reason \'items\' were empty in generateData on commandBar.tsx...\n ref checkedItem = ' + checkedItem );
   }
 
   let result: IOverflowData = {

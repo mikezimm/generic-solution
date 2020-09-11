@@ -440,10 +440,13 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 { errMessage }</div>;
             } else {
 
+                let blueBar = this.state.searchMeta.map( m => { return <span><span style={{ paddingLeft: 0 }}> {'>'} </span><span style={{ paddingLeft: 10, paddingRight: 20 }}> { m } </span></span>; });
+
 
                 let drillItems = this.state.searchedItems.length === 0 ? <div>NO ITEMS FOUND</div> : <div>
                     <MyDrillItems 
                         items={ this.state.searchedItems }
+                        blueBar={ blueBar }
                     ></MyDrillItems>
                     </div>;
 
