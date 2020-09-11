@@ -24,21 +24,51 @@
         transition:all 0.4s ease;
       }
 
-
       //  This affects all the commandButtons
       .refiners *[class="ms-OverflowSet-item"]  {
         //width: 200px;
         background: transparent;
         border-collapse: collapse;
-
+        /* Does not work
+        *[class="is-checked"]  {
+          //width: 200px;
+          background-color: green;
+  
+          .msButtonLabel {
+            font-weight: 700;
+          }
+  
+        } */
       }
 
+      //  This affects all the commandButtons
+      /* Does not work
+      .refiners *[class="is-checked"]  {
+        //width: 200px;
+        background-color: green;
+
+        .msButtonLabel {
+          font-weight: 700;
+        }
+
+      }
+      */
+            /* Does not work
+      .refiners *[class="is-checked"]  {
+        /* This did not work
+          :global {
+            @include is-checked;
+          }          */
+          background-color: green;
+
+      } */
+      
       .button {
         /*
         // Our button
         text-decoration: none;
         height: 32px;
-    
+
         // Primary Button
         min-width: 80px;
         background-color: $ms-color-themePrimary;

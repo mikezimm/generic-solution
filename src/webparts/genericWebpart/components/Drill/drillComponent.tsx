@@ -406,21 +406,21 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
                 thisIsRefiner0 = showRefiner0 ? <div><ResizeGroupOverflowSetExample
                     items={ this.state.cmdCats[0] }
                     cachingEnabled = { true }
-                    checkedItem = { this.state.meta[0] }
+                    checkedItem = { this.state.searchMeta[0] }
                     onClick = { this._onSearchForMetaCmd0.bind(this)}
                 ></ResizeGroupOverflowSetExample></div> : null;
 
                 thisIsRefiner1 = showRefiner1 ?  <div><ResizeGroupOverflowSetExample
                     items={ this.state.cmdCats[1] }
                     cachingEnabled = { true }
-                    checkedItem = { this.state.meta[1] }
+                    checkedItem = { this.state.searchMeta[1] }
                     onClick = { this._onSearchForMetaCmd1.bind(this)}
                 ></ResizeGroupOverflowSetExample></div> : null;
 
                 thisIsRefiner2 = showRefiner2 ?  <div><ResizeGroupOverflowSetExample
                     items={ this.state.cmdCats[2] }
                     cachingEnabled = { true }
-                    checkedItem = { this.state.meta[2] }
+                    checkedItem = { this.state.searchMeta[2] }
                     onClick = { this._onSearchForMetaCmd2.bind(this)}
                 ></ResizeGroupOverflowSetExample></div> : null;
 
@@ -522,7 +522,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         let pivotCats : any = [];
         let cmdCats : any = [];
         pivotCats.push ( refinerObj.childrenKeys.map( r => { return this.createThisPivotCat(r,'',0); }));
-        cmdCats.push ( this.convertRefinersToCMDs( refinerObj.childrenKeys, 0) );
+        cmdCats.push ( this.convertRefinersToCMDs( ['All'],  refinerObj.childrenKeys, 0) );
 
         this.setState({
             allItems: allItems,
@@ -745,7 +745,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         let refinerTree = this.getCurrentRefinerTree( newMeta );
 
         pivotCats.push ( refinerTree[0].map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
-        cmdCats.push ( this.convertRefinersToCMDs( refinerTree[0], layer));
+        cmdCats.push ( this.convertRefinersToCMDs( newMeta, refinerTree[0], layer));
 
         if ( newMeta.length === 1 && newMeta[0] === 'All'){  //For some reason this was giving False when it should be true: if ( newMeta === ['All'] ) { }
             //Nothing is needed.
@@ -758,12 +758,12 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
             if ( refinerTree.length > 1 ) { 
                 pivotCats.push ( refinerTree[1].map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
-                cmdCats.push ( this.convertRefinersToCMDs( refinerTree[1], layer));
+                cmdCats.push ( this.convertRefinersToCMDs( newMeta, refinerTree[1], layer));
             }
 
             if ( refinerTree.length > 2 ) {
                 pivotCats.push ( refinerTree[2].map( r => { return this.createThisPivotCat(r,'',0); })); // Recreate first layer of pivots
-                cmdCats.push ( this.convertRefinersToCMDs( refinerTree[2], layer));
+                cmdCats.push ( this.convertRefinersToCMDs( newMeta, refinerTree[2], layer));
             }
         }
     } else {
@@ -878,12 +878,12 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
     }
 
 
-    private convertRefinersToCMDs( refiners: string[], layer: number ) {
+    private convertRefinersToCMDs( newMeta: string[], refiners: string[], layer: number ) {
         let result = [];
         result.push ({
             name: 'All',
             key: 'All',
-            checked: 'All' === this.state.searchMeta[layer] ? true : false ,
+            checked: 'All' === newMeta[layer] ? true : false ,
             icon: null,
         });
 
@@ -891,7 +891,7 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
             let thisItem : ICMDItem = {
                 name: i,
                 key: i,
-                checked: i === this.state.searchMeta[layer] ? true : false ,
+                checked: i === newMeta[layer] ? true : false ,
                 icon: null,
             };
             return result.push(thisItem);

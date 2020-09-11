@@ -92,7 +92,7 @@ function generateData(items: ICMDItem[], checkedItem: string, cachingEnabled: bo
         key: items[index].key,
         name: items[index].name,
         icon: items[index].icon ? items[index].icon : null,
-        checked: items[index].checked,
+        checked: items[index].name === checkedItem ? true : false,
         commandBarButtonAs: items[index].icon ? customButtonWithIcon : customButtonNoIcon,
         onClick: onClick,
       };
@@ -167,6 +167,25 @@ export default class ResizeGroupOverflowSetExample extends React.Component<IResi
     };
   }
 
+    /***
+ *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
+ *         88  `8D   `88'   88  `8D      88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'     
+ *         88   88    88    88   88      88    88 88oodD' 88   88 88ooo88    88    88ooooo 
+ *         88   88    88    88   88      88    88 88~~~   88   88 88~~~88    88    88~~~~~ 
+ *         88  .8D   .88.   88  .8D      88b  d88 88      88  .8D 88   88    88    88.     
+ *         Y8888D' Y888888P Y8888D'      ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P 
+ *                                                                                         
+ *                                                                                         
+ */
+
+public componentDidUpdate(prevProps){
+
+  if ( prevProps.checkedItem != this.props.checkedItem ) {
+      this._updateStateOnPropsChange();
+  }
+
+}
+
   public render(): JSX.Element {
     const { numberOfItems, cachingEnabled, buttonsChecked, short, onGrowDataEnabled } = this.state;
     //const dataToRender = generateData(numberOfItems, cachingEnabled, buttonsChecked);
@@ -184,13 +203,19 @@ export default class ResizeGroupOverflowSetExample extends React.Component<IResi
           onRenderData={data => {
             return (
               <OverflowSet
+                role="menubar"
                 items={data.primary}
                 overflowItems={data.overflow.length ? data.overflow : null}
                 onRenderItem={item => {
                   return (
                     //Wraping button in div to get ID didn't work... makes buttons small
                     //<div id={ item.name.replace(' ','') }><CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={item.onClick} checked={item.checked} /></div>
-                    <CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={ this.props.onClick } checked={item.checked} />
+                    <CommandBarButton 
+                      role="menuitem"
+                      text={item.name} 
+                      iconProps={{ iconName: item.icon }} 
+                      onClick={ this.props.onClick } 
+                      checked={item.checked} />
 
                   //<div>{  }</div>
                     //<div>{item.name}</div>
@@ -304,5 +329,9 @@ export default class ResizeGroupOverflowSetExample extends React.Component<IResi
 */
     //Be sure to pass item.props.itemKey to get filter value
 
+  }
+
+  private _updateStateOnPropsChange() {
+    console.log('commandBar Prop changed!', this.props.checkedItem );
   }
 }
