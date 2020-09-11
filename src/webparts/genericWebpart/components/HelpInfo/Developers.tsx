@@ -129,6 +129,9 @@ public constructor(props:IInfoDevelopersProps){
                     <tr><td>{links.devDocsStack}</td><td></td><td>Used in general for layout of components</td></tr>
                     <tr><td>{links.devDocsList}</td><td>{links.gitSampleReactList}</td><td>Used for Projects and History List</td></tr>
                     <tr><td>{links.devDocsPivo}</td><td></td><td>Used to select Project Filter</td></tr>
+                    <tr><td>{links.devDocsReGr}</td><td></td><td>Used as Responsive version of Pivots</td></tr>
+
+                    
 
                     <tr><td>{links.devDocsLink}</td><td></td><td>Used for Links</td></tr>
                     

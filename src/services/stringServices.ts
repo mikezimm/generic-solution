@@ -1,3 +1,4 @@
+import * as React from 'react';
 
 //https://stackoverflow.com/a/2970667/4210807
 export function camelize(str,firstCap: boolean) {
@@ -90,3 +91,4 @@ export function getChoiceText(val: string) {
     }
 
 }
+

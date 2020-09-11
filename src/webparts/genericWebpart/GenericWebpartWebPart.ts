@@ -276,7 +276,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     this._filterBy = {
       field: field,
       value: value,
-    }
+    };
 
     console.log('Main Webpart: Refiners updated: ', field, value);
     this.context.dynamicDataSourceManager.notifyPropertyChanged('refiner0Name');

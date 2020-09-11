@@ -141,8 +141,6 @@ export async function allAvailableFeatures( webURL: string, featureBuckets: IFea
         const thisFeature = await thisFeatureObject.features.getById(allFeatures[i].DefinitionId);
         console.log('allAvailableFeatures thisFeature:' , thisFeature);
 
-
-
         //allFeatures[i].typeString = getFeatureTypeString( allFeatures[i].PrincipalType );
         allFeatures[i].sort = featureBuckets[idx]['sort'];
         allFeatures[i].bucketCategory = featureBuckets[idx]['bucketCategory'];

@@ -12,21 +12,34 @@ import { mergeStyleSets } from 'office-ui-fabric-react';
 //import * as stylesImport from './ResizeGroup.Example.scss';
 //const styles: any = stylesImport;
 
-export const customButton = (props: IButtonProps) => {
+export const customButtonWithIcon = (props: IButtonProps) => {
 
     return (
       <CommandBarButton
         {...props}
         styles={{
           ...props.styles,
-          root: {backgroundColor: 'white'  ,padding:'10px 20px 10px 10px !important', height: 32, borderColor: 'white'},
+          root: {backgroundColor: 'white'  ,padding:'10px 20px 10px 10px !important', height: 32, borderColor: 'white', width: 200, margin: '0px !important'},
           textContainer: { fontSize: 16, color: '#00457E' },
           icon: { 
             fontSize: 18,
             fontWeight: "bolder",
             margin: '0px 2px',
          },
-         
+        }}
+      />
+    );
+  };
+
+  export const customButtonNoIcon = (props: IButtonProps) => {
+
+    return (
+      <CommandBarButton
+        {...props}
+        styles={{
+          ...props.styles,
+          root: {backgroundColor: 'white'  ,padding:'10px 20px 10px 10px !important', height: 32, borderColor: 'white', width: 200, margin: '0px !important'},
+          textContainer: { fontSize: 16, color: '#00457E' },
         }}
       />
     );
@@ -70,21 +83,25 @@ function  _functionOnClick(item){
     console.log('item', item);
 }
 
-function generateData(items: ICMDItem[], cachingEnabled: boolean, onClick: any): IOverflowData {
+function generateData(items: ICMDItem[], checkedItem: string, cachingEnabled: boolean, onClick: any): IOverflowData {
   const dataItems = [];
   let cacheKey = '';
-  for (let index = 0; index < items.length; index++) {
-    const item = {
-      key: items[index].key,
-      name: items[index].name,
-      icon: items[index].name ? items[index].name : null,
-      checked: items[index].checked,
-      commandBarButtonAs: customButton,
-      onClick: onClick,
-    };
-
-    cacheKey = cacheKey + item.key;
-    dataItems.push(item);
+  if ( items ) {
+    for (let index = 0; index < items.length; index++) {
+      const item = {
+        key: items[index].key,
+        name: items[index].name,
+        icon: items[index].icon ? items[index].icon : null,
+        checked: items[index].name === checkedItem ? true : false,
+        commandBarButtonAs: items[index].icon ? customButtonWithIcon : customButtonNoIcon,
+        onClick: onClick,
+      };
+  
+      cacheKey = cacheKey + item.key;
+      dataItems.push(item);
+    }
+  } else {
+    alert('Opps!  For some reason \'items\' were empty in generateData on commandBar.tsx...\n ref checkedItem = ' + checkedItem );
   }
 
   let result: IOverflowData = {
@@ -105,6 +122,7 @@ export interface IResizeGroupOverflowSetExampleProps {
   items: ICMDItem[];
   cachingEnabled: boolean;
   onClick: any;
+  checkedItem: string;
 
 }
 
@@ -149,10 +167,29 @@ export default class ResizeGroupOverflowSetExample extends React.Component<IResi
     };
   }
 
+    /***
+ *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
+ *         88  `8D   `88'   88  `8D      88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'     
+ *         88   88    88    88   88      88    88 88oodD' 88   88 88ooo88    88    88ooooo 
+ *         88   88    88    88   88      88    88 88~~~   88   88 88~~~88    88    88~~~~~ 
+ *         88  .8D   .88.   88  .8D      88b  d88 88      88  .8D 88   88    88    88.     
+ *         Y8888D' Y888888P Y8888D'      ~Y8888P' 88      Y8888D' YP   YP    YP    Y88888P 
+ *                                                                                         
+ *                                                                                         
+ */
+
+public componentDidUpdate(prevProps){
+
+  if ( prevProps.checkedItem != this.props.checkedItem ) {
+      this._updateStateOnPropsChange();
+  }
+
+}
+
   public render(): JSX.Element {
     const { numberOfItems, cachingEnabled, buttonsChecked, short, onGrowDataEnabled } = this.state;
     //const dataToRender = generateData(numberOfItems, cachingEnabled, buttonsChecked);
-    const commandsToRender = generateData( this.props.items , this.props.cachingEnabled, this.props.onClick );
+    const commandsToRender = generateData( this.props.items , this.props.checkedItem, this.props.cachingEnabled, this.props.onClick );
 
     return (
       <div className={short ? styles.resizeIsShort : 'notResized'}>
@@ -166,13 +203,19 @@ export default class ResizeGroupOverflowSetExample extends React.Component<IResi
           onRenderData={data => {
             return (
               <OverflowSet
+                role="menubar"
                 items={data.primary}
                 overflowItems={data.overflow.length ? data.overflow : null}
                 onRenderItem={item => {
                   return (
                     //Wraping button in div to get ID didn't work... makes buttons small
                     //<div id={ item.name.replace(' ','') }><CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={item.onClick} checked={item.checked} /></div>
-                    <CommandBarButton text={item.name} iconProps={{ iconName: item.icon }} onClick={ this.props.onClick } checked={item.checked} />
+                    <CommandBarButton 
+                      role="menuitem"
+                      text={item.name} 
+                      iconProps={{ iconName: item.icon }} 
+                      onClick={ this.props.onClick } 
+                      checked={item.checked} />
 
                   //<div>{  }</div>
                     //<div>{item.name}</div>
@@ -286,5 +329,9 @@ export default class ResizeGroupOverflowSetExample extends React.Component<IResi
 */
     //Be sure to pass item.props.itemKey to get filter value
 
+  }
+
+  private _updateStateOnPropsChange() {
+    console.log('commandBar Prop changed!', this.props.checkedItem );
   }
 }

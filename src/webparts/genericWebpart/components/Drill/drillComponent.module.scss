@@ -1,0 +1,76 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+//Copied to chartsPage.module.scss so it can be more stand alone.
+
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+//Copied to chartsPage.module.scss so it can be more stand alone.
+
+.drillDown {
+
+      //  This affects all the commandButtons
+      .refiners *[type="button"]  {
+        //width: 200px;
+        background: transparent;
+        border-top: none;
+        border-left: none;
+        border-right: none;
+        border-bottom: none;
+
+      }
+
+      //background-color: $ms-color-themePrimary;
+      //border-color: $ms-color-themePrimary;
+      //color: $ms-color-white;
+
+      .refiners *[type="button"] :hover {
+        background-color: lightgray;
+        transition:all 0.4s ease;
+      }
+
+      //  This affects all the commandButtons
+      .refiners *[class*="ms-OverflowSet-item"]  {
+        //width: 200px;
+        background: transparent;
+        border-collapse: collapse;
+        padding-left: 5px;
+        padding-right: 5px;
+      }
+
+      //https://css-tricks.com/almanac/selectors/e/empty/
+      // Eliminating this does not impact the click-jiggle effect
+      .refiners i:empty {
+        margin: 0 0 0 0;
+        //padding: 0;
+        //width: 0;
+        display: none;
+      }
+
+      .refiners [class*="is-checked"]  {
+          //Do this for making button colored if checked... not needed if we do the underline below
+          //background-color: lightgray;
+
+          [class*="ms-Button-label"] {
+              font-weight: 600;
+            }
+
+
+            // Total Credit for underline goes to this answer:  https://stackoverflow.com/a/8837382
+            // Working sandbox for that answer:  https://dabblet.com/gist/e5a78f2d4bf50b6be4d3
+            // Eliminating this does not impact the click-jiggle effect
+          [class*="ms-Button-label"]:after {
+            content: '';
+            width: 75%;
+            left: 12.5%;
+            height: 2px;
+            //https://docs.microsoft.com/en-us/sharepoint/dev/spfx/use-theme-colors-in-your-customizations
+            background: $ms-color-themeDark;  //#b0b0b0;
+            position: absolute;
+            bottom: -1px;
+            //border-radius: 2px;
+          }
+          
+      } /**/
+      
+
+}

@@ -20,7 +20,7 @@ export interface IMyDrillItemsProps {
     maxChars?: number;
     items: IDrillItemInfo[];
 
-    blueBar?: string;
+    blueBar?: any;
 
     showIDs?: boolean;
     showDesc?: boolean;
@@ -156,13 +156,12 @@ export default class MyDrillItems extends React.Component<IMyDrillItemsProps, IM
             { itemRows }
         </table>;
 
-        let barText = this.props.blueBar && this.props.blueBar != null ? this.props.blueBar : 'Items';
-        if (barText != '') { barText = barText + 'Items' ; }
+        let barText = this.props.blueBar && this.props.blueBar != null ? this.props.blueBar : <span>Items</span>;
 
         let webTitle = null;
 
         if ( barText != null ) {
-            webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ barText } - ( { this.props.items.length } )</span></div>;
+            webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20, whiteSpace: 'nowrap' }}>( { this.props.items.length }  ) Items in: { barText }</span></div>;
 
 
         return (
