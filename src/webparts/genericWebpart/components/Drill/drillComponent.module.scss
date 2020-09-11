@@ -19,90 +19,58 @@
 
       }
 
+      //background-color: $ms-color-themePrimary;
+      //border-color: $ms-color-themePrimary;
+      //color: $ms-color-white;
+
       .refiners *[type="button"] :hover {
         background-color: lightgray;
         transition:all 0.4s ease;
       }
 
       //  This affects all the commandButtons
-      .refiners *[class="ms-OverflowSet-item"]  {
+      .refiners *[class*="ms-OverflowSet-item"]  {
         //width: 200px;
         background: transparent;
         border-collapse: collapse;
-        /* Does not work
-        *[class="is-checked"]  {
-          //width: 200px;
-          background-color: green;
-  
-          .msButtonLabel {
-            font-weight: 700;
-          }
-  
-        } */
+        padding-left: 5px;
+        padding-right: 5px;
       }
 
-      //  This affects all the commandButtons
+      //https://css-tricks.com/almanac/selectors/e/empty/
+      // Eliminating this does not impact the click-jiggle effect
+      .refiners i:empty {
+        margin: 0 0 0 0;
+        //padding: 0;
+        //width: 0;
+        display: none;
+      }
 
       .refiners [class*="is-checked"]  {
-        /* Does not work
-        //width: 200px;
-        background-color: green;
+          //Do this for making button colored if checked... not needed if we do the underline below
+          //background-color: lightgray;
 
-        .msButtonLabel {
-          font-weight: 700;
-        }
+          [class*="ms-Button-label"] {
+              font-weight: 600;
+            }
 
-      }
-      */
-            /* Does not work
-      .refiners *[class="is-checked"]  {
-        /* This did not work
-          :global {
-            @include is-checked;
-          }          */
-          background-color: green;
 
+            // Total Credit for underline goes to this answer:  https://stackoverflow.com/a/8837382
+            // Working sandbox for that answer:  https://dabblet.com/gist/e5a78f2d4bf50b6be4d3
+            // Eliminating this does not impact the click-jiggle effect
+          [class*="ms-Button-label"]:after {
+            content: '';
+            width: 75%;
+            left: 12.5%;
+            height: 2px;
+            //https://docs.microsoft.com/en-us/sharepoint/dev/spfx/use-theme-colors-in-your-customizations
+            background: $ms-color-themeDark;  //#b0b0b0;
+            position: absolute;
+            bottom: -1px;
+            //border-radius: 2px;
+          }
+          
       } /**/
       
-      .button {
-        /*
-        // Our button
-        text-decoration: none;
-        height: 32px;
-
-        // Primary Button
-        min-width: 80px;
-        background-color: $ms-color-themePrimary;
-        border-color: $ms-color-themePrimary;
-        color: $ms-color-white;
-
-        // Basic Button
-        outline: transparent;
-        position: relative;
-        font-family: "Segoe UI WestEuropean","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",sans-serif;
-        -webkit-font-smoothing: antialiased;
-        font-size: $ms-font-size-m;
-        font-weight: $ms-font-weight-regular;
-        border-width: 0;
-        text-align: center;
-        cursor: pointer;
-        display: inline-block;
-        padding: 0 16px;
-        */
-        .label {
-          /*
-          font-weight: $ms-font-weight-semibold;
-          font-size: $ms-font-size-m;
-          height: 32px;
-          line-height: 32px;
-          */
-          margin: 0 0px;
-          /*
-          vertical-align: top;
-          display: inline-block;
-          */
-        }
-      }
-
 
 }

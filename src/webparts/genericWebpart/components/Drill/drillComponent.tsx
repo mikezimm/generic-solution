@@ -592,6 +592,10 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
 
         let hasItemKey = item.props && item.props.itemKey ? true : false ;
         let hasTargetInnerText = item.target && item.target.innerText ? true : false;
+        let targetInnerText = hasTargetInnerText && item.target.innerText.length > 0 ? item.target.innerText : "";
+        let hasTargetInnerIcon = item.target && item.target.innerText && item.target.className.indexOf('ms-button-icon')? true : false;
+        let hasTargetNextElemSib = hasTargetInnerIcon && item.target.nextElementSibling !== null ? true : false;
+        let nextElemSibInnerText = hasTargetNextElemSib ? item.target.nextElementSibling.innerText : null;
         if ( hasTargetInnerText === true ) {  //This loop is just for debugging if needed.
             let testString = item.target.innerText;
             let testStringL = testString.length;
@@ -602,7 +606,8 @@ export default class DrillDown extends React.Component<IDrillDownProps, IDrillDo
         //Added the .trim() everywhere because of the "Assit" not being found.
         if ( hasItemKey ) { return item.props.itemKey; }  //This should catch Pivot values without count or icons.
         else if ( hasTargetChildInnerText ) { return item.target.lastElementChild.innerText; } //This should catch command bars with icon
-        else if ( hasTargetInnerText ) { return item.target.innerText; } //This should catch command bars without icons
+        else if ( hasTargetNextElemSib ) { return nextElemSibInnerText; } //This find text label after the icon
+        else if ( hasTargetInnerText ) { return targetInnerText; } //This should catch command bars without icons
         alert('We had a problem with this filter.  It could be that you have a special character in the selection that I can\'t figure out.');
         return '';
     }
