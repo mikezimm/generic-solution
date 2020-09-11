@@ -42,8 +42,9 @@
       }
 
       //  This affects all the commandButtons
-      /* Does not work
-      .refiners *[class="is-checked"]  {
+
+      .refiners [class*="is-checked"]  {
+        /* Does not work
         //width: 200px;
         background-color: green;
 
@@ -61,7 +62,7 @@
           }          */
           background-color: green;
 
-      } */
+      } /**/
       
       .button {
         /*
