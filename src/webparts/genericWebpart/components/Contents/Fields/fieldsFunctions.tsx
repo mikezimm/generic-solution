@@ -59,18 +59,22 @@ export async function allAvailableFields( webURL: string, listGUID: string, fiel
     let contentsFields : IContentsFieldInfo = null;
 
     //lists.getById(listGUID).fields.orderBy("Title", true).get().then(function(result) {
-    //let allFields : IContentsFieldInfo[] = await sp.web.fields.get();
+    //let allFields : IContentsFieldInfo[] = await thisWebInstance.fields.get();
 
     let allFields : IContentsFieldInfo[] = [];
+
+    let thisWebInstance = null;
     let scope = '';
     let errMessage = '';
+
     try {
         if ( listGUID != '' ) {
-            allFields = await sp.web.lists.getById(listGUID).fields.orderBy("Title", true).get();
+            thisWebInstance = Web(webURL);
+            allFields = await thisWebInstance.lists.getById(listGUID).fields.orderBy("Title", true).get();
             scope = 'List';
     
         } else {
-            allFields = await sp.web.fields.orderBy("Title", true).get();
+            allFields = await thisWebInstance.fields.orderBy("Title", true).get();
             scope = 'Web';
     
         }

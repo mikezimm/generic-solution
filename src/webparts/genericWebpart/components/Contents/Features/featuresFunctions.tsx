@@ -110,7 +110,7 @@ export async function allAvailableFeatures( webURL: string, featureBuckets: IFea
     let contentsWebs : IContentsFeatureInfo = null;
 
     //lists.getById(listGUID).features.orderBy("Title", true).get().then(function(result) {
-    //let allFeatures : IContentsFeatureInfo[] = await sp.web.features.get();
+    //let allFeatures : IContentsFeatureInfo[] = await thisWebInstance.features.get();
 
     let thisFeatureObject = null;
     let thisFeatureInfos = null;

@@ -46,6 +46,12 @@ export interface IPickedList {
   isLibrary: boolean;
 }
 
+export interface IPickedView {
+  title: string;
+  name: string;
+  guid: string;
+}
+
 export interface IMyProgress {
 
   time: string;
