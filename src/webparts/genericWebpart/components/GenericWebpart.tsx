@@ -415,11 +415,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           </PivotItem>
           <PivotItem headerText="DrillDown">
               { drillPage }
-          </PivotItem>
-          <PivotItem headerText="ResizeGroup">
-              {  }
-          </PivotItem>
-          
+          </PivotItem>          
 
           <PivotItem headerText="Help">
               { infoPage }

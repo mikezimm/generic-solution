@@ -63,8 +63,13 @@ export async function allAvailableLists( webURL: string, listBuckets: IListBucke
 
     let contentsLists : IContentsLists = null;
 
+    let thisWebInstance = null;
+    let scope = '';
+    let errMessage = '';
+            
     try {
-        let allLists : IContentsListInfo[] = await sp.web.lists.get();
+        thisWebInstance = Web(webURL);
+        let allLists : IContentsListInfo[] = await thisWebInstance.lists.get();
         console.log(allLists);
     
         for (let i in allLists ) {
@@ -94,7 +99,7 @@ export async function allAvailableLists( webURL: string, listBuckets: IListBucke
         addTheseListsToState(allLists, '');
         return allLists;
     } catch (e) {
-        let errMessage = getHelpfullError(e, true, true);
+        errMessage = getHelpfullError(e, true, true);
         console.log('checkThisPage', errMessage);
         addTheseListsToState([], errMessage);
     }

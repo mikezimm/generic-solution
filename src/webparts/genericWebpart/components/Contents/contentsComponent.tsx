@@ -21,6 +21,8 @@ import InspectLists from './Lists/listsComponent';
 
 import InspectColumns from './Fields/fieldsComponent';
 
+import InspectViews from './Views/viewsComponent';
+
 import InspectWebs from './Webs/websComponent';
 
 import InspectGroups from './Groups/groupsComponent';
@@ -244,9 +246,18 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             ></InspectParts>
         </div>;
 
-        const viewsPage = <div>
-                { noPageAvailable }
-        </div>;
+        const viewsPage = !this.state.pickedList ? pickListMessage : <div>
+        <InspectViews 
+            pageContext = { this.props.pageContext }
+            currentUser = { this.props.currentUser }
+            allowOtherSites = { true }
+            allLoaded = { true }
+            pickedList = { this.state.pickedList }
+            allowRailsOff = { this.state.allowRailsOff }
+            allowSettings = { this.state.allowSettings }
+            webURL = { this.state.webURL }
+        ></InspectViews>
+    </div>;
 
         const typesPage = <div>
                 { noPageAvailable }

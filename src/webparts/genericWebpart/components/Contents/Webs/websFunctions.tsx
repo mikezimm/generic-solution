@@ -44,7 +44,7 @@ export async function allAvailableWebs( webURL: string, webBuckets: IWebBucketIn
     let contentsWebs : IContentsWebInfo = null;
 
     //lists.getById(listGUID).webs.orderBy("Title", true).get().then(function(result) {
-    //let allWebs : IContentsWebInfo[] = await sp.web.webs.get();
+    //let allWebs : IContentsWebInfo[] = await thisWebInstance.webs.get();
 
     let thisWebObject = null;
     let thisWebInfos = null;
