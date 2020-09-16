@@ -44,6 +44,7 @@ import { createBasicTextField } from  '../../fields/textFieldBuilder';
 import * as dHarm from '../Harmonie/defineHarmonie';
 import * as dTMT from '../ListsTMT/defineThisList';
 import * as dCust from '../ListsCustReq/defineCustReq';
+import * as dPCP from '../PreConfig/definePreConfig';
 
 import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 //import * as dFinT from '../ListsFinTasks/defineFinTasks';
@@ -58,8 +59,8 @@ import { doesObjectExistInArray } from '../../../../../services/arrayServices';
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
  */
-export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | '';
-const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements'];
+export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | '';
+const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements','Drilldown'];
 
 const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles'];
 
@@ -648,6 +649,13 @@ public constructor(props:IProvisionListsProps){
         } else if ( defineThisList === 'Harmon.ie' ) {
             let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
             let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+        
+            if ( buEmails ) { theLists.push( buEmails ); }
+            if ( justEmails ) { theLists.push( justEmails ); }
+
+        } else if ( defineThisList === 'Drilldown' ) {
+            let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
         
             if ( buEmails ) { theLists.push( buEmails ); }
             if ( justEmails ) { theLists.push( justEmails ); }

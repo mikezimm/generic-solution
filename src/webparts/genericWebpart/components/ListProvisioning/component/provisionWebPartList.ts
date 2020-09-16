@@ -117,7 +117,6 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
         console.log('ensuredList:', readOnly, ensuredList );
 
-
         currentFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter(fieldFilter).get();
         currentViews = await listViews.get();
         
