@@ -37,9 +37,9 @@ import { mapDrillDownProps
 } from './columnsPreConfig';
 //let checks = StepChecks(0,5);  // Email
 
-export const stdViewFields = [ootbID, ootbTitle, 'Template' ];
+export const stdViewFields = [ootbID, ootbTitle, 'Scenario', 'Template' ];
 
-export const stdPreConfigViewFields = ['Edit', ootbID,ootbTitle, 'Template' ].concat( mapDrillDownProps );
+export const stdPreConfigViewFields = ['Edit', ootbID,ootbTitle, 'Scenario', 'Template' ].concat( mapDrillDownProps );
 export const  PreConfigRecentUpdateFields = spliceCopyArray ( stdPreConfigViewFields, null, null, 2, [ootbModified, ootbEditor ] );
 
 export const PreConfigRecentAllItemsView : IMyView = {
