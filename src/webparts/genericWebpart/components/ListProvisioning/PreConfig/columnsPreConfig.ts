@@ -113,7 +113,7 @@ export const ConversationIndexHarm : ITextField = {
 export function TemplateChoice ( theseChoices: string[] ) {
     let field : IChoiceField = {
         fieldType: cChoice,
-        name: 'listTemplate',
+        name: 'listDefinition',
         choices: theseChoices,
         onCreateProps: {
             Group: thisColumnGroup,

@@ -37,13 +37,13 @@ import { mapDrillDownProps
 } from './columnsPreConfig';
 //let checks = StepChecks(0,5);  // Email
 
-export const stdViewFields = [ootbID, ootbTitle, 'webPartScenario', 'listTemplate' ];
+export const stdViewFields = [ootbID, ootbTitle, 'webPartScenario', 'listDefinition' ];
 
-export const stdPreConfigViewFields = ['Edit', ootbID,ootbTitle, 'webPartScenario', 'listTemplate' ].concat( mapDrillDownProps );
+export const stdPreConfigViewFields = ['Edit', ootbID,ootbTitle, 'webPartScenario', 'listDefinition' ].concat( mapDrillDownProps );
 export const  PreConfigRecentUpdateFields = spliceCopyArray ( stdPreConfigViewFields, null, null, 2, [ootbModified, ootbEditor ] );
 
 export const PreConfigRecentAllItemsView : IMyView = {
-    Title: 'All listTemplates', //'All Items',  --- All Documents is default view for a library
+    Title: 'All listDefinitions', //'All Items',  --- All Documents is default view for a library
     iFields: 	stdPreConfigViewFields,
     wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
             ],
@@ -63,7 +63,7 @@ export const GroupByTemplateView : IMyView = {
     orders: [ {field: ootbTitle, asc: false} ],
     groups: { collapse: true, limit: 30,
 		fields: [
-			{field: 'listTemplate', asc: false},
+			{field: 'listDefinition', asc: false},
 		],
 	},
 };
