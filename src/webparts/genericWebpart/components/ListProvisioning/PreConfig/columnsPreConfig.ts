@@ -113,7 +113,7 @@ export const ConversationIndexHarm : ITextField = {
 export function TemplateChoice ( theseChoices: string[] ) {
     let field : IChoiceField = {
         fieldType: cChoice,
-        name: 'Template',
+        name: 'listTemplate',
         choices: theseChoices,
         onCreateProps: {
             Group: thisColumnGroup,
@@ -132,7 +132,7 @@ export function TemplateChoice ( theseChoices: string[] ) {
 export function ScenarioChoice ( theseChoices: string[] ) {
     let field : IMultiChoiceField = {
         fieldType: cMChoice,
-        name: 'Scenario',
+        name: 'webPartScenario',
         choices: theseChoices,
         onCreateProps: {
             Group: thisColumnGroup,
