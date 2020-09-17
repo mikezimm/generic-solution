@@ -129,6 +129,24 @@ export function TemplateChoice ( theseChoices: string[] ) {
     return field;
 }
 
+export function ScenarioChoice ( theseChoices: string[] ) {
+    let field : IMultiChoiceField = {
+        fieldType: cMChoice,
+        name: 'Scenario',
+        choices: theseChoices,
+        onCreateProps: {
+            Group: thisColumnGroup,
+            Description: thisColumnDesc,
+            DefaultFormula:'="' + theseChoices[theseChoices.length-1] + '"',
+            Indexed: true,
+        },
+    //    onCreateChanges: {
+    //        Title: 'Status',
+    //    }
+    };
+
+    return field;
+}
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b
  *    88'     `8b  d8' 88  `8D .8P  Y8. 88  `8D `~~88~~'
@@ -188,7 +206,8 @@ function PreConfiguredFields(mapTheseProps: string[], theseChoices: string[] ) {
 
     let theseFields: IMyFieldTypes[] = [];
     theseFields.push(  TemplateChoice( theseChoices ) );
-
+    theseFields.push(  ScenarioChoice( ['DEV','TEAM','CORP'] ) );
+    
     mapTheseProps.map( p => {
         theseFields.push(  createMultiLineField( p ) );
     });
