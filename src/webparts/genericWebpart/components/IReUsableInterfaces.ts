@@ -147,6 +147,23 @@ export interface IChartSeries {
     origCounts?: any[];
   }
   
+  export interface ICSSChartSeries {
+    title: string;
+    axisTitle: string;
+    labels: any[];
+    sums?: any[];
+    counts?: any[];
+    totalS?: number;
+    totalC?: number;
+    changes?: any[];
+    changeNotes?: string[];
+    warnNotes?: string[];
+    errorNotes?: string[];
+    origLabels?: any[];
+    origSums?: any[];
+    origCounts?: any[];
+  }
+
   export interface ICharNote {
     parent: string;
     source: string;
