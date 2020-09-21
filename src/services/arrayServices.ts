@@ -234,8 +234,43 @@ export interface ICompareResult {
  }
 
  
-// Copied from WPDef component
+// 2020-09-21:  Updated from drilldown-filter webpart
 export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
+    if ( item === undefined ) { 
+        console.log('addItemToArrayIfItDoesNotExist found undefined!') ;
+     }
     if ( item != '' && arr.indexOf(item) < 0 ) { arr.push(item); }
     return arr;
 }
+
+export function sortKeysByOtherKey( obj: any, sortKey: string, order: 'asc' | 'dec', dataType: 'number' | 'string', otherKeys: string[]) {
+
+    let sortCopy : number[] | string[] = JSON.parse(JSON.stringify(obj[sortKey]));
+  
+    let otherKeyArrays : any = {};
+    otherKeys.map( m => { otherKeyArrays[m] = [] ; } );
+    if ( order === 'asc' ) {
+      sortCopy.sort();
+    } else {
+      sortCopy.sort((a, b) => { return b-a ;});
+    }
+    
+    
+    let x = 0;
+    for ( let v of sortCopy) {
+      let currentIndex = obj[sortKey].indexOf(v); //Get index of the first sortable value in original array
+      let i = 0;
+      otherKeys.map( key => {
+        otherKeyArrays[key].push( obj[key][currentIndex] );
+      });
+      obj[sortKey][currentIndex] = null;
+      x ++;
+    }
+  
+    otherKeys.map( key => {
+      obj[key] = otherKeyArrays[key] ;
+    }); 
+  
+    return obj;
+  
+  }
