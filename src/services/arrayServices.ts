@@ -292,22 +292,17 @@ export function sortKeysByOtherKey( obj: any, sortKey: string, order: 'asc' | 'd
       let currentIndex = obj[sortKey].indexOf(v); //Get index of the first sortable value in original array
       let i = 0;
       otherKeys.map( key => {
-<<<<<<< HEAD
         if ( obj[key] ) {
             otherKeyArrays[key].push( obj[key][currentIndex] );
         } else {
             console.log('sortKeysByOtherKey: Unable to push obj[key][currentIndex] because obj[key] does not exist!', obj,key,currentIndex );
         }
-=======
-        otherKeyArrays[key].push( obj[key][currentIndex] );
->>>>>>> e0c964feafae462a7aa058f0c9f13fcb1f02c465
       });
       obj[sortKey][currentIndex] = null;
       x ++;
     }
   
     otherKeys.map( key => {
-<<<<<<< HEAD
 
       obj[key] = otherKeyArrays[key] ;
 
@@ -315,11 +310,6 @@ export function sortKeysByOtherKey( obj: any, sortKey: string, order: 'asc' | 'd
   
     obj[sortKey] = sortCopy;
 
-=======
-      obj[key] = otherKeyArrays[key] ;
-    }); 
-  
->>>>>>> e0c964feafae462a7aa058f0c9f13fcb1f02c465
     return obj;
   
   }
