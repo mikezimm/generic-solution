@@ -99,7 +99,7 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
     if ( readOnly === false ) {
         if (makeThisList.template === 100 ) {
-            ensuredList = await thisWeb.lists.ensure(makeThisList.title);
+            ensuredList = await thisWeb.lists.ensure(makeThisList.title, makeThisList.desc, makeThisList.template, true, makeThisList.additionalSettings );
             listFields = ensuredList.list.fields;   //Get the fields object from the list
             listViews = ensuredList.list.views;     //Get the views object from the list
         } else {
