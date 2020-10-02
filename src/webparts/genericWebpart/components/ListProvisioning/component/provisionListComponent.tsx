@@ -165,10 +165,19 @@ public constructor(props:IProvisionListsProps){
     let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
     let theLists = this.getDefinedLists(definedList, true) ;
 
+    let allowOtherSites = this.props.allowOtherSites === true ? true : false;
+    let alwaysReadOnly = this.props.alwaysReadOnly === true ? true : false;
+
+    let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
+    if ( currentSiteURL.toLowerCase().indexOf( '/sites/Templates/'.toLowerCase() ) === 0  || currentSiteURL.toLowerCase().indexOf( '/sites/PreConfigProps/'.toLowerCase() ) === 0 ) {
+        allowOtherSites = true;
+        alwaysReadOnly = false;
+    }
+
     this.state = {
 
-        allowOtherSites: this.props.allowOtherSites === true ? true : false,
-        alwaysReadOnly: this.props.alwaysReadOnly === true ? true : false,
+        allowOtherSites: allowOtherSites,
+        alwaysReadOnly: alwaysReadOnly,
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
         progress: null,

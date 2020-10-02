@@ -231,7 +231,6 @@ export interface ICompareResult {
  }
 
  
-<<<<<<< HEAD
 // 2020-09-24:  Updated from drilldown-filter webpart
 export function addItemToArrayIfItDoesNotExist (arr : string[], item: string, suppressUndefined: boolean = true ) {
     if ( item === undefined ) { 
@@ -263,17 +262,6 @@ export function convertNumberArrayToRelativePercents( arr: number[] , percentsAs
     return result;
 }
 
-=======
-// 2020-09-21:  Updated from drilldown-filter webpart
-export function addItemToArrayIfItDoesNotExist (arr : string[], item: string ) {
-    if ( item === undefined ) { 
-        console.log('addItemToArrayIfItDoesNotExist found undefined!') ;
-     }
-    if ( item != '' && arr.indexOf(item) < 0 ) { arr.push(item); }
-    return arr;
-}
-
->>>>>>> e0c964feafae462a7aa058f0c9f13fcb1f02c465
 export function sortKeysByOtherKey( obj: any, sortKey: string, order: 'asc' | 'dec', dataType: 'number' | 'string', otherKeys: string[]) {
 
     let sortCopy : number[] | string[] = JSON.parse(JSON.stringify(obj[sortKey]));
