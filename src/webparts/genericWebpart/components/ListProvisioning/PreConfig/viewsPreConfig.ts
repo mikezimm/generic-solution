@@ -50,6 +50,55 @@ export const PreConfigRecentAllItemsView : IMyView = {
     orders: [ {field: ootbModified, asc: false} ],
 };
 
+/**
+ *     'parentListWeb','parentListTitle',
+    'updateRefinersOnTextSearch',
+    'includeDetails','showCatCounts','showSummary',
+    'groupByFields','stats',
+ */
+export const GeneralSettingsFieldsView : IMyView = {
+    Title: 'General Settings',
+    iFields: 	[...stdPreConfigViewFields,'togCounts', 'togSummary', 'togStats',  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+
+export const PerformanceFieldsView : IMyView = {
+    Title: 'Performance Settings',
+    iFields: 	[...stdPreConfigViewFields , 'fetchCount', 'fetchCountMobile', 'restFilter', 'updateRefinersOnTextSearch'  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const ViewSettingsFieldsView : IMyView = {
+    Title: 'View Settings',
+    iFields: 	[...stdPreConfigViewFields , 'groupByFields', 'viewWidth1', 'viewJSON1', 'viewWidth2', 'viewJSON2', 'viewWidth3', 'viewJSON3',  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const Refiner0FieldsView : IMyView = {
+    Title: 'Refiner0 Settings',
+    iFields: 	[...stdPreConfigViewFields ,'togCounts', 'togSummary', 'showDisabled', 'refiner0' , 'rules0def', 'rules0',  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const Refiner1FieldsView : IMyView = {
+    Title: 'Refiner1 Settings',
+    iFields: 	[...stdPreConfigViewFields ,'togCounts', 'togSummary', 'showDisabled', 'refiner1' , 'rules1def', 'rules1',  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const Refiner2FieldsView : IMyView = {
+    Title: 'Refiner2 Settings',
+    iFields: 	[...stdPreConfigViewFields ,'togCounts', 'togSummary', 'showDisabled', 'refiner2' , 'rules2def', 'rules2',  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const StatsFieldsView : IMyView = {
+    Title: 'Stats Settings',
+    iFields: 	[...stdPreConfigViewFields , 'togStats' , 'stats',  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
 export const AllFieldsView : IMyView = {
     Title: 'zTest - All Fields',
     iFields: 	stdPreConfigViewFields,
@@ -68,10 +117,14 @@ export const GroupByTemplateView : IMyView = {
 	},
 };
 
-
 export const PreConfigViews : IMyView[] = [
     PreConfigRecentAllItemsView, createRecentUpdatesView( PreConfigRecentUpdateFields),
-    AllFieldsView, GroupByTemplateView,
+    AllFieldsView, GroupByTemplateView, GeneralSettingsFieldsView, ViewSettingsFieldsView,
+    Refiner0FieldsView,
+    Refiner1FieldsView,
+    Refiner2FieldsView,
+    StatsFieldsView,
+    PerformanceFieldsView,
 ] ;
 
 

@@ -179,6 +179,8 @@ export const mapDrillDownProps: string[] = [
     'viewJSON1','viewJSON2','viewJSON3',
     'includeDetails','showCatCounts','showSummary',
     'groupByFields','stats',
+    'togCounts', 'togSummary', 'togStats', 
+    'fetchCount', 'fetchCountMobile', 'restFilter'
 ];
 
 /**
