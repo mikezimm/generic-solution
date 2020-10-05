@@ -180,7 +180,7 @@ export const mapDrillDownProps: string[] = [
     'includeDetails','showCatCounts','showSummary',
     'groupByFields','stats',
     'togCounts', 'togSummary', 'togStats', 
-    'fetchCount', 'fetchCountMobile', 'restFilter'
+    'fetchCount', 'fetchCountMobile', 'restFilter', 'quickCommands',
 ];
 
 /**

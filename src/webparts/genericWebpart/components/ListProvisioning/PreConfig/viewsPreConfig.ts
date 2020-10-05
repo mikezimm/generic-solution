@@ -71,7 +71,7 @@ export const PerformanceFieldsView : IMyView = {
 
 export const ViewSettingsFieldsView : IMyView = {
     Title: 'View Settings',
-    iFields: 	[...stdViewFields , 'groupByFields', 'viewWidth1', 'viewJSON1', 'viewWidth2', 'viewJSON2', 'viewWidth3', 'viewJSON3',  ],
+    iFields: 	[...stdViewFields , 'groupByFields', 'viewWidth1', 'viewJSON1', 'viewWidth2', 'viewJSON2', 'viewWidth3', 'viewJSON3', 'quickCommands', ],
     orders: [ {field: ootbTitle, asc: false} ],
 };
 
@@ -90,6 +90,14 @@ export const Refiner1FieldsView : IMyView = {
 export const Refiner2FieldsView : IMyView = {
     Title: 'Refiner2 Settings',
     iFields: 	[...stdViewFields ,'togCounts', 'togSummary', 'showDisabled', 'refiner2' , 'rules2def', 'rules2',  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+ 
+
+export const QuickCmdFieldsView : IMyView = {
+    Title: 'Quick Command Settings',
+    iFields: 	[...stdViewFields , 'quickCommands',  ],
     orders: [ {field: ootbTitle, asc: false} ],
 };
 
@@ -125,6 +133,7 @@ export const PreConfigViews : IMyView[] = [
     Refiner2FieldsView,
     StatsFieldsView,
     PerformanceFieldsView,
+    QuickCmdFieldsView,
 ] ;
 
 
