@@ -10,9 +10,9 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState } from "@pnp/sp/clientside-pages";
 
-import { provisionThePage, IValidTemplate, provisionTestPage } from './provisionWebPartPages';
+import { provisionThePage, IValidTemplate, provisionTestPage, provisionDrilldownPage } from './provisionWebPartPages';
 import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
-
+import { defineDrilldownPage } from '../DrilldownPages/defineThisPage';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
@@ -101,7 +101,7 @@ private createRandom(str: string, webURL: string) {
 
     let rightNow = new Date();
     let todayTime = rightNow.getTime() ;
-    let title =  'TP '+ str + ' - ' + todayTime;
+    let title =  str + ' - ' + getRandomInt(1,1000);
 
     let makeThisPage:  IMakeThisPage = {
         title: title,
@@ -120,8 +120,9 @@ private createRandom(str: string, webURL: string) {
 
 private createRandomPages(webURL: string){
     let pages : IMakeThisPage[] = [];
-    pages.push(this.createRandom('a', webURL));
-    pages.push(this.createRandom('b', webURL));
+    pages.push(this.createRandom('Drilldown7', webURL));
+    pages.push(this.createRandom('Drilldown7', webURL));
+
     return pages;
 
 }
@@ -379,7 +380,7 @@ public constructor(props:IProvisionPagesProps){
 
   private CreateThisPage( mapThisPage: IMakeThisPage, pageNo: number ): any {
 
-    let pageCreated2 = provisionTestPage(mapThisPage, this.setProgress.bind(this), this.markComplete.bind(this));
+    let pageCreated2 = provisionDrilldownPage(mapThisPage, this.setProgress.bind(this), this.markComplete.bind(this));
 
     return "Finished";
 
