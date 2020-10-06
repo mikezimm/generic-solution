@@ -37,6 +37,7 @@ export const corpFeatures = [
     { name: "TrackMyTime7" ,  DefinitionId: "a0aaa00b-6a20-4543-8059-2bb990b56a96" },
     { name: "Generic Contents" ,  DefinitionId: "44f426eb-86a2-41d0-bf5d-3db469b93ab6" },
     { name: "Socialiis" ,  DefinitionId: "44f426eb-86a2-41d0-bf5d-3db469b93ab6" },
+    { name: "Drilldown7" ,  DefinitionId: "4c383c96-1d07-4f0d-b46b-9fc7968df23f" },
 
 ];
 

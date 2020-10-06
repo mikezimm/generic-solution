@@ -1,4 +1,4 @@
-import { Web } from "@pnp/sp/presets/all";
+import { Web, IWeb } from "@pnp/sp/presets/all";
 
 import { sp } from "@pnp/sp";
 
@@ -23,6 +23,8 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
+import { createDrilldownDemoWebParts, IWebPartDef } from './provisionPageFunctions';
+
 export type IValidTemplate = 100 | 101;
 
 export interface IMakeThisPage {
@@ -46,6 +48,71 @@ export interface IMakeThisPage {
 
 }
 
+//export async function provisionTestPage( makeThisPage:  IMakeThisPage, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
+    export async function provisionDrilldownPage( makeThisPage:  IMakeThisPage, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
+
+        let buildTheseWebparts : IWebPartDef[] = createDrilldownDemoWebParts();
+
+        let statusLog : IServiceLog[] = [];
+    
+        let extra = getRandomInt(1,10);
+        makeThisPage.title += extra;
+    
+        // this will be a ClientsidePageComponent array
+        // this can be cached on the client in production scenarios
+        const partDefs = await sp.web.getClientsideWebParts();
+        console.log('partDefs:', partDefs);
+
+        let currentSection = -1;
+        let currentColumn = -1;
+
+        console.log('provisionTestPage' , makeThisPage.title);
+        alert('Building page ' + makeThisPage.title);
+
+        const thisPage : IClientsidePage = await CreateClientsidePage(Web(makeThisPage.webURL), makeThisPage.title, makeThisPage.title, makeThisPage.pageLayout );
+
+        let sectionObj = null;
+        let columnObj = null;
+
+        buildTheseWebparts.map( webPart => {
+
+            const getThisWPDef = partDefs.filter(c => c[webPart.isIdOrName] === webPart.NameOrId );
+            if ( getThisWPDef.length > 0 ) {
+
+                const buildMe = ClientsideWebpart.fromComponentDef(getThisWPDef[0]);
+                buildMe.setProperties(  webPart.setProperties );
+
+                try {
+                    if ( webPart.section > currentSection ) { 
+                        sectionObj = thisPage.addSection();
+                        currentSection ++;
+                        currentColumn = -1;
+                    }
+                    if ( webPart.column > currentColumn ) { 
+                        columnObj = sectionObj.addColumn();
+                        currentColumn ++;
+                    }
+
+                    columnObj.addControl(buildMe);
+
+                } catch (e) {
+                    alert(e);
+                }
+            }
+
+        });
+        // you must publish the new page
+        await thisPage.save();
+        console.log('Saved this thisPage: ', thisPage );
+
+        let pageTitle = makeThisPage.title.replace(/\ /g, '-') + '.aspx';
+        let pageURL = makeThisPage.webURL;
+        let openURL = pageURL + 'SitePages/' + pageTitle;
+
+        window.open( openURL, "_blank"); 
+
+        return statusLog;
+    }
 
 //export async function provisionTestPage( makeThisPage:  IMakeThisPage, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
     export async function provisionTestPage( makeThisPage:  IMakeThisPage, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
