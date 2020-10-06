@@ -57,7 +57,6 @@ export interface IMakeThisPage {
     
         let extra = getRandomInt(1,10);
         makeThisPage.title += extra;
-        makeThisPage.title += extra;
     
         // this will be a ClientsidePageComponent array
         // this can be cached on the client in production scenarios
