@@ -71,7 +71,7 @@ export const PerformanceFieldsView : IMyView = {
 
 export const ViewSettingsFieldsView : IMyView = {
     Title: 'View Settings',
-    iFields: 	[...stdViewFields , 'groupByFields', 'viewWidth1', 'viewJSON1', 'viewWidth2', 'viewJSON2', 'viewWidth3', 'viewJSON3', 'quickCommands', ],
+    iFields: 	[...stdViewFields , 'includeAttach', 'groupByFields', 'viewWidth1', 'viewJSON1', 'viewWidth2', 'viewJSON2', 'viewWidth3', 'viewJSON3', 'quickCommands', ],
     orders: [ {field: ootbTitle, asc: false} ],
 };
 
