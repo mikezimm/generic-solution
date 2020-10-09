@@ -376,7 +376,6 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
 
             let userPivots = this.createPivotObject(this.state.searchMeta, '');
 
-//            let settings = this.state.showProfile ? this.getSiteSettingsLinks() : null;
             let settings = null;
 
             let noInfo = [];

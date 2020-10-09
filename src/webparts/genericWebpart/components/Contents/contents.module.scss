@@ -47,6 +47,20 @@
  *                                                         
  */
 
+ 
+    .showSettings {
+      transition:all 0.4s ease;
+      height: '46px';
+      opacity: 1;
+    }
+
+    .hideSettings {
+      transition:all 0.4s ease;
+      height: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+
     .showSearch {
       transition:all 0.4s ease;
       //transition:height 0.4s ease;
