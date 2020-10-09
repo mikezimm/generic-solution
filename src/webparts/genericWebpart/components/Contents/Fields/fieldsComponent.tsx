@@ -392,7 +392,9 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
             let fieldPivots = this.createPivotObject(this.state.searchMeta, '');
 
-            let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
+            let settings = <div className = { this.state.showSettings ? styles.showSettings : styles.hideSettings } >
+                { this.getSiteSettingsLinks() }
+            </div>;
 
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;

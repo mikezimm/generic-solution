@@ -360,7 +360,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
               </div>
             </div>;
 
-            let disclaimers = <h3>Subsites for { this.props.pickedWeb.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+            let disclaimers = <h3>Groups for { this.props.pickedWeb.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -376,8 +376,11 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
             let groupPivots = this.createPivotObject(this.state.searchMeta, '');
 
-//            let settings = this.state.showSettings ? this.getSiteSettingsLinks() : null;
-            let settings = null;
+            let settings = <div className = { this.state.showSettings ? styles.showSettings : styles.hideSettings } >
+                { this.getSiteSettingsLinks() }
+            </div>;
+
+            settings = null;
 
             let noInfo = [];
             noInfo.push( <h3>{'Found ' + this.state.searchCount + ' items with this search criteria:'}</h3> )  ;

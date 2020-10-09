@@ -360,7 +360,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
               </div>
             </div>;
 
-            let disclaimers = <h3>Subsites for { this.props.pickedWeb.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+            let disclaimers = <h3>Users for { this.props.pickedWeb.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -376,7 +376,6 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
 
             let userPivots = this.createPivotObject(this.state.searchMeta, '');
 
-//            let settings = this.state.showProfile ? this.getSiteSettingsLinks() : null;
             let settings = null;
 
             let noInfo = [];

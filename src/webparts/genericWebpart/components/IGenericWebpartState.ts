@@ -2,7 +2,7 @@ import { IFormFields, IProjectFormFields } from './fields/fieldDefinitions';
 
 import { ITheTime } from '../../../services/dateServices';
 
-import { IUser, IPivot, IMyPivots, IMyIcons, IMyFonts, ILink, IChartSeries, ICharNote, IMyProgress } from './IReUsableInterfaces';
+import { IUser, IPivot, IMyPivots, IMyIcons, IMyFonts, ILink, IChartSeries, ICharNote, IMyProgress, IPickedWebBasic } from './IReUsableInterfaces';
 
 import { ISelectedUser, } from './Charts/charts';
 
@@ -119,6 +119,8 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
     parentListTitle: string;  // Static Name of list (for URL) - used for links and determined by first returned item
     childListTitle: string;  // Static Name of list (for URL) - used for links and determined by first returned item
   
+    pickedWeb : IPickedWebBasic;
+
     // 3 - General how accurate do you want this to be
   
     // 4 - Info Options
@@ -172,6 +174,7 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
   
     listError?: boolean;
     itemsError?: boolean;
+    stateError?: any[];
   
     searchType?: string;
     searchShow?: boolean;

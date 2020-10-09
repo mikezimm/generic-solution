@@ -177,7 +177,7 @@ export const mapDrillDownProps: string[] = [
     'updateRefinersOnTextSearch',
     'viewWidth1','viewWidth2','viewWidth3',
     'viewJSON1','viewJSON2','viewJSON3',
-    'includeDetails','showCatCounts','showSummary',
+    'includeDetails', 'includeAttach','includeListLink', 'showCatCounts','showSummary',
     'groupByFields','stats',
     'togCounts', 'togSummary', 'togStats', 
     'fetchCount', 'fetchCountMobile', 'restFilter', 'quickCommands',
