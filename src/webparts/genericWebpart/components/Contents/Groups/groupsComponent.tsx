@@ -360,7 +360,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
               </div>
             </div>;
 
-            let disclaimers = <h3>Subsites for { this.props.pickedWeb.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+            let disclaimers = <h3>Groups for { this.props.pickedWeb.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>

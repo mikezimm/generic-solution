@@ -332,7 +332,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 { columnsPage }
             </PivotItem>
             <PivotItem headerText={ contentsTabs[4] }>
-                <h3>Views</h3>
                 { viewsPage }
             </PivotItem>
             <PivotItem headerText={ contentsTabs[5] }>
@@ -343,12 +342,10 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 { partsPage }
             </PivotItem>
             <PivotItem headerText={ contentsTabs[7] }>
-                <h3>Groups</h3>
                 { groupsPage }
             </PivotItem>
 
             <PivotItem headerText={ contentsTabs[8] }>
-                <h3>Users</h3>
                 { usersPage }
             </PivotItem>
 
