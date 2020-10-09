@@ -176,7 +176,6 @@ export interface IInspectThisSiteState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
 
-    webURL?: string;
     tab?: string;
 
     searchCount: number;
@@ -234,7 +233,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
     public constructor(props:IInspectThisSiteProps){
     super(props);
 
-    let parentWeb = cleanURL(this.props.pickedWeb.url);
+    let parentWeb = cleanURL(this.props.pickedWeb.Url);
 
     let pickedWeb = null; //this.getThisWeb( parentWeb );
 
@@ -244,9 +243,6 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
             //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
             WebpartHeight: this.props.WebpartHeight ,
             WebpartWidth:  this.props.WebpartWidth ,
-        
-            // 2 - Source and destination list information
-            webURL: parentWeb,
 
             meta: [],
 
@@ -294,7 +290,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
      */
 
     public componentDidUpdate(prevProps){
-        let rebuildPart = prevProps.pickedWeb.url === this.props.pickedWeb.url ? false : true;
+        let rebuildPart = prevProps.pickedWeb.Url === this.props.pickedWeb.Url ? false : true;
         if (rebuildPart === true) {
         this._updateStateOnPropsChange({});
         }
@@ -330,7 +326,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
                     showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
                     items={ bucket }    specialAlt= { false }
                     searchMeta= { this.state.searchMeta } showRailsOff= { this.state.allowRailsOff } 
-                    webURL = { this.state.webURL } descending={false} titles={null} 
+                    webURL = { this.props.pickedWeb.Url } descending={false} titles={null} 
                     ></MyLogProps>;
             })
 
@@ -356,7 +352,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
         </div>
         </div>;
 
-        let disclaimers = <h3>Properties for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.url, '_blank', this.props.pickedWeb.url )  }</h3>;
+        let disclaimers = <h3>Properties for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
 
         const stackPageTokens: IStackTokens = { childrenGap: 10 };
 
@@ -536,8 +532,8 @@ public _onSearchForMeta = (item): void => {
     private getPropDefs() {
         let listGuid = '';
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
-    //    let resultWeb : any = allWebProps( this.state.webURL, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
-        let resultSite : any = allWebProps( this.state.webURL, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
+    //    let resultWeb : any = allWebProps( this.props.pickedWeb.Url, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
+        let resultSite : any = allWebProps( this.props.pickedWeb.Url, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
 
     }
 
@@ -621,8 +617,8 @@ public _onSearchForMeta = (item): void => {
 
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Webs */}
-                    { createLink( this.state.webURL + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
-                    { createLink( this.state.webURL + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
 
 
                 </Stack>

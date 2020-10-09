@@ -69,6 +69,7 @@ export interface IGenericWebpartWebPartProps {
 
   // 9 - Other web part options
   webPartScenario: string; //Choice used to create mutiple versions of the webpart.
+  allowRailsOff: boolean;
 
   advancedPivotStyles: boolean;
   pivotSize: string;
@@ -195,10 +196,16 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     let progress = this.properties.progress;
     console.log('this.properties.progress:',this.properties.progress);
 
+
     //Be sure to always pass down an actual URL if the webpart prop is empty at this point.
     //If it's undefined, null or '', get current page context value
     let parentWeb = this.properties.parentListWeb && this.properties.parentListWeb != '' ? this.properties.parentListWeb : this.context.pageContext.web.absoluteUrl;
     let childWeb = this.properties.childListWeb && this.properties.childListWeb != '' ? this.properties.childListWeb : this.context.pageContext.web.absoluteUrl;
+    let tenant = this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,"");
+
+    let allowRailsOff = this.properties.allowRailsOff;
+    if ( this.context.pageContext.web.serverRelativeUrl.toLowerCase().indexOf('/sites/webpartdev') === 0 ) {  allowRailsOff = true;  }
+    if ( this.context.pageContext.web.serverRelativeUrl.toLowerCase().indexOf('/sites/templates') === 0 ) {  allowRailsOff = true;  }
 
     const element: React.ReactElement<IGenericWebpartProps> = React.createElement(
       GenericWebpart,
@@ -208,7 +215,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         // 0 - Context
         pageContext: this.context.pageContext,
         wpContext: this.context,
-        tenant: this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,""),
+        tenant: tenant,
         urlVars: this.getUrlVars(),
         today: makeTheTimeObject(''),
         parentListFieldTitles: this.properties.parentListFieldTitles,
@@ -230,6 +237,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
 
         onlyActiveParents: this.properties.onlyActiveParents,
 
+        allowRailsOff: allowRailsOff,
         // 3 - General how accurate do you want this to be
 
         // 4 - Info Options

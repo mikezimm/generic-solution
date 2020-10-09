@@ -8,6 +8,8 @@ import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
 // For Pivot ^^^^
 
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
+import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
+import { Web, IWeb } from "@pnp/sp/presets/all";
 
 import styles from './GenericWebpart.module.scss';
 import { IGenericWebpartProps } from './IGenericWebpartProps';
@@ -16,6 +18,7 @@ import { IGenericWebpartState } from './IGenericWebpartState';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IRefinerRules, RefineRuleValues } from './IReUsableInterfaces';
+import { IPickedList, IPickedWebBasic,  } from './IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 import InfoPage from './HelpInfo/infoPages';
@@ -46,7 +49,10 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
 import { analyticsList } from 'GenericWebpartWebPartStrings';
 
 import { cleanURL, camelize } from '../../../services/stringServices';
+import { getHelpfullError } from '../../../services/ErrorHandler';
 
+
+const emptyString = (value: string | Date) : string => { return "";};
 
 export default class GenericWebpart extends React.Component<IGenericWebpartProps, IGenericWebpartState> {
 
@@ -158,6 +164,7 @@ public constructor(props:IGenericWebpartProps){
         parentListTitle: this.props.parentListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
         childListTitle: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
 
+        pickedWeb: null,
         // 3 - General how accurate do you want this to be
       
         // 4 - Info Options
@@ -209,6 +216,7 @@ public constructor(props:IGenericWebpartProps){
       
         listError: false,
         itemsError: false,
+        stateError: [],
   
         searchType: '',
         searchShow: true,
@@ -220,6 +228,7 @@ public constructor(props:IGenericWebpartProps){
 
 
 public componentDidMount() {
+  this._onWebUrlChange(this.props.parentListWeb);
   this.getListDefinitions( 'state');
 }
 
@@ -295,11 +304,40 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     }
   }
 
+    //Format copied from:  https://developer.microsoft.com/en-us/fluentui#/controls/web/textfield
+    private getWebBoxStyles( props: ITextFieldStyleProps): Partial<ITextFieldStyles> {
+        const { required } = props;
+        return { fieldGroup: [ { width: '75%', maxWidth: '700px' }, { borderColor: 'lightgray', }, ], };
+    }
+
+
   public render(): React.ReactElement<IGenericWebpartProps> {
 
       console.log('RENDER setting Progress:', this.props.progress);
 
-      const provisionListPage = <div>
+      //Set the web Url passed down to a component
+      let webUrl = this.state.parentListWeb && this.state.parentListWeb.length > 0 ? this.state.parentListWeb : this.props.pageContext.web.absoluteUrl;
+      let defaultPageClass = this.state.stateError.length === 0 ? styles.showPage : styles.hidePage;
+
+      let thisWebURL = this.props.allowRailsOff !== true ? null : 
+        <div style={{ display: 'inline-table', paddingBottom: '20px', paddingTop: '20px', width: '100%', background: 'lightgray' }}>
+          <span style={{ paddingLeft: '20px', paddingRight: '20px', fontSize: 'larger', fontWeight: 600 }}>WebURL</span>
+          <TextField
+            className={ styles.textField }
+            styles={ this.getWebBoxStyles  } //this.getReportingStyles
+            defaultValue={ this.props.parentListWeb }
+            label={ null }
+            autoComplete='off'
+            onChanged={ this._onWebUrlChange.bind(this) }
+            onGetErrorMessage= { emptyString }
+            validateOnFocusIn
+            validateOnFocusOut
+            multiline= { false }
+            autoAdjustHeight= { true }
+
+          /></div>;
+
+      const provisionListPage = <div className= { defaultPageClass }>
       <ProvisionLists 
           allowOtherSites={ false }
           alwaysReadOnly = { false }
@@ -316,14 +354,14 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         ></ProvisionLists>
       </div>;
 
-      const provisionPagesPage = <div>
+      const provisionPagesPage = <div className= { defaultPageClass }>
       <ProvisionPages 
           allowOtherSites={ false }
           alwaysReadOnly = { false }
           pageContext={ this.props.pageContext }
           showPane={true}
           allLoaded={false}
-          webURL = { this.state.parentListWeb }
+          webURL = { webUrl }
           currentUser = {this.state.currentUser }
           pages = { this.state.allPages }
 
@@ -339,17 +377,17 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       ></InfoPage>
       </div>;
 
-      const contentsPage = <div>
+      const contentsPage = <div className= { defaultPageClass }>
         <InspectContents
           allowOtherSites={ false }
           pageContext={ this.props.pageContext }
           showPane={true}
           allLoaded={false}
           currentUser = {this.state.currentUser }
-          webURL = { this.state.parentListWeb }
+          pickedWeb = { this.state.pickedWeb }
           showSettings = { true }
           showRailsOff = { true }
-          allowRailsOff = { true }
+          allowRailsOff = { this.props.allowRailsOff }
           allowSettings = { true }
 
           WebpartHeight = { this.state.WebpartHeight }
@@ -358,52 +396,15 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
         ></InspectContents>
       </div>;
-      let rules1: RefineRuleValues[] = ['parseBySemiColons'];
-      let rules2: RefineRuleValues[] = ['parseBySemiColons'];
-      let rules3: RefineRuleValues[] = ['groupByMonths'];
-      let testRules = [
-        rules1, rules2, rules3
-      ];
-
-      let stringRules = JSON.stringify( testRules );
-
-      console.log('stringRules', stringRules);
-
-      const drillPage = <div>
-      <DrillDown 
-          allowOtherSites={ false }
-          pageContext={ this.props.pageContext }
-          showPane={true}
-          allLoaded={false}
-          currentUser = {this.state.currentUser }
-          webURL = { this.state.parentListWeb }
-          allowSettings = { true }
-          listName = { this.props.parentListTitle }
-          parentListFieldTitles = { this.props.parentListFieldTitles }
-
-          WebpartHeight = { this.state.WebpartHeight }
-          WebpartWidth = { this.state.WebpartWidth }
-
-          refiners= { ['Story', 'Chapter', 'Created'] }
-
-          rules = { stringRules }
-          
-          onRefiner0Selected = { this.props.onRefiner0Selected }
-
-          style = { 'commandBar' }
-
-      ></DrillDown>
-      </div>;
 
       const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
         root: { marginTop: 10 },
       };
 
 
-      let MyPivot = <div style={{ paddingLeft: 10, paddingRight: 20 }}>
+      let MyPivot = <div className= { defaultPageClass } style={{ paddingLeft: 10, paddingRight: 20 }}>
         <Pivot aria-label="Provision Options"
           defaultSelectedIndex ={2}>
-
           <PivotItem headerText="Lists">
                 { provisionListPage }
           </PivotItem>
@@ -412,10 +413,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           </PivotItem>
           <PivotItem headerText="Contents">
               { contentsPage }
-          </PivotItem>
-          <PivotItem headerText="DrillDown">
-              { drillPage }
-          </PivotItem>          
+          </PivotItem>    
 
           <PivotItem headerText="Help">
               { infoPage }
@@ -423,10 +421,18 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
         </Pivot></div>;
 
+    let stateError = this.state.stateError.length === 0 ? null :
+      <div>
+        { this.state.stateError }
+      </div>;
+      
     return (
       <div className={ styles.genericWebpart }>
       <div className={ styles.container }>
       <div className={ styles.topPivots }>
+          { /* thisWebURL */ }
+          { thisWebURL }
+          { stateError }
           { MyPivot }
       </div>
       </div>
@@ -435,6 +441,45 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     );
   }
 
+  private async _onWebUrlChange(newValue: string){
+
+      let ev = event.target;
+      let errMessage = null;
+      let stateError : any[] = [];
+      const thisWebObject = Web( newValue );
+      let getMinProps = 'Title,Id,Url,ServerRelativeUrl,SiteLogoUrl,Description';
+
+      let pickedWeb : IPickedWebBasic = {
+          ServerRelativeUrl: 'Site ServerRelativeUrl',
+          guid: 'Site Guid',
+          title: 'Site Title',
+          Url: 'siteURL',
+          siteIcon: 'Site Icon',
+          error: errMessage,
+      };
+
+      try {
+        const webbie = await thisWebObject.select(getMinProps).get();
+        pickedWeb = {
+            ServerRelativeUrl: webbie.ServerRelativeUrl,
+            guid: webbie.Id,
+            title: webbie.Title,
+            Url: webbie.Url,
+            siteIcon: webbie.SiteLogoUrl,
+            error: errMessage,
+        };
+
+      } catch (e) {
+        errMessage = getHelpfullError(e, true, true );
+        stateError.push( <div style={{ padding: '15px', background: 'yellow' }}> <span style={{ fontSize: 'larger', fontWeight: 600 }}>Can't find the site</span> </div>);
+        stateError.push( <div style={{ paddingLeft: '25px', paddingBottom: '30px', background: 'yellow' }}> <span style={{ fontSize: 'large', color: 'red'}}> { errMessage }</span> </div>);
+      }
+
+      this.setState({ parentListWeb: newValue, stateError: stateError, pickedWeb: pickedWeb });
+
+    return;
+
+  }
   //This does not work either to float right button/tab
     private _customRenderer(
       link: IPivotItemProps,
@@ -460,6 +505,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
    */
 
   private _updateStateOnPropsChange(params: any ): void {
+
+      
     this.setState({
       progress: this.props.progress,
     });

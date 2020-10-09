@@ -23,7 +23,8 @@
     "properties": {
       "description": "genericWebpart",
       "parentListTitle": "ParentListTitle",
-      "childListTitle": "ChildListTitle"
+      "childListTitle": "ChildListTitle",
+      "allowRailsOff": false
     }
   }]
 }

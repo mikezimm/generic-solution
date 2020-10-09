@@ -34,9 +34,10 @@ export interface IRefinerLayer {
 export interface IPickedWebBasic {
   title: string;
   ServerRelativeUrl: string;
+  Url: string;
   guid: string;
-  url: string;
   siteIcon: string;
+  error: string;
 }
 
 export interface IPickedList {

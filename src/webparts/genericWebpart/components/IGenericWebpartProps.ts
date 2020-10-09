@@ -46,6 +46,7 @@ export interface IGenericWebpartProps {
 
   // 9 - Other web part options
   webPartScenario: string; //Choice used to create mutiple versions of the webpart.
+  allowRailsOff: boolean;
 
   pivotSize: string;
   pivotFormat: string;

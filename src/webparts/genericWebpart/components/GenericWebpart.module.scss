@@ -2,6 +2,23 @@
 
 .genericWebpart {
 
+  .showPage {
+    transition:all 0.4s ease;
+    //transition:height 0.4s ease;
+    //transition:padding-bottom 0.4s ease;
+    //transition:transform 0.4s ease;
+    opacity: 1;
+  }
+
+  .hidePage {
+    transition:all 0.4s ease;
+    //transition:height 0.4s ease;
+    //transition:padding-bottom 0.4s ease;
+    //transition:transform 0.4s ease;
+    opacity: 0;
+    overflow: hidden;
+  }
+
   
   .msToggleLabel {
     color: 'red';
@@ -24,7 +41,7 @@
 
 
   .container {
-    max-width: 90%;
+    max-width: 100%;
     margin: 0px auto;
     box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2), 0 25px 50px 0 rgba(0, 0, 0, 0.1);
   }
@@ -170,7 +187,8 @@
 
     input {
       //height: 32px;
-      min-width: 80px;
+      min-width: 200px;
+      font-size: larger;
     }
   }
 

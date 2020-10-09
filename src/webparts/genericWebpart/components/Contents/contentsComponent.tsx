@@ -51,7 +51,7 @@ export interface IInspectContentsProps {
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-    webURL?: string;
+    pickedWeb : IPickedWebBasic;
 
     showPane: boolean;
     allLoaded: boolean;
@@ -75,11 +75,9 @@ export interface IInspectContentsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
 
-    webURL?: string;
     tab?: string;
 
     pickedList? : IPickedList;
-    pickedWeb? : IPickedWebBasic;
 
     allLoaded: boolean;
 
@@ -114,16 +112,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
     public constructor(props:IInspectContentsProps){
     super(props);
 
-    let parentWeb = cleanURL(this.props.webURL);
-
-    let pickedWeb : IPickedWebBasic = {
-        ServerRelativeUrl: 'Site ServerRelativeUrl',
-        guid: 'Site Guid',
-        title: 'Site Title',
-        url: this.props.webURL,
-        siteIcon: 'Site Icon',
-    };
-
     let railsMode = this.props.allowRailsOff && this.props.showRailsOff ? true : false ;
     this.state = {
 
@@ -132,9 +120,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             WebpartWidth:  this.props.WebpartWidth ,
         
             // 2 - Source and destination list information
-            webURL: parentWeb,
-
-            pickedWeb: pickedWeb,
 
             allLoaded: false,
 
@@ -151,7 +136,8 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
 
     public componentDidMount() {
-        this.getThisWeb( this.state.webURL );
+        
+        
     }
 
 
@@ -169,46 +155,59 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     public componentDidUpdate(prevProps){
 
-        let rebuildPart = prevProps.webURL === this.props.webURL ? false : true;
+        let rebuildPart = prevProps.pickedWeb === this.props.pickedWeb ? false : true;
         if (rebuildPart === true) {
-        this._updateStateOnPropsChange({});
+            console.log( 'componentDidUpdate: contentsComponent.tsx');
         }
     }
 
     public render(): React.ReactElement<IInspectContentsProps> {
 
+        let pickedWebError = null;
+        let pickedWebUrl = null;
+        let validWeb = !this.props.pickedWeb || this.props.pickedWeb.error !== null ? false : true;
+
+        if ( validWeb === true ) {
+            pickedWebUrl = this.props.pickedWeb.Url;
+
+        } else {
+            pickedWebError = 'Web not found';
+        }
+
+
         const pickListMessage = <div style={{ paddingBottom: 30, paddingTop: 30 }}>Please pick a list first</div>;
         const pickWebMessage = <div style={{ paddingBottom: 30, paddingTop: 30  }}>Please pick a WEB first</div>;
         const noPageAvailable = <div style={{ paddingBottom: 30, paddingTop: 30  }}>This feature is not yet available</div>;
 
+
         //InspectThisSite
-        const sitePage = !this.state.pickedWeb ? pickWebMessage : <div>
+        const sitePage = validWeb !== true ? pickWebMessage : <div>
             <InspectThisSite 
                 pageContext = { this.props.pageContext }
                 currentUser = { this.props.currentUser }
                 allowOtherSites = { true }
                 allLoaded = { true }
-                pickedWeb = { this.state.pickedWeb }
+                pickedWeb = { this.props.pickedWeb }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
-                //webURL = { this.state.webURL }
+                //webURL = { this.props.pickedWeb.Url }
             ></InspectThisSite>
         </div>;
 
-        const websPage = !this.state.pickedWeb ? pickWebMessage : <div>
+        const websPage = validWeb !== true ? pickWebMessage : <div>
             <InspectWebs 
                 pageContext = { this.props.pageContext }
                 currentUser = { this.props.currentUser }
                 allowOtherSites = { true }
                 allLoaded = { true }
-                pickedWeb = { this.state.pickedWeb }
+                pickedWeb = { this.props.pickedWeb }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
-                webURL = { this.state.webURL }
+                webURL = { pickedWebUrl }
             ></InspectWebs>
         </div>;
 
-        const listPage = this.state.tab !== 'Lists' ? null : <div>
+        const listPage = validWeb !== true || this.state.tab !== 'Lists' ? null : <div>
             <InspectLists 
                 pageContext = { this.props.pageContext }
                 currentUser = { this.props.currentUser }
@@ -218,11 +217,11 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickThisList = { this.updatePickList.bind(this) }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
-                webURL = { this.state.webURL }
+                webURL = { pickedWebUrl }
             ></InspectLists>
         </div>;
 
-        const columnsPage = !this.state.pickedList ? pickListMessage : <div>
+        const columnsPage = validWeb !== true || !this.state.pickedList ? pickListMessage : <div>
             <InspectColumns 
                 pageContext = { this.props.pageContext }
                 currentUser = { this.props.currentUser }
@@ -231,22 +230,22 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickedList = { this.state.pickedList }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
-                webURL = { this.state.webURL }
+                webURL = { pickedWebUrl }
             ></InspectColumns>
         </div>;
 
-        const partsPage = <div>
+        const partsPage = validWeb !== true ? null : <div>
             <InspectParts 
                 allowOtherSites={ false }
                 pageContext={ this.props.pageContext }
                 showPane={true}
                 allLoaded={false}
                 currentUser = {this.props.currentUser }
-                webURL = { this.state.webURL }
+                webURL = { pickedWebUrl }
             ></InspectParts>
         </div>;
 
-        const viewsPage = !this.state.pickedList ? pickListMessage : <div>
+        const viewsPage = validWeb !== true || !this.state.pickedList ? pickListMessage : <div>
         <InspectViews 
             pageContext = { this.props.pageContext }
             currentUser = { this.props.currentUser }
@@ -255,7 +254,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             pickedList = { this.state.pickedList }
             allowRailsOff = { this.state.allowRailsOff }
             allowSettings = { this.state.allowSettings }
-            webURL = { this.state.webURL }
+            webURL = { pickedWebUrl }
         ></InspectViews>
     </div>;
 
@@ -263,43 +262,43 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 { noPageAvailable }
         </div>;
 
-        const groupsPage = <div>
+        const groupsPage = validWeb !== true ? null : <div>
             <InspectGroups
                 allowOtherSites={ false }
                 pageContext={ this.props.pageContext }
-                pickedWeb = { this.state.pickedWeb }
+                pickedWeb = { this.props.pickedWeb }
                 showPane={true}
                 allLoaded={false}
                 currentUser = {this.props.currentUser }
-                webURL = { this.state.webURL }
+                webURL = { pickedWebUrl }
             ></InspectGroups>
         </div>;
 
-        const usersPage = <div>
+        const usersPage = validWeb !== true ? null : <div>
         <InspectUsers
             allowOtherSites={ false }
             pageContext={ this.props.pageContext }
-            pickedWeb = { this.state.pickedWeb }
+            pickedWeb = { this.props.pickedWeb }
             showPane={true}
             allLoaded={false}
             currentUser = {this.props.currentUser }
-            webURL = { this.state.webURL }
+            webURL = { pickedWebUrl }
         ></InspectUsers>
         </div>;
 
-        const featurePage = <div>
+        const featurePage = validWeb !== true ? null : <div>
         <InspectFeatures
             allowOtherSites={ false }
             pageContext={ this.props.pageContext }
-            pickedWeb = { this.state.pickedWeb }
+            pickedWeb = { this.props.pickedWeb }
             showPane={true}
             allLoaded={false}
             currentUser = {this.props.currentUser }
-            webURL = { this.state.webURL }
+            webURL = { pickedWebUrl }
         ></InspectFeatures>
         </div>;
 
-        const railsPage = <div>
+        const railsPage = validWeb !== true ? null : <div>
                 { noPageAvailable }
         </div>;
 
@@ -394,57 +393,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
    *                                                                                                          
    */
 
-   private async getThisWeb ( webURL ): Promise<IPickedWebBasic>{
-
-    const thisWebObject = Web( webURL );
-
-    let getMinProps = 'Title,Id,Url,ServerRelativeUrl,SiteLogoUrl,Description';
-    const webbie = await thisWebObject.select(getMinProps).get();
-
-//    console.log('getThisWeb: webbie', webbie);   
-
-//    const allprops = await thisWebObject.allProperties();
-//    console.log('getThisWeb: allprops', allprops);
-
-//    const thisWebInfos = await thisWebObject.webinfos();
-//    console.log('getThisWeb: thisWebInfos', thisWebInfos);
-
-/*
-    const webChanges = await thisWebObject.getChanges({
-        Add: true,
-        ChangeTokenEnd: null,
-        ChangeTokenStart: null,
-        DeleteObject: true,
-        Update: true,
-        Web: true,
-    });
-
-    console.log('getThisWeb: webChanges', webChanges);
-*/
-
-    let thisWeb : IPickedWebBasic = {
-        ServerRelativeUrl: webbie.ServerRelativeUrl,
-        guid: webbie.Id,
-        title: webbie.Title,
-        url: webbie.Url,
-        siteIcon: webbie.SiteLogoUrl,
-    };
-
-    this.setState({
-        pickedWeb: thisWeb,
-        webURL: webURL, 
-    });
-
-    return thisWeb;
-
-   }
-
-    private updatePickWebFromButton  = (ev: React.FormEvent<HTMLInputElement>): void => {
-
-        this.getThisWeb( this.state.webURL );
-
-    }
-
     // public searchForItems = (item): void => {
     // private updatePickList2  = (ev: React.FormEvent<HTMLInputElement>): void => {
     private updatePickList2  = (item): void => {
@@ -490,7 +438,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     private _updateStateOnPropsChange(params: any ): void {
         console.log('_updateStateOnPropsChange');
-        this.getThisWeb( this.state.webURL );
+
     }
 
 }
