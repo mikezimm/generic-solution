@@ -229,6 +229,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickedList = { this.state.pickedList }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
+                pickedWeb = { this.props.pickedWeb }
             ></InspectColumns>
         </div>;
 
@@ -239,6 +240,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 showPane={true}
                 allLoaded={false}
                 currentUser = {this.props.currentUser }
+                pickedWeb = { this.props.pickedWeb }
             ></InspectParts>
         </div>;
 
@@ -251,6 +253,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             pickedList = { this.state.pickedList }
             allowRailsOff = { this.state.allowRailsOff }
             allowSettings = { this.state.allowSettings }
+            pickedWeb = { this.props.pickedWeb }
         ></InspectViews>
     </div>;
 

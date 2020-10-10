@@ -313,7 +313,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
     public render(): React.ReactElement<IInspectColumnsProps> {
 
-        if ( this.props.pickedWeb !== undefined ) {
+        if ( this.props.pickedWeb !== undefined && this.state.allFields.length > 0 ) {
 
 /***
  *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 

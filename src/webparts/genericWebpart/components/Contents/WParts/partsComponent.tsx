@@ -244,7 +244,7 @@ public constructor(props:IInspectPartsProps){
 
     public render(): React.ReactElement<IInspectPartsProps> {
 
-        if ( this.props.pickedWeb !== undefined ) {
+        if ( this.props.pickedWeb !== undefined && this.state.allParts.length > 0 ) {
 
 
 
