@@ -109,8 +109,6 @@ export interface IInspectGroupsProps {
     allowRailsOff?: boolean;
     allowSettings?: boolean;
 
-    webURL?: string;
-
     showPane: boolean;
 
     allLoaded: boolean;
@@ -142,8 +140,6 @@ export interface IGroupBucketInfo {
 export interface IInspectGroupsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-
-    webURL?: string;
 
     allLoaded: boolean;
 
@@ -236,8 +232,6 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
             meta: [],
             blueBar: null,
 
-            webURL: this.props.webURL,
-
             allowSettings: this.props.allowSettings === true ? true : false,
             allowRailsOff: this.props.allowRailsOff === true ? true : false,
 
@@ -283,7 +277,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
   public componentDidUpdate(prevProps){
 
-    if ( prevProps.webURL != this.props.webURL || prevProps.pickedWeb != this.props.pickedWeb ) {
+    if ( prevProps.pickedWeb != this.props.pickedWeb ) {
         this._updateStateOnPropsChange();
     }
 
@@ -303,8 +297,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
     public render(): React.ReactElement<IInspectGroupsProps> {
 
 
-        let x = 1;
-        if ( x === 1 ) {
+        if ( this.props.pickedWeb !== undefined ) {
 
 /***
  *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
@@ -334,7 +327,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
                         showUsers = { this.state.showUsers } blueBar={ this.state.blueBar }
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
-                        webURL = { this.state.webURL } descending={false} titles={null}
+                        webURL = { this.props.pickedWeb.Url } descending={false} titles={null}
                         ></MyLogGroup>;
                 })
 
@@ -360,7 +353,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
               </div>
             </div>;
 
-            let disclaimers = <h3>Groups for { this.props.pickedWeb.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+            let disclaimers = <h3>Groups for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -456,7 +449,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
         let listGuid = '';
         if ( showUsers === null ) { showUsers = this.state.showUsers; }
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
-        let result : any = allAvailableGroups( this.state.webURL, showUsers, this.state.groupBuckets, this.addTheseGroupsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableGroups( this.props.pickedWeb.Url, showUsers, this.createSearchBuckets(), this.addTheseGroupsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -464,7 +457,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
         let newFilteredItems : IContentsGroupInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allGroups );
 
-        let groupBuckets  : IGroupBucketInfo[] = this.bucketGroups( newFilteredItems, this.state.groupBuckets );
+        let groupBuckets  : IGroupBucketInfo[] = this.bucketGroups( newFilteredItems, this.createSearchBuckets() );
         
         console.log('addTheseGroupsToState count and items:',allGroups, newFilteredItems.length, newFilteredItems );
 
@@ -835,8 +828,8 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Webs */}
-                    { createLink( this.state.webURL + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
-                    { createLink( this.state.webURL + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
 
                 </Stack>
         </div>;

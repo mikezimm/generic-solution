@@ -39,10 +39,6 @@ import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/co
 import { defineThePage } from './PageProvisioning/FinancePages/defineThisPage';
 import ProvisionPages from './PageProvisioning/component/provisionPageComponent';
 
-import DrillDown from './Drill/drillComponent';
-
-import ResizeGroupOverflowSetExample from './Drill/refiners/commandBar';
-
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
 
 

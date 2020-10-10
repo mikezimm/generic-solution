@@ -38,7 +38,7 @@ import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
-import { IMyPivots, IPivot,  } from '../../IReUsableInterfaces';
+import { IMyPivots, IPivot, IPickedWebBasic  } from '../../IReUsableInterfaces';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogView from './viewsListView';
@@ -64,7 +64,7 @@ export const pivCats = {
     query: {title: 'Query', desc: '', order: 1},
     orderBy: {title: 'OrderBy', desc: '', order: 1},
     where: {title: 'Where', desc: '', order: 1},
-    options: {title: 'Options', desc: '', order: 1},      
+    options: {title: 'Options', desc: '', order: 1},
     aggregations: {title: 'Aggregations' , desc: '', order: 1},
     listView:  {title: 'ListView' , desc: '', order: 1},
     schema: {title: '9', desc: 'Schema', order: 9 },
@@ -96,13 +96,13 @@ export interface IInspectViewsProps {
     allowRailsOff?: boolean;
     allowSettings?: boolean;
 
-    webURL?: string;
-
     allLoaded: boolean;
 
     currentUser: IUser;
 
     pickedList? : IPickedList;
+    
+    pickedWeb? : IPickedWebBasic;
 
     // 2 - Source and destination list information
 
@@ -130,8 +130,6 @@ export interface IViewBucketInfo {
 export interface IInspectViewsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-
-    webURL?: string;
 
     allLoaded: boolean;
 
@@ -225,8 +223,6 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
 
             meta: [],
 
-            webURL: this.props.webURL,
-
             allowSettings: this.props.allowSettings === true ? true : false,
             allowRailsOff: this.props.allowRailsOff === true ? true : false,
 
@@ -274,7 +270,7 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
 
   public componentDidUpdate(prevProps){
 
-    if ( prevProps.webURL != this.props.webURL || prevProps.pickedList != this.props.pickedList ) {
+    if ( prevProps.pickedWeb != this.props.pickedWeb || prevProps.pickedList != this.props.pickedList ) {
         this._updateStateOnPropsChange();
     }
 
@@ -293,9 +289,7 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
 
     public render(): React.ReactElement<IInspectViewsProps> {
 
-
-        let x = 1;
-        if ( x === 1 ) {
+        if ( this.props.pickedWeb !== undefined ) {
 
 /***
  *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
@@ -325,7 +319,7 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showID = { this.state.showID } showRailsOff= { this.state.showID } 
                         showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinViews= { this.state.showID } 
-                        webURL = { this.state.webURL } descending={false} titles={null}   
+                        webURL = { this.props.pickedWeb.Url } descending={false} titles={null}   
                         listGuid = { this.props.pickedList.guid }
                         ></MyLogView>;
                 })
@@ -352,7 +346,7 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
               </div>
             </div>;
 
-            let disclaimers = <h3>Views for { this.props.pickedList.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+            let disclaimers = <h3>Views for { this.props.pickedList.title} located here: { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
 
             const stackPageTokens: IStackTokens = { childrenGap: 10 };
 
@@ -422,7 +416,7 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
     private getViewDefs() {
         let listGuid = '';
         if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
-        let result : any = allAvailableViews( this.state.webURL, listGuid, this.state.viewBuckets, this.addTheseViewsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableViews( this.props.pickedWeb.Url, listGuid, this.createSearchBuckets(), this.addTheseViewsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -430,7 +424,7 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
 
         let newFilteredItems : IContentsViewInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allViews );
 
-        let viewBuckets  : IViewBucketInfo[] = this.bucketViews( newFilteredItems, this.state.viewBuckets );
+        let viewBuckets  : IViewBucketInfo[] = this.bucketViews( newFilteredItems, this.createSearchBuckets() );
         
         this.setState({
             allViews: allViews,
@@ -877,13 +871,13 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
 
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Views */}
-                    { createLink( this.state.webURL + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
-                    { createLink( this.state.webURL + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
-                    { createLink( this.state.webURL + "/_layouts/15/LstSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Versioning' )}
-                    { createLink( this.state.webURL + "/_layouts/15/AdvSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Advanced' )}
-                    { createLink( this.state.webURL + "/_layouts/15/ManageCheckedOutFiles.aspx?List=(" + listGUID + ")" ,'_blank', 'Orphan files' )}
-                    { createLink( this.state.webURL + "/_layouts/15/IndexedColumns.aspx?List=(" + listGUID + ")" ,'_blank', 'Index' )}
-                    { createLink( this.state.webURL + "/_layouts/15/ViewType.aspx?List=(" + listGUID + ")" ,'_blank', '+ New View' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/LstSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Versioning' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/AdvSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Advanced' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ManageCheckedOutFiles.aspx?List=(" + listGUID + ")" ,'_blank', 'Orphan files' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/IndexedColumns.aspx?List=(" + listGUID + ")" ,'_blank', 'Index' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ViewType.aspx?List=(" + listGUID + ")" ,'_blank', '+ New View' )}
 
                 </Stack>
         </div>;

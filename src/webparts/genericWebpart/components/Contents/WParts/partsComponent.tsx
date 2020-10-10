@@ -12,7 +12,7 @@ import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/lis
 
 import styles from '../contents.module.scss';
 
-import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser, IPickedWebBasic } from '../../IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -67,12 +67,13 @@ export interface IInspectPartsProps {
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-    webURL?: string;
 
     showPane: boolean;
     allLoaded: boolean;
 
     currentUser: IUser;
+
+    pickedWeb? : IPickedWebBasic;
 
     // 2 - Source and destination list information
 
@@ -223,7 +224,7 @@ public constructor(props:IInspectPartsProps){
 
   public componentDidUpdate(prevProps){
 
-    if ( prevProps.webURL != this.props.webURL ) {
+    if ( prevProps.pickedWeb !== this.props.pickedWeb ) {
 
         this._updateStateOnPropsChange();
     }
@@ -243,9 +244,7 @@ public constructor(props:IInspectPartsProps){
 
     public render(): React.ReactElement<IInspectPartsProps> {
 
-
-        let x = 1;
-        if ( x === 1 ) {
+        if ( this.props.pickedWeb !== undefined ) {
 
 
 
@@ -388,7 +387,7 @@ public constructor(props:IInspectPartsProps){
 
 
     private getPartDefs() {
-        let result : any = allAvailableWebParts( this.state.partBuckets, this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableWebParts( this.createSearchBuckets(), this.addThesePartsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -396,7 +395,7 @@ public constructor(props:IInspectPartsProps){
 
         let newFilteredItems : IWPart[] = this.getNewFilteredItems( '', this.state.searchMeta, allParts );
 
-        let partBuckets  : IPartsBucketInfo[] = this.bucketParts( newFilteredItems, this.state.partBuckets );
+        let partBuckets  : IPartsBucketInfo[] = this.bucketParts( newFilteredItems, this.createSearchBuckets() );
 
         let meta: string[] = [];
         for ( let p of allParts ) {

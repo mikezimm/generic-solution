@@ -23,7 +23,7 @@ import {  } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
-import { IPickedList, IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IPickedList, IMyProgress, IUser, IPickedWebBasic } from '../../IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -79,7 +79,7 @@ export interface IInspectListsProps {
     allowRailsOff?: boolean;
     allowSettings?: boolean;
 
-    webURL?: string;
+    pickedWeb : IPickedWebBasic;
 
     allLoaded: boolean;
 
@@ -117,8 +117,6 @@ export interface IInspectListsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
 
-    webURL?: string;
-
     allLoaded: boolean;
 
     progress: IMyProgress;
@@ -126,7 +124,7 @@ export interface IInspectListsState {
 
     currentPage: string;
     searchCount: number;
-    
+
     searchText: string;
     searchMeta: string;
 
@@ -205,8 +203,6 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             meta: [],
 
-            webURL: this.props.webURL,
-
             allowSettings: this.props.allowSettings === true ? true : false,
             allowRailsOff: this.props.allowRailsOff === true ? true : false,
 
@@ -249,7 +245,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
   public componentDidUpdate(prevProps){
 
-    if ( prevProps.webURL != this.props.webURL || prevProps.pickedList != this.props.pickedList ) {
+    if ( prevProps.pickedWeb != this.props.pickedWeb || prevProps.pickedList != this.props.pickedList ) {
         this._updateStateOnPropsChange();
     }
 
@@ -268,9 +264,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     public render(): React.ReactElement<IInspectListsProps> {
 
-
-        let x = 1;
-        if ( x === 1 ) {
+        if ( this.props.pickedWeb !== undefined ) {
 
 /***
  *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
@@ -294,7 +288,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
                         title={ ''}           items={ bucket }
                         showDesc = { this.state.showDesc } 
-                        webURL = { this.state.webURL }
+                        webURL = { this.props.pickedWeb.Url }
                         pickThisList = { this.props.pickThisList }  descending={false}  titles={null}>
                     </MyLogList>;
                 })
@@ -320,7 +314,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
               </div>
             </div>;
 
-        let disclaimers = <h3>Contents for { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+        let disclaimers = <h3>Contents for { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
 
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -397,7 +391,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
 
     private getListDefs() {
-        let result : any = allAvailableLists( this.state.webURL, this.state.listBuckets,  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableLists( this.props.pickedWeb.Url, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -405,7 +399,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
         let newFilteredItems : IContentsListInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allLists );
 
-        let listBuckets  : IListBucketInfo[] = this.bucketLists( newFilteredItems, this.state.listBuckets );
+        let listBuckets  : IListBucketInfo[] = this.bucketLists( newFilteredItems, this.createSearchBuckets() );
 
         this.setState({
             allLists: allLists,
@@ -785,16 +779,16 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         let stackSettingTokens = { childrenGap: 20 };
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Fields */}
-                { createLink( this.state.webURL + "/_layouts/15/viewlsts.aspx" ,'_blank', 'Contents' )}                
-                { createLink( this.state.webURL + "/SiteAssets" ,'_blank', 'SiteAssets' )}
-                { createLink( this.state.webURL + "/SitePages" ,'_blank', 'SitePages' )}
+                { createLink( this.props.pickedWeb.Url + "/_layouts/15/viewlsts.aspx" ,'_blank', 'Contents' )}                
+                { createLink( this.props.pickedWeb.Url + "/SiteAssets" ,'_blank', 'SiteAssets' )}
+                { createLink( this.props.pickedWeb.Url + "/SitePages" ,'_blank', 'SitePages' )}
 
-                { createLink( this.state.webURL + "/_layouts/15/settings.aspx" ,'_blank', 'Site Settings' )}
-                { createLink( this.state.webURL + "/_layouts/15/user.aspx" ,'_blank', 'Permissions' )}
-                { createLink( this.state.webURL + "/_layouts/15/prjsetng.aspx" ,'_blank', 'Title/Logo' )}
-                { createLink( this.state.webURL + "/_layouts/15/AreaNavigationSettings.aspx" ,'_blank', 'Navigation' )}
-                { createLink( this.state.webURL + "/_layouts/15/people.aspx" ,'_blank', 'Groups' )}
-                { createLink( this.state.webURL + "/_layouts/15/ManageFeatures.aspx" ,'_blank', 'Features' )}            
+                { createLink( this.props.pickedWeb.Url + "/_layouts/15/settings.aspx" ,'_blank', 'Site Settings' )}
+                { createLink( this.props.pickedWeb.Url + "/_layouts/15/user.aspx" ,'_blank', 'Permissions' )}
+                { createLink( this.props.pickedWeb.Url + "/_layouts/15/prjsetng.aspx" ,'_blank', 'Title/Logo' )}
+                { createLink( this.props.pickedWeb.Url + "/_layouts/15/AreaNavigationSettings.aspx" ,'_blank', 'Navigation' )}
+                { createLink( this.props.pickedWeb.Url + "/_layouts/15/people.aspx" ,'_blank', 'Groups' )}
+                { createLink( this.props.pickedWeb.Url + "/_layouts/15/ManageFeatures.aspx" ,'_blank', 'Features' )}            
             </Stack>
         </div>;
 

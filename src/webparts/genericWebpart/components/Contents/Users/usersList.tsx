@@ -90,7 +90,6 @@ export default class MyLogUser extends React.Component<IMyLogUserProps, IMyLogUs
     public componentDidMount() {
         //this._getWebItems();
 
-        
     }
 
 

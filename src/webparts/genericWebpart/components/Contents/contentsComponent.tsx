@@ -203,7 +203,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickedWeb = { this.props.pickedWeb }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
-                webURL = { pickedWebUrl }
             ></InspectWebs>
         </div>;
 
@@ -217,7 +216,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickThisList = { this.updatePickList.bind(this) }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
-                webURL = { pickedWebUrl }
+                pickedWeb = { this.props.pickedWeb }
             ></InspectLists>
         </div>;
 
@@ -230,7 +229,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickedList = { this.state.pickedList }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
-                webURL = { pickedWebUrl }
             ></InspectColumns>
         </div>;
 
@@ -241,7 +239,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 showPane={true}
                 allLoaded={false}
                 currentUser = {this.props.currentUser }
-                webURL = { pickedWebUrl }
             ></InspectParts>
         </div>;
 
@@ -254,7 +251,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             pickedList = { this.state.pickedList }
             allowRailsOff = { this.state.allowRailsOff }
             allowSettings = { this.state.allowSettings }
-            webURL = { pickedWebUrl }
         ></InspectViews>
     </div>;
 
@@ -270,7 +266,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 showPane={true}
                 allLoaded={false}
                 currentUser = {this.props.currentUser }
-                webURL = { pickedWebUrl }
             ></InspectGroups>
         </div>;
 
@@ -282,7 +277,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             showPane={true}
             allLoaded={false}
             currentUser = {this.props.currentUser }
-            webURL = { pickedWebUrl }
         ></InspectUsers>
         </div>;
 
@@ -294,7 +288,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             showPane={true}
             allLoaded={false}
             currentUser = {this.props.currentUser }
-            webURL = { pickedWebUrl }
         ></InspectFeatures>
         </div>;
 

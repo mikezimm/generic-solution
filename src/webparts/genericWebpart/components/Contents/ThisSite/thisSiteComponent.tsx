@@ -68,7 +68,6 @@ export interface IInspectThisSiteProps {
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-//    webURL?: string;
     pickedWeb? : IPickedWebBasic;
     
     showPane?: boolean;
@@ -533,7 +532,7 @@ public _onSearchForMeta = (item): void => {
         let listGuid = '';
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
     //    let resultWeb : any = allWebProps( this.props.pickedWeb.Url, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
-        let resultSite : any = allWebProps( this.props.pickedWeb.Url, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
+        let resultSite : any = allWebProps( this.props.pickedWeb.Url, this.createSearchBuckets(), this.addThesePropsToState.bind(this), null, null );
 
     }
 
@@ -541,7 +540,7 @@ public _onSearchForMeta = (item): void => {
 
         let newFilteredItems : IContentsSiteInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allProps );
 
-        let propBuckets  : ISitePropsBucketInfo[] = this.bucketProps( newFilteredItems, this.state.propBuckets );
+        let propBuckets  : ISitePropsBucketInfo[] = this.bucketProps( newFilteredItems, this.createSearchBuckets() );
         
         this.setState({
             allItems: allProps,
