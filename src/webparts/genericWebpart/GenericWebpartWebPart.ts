@@ -203,9 +203,19 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     let childWeb = this.properties.childListWeb && this.properties.childListWeb != '' ? this.properties.childListWeb : this.context.pageContext.web.absoluteUrl;
     let tenant = this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,"");
 
+    let urlVars : any = this.getUrlVars();
+    console.log('urlVars:' , urlVars );
     let allowRailsOff = this.properties.allowRailsOff;
+
+    /**
+     * These are the rules that allow webpart to run in RailsOff / Dev mode.
+     */
     if ( this.context.pageContext.web.serverRelativeUrl.toLowerCase().indexOf('/sites/webpartdev') === 0 ) {  allowRailsOff = true;  }
     if ( this.context.pageContext.web.serverRelativeUrl.toLowerCase().indexOf('/sites/templates') === 0 ) {  allowRailsOff = true;  }
+
+    if ( urlVars.scenario && urlVars.scenario === 'dev' ) {  allowRailsOff = true;  }
+    if ( urlVars.ttp && urlVars.ttp === 'true' ) {  allowRailsOff = true;  }
+    if ( urlVars.scenario && urlVars.scenario !== 'dev' ) {  allowRailsOff = false;  }
 
     const element: React.ReactElement<IGenericWebpartProps> = React.createElement(
       GenericWebpart,
@@ -216,7 +226,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         pageContext: this.context.pageContext,
         wpContext: this.context,
         tenant: tenant,
-        urlVars: this.getUrlVars(),
+        urlVars: urlVars,
         today: makeTheTimeObject(''),
         parentListFieldTitles: this.properties.parentListFieldTitles,
 
