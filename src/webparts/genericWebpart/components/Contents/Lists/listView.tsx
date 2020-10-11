@@ -157,18 +157,28 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
           let detailsCard = buildPropsHoverCard(Lst, ["Title","BaseTemplate","Description","EntityTypeName","Id"], ["meta","searchString"] , true, null );
 
+          let listTitleRUL = createLink( Lst.listURL, '_blank', Lst.Title);
+
           let listSettingsURL = !this.props.showSettings ? Lst.EntityTypeName : createLink(this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + Lst.Id + ")", '_blank', Lst.EntityTypeName);
           let listVersionURL = !this.props.showSettings ? Lst.MajorVersionLimit : createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + Lst.Id + ")", '_blank', Lst.MajorVersionLimit.toString() );
           let listPermissionURL = !this.props.showSettings ? '' : createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', 'Perms');
           let listAdvancedURL = !this.props.showSettings ? '-' : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'Adv');
 
+          if ( Lst.railsOffLink === true && this.props.railsOff !== true ) {
+
+            listSettingsURL = '-';
+            listVersionURL = null;
+            listPermissionURL = '-';
+            listAdvancedURL = '-';
+
+          }
           let listAdvancedCT = !this.props.showSettings ? Lst.ContentTypesEnabled : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'CT');
 
 
           let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes }  </div>;
 
           return <tr>
-            <td className={ styles.nowWrapping }> { Lst.Title } </td>
+            <td className={ styles.nowWrapping }> { listTitleRUL } </td>
             <td className={ styles.nowWrapping }> { listSettingsURL }</td>
             <td className={ styleDesc }> { Lst.Description.length > this.state.maxChars ? Lst.Description.slice(0,this.state.maxChars) + '...' : Lst.Description } </td>
             <td> { Lst.ItemCount } </td>

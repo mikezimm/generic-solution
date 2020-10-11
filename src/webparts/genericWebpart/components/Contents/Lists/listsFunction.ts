@@ -19,6 +19,10 @@ import { makeSmallTimeObject, ITheTime} from '../../../../../services/dateServic
 
 import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
 
+import { encodeDecodeString } from '../../../../../services/stringServices';
+
+
+
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
 
 import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
@@ -58,6 +62,24 @@ let TempContLists = ["ActionRegisterList", "AgendasList", "AutoOnBoardList", "Br
 "FilesYMCat","FilesYMCatU"
 ];
 
+let entityMaps = [
+    { name: 'ReusableContent' , url: 'ReusableContent/Content Preview.aspx' },
+    { name: 'Style Library', url: 'Style Library' },
+    { name: 'MicroFeed', url: '/Lists/PublishedFeed/' },
+    { name: 'Long Running Operation Status', url: 'Long Running Operation Status' },
+    { name: 'Notification Pages', url: 'Notification Pages' },
+    { name: 'UserInfo', url: '_layouts/15/people.aspx' },
+    { name: '', url: '' },
+    { name: '', url: '' },
+    { name: '', url: '' },
+    { name: '', url: '' },
+    { name: '', url: '' },
+    { name: '', url: '' },
+    { name: '', url: '' },
+    { name: '', url: '' },
+    
+];
+
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allAvailableLists( webURL: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
 
@@ -91,11 +113,29 @@ export async function allAvailableLists( webURL: string, listBuckets: IListBucke
             allLists[i].bucketIdx = idx;
     
             allLists[i].meta = buildMetaFromList(allLists[i]);
+
+            let urlEntityName = encodeDecodeString( allLists[i].EntityTypeName , 'decode');
+            allLists[i].EntityTypeName = urlEntityName + '';
+            if ( urlEntityName.indexOf('OData.') === 0 ) {
+                //These are special libraries
+                urlEntityName = urlEntityName.replace('Odata.','');
+                allLists[i].railsOffLink = true;
+
+            } else if ( doesObjectExistInArray( entityMaps, 'name', urlEntityName ) !== false ) {
+                let index : any = doesObjectExistInArray( entityMaps, 'name', urlEntityName );
+                urlEntityName = entityMaps[index].url;
+                allLists[i].railsOffLink = true;
+
+            } else if ( allLists[i].meta.indexOf( pivCats.lists.title ) > -1 ) {
+                urlEntityName = 'lists/' + urlEntityName.substr(0, urlEntityName.lastIndexOf('List')) ;
+                allLists[i].railsOffLink = false;
+            }
+
+            allLists[i].listURL = webURL + '/' + urlEntityName;
             allLists[i].searchString = buildSearchStringFromList(allLists[i]);
-    
-    
+
         }
-    
+
         addTheseListsToState(allLists, '');
         return allLists;
     } catch (e) {

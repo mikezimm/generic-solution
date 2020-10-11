@@ -168,6 +168,8 @@ export interface IContentsListInfo {
     DecodedUrl: string;
   };
   ParentWebUrl: string;
+  listURL: string;
+  railsOffLink: boolean; //true only show link to list when in railsOff mode
 
   //Versioning
   EnableRequestSignOff: boolean;
