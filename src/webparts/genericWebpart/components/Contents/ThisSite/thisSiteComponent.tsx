@@ -68,7 +68,6 @@ export interface IInspectThisSiteProps {
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-//    webURL?: string;
     pickedWeb? : IPickedWebBasic;
     
     showPane?: boolean;
@@ -78,6 +77,7 @@ export interface IInspectThisSiteProps {
 
     allowSettings?: boolean;
     allowRailsOff?: boolean;
+    allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
 
     showSettings?: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff?: boolean;  //property set by toggle to actually show or hide this content
@@ -533,7 +533,7 @@ public _onSearchForMeta = (item): void => {
         let listGuid = '';
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
     //    let resultWeb : any = allWebProps( this.props.pickedWeb.Url, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
-        let resultSite : any = allWebProps( this.props.pickedWeb.Url, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
+        let resultSite : any = allWebProps( this.props.pickedWeb.Url, this.createSearchBuckets(), this.addThesePropsToState.bind(this), null, null );
 
     }
 
@@ -541,7 +541,7 @@ public _onSearchForMeta = (item): void => {
 
         let newFilteredItems : IContentsSiteInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allProps );
 
-        let propBuckets  : ISitePropsBucketInfo[] = this.bucketProps( newFilteredItems, this.state.propBuckets );
+        let propBuckets  : ISitePropsBucketInfo[] = this.bucketProps( newFilteredItems, this.createSearchBuckets() );
         
         this.setState({
             allItems: allProps,

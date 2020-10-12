@@ -168,10 +168,15 @@ export interface IContentsListInfo {
     DecodedUrl: string;
   };
   ParentWebUrl: string;
+  listURL: string;
+  railsOffLink: boolean; // true only show link to list when in railsOff mode
+  allowCrazyLink: boolean; // true for going directly to very hidden settings
+  responseIndex: any;
 
   //Versioning
   EnableRequestSignOff: boolean;
   EnableVersioning: boolean;
+  EnableMinorVersions: boolean;
   MajorVersionLimit: number;
   MajorWithMinorVersionsLimit: number;
   DraftVersionVisibility: number;

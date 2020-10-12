@@ -95,9 +95,8 @@ export interface IInspectWebsProps {
 
     allowRailsOff?: boolean;
     allowSettings?: boolean;
-
-    webURL?: string;
-
+    allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
+    
     allLoaded: boolean;
 
     currentUser: IUser;
@@ -129,8 +128,6 @@ export interface IWebBucketInfo {
 export interface IInspectWebsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-
-    webURL?: string;
 
     allLoaded: boolean;
 
@@ -226,8 +223,6 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
 
             meta: [],
 
-            webURL: this.props.webURL,
-
             allowSettings: this.props.allowSettings === true ? true : false,
             allowRailsOff: this.props.allowRailsOff === true ? true : false,
 
@@ -276,7 +271,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
 
   public componentDidUpdate(prevProps){
 
-    if ( prevProps.webURL != this.props.webURL || prevProps.pickedWeb != this.props.pickedWeb ) {
+    if ( prevProps.pickedWeb != this.props.pickedWeb ) {
         this._updateStateOnPropsChange();
     }
 
@@ -295,9 +290,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
 
     public render(): React.ReactElement<IInspectWebsProps> {
 
-
-        let x = 1;
-        if ( x === 1 ) {
+        if ( this.props.pickedWeb !== undefined ) {
 
 /***
  *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
@@ -328,7 +321,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinWebs= { this.state.showDesc } 
-                        webURL = { this.state.webURL } descending={false} titles={null} 
+                        webURL = { this.props.pickedWeb.Url } descending={false} titles={null} 
                         ></MyLogWeb>;
                 })
 
@@ -354,7 +347,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
               </div>
             </div>;
 
-            let disclaimers = <h3>Subsites for { this.props.pickedWeb.title} located here: { createLink( this.props.webURL, '_blank', this.props.webURL )  }</h3>;
+            let disclaimers = <h3>Subsites for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -435,7 +428,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
     private getWebDefs() {
         let listGuid = '';
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
-        let result : any = allAvailableWebs( this.state.webURL, this.state.webBuckets, this.addTheseWebsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableWebs( this.props.pickedWeb.Url, this.createSearchBuckets(), this.addTheseWebsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -443,7 +436,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
 
         let newFilteredItems : IContentsWebInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allWebs );
 
-        let webBuckets  : IWebBucketInfo[] = this.bucketWebs( newFilteredItems, this.state.webBuckets );
+        let webBuckets  : IWebBucketInfo[] = this.bucketWebs( newFilteredItems, this.createSearchBuckets() );
         
         this.setState({
             allWebs: allWebs,
@@ -899,8 +892,8 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
 
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Webs */}
-                    { createLink( this.state.webURL + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
-                    { createLink( this.state.webURL + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
 
 
                 </Stack>

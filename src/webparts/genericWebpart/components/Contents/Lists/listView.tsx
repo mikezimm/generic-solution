@@ -26,6 +26,7 @@ export interface IMyLogListProps {
     items: IListBucketInfo;
     showSettings: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
+    allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
     descending: boolean;
     maxChars?: number;
     showDesc?: boolean;
@@ -157,18 +158,75 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
           let detailsCard = buildPropsHoverCard(Lst, ["Title","BaseTemplate","Description","EntityTypeName","Id"], ["meta","searchString"] , true, null );
 
-          let listSettingsURL = !this.props.showSettings ? Lst.EntityTypeName : createLink(this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + Lst.Id + ")", '_blank', Lst.EntityTypeName);
-          let listVersionURL = !this.props.showSettings ? Lst.MajorVersionLimit : createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + Lst.Id + ")", '_blank', Lst.MajorVersionLimit.toString() );
-          let listPermissionURL = !this.props.showSettings ? '' : createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', 'Perms');
-          let listAdvancedURL = !this.props.showSettings ? '-' : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'Adv');
+          let versionNumbers = 'none!';
+          if ( Lst.EnableVersioning === true ) {
+            versionNumbers = Lst.MajorVersionLimit.toString();
+            if ( Lst.EnableMinorVersions === true ) {
+              versionNumbers += '.' + Lst.MajorWithMinorVersionsLimit.toString();
+            }
+          }
 
-          let listAdvancedCT = !this.props.showSettings ? Lst.ContentTypesEnabled : createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'CT');
+          let listTitleRUL : any = Lst.Title;
+          let listSettingsURL : any = Lst.EntityTypeName;
+          let listVersionURL : any = versionNumbers ;
+          let listPermissionURL : any = '-';
+          let listAdvancedURL : any = '-';
+          let listAdvancedCT : any = '-';
+          
 
+          let showList = false;
+          let showSettings = false;
+          let showVersion = false;
+          let showPermission = false;
+          let showAdvanced = false;
+
+          if ( this.props.showSettings ) {
+            if ( Lst.allowCrazyLink === true ) {
+              if ( this.props.allowCrazyLink === true ) {
+                showSettings = true;
+                showList = true;
+                if ( this.props.railsOff === true ) {
+                  showVersion = true;
+                  showPermission = true;
+                  showAdvanced = true;
+                }
+              } else if ( this.props.railsOff === true ) { showList = true; }
+            } else if ( Lst.railsOffLink === true ) {
+              if ( this.props.railsOff === true ) {
+                showSettings = true;
+                showList = true;
+              }
+            } else {
+              showSettings = true;
+              showVersion = true;
+              showPermission = true;
+              showAdvanced = true;
+              showList = true;
+            }
+
+          } else { //This will show list links if settings are not enabled
+            if ( Lst.allowCrazyLink === true ) {
+              if ( this.props.allowCrazyLink === true ) { showList = true; }
+
+            } else if ( Lst.railsOffLink === true ) {
+              if ( this.props.railsOff === true ) { showList = true; }
+            }
+
+          }
+
+          if ( Lst.railsOffLink !== true && Lst.allowCrazyLink !== true ) { showList = true; }
+
+          if ( showList === true ) { listTitleRUL = createLink( Lst.listURL, '_blank', Lst.Title); }
+          if ( showSettings === true ) { listSettingsURL = createLink(this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + Lst.Id + ")", '_blank', Lst.EntityTypeName); }
+          if ( showVersion === true ) { listVersionURL = createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + Lst.Id + ")", '_blank', versionNumbers ); }
+          if ( showPermission === true ) { listPermissionURL = createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', 'Perms'); }
+          if ( showAdvanced === true ) { listAdvancedURL = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'Adv'); }
+          if ( showAdvanced === true ) { listAdvancedCT = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'CT'); }
 
           let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes }  </div>;
 
           return <tr>
-            <td className={ styles.nowWrapping }> { Lst.Title } </td>
+            <td className={ styles.nowWrapping }> { listTitleRUL } </td>
             <td className={ styles.nowWrapping }> { listSettingsURL }</td>
             <td className={ styleDesc }> { Lst.Description.length > this.state.maxChars ? Lst.Description.slice(0,this.state.maxChars) + '...' : Lst.Description } </td>
             <td> { Lst.ItemCount } </td>

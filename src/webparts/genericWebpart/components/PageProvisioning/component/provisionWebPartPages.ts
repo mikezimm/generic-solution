@@ -107,7 +107,7 @@ export interface IMakeThisPage {
 
         let pageTitle = makeThisPage.title.replace(/\ /g, '-') + '.aspx';
         let pageURL = makeThisPage.webURL;
-        let openURL = pageURL + 'SitePages/' + pageTitle;
+        let openURL = pageURL + '/SitePages/' + pageTitle;
 
         window.open( openURL, "_blank"); 
 

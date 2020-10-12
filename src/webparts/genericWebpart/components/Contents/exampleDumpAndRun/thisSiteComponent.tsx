@@ -15,9 +15,7 @@ import styles from '../contents.module.scss';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../../IReUsableInterfaces';
-
-import { IPickedWebBasic } from '../contentsComponent';
+import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IPickedWebBasic } from '../../IReUsableInterfaces';
 
 //import { analyticsList } from 'InspectThisSiteWebPartStrings';
 
@@ -37,7 +35,6 @@ export interface IInspectThisSiteProps {
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-//    webURL?: string;
     pickedWeb? : IPickedWebBasic;
     
     showPane?: boolean;
@@ -160,7 +157,6 @@ export interface IInspectThisSiteState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
 
-    webURL?: string;
     tab?: string;
 
     pickedList? : IPickedList;
@@ -199,7 +195,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
     public constructor(props:IInspectThisSiteProps){
     super(props);
 
-    let parentWeb = cleanURL(this.props.pickedWeb.url);
+    let parentWeb = cleanURL(this.props.pickedWeb.Url);
 
     let pickedWeb = null; //this.getThisWeb( parentWeb );
 
@@ -211,7 +207,6 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
             WebpartWidth:  this.props.WebpartWidth ,
         
             // 2 - Source and destination list information
-            webURL: parentWeb,
 
             pickedWeb: pickedWeb,
 
@@ -230,7 +225,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
 
 
     public componentDidMount() {
-        let pickedWeb = this.getThisWeb( this.props.pickedWeb.url );
+        let pickedWeb = this.getThisWeb( this.props.pickedWeb.Url );
     }
 
 
@@ -248,7 +243,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
 
     public componentDidUpdate(prevProps){
 
-        let rebuildPart = prevProps.pickedWeb.url === this.props.pickedWeb.url ? false : true;
+        let rebuildPart = prevProps.pickedWeb.url === this.props.pickedWeb.Url ? false : true;
         if (rebuildPart === true) {
         this._updateStateOnPropsChange({});
         }

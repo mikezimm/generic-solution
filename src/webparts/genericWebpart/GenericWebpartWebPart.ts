@@ -203,9 +203,34 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     let childWeb = this.properties.childListWeb && this.properties.childListWeb != '' ? this.properties.childListWeb : this.context.pageContext.web.absoluteUrl;
     let tenant = this.context.pageContext.web.absoluteUrl.replace(this.context.pageContext.web.serverRelativeUrl,"");
 
+    let urlVars : any = this.getUrlVars();
+    console.log('urlVars:' , urlVars );
     let allowRailsOff = this.properties.allowRailsOff;
+
+    /**
+     * These are the rules that allow webpart to run in RailsOff / Dev mode.
+     */
     if ( this.context.pageContext.web.serverRelativeUrl.toLowerCase().indexOf('/sites/webpartdev') === 0 ) {  allowRailsOff = true;  }
     if ( this.context.pageContext.web.serverRelativeUrl.toLowerCase().indexOf('/sites/templates') === 0 ) {  allowRailsOff = true;  }
+
+    if ( urlVars.scenario && urlVars.scenario === 'dev' ) {  allowRailsOff = true;  }
+    if ( urlVars.ttp && urlVars.ttp === 'true' ) {  allowRailsOff = true;  }
+    if ( urlVars.scenario && urlVars.scenario !== 'dev' ) {  allowRailsOff = false;  }
+
+    //Unlocks dangerous settings links
+    let allowCrazyLink = false;
+    if ( allowRailsOff === true && urlVars.crazy === 'true' ) {  allowCrazyLink = true;  }
+
+    if ( allowRailsOff === true && urlVars.web && urlVars.web.length > 10 ) {
+      if ( urlVars.web.toLowerCase().indexOf( tenant.toLowerCase() ) === 0 ) {
+        parentWeb = urlVars.web;
+
+      } else {
+        //web paramter is not on this tenant... error out
+        alert('The web parameter is not on this tenant...\n\n' + urlVars.web );
+
+      }
+    }
 
     const element: React.ReactElement<IGenericWebpartProps> = React.createElement(
       GenericWebpart,
@@ -216,7 +241,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         pageContext: this.context.pageContext,
         wpContext: this.context,
         tenant: tenant,
-        urlVars: this.getUrlVars(),
+        urlVars: urlVars,
         today: makeTheTimeObject(''),
         parentListFieldTitles: this.properties.parentListFieldTitles,
 
@@ -238,6 +263,8 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         onlyActiveParents: this.properties.onlyActiveParents,
 
         allowRailsOff: allowRailsOff,
+        allowCrazyLink: allowCrazyLink,
+
         // 3 - General how accurate do you want this to be
 
         // 4 - Info Options

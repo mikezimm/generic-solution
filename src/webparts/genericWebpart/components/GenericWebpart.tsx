@@ -39,10 +39,6 @@ import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/co
 import { defineThePage } from './PageProvisioning/FinancePages/defineThisPage';
 import ProvisionPages from './PageProvisioning/component/provisionPageComponent';
 
-import DrillDown from './Drill/drillComponent';
-
-import ResizeGroupOverflowSetExample from './Drill/refiners/commandBar';
-
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
 
 
@@ -229,7 +225,9 @@ public constructor(props:IGenericWebpartProps){
 
 public componentDidMount() {
   this._onWebUrlChange(this.props.parentListWeb);
-  this.getListDefinitions( 'state');
+  if ( this.props.allowRailsOff === true ) {
+    this.getListDefinitions('state');
+  }
 }
 
 public async getListDefinitions( doThis: 'props' | 'state') {
@@ -251,20 +249,24 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       Name: r['LoginName'],
     };
 
-    let parentName =  doThis === 'state' ? this.state.parentListTitle : this.props.parentListTitle;
-    let childName =  doThis === 'state' ? this.state.childListTitle : this.props.childListTitle;
-    let parentListWeb = doThis === 'state' ? this.state.parentListWeb : this.props.parentListWeb;
-    let childListWeb = doThis === 'state' ? this.state.childListWeb : this.props.childListWeb;
-
-    parentListWeb = cleanURL(parentListWeb);
-    childListWeb = cleanURL(childListWeb);
-
-    let parentList : IMakeThisList = defineTheList( 101 , parentName, 'Emails' , parentListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
-    let childList : IMakeThisList = defineTheList( 101 , childName, 'Emails' , childListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
-
     let theLists : IMakeThisList[] = [];
-    if ( parentList ) { theLists.push( parentList ); }
-    if ( childList ) { theLists.push( childList ); }
+
+    if( theLists.length > 1 ) { //This may not be required... maybe just legacy setup when I had to update prop pane props for Web and ListName
+
+      let parentName =  doThis === 'state' ? this.state.parentListTitle : this.props.parentListTitle;
+      let childName =  doThis === 'state' ? this.state.childListTitle : this.props.childListTitle;
+      let parentListWeb = doThis === 'state' ? this.state.parentListWeb : this.props.parentListWeb;
+      let childListWeb = doThis === 'state' ? this.state.childListWeb : this.props.childListWeb;
+  
+      parentListWeb = cleanURL(parentListWeb);
+      childListWeb = cleanURL(childListWeb);
+  
+      let parentList : IMakeThisList = defineTheList( 101 , parentName, 'Emails' , parentListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
+      let childList : IMakeThisList = defineTheList( 101 , childName, 'Emails' , childListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
+  
+      if ( parentList ) { theLists.push( parentList ); }
+      if ( childList ) { theLists.push( childList ); }
+    }
 
     this.setState({  
       currentUser: currentUser,
@@ -292,11 +294,13 @@ public async getListDefinitions( doThis: 'props' | 'state') {
   public componentDidUpdate(prevProps){
 
     let rebuildPart = false;
-    console.log('DIDUPDATE setting Progress:', this.props.progress);
+    //console.log('DIDUPDATE setting Progress:', this.props.progress);
     if (this.props.progress !== prevProps.progress) {  rebuildPart = true ; }
 
     if ( prevProps.parentListTitle != this.props.parentListTitle || prevProps.childListTitle != this.props.childListTitle || prevProps.parentListWeb != this.props.parentListWeb || prevProps.childListWeb != this.props.childListWeb ) {
-      this.getListDefinitions('props');
+      if ( this.props.allowRailsOff === true ) {
+        this.getListDefinitions('props');
+      }
       rebuildPart = true ;
     }
     if (rebuildPart === true) {
@@ -313,7 +317,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
   public render(): React.ReactElement<IGenericWebpartProps> {
 
-      console.log('RENDER setting Progress:', this.props.progress);
+      //console.log('RENDER setting Progress:', this.props.progress);
 
       //Set the web Url passed down to a component
       let webUrl = this.state.parentListWeb && this.state.parentListWeb.length > 0 ? this.state.parentListWeb : this.props.pageContext.web.absoluteUrl;
@@ -337,45 +341,54 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
           /></div>;
 
-      const provisionListPage = <div className= { defaultPageClass }>
-      <ProvisionLists 
-          allowOtherSites={ false }
-          alwaysReadOnly = { false }
-          pageContext={ this.props.pageContext }
-          showPane={true}
-          allLoaded={false}
-          currentUser = {this.state.currentUser }
-          lists = { [] }
 
-          definedList = { '' }
+      /**
+       * NOTE:  Before I messed it up, provisionListPage had these props.
           provisionWebs = { [this.props.parentListWeb, this.props.childListWeb] }
           provisionListTitles = { [this.props.parentListTitle, this.props.childListTitle] }
+       */
+      const provisionListPage  = this.props.allowRailsOff !== true ? null : 
+        <div className= { defaultPageClass }>
+          <ProvisionLists 
+              allowOtherSites={ false }
+              alwaysReadOnly = { false }
+              pageContext={ this.props.pageContext }
+              showPane={true}
+              allLoaded={false}
+              currentUser = {this.state.currentUser }
+              lists = { [] }
 
-        ></ProvisionLists>
-      </div>;
+              definedList = { '' }
+              provisionWebs = { [ this.state.pickedWeb ? this.state.pickedWeb.Url : '' ] }
+              provisionListTitles = { [] }
 
-      const provisionPagesPage = <div className= { defaultPageClass }>
-      <ProvisionPages 
-          allowOtherSites={ false }
-          alwaysReadOnly = { false }
-          pageContext={ this.props.pageContext }
-          showPane={true}
-          allLoaded={false}
-          webURL = { webUrl }
-          currentUser = {this.state.currentUser }
-          pages = { this.state.allPages }
+            ></ProvisionLists>
+          </div>;
 
-        ></ProvisionPages>
-      </div>;
+      const provisionPagesPage = this.props.allowRailsOff !== true ? null :  
+        <div className= { defaultPageClass }>
+          <ProvisionPages 
+              allowOtherSites={ false }
+              alwaysReadOnly = { false }
+              pageContext={ this.props.pageContext }
+              showPane={true}
+              allLoaded={false}
+              webURL = { webUrl }
+              currentUser = {this.state.currentUser }
+              pages = { this.state.allPages }
 
-      const infoPage = <div>
-      <InfoPage 
-          allLoaded={ true }
-          showInfo={ true }
-          parentProps= { this.props }
-          parentState= { this.state }
-      ></InfoPage>
-      </div>;
+            ></ProvisionPages>
+        </div>;
+
+      const infoPage = this.props.allowRailsOff !== true ? null : 
+        <div>
+          <InfoPage 
+              allLoaded={ true }
+              showInfo={ true }
+              parentProps= { this.props }
+              parentState= { this.state }
+          ></InfoPage>
+        </div>;
 
       const contentsPage = <div className= { defaultPageClass }>
         <InspectContents
@@ -389,9 +402,11 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           showRailsOff = { true }
           allowRailsOff = { this.props.allowRailsOff }
           allowSettings = { true }
-
+          allowCrazyLink = { this.props.allowCrazyLink }
           WebpartHeight = { this.state.WebpartHeight }
           WebpartWidth = { this.state.WebpartWidth }
+          parentProps = { this.props.allowRailsOff === true ? null : this.props }
+          parentState = { this.props.allowRailsOff === true ? null : this.state } 
                   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
         ></InspectContents>
@@ -402,7 +417,12 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       };
 
 
-      let MyPivot = <div className= { defaultPageClass } style={{ paddingLeft: 10, paddingRight: 20 }}>
+      let MyPivot = this.props.allowRailsOff !== true ?
+        <div className= { defaultPageClass } style={{ paddingLeft: 10, paddingRight: 20 }}>
+          { contentsPage }
+        </div>
+        
+      :<div className= { defaultPageClass } style={{ paddingLeft: 10, paddingRight: 20 }}>
         <Pivot aria-label="Provision Options"
           defaultSelectedIndex ={2}>
           <PivotItem headerText="Lists">

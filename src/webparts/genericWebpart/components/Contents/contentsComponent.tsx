@@ -17,6 +17,8 @@ import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../IReUsableInterfaces';
 
+import InfoPage from '../HelpInfo/infoPages';
+
 import InspectLists from './Lists/listsComponent';
 
 import InspectColumns from './Fields/fieldsComponent';
@@ -45,9 +47,15 @@ import { pivotOptionsGroup, } from '../../../../services/propPane';
  
 import { doesObjectExistInArray } from '../../../../services/arrayServices';
 
+import { IGenericWebpartProps } from '../IGenericWebpartProps';
+import { IGenericWebpartState } from '../IGenericWebpartState';
+
 export interface IInspectContentsProps {
     // 0 - Context
     
+    parentProps?: IGenericWebpartProps;
+    parentState?: IGenericWebpartState;
+
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
@@ -60,6 +68,7 @@ export interface IInspectContentsProps {
 
     allowSettings: boolean;
     allowRailsOff: boolean;
+    allowCrazyLink: boolean;
 
     showSettings: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
@@ -83,6 +92,7 @@ export interface IInspectContentsState {
 
     allowSettings: boolean;  //property that determines if the related toggle is visible or not
     allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
+    allowCrazyLink: boolean;
 
     showSettings: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
@@ -125,6 +135,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
             allowSettings: this.props.allowSettings === true ? true : false,
             allowRailsOff: this.props.allowRailsOff === true ? true : false,
+            allowCrazyLink: this.props.allowCrazyLink === true ? true : false,
 
             showRailsOff: railsMode ,
             showSettings: this.props.showSettings,
@@ -190,6 +201,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickedWeb = { this.props.pickedWeb }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
+                allowCrazyLink = { this.props.allowCrazyLink }
                 //webURL = { this.props.pickedWeb.Url }
             ></InspectThisSite>
         </div>;
@@ -203,7 +215,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickedWeb = { this.props.pickedWeb }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
-                webURL = { pickedWebUrl }
+                allowCrazyLink = { this.props.allowCrazyLink }
             ></InspectWebs>
         </div>;
 
@@ -217,7 +229,8 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickThisList = { this.updatePickList.bind(this) }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
-                webURL = { pickedWebUrl }
+                allowCrazyLink = { this.props.allowCrazyLink }
+                pickedWeb = { this.props.pickedWeb }
             ></InspectLists>
         </div>;
 
@@ -230,7 +243,8 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickedList = { this.state.pickedList }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
-                webURL = { pickedWebUrl }
+                allowCrazyLink = { this.props.allowCrazyLink }
+                pickedWeb = { this.props.pickedWeb }
             ></InspectColumns>
         </div>;
 
@@ -241,7 +255,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 showPane={true}
                 allLoaded={false}
                 currentUser = {this.props.currentUser }
-                webURL = { pickedWebUrl }
+                pickedWeb = { this.props.pickedWeb }
             ></InspectParts>
         </div>;
 
@@ -254,7 +268,8 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             pickedList = { this.state.pickedList }
             allowRailsOff = { this.state.allowRailsOff }
             allowSettings = { this.state.allowSettings }
-            webURL = { pickedWebUrl }
+            allowCrazyLink = { this.props.allowCrazyLink }
+            pickedWeb = { this.props.pickedWeb }
         ></InspectViews>
     </div>;
 
@@ -270,7 +285,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 showPane={true}
                 allLoaded={false}
                 currentUser = {this.props.currentUser }
-                webURL = { pickedWebUrl }
             ></InspectGroups>
         </div>;
 
@@ -282,7 +296,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             showPane={true}
             allLoaded={false}
             currentUser = {this.props.currentUser }
-            webURL = { pickedWebUrl }
         ></InspectUsers>
         </div>;
 
@@ -294,8 +307,17 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             showPane={true}
             allLoaded={false}
             currentUser = {this.props.currentUser }
-            webURL = { pickedWebUrl }
         ></InspectFeatures>
+        </div>;
+
+
+        const infoPage = <div>
+        <InfoPage 
+            allLoaded={ true }
+            showInfo={ true }
+            parentProps= { this.props.parentProps }
+            parentState= { this.props.parentState }
+        ></InfoPage>
         </div>;
 
         const railsPage = validWeb !== true ? null : <div>
@@ -349,9 +371,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 { usersPage }
             </PivotItem>
 
-
-            
-
             <PivotItem headerText={ contentsTabs[9] }>
                 <h3>Features</h3>
                 { featurePage }
@@ -359,11 +378,14 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
             
 
-            {  !this.state.allowRailsOff ? null : 
-            <PivotItem headerText={ contentsTabs[10] }>
-                <h3>RailsOff</h3>
-                { railsPage }
-            </PivotItem>
+            {  !this.state.allowRailsOff ? 
+                <PivotItem headerText="Help">
+                    { infoPage }
+                </PivotItem>:
+                <PivotItem headerText={ contentsTabs[10] }>
+                    <h3>RailsOff</h3>
+                    { railsPage }
+                </PivotItem>
 
              }
         </Pivot></div>;
