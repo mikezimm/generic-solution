@@ -17,6 +17,8 @@ import { escape } from '@microsoft/sp-lodash-subset';
 
 import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../IReUsableInterfaces';
 
+import InfoPage from '../HelpInfo/infoPages';
+
 import InspectLists from './Lists/listsComponent';
 
 import InspectColumns from './Fields/fieldsComponent';
@@ -45,9 +47,15 @@ import { pivotOptionsGroup, } from '../../../../services/propPane';
  
 import { doesObjectExistInArray } from '../../../../services/arrayServices';
 
+import { IGenericWebpartProps } from '../IGenericWebpartProps';
+import { IGenericWebpartState } from '../IGenericWebpartState';
+
 export interface IInspectContentsProps {
     // 0 - Context
     
+    parentProps?: IGenericWebpartProps;
+    parentState?: IGenericWebpartState;
+
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
@@ -302,6 +310,16 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         ></InspectFeatures>
         </div>;
 
+
+        const infoPage = <div>
+        <InfoPage 
+            allLoaded={ true }
+            showInfo={ true }
+            parentProps= { this.props.parentProps }
+            parentState= { this.props.parentState }
+        ></InfoPage>
+        </div>;
+
         const railsPage = validWeb !== true ? null : <div>
                 { noPageAvailable }
         </div>;
@@ -353,9 +371,6 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 { usersPage }
             </PivotItem>
 
-
-            
-
             <PivotItem headerText={ contentsTabs[9] }>
                 <h3>Features</h3>
                 { featurePage }
@@ -363,11 +378,14 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
             
 
-            {  !this.state.allowRailsOff ? null : 
-            <PivotItem headerText={ contentsTabs[10] }>
-                <h3>RailsOff</h3>
-                { railsPage }
-            </PivotItem>
+            {  !this.state.allowRailsOff ? 
+                <PivotItem headerText="Help">
+                    { infoPage }
+                </PivotItem>:
+                <PivotItem headerText={ contentsTabs[10] }>
+                    <h3>RailsOff</h3>
+                    { railsPage }
+                </PivotItem>
 
              }
         </Pivot></div>;

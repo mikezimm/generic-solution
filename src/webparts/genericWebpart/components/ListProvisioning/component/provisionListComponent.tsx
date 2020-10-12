@@ -365,6 +365,8 @@ public constructor(props:IProvisionListsProps){
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
+                <span style={{ fontSize : 'xx-large'}}><mark>THIS PAGE IS BROKEN AND CAN RUIN LISTS... DO NOT USE</mark></span>
+                <p>When selecting list type, it should set default list titles per list type.</p>
                 <ul>
                     <li>Set Title in onCreate</li>
                     <li>Create columns fields and views for other common lists</li>
@@ -642,6 +644,8 @@ public constructor(props:IProvisionListsProps){
         let provisionWebs =  this.state ? this.state.provisionWebs : this.props.provisionWebs;
         let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
 
+        if ( justReturnLists === false ) { provisionListTitles = [] ; }
+
         if ( defineThisList === availLists[0] ) {
             //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
             this.setState({
@@ -649,13 +653,19 @@ public constructor(props:IProvisionListsProps){
                 definedList: defineThisList,
             });
         } else if ( defineThisList === 'TrackMyTime' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Projects');  provisionListTitles.push('TrackMyTime');  }
+
             let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[1] ? provisionWebs[1] : provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
         
             if ( parentList ) { theLists.push( parentList ); }
             if ( childList ) { theLists.push( childList ); }
 
         } else if ( defineThisList === 'Harmon.ie' ) {
+            
+            if ( justReturnLists === false ) {  provisionListTitles.push('BUEmails');  provisionListTitles.push('Emails');  }
+
             let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
             let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
         
@@ -663,6 +673,9 @@ public constructor(props:IProvisionListsProps){
             if ( justEmails ) { theLists.push( justEmails ); }
 
         } else if ( defineThisList === 'Drilldown' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Drilldown');  provisionListTitles.push('Drilldown');  }
+
             let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
             let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
         
@@ -670,6 +683,9 @@ public constructor(props:IProvisionListsProps){
             if ( justEmails ) { theLists.push( justEmails ); }
 
         } else if ( defineThisList === 'Customer Requirements' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Program');  provisionListTitles.push('SORInfo');  }
+
             let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
             let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
         
@@ -726,7 +742,9 @@ public constructor(props:IProvisionListsProps){
 
         let thisValue : any = getChoiceText(item.text);
 
-        let result = this.getDefinedLists(thisValue, false);
+        let theLists = this.getDefinedLists(thisValue, false);
+
+        this.setState({ lists: theLists, });
 
     }
 

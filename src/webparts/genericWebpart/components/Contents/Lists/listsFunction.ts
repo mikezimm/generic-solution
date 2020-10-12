@@ -127,7 +127,7 @@ export async function allAvailableLists( webURL: string, listBuckets: IListBucke
     try {
         thisWebInstance = Web(webURL);
         let allLists : IContentsListInfo[] = await thisWebInstance.lists.get();
-        console.log(allLists);
+        //console.log(allLists);
 
         for (let i in allLists ) {
 
