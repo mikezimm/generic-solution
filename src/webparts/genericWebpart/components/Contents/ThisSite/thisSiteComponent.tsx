@@ -77,6 +77,7 @@ export interface IInspectThisSiteProps {
 
     allowSettings?: boolean;
     allowRailsOff?: boolean;
+    allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
 
     showSettings?: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff?: boolean;  //property set by toggle to actually show or hide this content

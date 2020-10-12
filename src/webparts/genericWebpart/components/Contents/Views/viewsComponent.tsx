@@ -95,7 +95,8 @@ export interface IInspectViewsProps {
 
     allowRailsOff?: boolean;
     allowSettings?: boolean;
-
+    allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
+    
     allLoaded: boolean;
 
     currentUser: IUser;

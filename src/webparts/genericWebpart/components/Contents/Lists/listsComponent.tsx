@@ -78,6 +78,7 @@ export interface IInspectListsProps {
 
     allowRailsOff?: boolean;
     allowSettings?: boolean;
+    allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
 
     pickedWeb : IPickedWebBasic;
 
@@ -139,6 +140,7 @@ export interface IInspectListsState {
 
     allowSettings: boolean;  //property that determines if the related toggle is visible or not
     allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
+
 
     showDesc: boolean;      //property set by toggle to actually show or hide this content
     showSettings: boolean;  //property set by toggle to actually show or hide this content
@@ -289,7 +291,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         title={ ''}           items={ bucket }
                         showDesc = { this.state.showDesc } 
                         webURL = { this.props.pickedWeb.Url }
+                        allowCrazyLink = { this.props.allowCrazyLink }
                         pickThisList = { this.props.pickThisList }  descending={false}  titles={null}>
+
                     </MyLogList>;
                 })
 

@@ -217,6 +217,10 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     if ( urlVars.ttp && urlVars.ttp === 'true' ) {  allowRailsOff = true;  }
     if ( urlVars.scenario && urlVars.scenario !== 'dev' ) {  allowRailsOff = false;  }
 
+    //Unlocks dangerous settings links
+    let allowCrazyLink = false;
+    if ( allowRailsOff === true && urlVars.crazy === 'true' ) {  allowCrazyLink = true;  }
+
     if ( allowRailsOff === true && urlVars.web && urlVars.web.length > 10 ) {
       if ( urlVars.web.toLowerCase().indexOf( tenant.toLowerCase() ) === 0 ) {
         parentWeb = urlVars.web;
@@ -224,7 +228,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
       } else {
         //web paramter is not on this tenant... error out
         alert('The web parameter is not on this tenant...\n\n' + urlVars.web );
-        
+
       }
     }
 
@@ -259,6 +263,8 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         onlyActiveParents: this.properties.onlyActiveParents,
 
         allowRailsOff: allowRailsOff,
+        allowCrazyLink: allowCrazyLink,
+
         // 3 - General how accurate do you want this to be
 
         // 4 - Info Options

@@ -385,7 +385,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           showRailsOff = { true }
           allowRailsOff = { this.props.allowRailsOff }
           allowSettings = { true }
-
+          allowCrazyLink = { this.props.allowCrazyLink }
           WebpartHeight = { this.state.WebpartHeight }
           WebpartWidth = { this.state.WebpartWidth }
                   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/

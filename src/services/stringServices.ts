@@ -108,7 +108,6 @@ export function encodeDecodeString( str : string , doThis: 'encode' | 'decode') 
   newStr = newStr.replace(/_x002a_/g,'*');
   newStr = newStr.replace(/_x0028_/g,'(');
   newStr = newStr.replace(/_x0029_/g,')');
-  newStr = newStr.replace(/_/g,'_');
   newStr = newStr.replace(/_x002b_/g,'+');
   newStr = newStr.replace(/_x002d_/g,'\–');
   newStr = newStr.replace(/_x003d_/g,'=');
@@ -127,7 +126,9 @@ export function encodeDecodeString( str : string , doThis: 'encode' | 'decode') 
   newStr = newStr.replace(/_x002e_/g,'.');
   newStr = newStr.replace(/_x002f_/g,'/');
   newStr = newStr.replace(/_x0060_/g,'`');
-  newStr = newStr.replace(/_x0020_/g,'');
+  newStr = newStr.replace(/_x0020_/g,' ');
+  newStr = newStr.replace(/_x005f_/g,'_');
+  newStr = newStr.replace(/_/g,'_');
 
   return newStr;
 

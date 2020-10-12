@@ -60,6 +60,7 @@ export interface IInspectContentsProps {
 
     allowSettings: boolean;
     allowRailsOff: boolean;
+    allowCrazyLink: boolean;
 
     showSettings: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
@@ -83,6 +84,7 @@ export interface IInspectContentsState {
 
     allowSettings: boolean;  //property that determines if the related toggle is visible or not
     allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
+    allowCrazyLink: boolean;
 
     showSettings: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
@@ -125,6 +127,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
             allowSettings: this.props.allowSettings === true ? true : false,
             allowRailsOff: this.props.allowRailsOff === true ? true : false,
+            allowCrazyLink: this.props.allowCrazyLink === true ? true : false,
 
             showRailsOff: railsMode ,
             showSettings: this.props.showSettings,
@@ -190,6 +193,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickedWeb = { this.props.pickedWeb }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
+                allowCrazyLink = { this.props.allowCrazyLink }
                 //webURL = { this.props.pickedWeb.Url }
             ></InspectThisSite>
         </div>;
@@ -203,6 +207,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickedWeb = { this.props.pickedWeb }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
+                allowCrazyLink = { this.props.allowCrazyLink }
             ></InspectWebs>
         </div>;
 
@@ -216,6 +221,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickThisList = { this.updatePickList.bind(this) }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
+                allowCrazyLink = { this.props.allowCrazyLink }
                 pickedWeb = { this.props.pickedWeb }
             ></InspectLists>
         </div>;
@@ -229,6 +235,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 pickedList = { this.state.pickedList }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
+                allowCrazyLink = { this.props.allowCrazyLink }
                 pickedWeb = { this.props.pickedWeb }
             ></InspectColumns>
         </div>;
@@ -253,6 +260,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             pickedList = { this.state.pickedList }
             allowRailsOff = { this.state.allowRailsOff }
             allowSettings = { this.state.allowSettings }
+            allowCrazyLink = { this.props.allowCrazyLink }
             pickedWeb = { this.props.pickedWeb }
         ></InspectViews>
     </div>;
