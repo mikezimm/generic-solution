@@ -330,7 +330,7 @@ public constructor(props:IProvisionListsProps){
 
 
             let listLinks = this.state.lists.map( mapThisList => (
-                mapThisList.listExists ? links.createLink( mapThisList.listURL, '_blank',  'Go to: ' + mapThisList.title ) : null ));
+                mapThisList.listExists ? links.createLink( mapThisList.listURL, '_none',  'Go to: ' + mapThisList.title ) : null ));
 
             const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
 
