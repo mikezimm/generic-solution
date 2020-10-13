@@ -321,7 +321,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         </div>;
 
         const railsPage = validWeb !== true ? null : <div>
-                { noPageAvailable }
+            { noPageAvailable }
         </div>;
 
         const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
