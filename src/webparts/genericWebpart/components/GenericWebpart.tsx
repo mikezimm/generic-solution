@@ -452,7 +452,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       let earlyAccess = 
       <EarlyAccess 
           image = { "https://autoliv.sharepoint.com/sites/crs/PublishingImages/Early%20Access%20Image.png" }
-          messages = { [ "Welcome to ALV Webpart Early Access!!!", "Get more info here -->"] }
+          messages = { [ <div><span><b>Welcome to ALV Webpart Early Access!!!</b></span></div>, "Get more info here -->"] }
           links = { [ links.gitRepoGenericWebpart.wiki, links.gitRepoGenericWebpart.issues ]}
           email = { 'mailto:General - WebPart Dev <0313a49d.Autoliv.onmicrosoft.com@amer.teams.ms>?subject=Contents Webpart Feedback&body=Enter your message here :)  \nScreenshots help!' }
       ></EarlyAccess>;
@@ -462,6 +462,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       <div className={ styles.container }>
       <div className={ styles.topPivots }>
           { /* thisWebURL */ }
+          { earlyAccess }
           { thisWebURL }
           { stateError }
           { MyPivot }
