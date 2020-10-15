@@ -47,6 +47,9 @@ import { analyticsList } from 'GenericWebpartWebPartStrings';
 import { cleanURL, camelize } from '../../../services/stringServices';
 import { getHelpfullError } from '../../../services/ErrorHandler';
 
+import * as links from './HelpInfo/AllLinks';
+import  EarlyAccess from './HelpInfo/EarlyAccess';
+
 
 const emptyString = (value: string | Date) : string => { return "";};
 
@@ -446,6 +449,14 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         { this.state.stateError }
       </div>;
       
+      let earlyAccess = 
+      <EarlyAccess 
+          image = { "https://autoliv.sharepoint.com/sites/crs/PublishingImages/Early%20Access%20Image.png" }
+          messages = { [ "Welcome to ALV Webpart Early Access!!!", "Get more info here -->"] }
+          links = { [ links.gitRepoGenericWebpart.wiki, links.gitRepoGenericWebpart.issues ]}
+          email = { 'mailto:General - WebPart Dev <0313a49d.Autoliv.onmicrosoft.com@amer.teams.ms>?subject=Contents Webpart Feedback&body=Enter your message here :)  \nScreenshots help!' }
+      ></EarlyAccess>;
+
     return (
       <div className={ styles.genericWebpart }>
       <div className={ styles.container }>
