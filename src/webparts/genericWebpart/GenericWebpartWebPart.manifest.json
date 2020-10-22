@@ -17,11 +17,11 @@
   "preconfiguredEntries": [{
     "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
     "group": { "default": "Other" },
-    "title": { "default": "genericWebpart" },
-    "description": { "default": "genericWebpart description" },
+    "title": { "default": "Easy Contents Webpart" },
+    "description": { "default": "For power users and site owners" },
     "officeFabricIconFontName": "Page",
     "properties": {
-      "description": "genericWebpart",
+      "description": "For power users and site owners",
       "parentListTitle": "ParentListTitle",
       "childListTitle": "ChildListTitle",
       "allowRailsOff": false
