@@ -224,7 +224,10 @@ function buildMetaFromView( theView: IContentsViewInfo ) {
     meta = addItemToArrayIfItDoesNotExist(meta, theView.Hidden ? pivCats.hidden.title: pivCats.visible.title);
  
     meta = addItemToArrayIfItDoesNotExist(meta, theView.ViewFields ? pivCats.fields.title: '');
-    meta = addItemToArrayIfItDoesNotExist(meta, theView.ViewQuery.indexOf('ViewJoins') ? pivCats.joins.title: '');
+
+    //2020-10-23:  Added this check for Task Lists with Gantt Views... there is no view Query.
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.ViewQuery && theView.ViewQuery.indexOf('ViewJoins') ? pivCats.joins.title: '');
+
     meta = addItemToArrayIfItDoesNotExist(meta, theView.OrderBy != '' ? pivCats.orderBy.title: '');
     meta = addItemToArrayIfItDoesNotExist(meta, theView.GroupBy != '' ? pivCats.groupBy.title: '');
     meta = addItemToArrayIfItDoesNotExist(meta, theView.ViewQuery ? pivCats.query.title: '');
