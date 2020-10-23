@@ -128,6 +128,7 @@ public constructor(props:IInfoAboutMeProps){
                 {/* 3 files to update version number:  package-solution.json, package-lock.json, package.json*/}
                 <table className={styles.infoTable}>
                     <tr><th>Date</th><th>Version</th><th>Focus</th><th>Notes</th></tr>
+                    <tr><td>2020-09-10</td><td>{'1.1.9.1'}</td><td>Add <b>View Details</b> and improve <b>XML Formatting</b></td><td></td></tr>
                     <tr><td>2020-09-10</td><td>{'1.1.8.3'}</td><td>Add <b>Early Access bar</b></td><td></td></tr>
                     <tr><td>2020-09-10</td><td>{'1.1.8.2'}</td><td>List Contents railsOff Link updates</td><td></td></tr>
                     <tr><td>2020-09-10</td><td>{'1.1.8.1'}</td><td>Start railsOff Mode for normal use</td><td></td></tr>

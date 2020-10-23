@@ -63,8 +63,10 @@ export const pivCats = {
     joins: {title: 'Joins', desc: '', order: 1},
     query: {title: 'Query', desc: '', order: 1},
     orderBy: {title: 'OrderBy', desc: '', order: 1},
+    groupBy: {title: 'GroupBy', desc: '', order: 1},
     where: {title: 'Where', desc: '', order: 1},
     options: {title: 'Options', desc: '', order: 1},
+    hidden:  {title: 'Hidden', desc: '', order: 1},
     aggregations: {title: 'Aggregations' , desc: '', order: 1},
     listView:  {title: 'ListView' , desc: '', order: 1},
     schema: {title: '9', desc: 'Schema', order: 9 },
@@ -81,10 +83,17 @@ export interface IContentsViewInfo extends Partial<IViewInfo>{
     CanBeDeleted?: boolean;
     DefaultView?: boolean;
     searchString: string;
+    OrderBy: string;
+    Where: string;
+    GroupBy: string;
+    Options: string;
+    Joins: string;
+    Query: string;
     meta: string[];
+    ViewFields: any[];
+    Aggregations: any;
 
 }
-
 
 export interface IInspectViewsProps {
     // 0 - Context
@@ -694,6 +703,10 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
         let joins = this.buildFilterPivot(pivCats.joins);
         let query = this.buildFilterPivot(pivCats.query);
         let orderBy = this.buildFilterPivot(pivCats.orderBy);
+        let groupBy = this.buildFilterPivot(pivCats.groupBy);
+
+        
+
         let where = this.buildFilterPivot(pivCats.where);
 
         let options = this.buildFilterPivot(pivCats.options);      
@@ -701,9 +714,10 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
 
         let listView = this.buildFilterPivot(pivCats.listView);
         let schema = this.buildFilterPivot(pivCats.schema);
+        let hidden = this.buildFilterPivot(pivCats.hidden);
+        
 
-
-        let thesePivots = [visible, onPages, all, simple, fields, joins, query, orderBy, where, options, aggregations, listView ,schema];
+        let thesePivots = [visible, onPages, all, simple, fields, joins, query, orderBy, groupBy, where, options, aggregations, listView ,schema, hidden];
 
         return thesePivots;
     }

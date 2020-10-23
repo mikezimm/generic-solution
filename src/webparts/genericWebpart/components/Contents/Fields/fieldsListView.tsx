@@ -7,6 +7,8 @@ import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../serv
 
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
+import { prettyUpXMLStringAsElements } from '../../../../../services/XMLServices';
+
 import { buildMLineDiv } from '../../../../../services/stringFormatService';
 
 import { IContentsFieldInfo, IFieldBucketInfo} from './fieldsComponent';
@@ -183,6 +185,9 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
             let metaClass = Fld.meta.indexOf( this.props.searchMeta ) > -1 ? styles.showMe : styles.hideMe;
 
+            let trStyle = {};
+            if ( this.props.specialAlt === true ) { trStyle = { paddingTop: '10px', paddingBottom: '15px'} ; }
+
             //columnsToVisible
             return <tr>
                 <td className={ styles.nowWrapping }> { Fld.Title } </td>
@@ -193,13 +198,13 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <td className={ columnsToVisible }> { Fld.Group } </td>
                 <td className={ columnsToVisible }> { Fld.DefaultValue ? Fld.DefaultValue : '-' } </td>
 
-                <td className={ styleXML }> { this.props.showXML ? this.getFieldXML(Fld.SchemaXml) : null } </td>
-                <td className={ styleSPFx }> { this.props.showSPFx ? this.getFieldSPFx(Fld) : null } </td>
-                <td className={ styleJSON }> { this.props.showJSON ? this.getFieldJSON(Fld) : null } </td>
+                <td className={ styleXML } style={ trStyle }> { this.props.showXML ? this.getFieldXML(Fld.SchemaXml) : null } </td>
+                <td className={ styleSPFx } style={ trStyle }> { this.props.showSPFx ? this.getFieldSPFx(Fld) : null } </td>
+                <td className={ styleJSON } style={ trStyle }> { this.props.showJSON ? this.getFieldJSON(Fld) : null } </td>
 
                 <td className={ [styles.nowWrapping, columnsToVisible].join(', ') }> { dev } </td>
 
-                <td className={ styleSpecial }> { this.getFieldSpecialValue( Fld ) } </td>
+                <td className={ styleSpecial } style={ trStyle }> { this.getFieldSpecialValue( Fld ) } </td>
                 <td className= { styleRailsOff }>Rails Off Content</td>
 
                 <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
@@ -341,7 +346,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
       console.log( 'getFieldXML thisField:', thisField );
 
-      let sample = thisField ;
+      let sample = thisField.replace(/&quot;/g,'"') ;
       let xmlArray = [];
 
       let regex = /[\"] [A-Z]/g;
@@ -358,6 +363,9 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
           xmlArray.push( buildMLineDiv(2,prop) );
 
         } else {
+
+
+          //&#xA; = lineFeed
           xmlArray.push( buildMLineDiv(2, sample.slice(0, loc + 1 ) ) );
 
         }

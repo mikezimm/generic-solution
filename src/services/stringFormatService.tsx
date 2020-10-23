@@ -4,15 +4,25 @@ import * as React from 'react';
         let spaces4 = indent > 0 ? '\u00a0' + '\u00a0' + '\u00a0' + '\u00a0' : null;
         let spaces = '';
 
+        let doElement = null;
+
+        if ( typeof element === 'string' ) {
+          //This splits string for LineFeed character
+          doElement = element.split('&#xA;');
+
+        } else { doElement = [ element ]; }
+
         if ( indent >= 1 ) { spaces += spaces4; }
         if ( indent >= 2 ) { spaces += spaces4; }
         if ( indent >= 3 ) { spaces += spaces4; }
         if ( indent >= 4 ) { spaces += spaces4; }
         if ( indent >= 5 ) { spaces += spaces4; }
 
-        let newDiv = <div> 
-            { spaces }
-            { element }
+        let newDiv = <div> {
+            doElement.map( el => {
+              return <div>{ spaces }{ el }</div>;
+            })
+          } 
         </div>;
         return newDiv;
 

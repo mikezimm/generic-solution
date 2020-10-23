@@ -1,6 +1,6 @@
 {
   "name": "generic-solution",
-  "version": "1.8.3",
+  "version": "1.9.1",
   "private": true,
   "main": "lib/index.js",
   "engines": {
