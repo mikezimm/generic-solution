@@ -13,9 +13,10 @@ import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Conta
 
 import { IMyProgress } from '../../webparts/genericWebpart/components/IReUsableInterfaces';
 
-import { IListInfo, IMyListInfo, IServiceLog, notify, getXMLObjectFromString } from './listTypes';
+import { IListInfo, IMyListInfo, IServiceLog, notify,  } from './listTypes';
 
 import { doesObjectExistInArray } from '../arrayServices';
+import { getXMLObjectFromString } from '../XMLServices';
 
 import { getHelpfullError } from '../ErrorHandler';
 

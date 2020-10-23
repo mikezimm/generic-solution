@@ -21,6 +21,8 @@ import { makeSmallTimeObject, ITheTime} from '../../../../../services/dateServic
 
 import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
 
+import { getXMLObjectFromString } from '../../../../../services/XMLServices';
+
 import { getHelpfullError } from '../../../../../services/ErrorHandler';
 
 import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
@@ -94,9 +96,27 @@ export async function allAvailableViews( webURL: string, listGUID: string, viewB
         allViews[i].bucketLabel = viewBuckets[idx]['bucketLabel'];
         allViews[i].bucketIdx = idx;       
 
+        let vViewFields1 = getXMLObjectFromString(allViews[i].ListViewXml, "ViewFields", false);
+        vViewFields1 = vViewFields1.replace(/[<][F][i][e][l][d][R][e][f][ ][N][a][m][e][=]["]/gi, ";");
+        vViewFields1 = vViewFields1.replace(/["][ ][\/][>]/gi, "");
+
+        vViewFields1 = vViewFields1.replace(/<ViewFields>/gi, "");
+        vViewFields1 = vViewFields1.replace(/[\/][<][V][i][e][w][F][i][e][l][d][s][>]/gi, "");
+        vViewFields1 = vViewFields1.replace(/<\/ViewFields>/gi, "");
+        vViewFields1 = vViewFields1.replace(/[\]][\[]/gi, ";");
+
+        allViews[i].ViewFields = vViewFields1.split(';');
+        allViews[i].ViewFields =  allViews[i].ViewFields.filter(value => value.length !== 0);
+
+        allViews[i].OrderBy = getXMLObjectFromString(allViews[i].ViewQuery, "OrderBy", false);
+        allViews[i].GroupBy = getXMLObjectFromString(allViews[i].ViewQuery, "GroupBy", false);
+        allViews[i].Where = getXMLObjectFromString(allViews[i].ViewQuery, "Where", false);
+        allViews[i].Options = getXMLObjectFromString(allViews[i].ViewQuery, "QueryOptions", false);
+        allViews[i].Joins = getXMLObjectFromString(allViews[i].ViewQuery, "ViewJoins", false);
+        allViews[i].Query = allViews[i].ViewQuery;
+
         allViews[i].meta = buildMetaFromView(allViews[i]);
         allViews[i].searchString = buildSearchStringFromView(allViews[i]);
-
 
     }
 
@@ -201,6 +221,31 @@ function buildMetaFromView( theView: IContentsViewInfo ) {
 
     }
 
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.Hidden ? pivCats.hidden.title: pivCats.visible.title);
+ 
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.ViewFields ? pivCats.fields.title: '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.ViewQuery.indexOf('ViewJoins') ? pivCats.joins.title: '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.OrderBy != '' ? pivCats.orderBy.title: '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.GroupBy != '' ? pivCats.groupBy.title: '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.ViewQuery ? pivCats.query.title: '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.Where != '' ? pivCats.where.title: '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.Aggregations ? pivCats.aggregations.title: '');
+
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.TabularView ? 'TabularView' : 'NoTabs');
+ 
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.ReadOnlyView ? 'ReadOnly' : '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.PersonalView ? 'Personal' : '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.Paged ? 'Paged' : '');
+
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.MobileDefaultView ? 'MobileDefaultView' : '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.MobileView ? 'MobileView' : '');
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.Formats != null ? 'Formats' : '');
+
+    meta = addItemToArrayIfItDoesNotExist(meta, theView.DefaultView != null ? 'DefaultView' : '');
+    
+
+    
+
     //Add hidden to meta
     meta = addItemToArrayIfItDoesNotExist(meta, theView.sort );
     meta = addItemToArrayIfItDoesNotExist(meta, theView.bucketLabel );
@@ -230,6 +275,8 @@ function buildSearchStringFromView (theView : IContentsViewInfo) {
 
     if ( theView.meta.length > 0 ) { result += 'Meta=' + theView.meta.join(',') + delim ; }
 
+    if ( theView.ViewFields.length > 0 ) { result += 'ViewFields=' + theView.ViewFields.join(',') + delim ; }
+    
     result = result.toLowerCase();
 
     return result;

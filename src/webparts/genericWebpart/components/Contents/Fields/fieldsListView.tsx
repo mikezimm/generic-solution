@@ -7,6 +7,8 @@ import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../serv
 
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
+import { prettyUpXMLStringAsElements } from '../../../../../services/XMLServices';
+
 import { buildMLineDiv } from '../../../../../services/stringFormatService';
 
 import { IContentsFieldInfo, IFieldBucketInfo} from './fieldsComponent';
@@ -341,7 +343,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
       console.log( 'getFieldXML thisField:', thisField );
 
-      let sample = thisField ;
+      let sample = thisField.replace(/&quot;/g,'"') ;
       let xmlArray = [];
 
       let regex = /[\"] [A-Z]/g;
@@ -358,6 +360,9 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
           xmlArray.push( buildMLineDiv(2,prop) );
 
         } else {
+
+
+          //&#xA; = lineFeed
           xmlArray.push( buildMLineDiv(2, sample.slice(0, loc + 1 ) ) );
 
         }

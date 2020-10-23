@@ -8,6 +8,7 @@ import { IContentsListInfo, IMyListInfo, IServiceLog } from '../../../../../serv
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
 import { buildMLineDiv } from '../../../../../services/stringFormatService';
+import { getXMLObjectFromString, prettyUpXMLStringAsElements } from '../../../../../services/XMLServices';
 
 import { IContentsViewInfo, IViewBucketInfo} from './viewsComponent';
 
@@ -167,40 +168,69 @@ export default class MyLogView extends React.Component<IMyLogViewProps, IMyLogVi
 
           let gotoColumns = null; //createIconButton('Pause', 'Columns', this.props.pickThisField, 'Columns' + fieldInfo , columnsStyles );
 
+
+          
+          let specialColumn = null;
+
+          //#########################################################################################################
+          //#######   Creates ViewFields options
+          //#########################################################################################################
+          let vViewFields = Viw.ViewFields;
+
+          if ( this.props.searchMeta === 'Fields' ) {
+
+            specialColumn = this.props.specialAlt === true ? <div> { vViewFields.map( f => <div>{ f } </div>) } </div> : <div> { vViewFields.join(', ') }</div>;
+
+          } else if ( [ 'Query','Where', 'GroupBy', 'OrderBy', 'Joins', 'Options',  'Aggregations'].indexOf( this.props.searchMeta ) > -1 ) {
+            let specValue = Viw[ this.props.searchMeta ];
+            let indents = -1;
+            let openTag = null;
+            specialColumn = this.props.specialAlt === true ? <div> 
+              { prettyUpXMLStringAsElements( specValue ) } 
+              </div> : <div> { specValue }</div>;
+
+          }
+
           //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
           let detailsCard = buildPropsHoverCard(Viw, 
             ["Title","DefaultView","PersonalView","Id","TabularView","Hidden"],
             ["odata.type","meta","searchString"] , true, null );
 
-            let fieldSettingsURL = !this.props.showSettings ? Viw.Title : createLink(this.props.webURL + "/_layouts/15/ViewEdit.aspx?List={" + this.props.listGuid + "}&Field=" + Viw.Title, '_blank', Viw.Title);
+          let vIdUC = Viw.Id.toUpperCase();
+          let viewSettingsURL = !this.props.showSettings ? Viw.Title : createLink(this.props.webURL + "/_layouts/15/ViewEdit.aspx?List={" + this.props.listGuid + "}&View={" + vIdUC + "}", '_blank', Viw.Title);
 
-            let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
+          let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
 
-            let dev = '';
-            if (Viw.CanBeDeleted !== true) { dev += "!Del" ; }
+          let dev = '';
+          if (Viw.CanBeDeleted !== true) { dev += "!Del" ; }
 
-            let metaClass = Viw.meta.indexOf( this.props.searchMeta ) > -1 ? styles.showMe : styles.hideMe;
+          let metaClass = Viw.meta.indexOf( this.props.searchMeta ) > -1 ? styles.showMe : styles.hideMe;
 
-            //columnsToVisible
-            return <tr>
-                <td className={ styles.nowWrapping }> { Viw.Title } </td>
-                <td className={ styles.nowWrapping }> { fieldSettingsURL }</td>
-                <td className={ styleID }> { Viw.Id } </td>
-                <td className={ columnsToVisible }> { /* Viw.Group */ } </td>
-                <td className={ columnsToVisible }> { Viw.settings ? Viw.settings : '-' } </td>
+          //columnsToVisible
+          let trStyle = {};
+          if ( this.props.specialAlt === true ) { trStyle = { paddingTop: '10px', paddingBottom: '15px'} ; }
 
-                <td className={ styleXML }> { this.props.showXML ? this.getFieldXML(Viw.ListViewXml) : null } </td>
-                <td className={ styleSPFx }> { this.props.showSPFx ? this.getFieldSPFx(Viw) : null } </td>
-                <td className={ styleJSON }> { this.props.showJSON ? this.getFieldJSON(Viw) : null } </td>
+          return <tr>
+              <td className={ styles.nowWrapping }> { Viw.Title } </td>
+              <td className={ styles.nowWrapping }> { viewSettingsURL }</td>
+              <td className={ styleID }> { Viw.Id } </td>
+              <td className={ columnsToVisible }> { /* Viw.Group */ } </td>
+              <td className={ columnsToVisible }> { Viw.settings ? Viw.settings : '-' } </td>
 
-                <td className={ [styles.nowWrapping, columnsToVisible].join(', ') }> { dev } </td>
 
-                <td className={ styleSpecial }> { this.getFieldSpecialValue( Viw ) } </td>
-                <td className= { styleRailsOff }>Rails Off Content</td>
+              <td className={ [styles.nowWrapping, columnsToVisible].join(', ') }> { dev } </td>
 
-                <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
+              <td className={ styleSpecial } style={ trStyle }> { specialColumn } </td>
 
-                </tr>;
+              <td className={ styleXML } style={ trStyle }> { this.props.showXML ? prettyUpXMLStringAsElements(Viw.ListViewXml) : null } </td>
+              <td className={ styleSPFx } style={ trStyle }> { this.props.showSPFx ? this.getFieldSPFx(Viw) : null } </td>
+              <td className={ styleJSON } style={ trStyle }> { this.props.showJSON ? this.getFieldJSON(Viw) : null } </td>
+
+              <td className= { styleRailsOff }>Rails Off Content</td>
+
+              <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
+
+            </tr>;
 
         });
 
@@ -224,13 +254,14 @@ export default class MyLogView extends React.Component<IMyLogViewProps, IMyLogVi
                 <th className={ columnsToVisible }>Group</th>
                 <th className={ columnsToVisible }>Default</th>
 
-                <th className={ styleXML }> { 'ListViewXml' } </th>
-                <th className={ styleSPFx }> { 'SPFx' } </th>
-                <th className={ styleJSON }> { 'JSON' } </th>
 
                 <th className={ [styles.nowWrapping, columnsToVisible].join(', ') }>Dev</th>
 
-                <th className={ styleSpecial }> Column Props </th>
+                <th className={ styleSpecial }> View Props </th>
+
+                <th className={ styleXML }> { 'ListViewXml' } </th>
+                <th className={ styleSPFx }> { 'SPFx' } </th>
+                <th className={ styleJSON }> { 'JSON' } </th>
 
                 <th className= { styleRailsOff }>Rails Off Heading</th>
                 <th>Details</th>
