@@ -194,6 +194,8 @@ function buildSearchStringFromField (newField : IContentsFieldInfo) {
     if ( newField.Indexed === true ) { result += 'Indexed' + delim ; }
     if ( newField.EnforceUniqueValues === true ) { result += 'Unique' + delim ; }
 
+    if ( newField.TypeAsString === 'Calculated' ) { result += 'Formula=' + newField.Formula + delim ; }
+
     if ( newField.meta.length > 0 ) { result += 'Meta=' + newField.meta.join(',') + delim ; }
 
     result = result.toLowerCase();
