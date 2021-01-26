@@ -116,6 +116,7 @@ export interface IProvisionListsState {
     doViews: boolean;
     doItems: boolean;
 
+    listNo: number;
 
     currentList: string;
 
@@ -197,6 +198,8 @@ public constructor(props:IProvisionListsProps){
         doFields: true,
         doViews: false,
         doItems: false,
+
+        listNo: null,
 
         // 2 - Source and destination list information
 
@@ -390,13 +393,32 @@ public constructor(props:IProvisionListsProps){
                 </ul>
             </div>;
 
-            let listJSON = this.state.doMode === true ? null : 
-                <div>
-                    { JSON.stringify( this.state.lists[0] ) }
-                </div>;
+            let listDetails = null;
+
+            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true ) {
+                let listJSON = null; 
+                       
+                let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] ));
+                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
+                if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
+                if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
+
+                listJSON = <div>
+                        { JSON.stringify( tempJSON ) }
+                    </div>;
+
+                listDetails = <div style={{display: '' }}>
+                        <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition }</h2></div>
+                        { listJSON }
+                    </div>;
+
+            } 
+
 
 
             const stackListTokens: IStackTokens = { childrenGap: 10 };
+
+
 
             thisPage = <div><div>{ disclaimers }</div>
 
@@ -419,7 +441,7 @@ public constructor(props:IProvisionListsProps){
                         </div>
                 </div>
                 <div style={{display: this.state.doMode === true ? 'none': '' }}>
-                    { listJSON }
+                    { listDetails }
                 </div>
             </div>;
 
@@ -478,14 +500,14 @@ public constructor(props:IProvisionListsProps){
 
   private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
 
-    this.setState({ currentList: mapThisList + ' list: ' + mapThisList.title, history: this.clearHistory(), });
+    this.setState({ currentList: mapThisList + ' list: ' + mapThisList.title, history: this.clearHistory(), listNo: listNo });
 
     let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
 
     let readOnly: boolean  = this.isListReadOnly(mapThisList);
 
     if ( this.state.doMode === true ) {
-        let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this));
+        let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems );
 
         let stateLists = this.state.lists;
         stateLists[listNo].listExists = true;
@@ -833,7 +855,7 @@ public constructor(props:IProvisionListsProps){
             let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Do Mode</span>;
             let togDoMode = {
                 label: toggleLabel,
-                key: 'togggleDoModeOff',
+                key: 'togDoMode',
                 _onChange: this.updateTogggleDoMode.bind(this),
                 checked: this.state.doMode,
                 onText: 'Do',
@@ -844,7 +866,7 @@ public constructor(props:IProvisionListsProps){
 
             let togDoList = {
                 label: 'List Props',
-                key: 'togggleDoModeOff',
+                key: 'togDoList',
                 _onChange: this.updateTogggleDoList.bind(this),
                 checked: this.state.doList,
                 onText: 'Do',
@@ -855,7 +877,7 @@ public constructor(props:IProvisionListsProps){
 
             let togDoFields = {
                 label: 'Fields',
-                key: 'togggleDoModeOff',
+                key: 'togDoFields',
                 _onChange: this.updateTogggleDoFields.bind(this),
                 checked: this.state.doFields,
                 onText: 'Do',
@@ -866,7 +888,7 @@ public constructor(props:IProvisionListsProps){
 
             let togDoViews = {
                 label: 'Views',
-                key: 'togggleDoModeOff',
+                key: 'togDoViews',
                 _onChange: this.updateTogggleDoViews.bind(this),
                 checked: this.state.doViews,
                 onText: 'Do',
@@ -878,7 +900,7 @@ public constructor(props:IProvisionListsProps){
             
             let togDoItems = {
                 label: 'Items',
-                key: 'togggleDoModeOff',
+                key: 'togDoItems',
                 _onChange: this.updateTogggleDoItems.bind(this),
                 checked: this.state.doItems,
                 onText: 'Do',
@@ -902,33 +924,32 @@ public constructor(props:IProvisionListsProps){
 
         }
 
-
-        private updateTogggleDoMode() {
+        private updateTogggleDoMode = (item): void => {
             this.setState({
                 doMode: !this.state.doMode,
             });
         }
 
-        private updateTogggleDoList() {
+        private updateTogggleDoList = (item): void => {
             this.setState({
                 doList: !this.state.doList,
             });
         }
 
-        private updateTogggleDoFields() {
+        private updateTogggleDoFields = (item): void => {
             this.setState({
                 doFields: !this.state.doFields,
             });
         }
 
-        private updateTogggleDoViews() {
+        private updateTogggleDoViews = (item): void => {
             this.setState({
                 doViews: !this.state.doViews,
             });
         }
 
 
-        private updateTogggleDoItems() {
+        private updateTogggleDoItems = (item): void => {
             this.setState({
                 doItems: !this.state.doItems,
             });

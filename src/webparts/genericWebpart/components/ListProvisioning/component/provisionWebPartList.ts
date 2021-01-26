@@ -45,7 +45,7 @@ export interface IMakeThisList {
     listDefinition: string;
 
 }
-export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
+export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
     let alertMe = false;
@@ -135,13 +135,18 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
     console.log(makeThisList.title + ' list fields and views', currentFields, currentViews);
 
-    let result = await addTheseFields(['create','changesFinal'], readOnly, makeThisList, ensuredList, currentFields, makeThisList.createTheseFields, setProgress, alertMe, consoleLog );
+    if ( doFields === true ) {
+        let result = await addTheseFields(['create','changesFinal'], readOnly, makeThisList, ensuredList, currentFields, makeThisList.createTheseFields, setProgress, alertMe, consoleLog );
+    } else { console.log('Skipping doFields') ; }
 
-    let result2 = await addTheseViews( makeThisList.listExistedB4 , readOnly, makeThisList, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
+    if ( doViews === true ) {
+        let result2 = await addTheseViews( makeThisList.listExistedB4 , readOnly, makeThisList, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
+    } else { console.log('Skipping doViews') ; }
+
 
     let result3 = null;
 
-    if ( createItems === true && readOnly === false ) {
+    if ( doItems === true && createItems === true && readOnly === false ) {
 
         //setProgress(false, "I", 0, 0 , '', 'TimePicker', makeThisList.title, 'Adding ITEMS to list: ' + makeThisList.title, 'Checking for ITEMS', 'Add items ~ 112' );
         let createThisBatch : IAnyArray = [];
