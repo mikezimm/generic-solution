@@ -406,8 +406,8 @@ public constructor(props:IProvisionListsProps){
                 if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
 
                 listJSON = <div style={{ overflowY: 'auto' }}>
-                <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                </div>
+                    <ReactJson src={ tempJSON } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                </div>;
 
                 listDetails = <div style={{display: '' }}>
                         <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition }</h2></div>
@@ -416,11 +416,7 @@ public constructor(props:IProvisionListsProps){
 
             } 
 
-
-
             const stackListTokens: IStackTokens = { childrenGap: 10 };
-
-
 
             thisPage = <div><div>{ disclaimers }</div>
 
@@ -502,7 +498,7 @@ public constructor(props:IProvisionListsProps){
 
   private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
 
-    this.setState({ currentList: mapThisList + ' list: ' + mapThisList.title, history: this.clearHistory(), listNo: listNo });
+    this.setState({ currentList: mapThisList.listDefinition + ' list: ' + mapThisList.title, history: this.clearHistory(), listNo: listNo });
 
     let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
 

@@ -29,9 +29,7 @@ import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/co
 //import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
 import { defineTheList } from './ListProvisioning/Harmonie/defineHarmonie';
 import ProvisionLists from './ListProvisioning/component/provisionListComponent';
-import ProvisionFields from './FieldProvisioning/component/provisionFieldComponent';
-
-
+import ProvisionFields from './ListProvisioning/component/provisionFieldComponent';
 
 import InspectContents from './Contents/contentsComponent';
 

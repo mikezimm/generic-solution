@@ -7,12 +7,16 @@ import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldSty
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
+import ReactJson from "react-json-view";
+
 import { provisionTheList, IValidTemplate } from './provisionWebPartList';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionList.module.scss';
 import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+
+import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -22,7 +26,7 @@ import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButt
 
 import { PageContext } from '@microsoft/sp-page-context';
 
-import MyLogList from './fieldView';
+import MyLogList from './listView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
@@ -41,10 +45,10 @@ import { createBasicTextField } from  '../../fields/textFieldBuilder';
  * 3. Add logic to getDefinedLists to fetch the list definition
  * Rinse and repeat
  */
-import * as dHarm from '../../ListProvisioning/Harmonie/defineHarmonie';
-import * as dTMT from '../../ListProvisioning/ListsTMT/defineThisList';
-import * as dCust from '../../ListProvisioning/ListsCustReq/defineCustReq';
-import * as dPCP from '../../ListProvisioning/PreConfig/definePreConfig';
+import * as dHarm from '../Harmonie/defineHarmonie';
+import * as dTMT from '../ListsTMT/defineThisList';
+import * as dCust from '../ListsCustReq/defineCustReq';
+import * as dPCP from '../PreConfig/definePreConfig';
 
 import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 //import * as dFinT from '../ListsFinTasks/defineFinTasks';
@@ -107,6 +111,14 @@ export interface IProvisionFieldsState {
 
     progress: IMyProgress;
     history: IMyHistory;
+
+    doMode: boolean;
+    doList: boolean;
+    doFields: boolean;
+    doViews: boolean;
+    doItems: boolean;
+
+    listNo: number;
 
     currentList: string;
 
@@ -182,6 +194,14 @@ public constructor(props:IProvisionFieldsProps){
         allLoaded: this.props.allLoaded,
         progress: null,
         history: this.clearHistory(),
+
+        doMode: true,
+        doList: true,
+        doFields: true,
+        doViews: false,
+        doItems: false,
+
+        listNo: null,
 
         // 2 - Source and destination list information
 
@@ -262,6 +282,8 @@ public constructor(props:IProvisionFieldsProps){
  *
  */
 
+
+            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } </div>;
 
             let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
 
@@ -373,25 +395,52 @@ public constructor(props:IProvisionFieldsProps){
                 </ul>
             </div>;
 
+            let listDetails = null;
+
+            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true ) {
+                let listJSON = null; 
+                       
+                let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] ));
+                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
+                if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
+                if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
+
+                listJSON = <div style={{ overflowY: 'auto' }}>
+                    <ReactJson src={ tempJSON } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                </div>;
+
+                listDetails = <div style={{display: '' }}>
+                        <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition }</h2></div>
+                        { listJSON }
+                    </div>;
+
+            } 
+
             const stackListTokens: IStackTokens = { childrenGap: 10 };
 
             thisPage = <div><div>{ disclaimers }</div>
 
-                <div> { listDropdown } </div>
+                <div style={{ float: 'left' }}> { listDropdown } </div>
+                <div> { toggles } </div>
                 <div> { provisionButtonRow } </div>
                 <div style={{ height:30} }> {  } </div>
-                <div> { myProgress } </div>
-                <div> {  } </div>
-                <div> <h2>{ this.state.currentList }</h2> </div>
-                <div>
-                <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
-                    { errorList }
-                    { fieldList }
-                    { viewList }
-                    { itemList }
-                </Stack>
-                </div>
 
+                <div style={{display: this.state.doMode === true ? '': 'none' }}>
+                        <div> { myProgress } </div>
+                        <div> {  } </div>
+                        <div> <h2>{ this.state.currentList }</h2> </div>
+                        <div>
+                        <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
+                            { errorList }
+                            { fieldList }
+                            { viewList }
+                            { itemList }
+                        </Stack>
+                        </div>
+                </div>
+                <div style={{display: this.state.doMode === true ? 'none': '' }}>
+                    { listDetails }
+                </div>
             </div>;
 
 /***
@@ -449,25 +498,32 @@ public constructor(props:IProvisionFieldsProps){
 
   private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
 
-    this.setState({ currentList: mapThisList + ' list: ' + mapThisList.title, history: this.clearHistory(), });
+    this.setState({ currentList: mapThisList.listDefinition + ' list: ' + mapThisList.title, history: this.clearHistory(), listNo: listNo });
 
     let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
 
     let readOnly: boolean  = this.isListReadOnly(mapThisList);
 
-    let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this));
+    if ( this.state.doMode === true ) {
+        let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems );
 
-    let stateLists = this.state.lists;
-    stateLists[listNo].listExists = true;
+        let stateLists = this.state.lists;
+        stateLists[listNo].listExists = true;
 
-    let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
+        let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
 
-    if ( listCreated ) {
-        this.setState({
-            currentList: workingMessage + listName,
-            lists: stateLists,
-        });
+        if ( listCreated ) {
+            this.setState({
+                currentList: workingMessage + listName,
+                lists: stateLists,
+            });
+        }
+    } else {
+        console.log( 'listNo, mapThisList', listNo, mapThisList );
     }
+
+
+        
     return "Finished";
   }
 
@@ -781,5 +837,120 @@ public constructor(props:IProvisionFieldsProps){
       }
 
 
+        /***
+         *         d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
+         *         `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'     88'  YP 
+         *            88    88    88 88      88      88      88ooooo `8bo.   
+         *            88    88    88 88  ooo 88  ooo 88      88~~~~~   `Y8b. 
+         *            88    `8b  d8' 88. ~8~ 88. ~8~ 88booo. 88.     db   8D 
+         *            YP     `Y88P'   Y888P   Y888P  Y88888P Y88888P `8888Y' 
+         *                                                                   
+         *                                                                   
+         */
+
+        private getPageToggles() {
+
+            let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Do Mode</span>;
+            let togDoMode = {
+                label: toggleLabel,
+                key: 'togDoMode',
+                _onChange: this.updateTogggleDoMode.bind(this),
+                checked: this.state.doMode,
+                onText: 'Do',
+                offText: 'Show',
+                className: '',
+                styles: '',
+            };
+
+            let togDoList = {
+                label: 'List Props',
+                key: 'togDoList',
+                _onChange: this.updateTogggleDoList.bind(this),
+                checked: this.state.doList,
+                onText: 'Do',
+                offText: 'Show',
+                className: '',
+                styles: '',
+            };
+
+            let togDoFields = {
+                label: 'Fields',
+                key: 'togDoFields',
+                _onChange: this.updateTogggleDoFields.bind(this),
+                checked: this.state.doFields,
+                onText: 'Do',
+                offText: 'Show',
+                className: '',
+                styles: '',
+            };
+
+            let togDoViews = {
+                label: 'Views',
+                key: 'togDoViews',
+                _onChange: this.updateTogggleDoViews.bind(this),
+                checked: this.state.doViews,
+                onText: 'Do',
+                offText: 'Show',
+                className: '',
+                styles: '',
+            };
+
+            
+            let togDoItems = {
+                label: 'Items',
+                key: 'togDoItems',
+                _onChange: this.updateTogggleDoItems.bind(this),
+                checked: this.state.doItems,
+                onText: 'Do',
+                offText: 'Show',
+                className: '',
+                styles: '',
+            };
+
+            let theseToggles = [togDoMode, togDoList, togDoFields, togDoViews, togDoItems ];
+
+            let pageToggles : IContentsToggles = {
+                toggles: theseToggles,
+                childGap: 20,
+                vertical: false,
+                hAlign: 'end',
+                vAlign: 'start',
+                rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+            };
+
+            return pageToggles;
+
+        }
+
+        private updateTogggleDoMode = (item): void => {
+            this.setState({
+                doMode: !this.state.doMode,
+            });
+        }
+
+        private updateTogggleDoList = (item): void => {
+            this.setState({
+                doList: !this.state.doList,
+            });
+        }
+
+        private updateTogggleDoFields = (item): void => {
+            this.setState({
+                doFields: !this.state.doFields,
+            });
+        }
+
+        private updateTogggleDoViews = (item): void => {
+            this.setState({
+                doViews: !this.state.doViews,
+            });
+        }
+
+
+        private updateTogggleDoItems = (item): void => {
+            this.setState({
+                doItems: !this.state.doItems,
+            });
+        }
 
 }
