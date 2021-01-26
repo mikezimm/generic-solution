@@ -7,6 +7,8 @@ import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldSty
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
+import ReactJson from "react-json-view";
+
 import { provisionTheList, IValidTemplate } from './provisionWebPartList';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
@@ -403,9 +405,9 @@ public constructor(props:IProvisionListsProps){
                 if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
                 if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
 
-                listJSON = <div>
-                        { JSON.stringify( tempJSON ) }
-                    </div>;
+                listJSON = <div style={{ overflowY: 'auto' }}>
+                <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                </div>
 
                 listDetails = <div style={{display: '' }}>
                         <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition }</h2></div>
