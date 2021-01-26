@@ -29,6 +29,9 @@ import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/co
 //import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
 import { defineTheList } from './ListProvisioning/Harmonie/defineHarmonie';
 import ProvisionLists from './ListProvisioning/component/provisionListComponent';
+import ProvisionFields from './FieldProvisioning/component/provisionFieldComponent';
+
+
 
 import InspectContents from './Contents/contentsComponent';
 
@@ -368,6 +371,24 @@ public async getListDefinitions( doThis: 'props' | 'state') {
             ></ProvisionLists>
           </div>;
 
+    const provisionFieldPage  = this.props.allowRailsOff !== true ? null : 
+    <div className= { defaultPageClass }>
+      <ProvisionFields 
+          allowOtherSites={ false }
+          alwaysReadOnly = { false }
+          pageContext={ this.props.pageContext }
+          showPane={true}
+          allLoaded={false}
+          currentUser = {this.state.currentUser }
+          lists = { [] }
+
+          definedList = { '' }
+          provisionWebs = { [ this.state.pickedWeb ? this.state.pickedWeb.Url : '' ] }
+          provisionListTitles = { [] }
+
+        ></ProvisionFields>
+      </div>;
+
       const provisionPagesPage = this.props.allowRailsOff !== true ? null :  
         <div className= { defaultPageClass }>
           <ProvisionPages 
@@ -428,6 +449,9 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       :<div className= { defaultPageClass } style={{ paddingLeft: 10, paddingRight: 20 }}>
         <Pivot aria-label="Provision Options"
           defaultSelectedIndex ={2}>
+          <PivotItem headerText="Fields">
+                { provisionFieldPage }
+          </PivotItem>
           <PivotItem headerText="Lists">
                 { provisionListPage }
           </PivotItem>
