@@ -448,7 +448,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         
       :<div className= { defaultPageClass } style={{ paddingLeft: 10, paddingRight: 20 }}>
         <Pivot aria-label="Provision Options"
-          defaultSelectedIndex ={2}>
+          defaultSelectedIndex ={ 3 }>
           <PivotItem headerText="Fields">
                 { provisionFieldPage }
           </PivotItem>

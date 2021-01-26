@@ -14,6 +14,8 @@ import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionList.module.scss';
 import { IMyProgress, IUser } from '../../IReUsableInterfaces';
 
+import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
+
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import ButtonCompound from '../../createButtons/ICreateButtons';
@@ -108,6 +110,13 @@ export interface IProvisionListsState {
     progress: IMyProgress;
     history: IMyHistory;
 
+    doMode: boolean;
+    doList: boolean;
+    doFields: boolean;
+    doViews: boolean;
+    doItems: boolean;
+
+
     currentList: string;
 
     // 2 - Source and destination list information
@@ -182,6 +191,12 @@ public constructor(props:IProvisionListsProps){
         allLoaded: this.props.allLoaded,
         progress: null,
         history: this.clearHistory(),
+
+        doMode: true,
+        doList: true,
+        doFields: true,
+        doViews: false,
+        doItems: false,
 
         // 2 - Source and destination list information
 
@@ -262,6 +277,8 @@ public constructor(props:IProvisionListsProps){
  *
  */
 
+
+            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } </div>;
 
             let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
 
@@ -373,25 +390,37 @@ public constructor(props:IProvisionListsProps){
                 </ul>
             </div>;
 
+            let listJSON = this.state.doMode === true ? null : 
+                <div>
+                    { JSON.stringify( this.state.lists[0] ) }
+                </div>;
+
+
             const stackListTokens: IStackTokens = { childrenGap: 10 };
 
             thisPage = <div><div>{ disclaimers }</div>
 
-                <div> { listDropdown } </div>
+                <div style={{ float: 'left' }}> { listDropdown } </div>
+                <div> { toggles } </div>
                 <div> { provisionButtonRow } </div>
                 <div style={{ height:30} }> {  } </div>
-                <div> { myProgress } </div>
-                <div> {  } </div>
-                <div> <h2>{ this.state.currentList }</h2> </div>
-                <div>
-                <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
-                    { errorList }
-                    { fieldList }
-                    { viewList }
-                    { itemList }
-                </Stack>
-                </div>
 
+                <div style={{display: this.state.doMode === true ? '': 'none' }}>
+                        <div> { myProgress } </div>
+                        <div> {  } </div>
+                        <div> <h2>{ this.state.currentList }</h2> </div>
+                        <div>
+                        <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
+                            { errorList }
+                            { fieldList }
+                            { viewList }
+                            { itemList }
+                        </Stack>
+                        </div>
+                </div>
+                <div style={{display: this.state.doMode === true ? 'none': '' }}>
+                    { listJSON }
+                </div>
             </div>;
 
 /***
@@ -455,19 +484,26 @@ public constructor(props:IProvisionListsProps){
 
     let readOnly: boolean  = this.isListReadOnly(mapThisList);
 
-    let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this));
+    if ( this.state.doMode === true ) {
+        let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this));
 
-    let stateLists = this.state.lists;
-    stateLists[listNo].listExists = true;
+        let stateLists = this.state.lists;
+        stateLists[listNo].listExists = true;
 
-    let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
+        let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
 
-    if ( listCreated ) {
-        this.setState({
-            currentList: workingMessage + listName,
-            lists: stateLists,
-        });
+        if ( listCreated ) {
+            this.setState({
+                currentList: workingMessage + listName,
+                lists: stateLists,
+            });
+        }
+    } else {
+        console.log( 'listNo, mapThisList', listNo, mapThisList );
     }
+
+
+        
     return "Finished";
   }
 
@@ -781,5 +817,121 @@ public constructor(props:IProvisionListsProps){
       }
 
 
+        /***
+         *         d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
+         *         `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'     88'  YP 
+         *            88    88    88 88      88      88      88ooooo `8bo.   
+         *            88    88    88 88  ooo 88  ooo 88      88~~~~~   `Y8b. 
+         *            88    `8b  d8' 88. ~8~ 88. ~8~ 88booo. 88.     db   8D 
+         *            YP     `Y88P'   Y888P   Y888P  Y88888P Y88888P `8888Y' 
+         *                                                                   
+         *                                                                   
+         */
+
+        private getPageToggles() {
+
+            let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Do Mode</span>;
+            let togDoMode = {
+                label: toggleLabel,
+                key: 'togggleDoModeOff',
+                _onChange: this.updateTogggleDoMode.bind(this),
+                checked: this.state.doMode,
+                onText: 'Do',
+                offText: 'Show',
+                className: '',
+                styles: '',
+            };
+
+            let togDoList = {
+                label: 'List Props',
+                key: 'togggleDoModeOff',
+                _onChange: this.updateTogggleDoList.bind(this),
+                checked: this.state.doList,
+                onText: 'Do',
+                offText: 'Show',
+                className: '',
+                styles: '',
+            };
+
+            let togDoFields = {
+                label: 'Fields',
+                key: 'togggleDoModeOff',
+                _onChange: this.updateTogggleDoFields.bind(this),
+                checked: this.state.doFields,
+                onText: 'Do',
+                offText: 'Show',
+                className: '',
+                styles: '',
+            };
+
+            let togDoViews = {
+                label: 'Views',
+                key: 'togggleDoModeOff',
+                _onChange: this.updateTogggleDoViews.bind(this),
+                checked: this.state.doViews,
+                onText: 'Do',
+                offText: 'Show',
+                className: '',
+                styles: '',
+            };
+
+            
+            let togDoItems = {
+                label: 'Items',
+                key: 'togggleDoModeOff',
+                _onChange: this.updateTogggleDoItems.bind(this),
+                checked: this.state.doItems,
+                onText: 'Do',
+                offText: 'Show',
+                className: '',
+                styles: '',
+            };
+
+            let theseToggles = [togDoMode, togDoList, togDoFields, togDoViews, togDoItems ];
+
+            let pageToggles : IContentsToggles = {
+                toggles: theseToggles,
+                childGap: 20,
+                vertical: false,
+                hAlign: 'end',
+                vAlign: 'start',
+                rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+            };
+
+            return pageToggles;
+
+        }
+
+
+        private updateTogggleDoMode() {
+            this.setState({
+                doMode: !this.state.doMode,
+            });
+        }
+
+        private updateTogggleDoList() {
+            this.setState({
+                doList: !this.state.doList,
+            });
+        }
+
+        private updateTogggleDoFields() {
+            this.setState({
+                doFields: !this.state.doFields,
+            });
+        }
+
+        private updateTogggleDoViews() {
+            this.setState({
+                doViews: !this.state.doViews,
+            });
+        }
+
+
+        private updateTogggleDoItems() {
+            this.setState({
+                doItems: !this.state.doItems,
+            });
+        }
 
 }
