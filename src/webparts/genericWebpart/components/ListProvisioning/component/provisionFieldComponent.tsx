@@ -36,7 +36,7 @@ import { getHelpfullError, } from '../../../../../services/ErrorHandler';
 import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '../../../../../services/stringServices';
 
 import { IFieldDef } from '../../fields/fieldDefinitions';
-import { createBasicTextField } from  '../../fields/textFieldBuilder';
+import { createBasicTextField, createMultiLineTextField } from  '../../fields/textFieldBuilder';
 
 /**
  * Steps to add new list def:
@@ -117,6 +117,7 @@ export interface IProvisionFieldsState {
     doFields: boolean;
     doViews: boolean;
     doItems: boolean;
+    doEdit: boolean;
 
     listNo: number;
 
@@ -175,7 +176,7 @@ public constructor(props:IProvisionFieldsProps){
     super(props);
 
     let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
-    let theLists = this.getDefinedLists(definedList, true) ;
+    let theLists = [] ;
 
     let allowOtherSites = this.props.allowOtherSites === true ? true : false;
     let alwaysReadOnly = this.props.alwaysReadOnly === true ? true : false;
@@ -200,6 +201,7 @@ public constructor(props:IProvisionFieldsProps){
         doFields: true,
         doViews: false,
         doItems: false,
+        doEdit: false,
 
         listNo: null,
 
@@ -285,15 +287,11 @@ public constructor(props:IProvisionFieldsProps){
 
             let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } </div>;
 
-            let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
-
             let thisPage = null;
             let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
 
             let createButtonOnClicks = [
                 this.CreateList_0.bind(this),
-                this.CreateList_1.bind(this),
-                this.CreateList_2.bind(this),
             ];
 
             const buttons: ISingleButtonProps[] = this.state.lists.map (( thelist, index ) => {
@@ -341,6 +339,16 @@ public constructor(props:IProvisionFieldsProps){
                 return {     disabled: isDisabled,  checked: true, primary: false,
                     label: theLabel, buttonOnClick: createButtonOnClicks[index], };
             });
+
+
+            let listDefInputField = null;
+            let editToggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getEditToggles()) } </div>;
+
+            if ( this.state.lists && this.state.doMode !== true && this.state.doEdit === true ) { 
+                let JSONString = JSON.stringify(this.state.lists[0]);
+                listDefInputField = createMultiLineTextField( 'Paste List JSON', JSONString, this.UpdateJSON.bind(this), styles.listProvTextField1 );
+            }
+            
 
             //let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
             let updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
@@ -397,7 +405,7 @@ public constructor(props:IProvisionFieldsProps){
 
             let listDetails = null;
 
-            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true ) {
+            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true && this.state.doEdit !== true ) {
                 let listJSON = null; 
                        
                 let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] ));
@@ -420,7 +428,6 @@ public constructor(props:IProvisionFieldsProps){
 
             thisPage = <div><div>{ disclaimers }</div>
 
-                <div style={{ float: 'left' }}> { listDropdown } </div>
                 <div> { toggles } </div>
                 <div> { provisionButtonRow } </div>
                 <div style={{ height:30} }> {  } </div>
@@ -439,6 +446,8 @@ public constructor(props:IProvisionFieldsProps){
                         </div>
                 </div>
                 <div style={{display: this.state.doMode === true ? 'none': '' }}>
+                    { editToggles }
+                    { listDefInputField }
                     { listDetails }
                 </div>
             </div>;
@@ -484,16 +493,6 @@ public constructor(props:IProvisionFieldsProps){
   private CreateList_0(oldVal: any): any {
     let mapThisList: IMakeThisList = this.state.lists[0];
     this.CreateThisList(mapThisList, 0 );
-  }
-
-  private CreateList_1(oldVal: any): any {
-    let mapThisList: IMakeThisList = this.state.lists[1];
-    this.CreateThisList(mapThisList, 1 );
-  }
-
-  private CreateList_2(oldVal: any): any {
-    let mapThisList: IMakeThisList = this.state.lists[2];
-    this.CreateThisList(mapThisList, 2 );
   }
 
   private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
@@ -816,6 +815,36 @@ public constructor(props:IProvisionFieldsProps){
         this.UpdateTitles(oldVal,2);
       }
 
+      private UpdateJSON(oldVal: any): any {
+        let newMapThisList = null;
+
+        try {
+            let doFields = this.state.doFields;
+            let doViews = this.state.doViews;
+            let doItems = this.state.doItems;
+
+            newMapThisList = JSON.parse(oldVal);
+
+            if ( this.state.lists.length === 0 ) {
+                if (  newMapThisList.createTheseFields && newMapThisList.createTheseFields.length > 0 ) { } else { doFields = false ; }
+                if (  newMapThisList.createTheseViews && newMapThisList.createTheseViews.length > 0 ) { } else { doViews = false ; }
+                if (  newMapThisList.createTheseItems && newMapThisList.createTheseItems.length > 0 ) { } else { doItems = false ; }
+            }
+
+            this.setState({ 
+                lists: [newMapThisList],
+                doFields: doFields,
+                doViews: doViews,
+                doItems: doItems,
+                listNo: 0,
+            });
+
+        } catch (e) {
+            alert('Opps! Invalid JSON!');
+        }
+
+      }
+
       private UpdateTitles( oldVal: any, index: number ) {
         let provisionListTitles = this.state.provisionListTitles;
         provisionListTitles[index] = oldVal;
@@ -847,6 +876,33 @@ public constructor(props:IProvisionFieldsProps){
          *                                                                   
          *                                                                   
          */
+        private getEditToggles() {
+
+            let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Edit or View</span>;
+            let togDoEdit = {
+                label: toggleLabel,
+                key: 'togDoEdit',
+                _onChange: this.updateTogggleDoEdit.bind(this),
+                checked: this.state.doEdit,
+                onText: 'Edit',
+                offText: 'View',
+                className: '',
+                styles: '',
+            };
+            let theseToggles = [ togDoEdit ];
+
+            let pageToggles : IContentsToggles = {
+                toggles: theseToggles,
+                childGap: 20,
+                vertical: false,
+                hAlign: 'end',
+                vAlign: 'start',
+                rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+            };
+
+            return pageToggles;
+
+        }
 
         private getPageToggles() {
 
@@ -920,6 +976,12 @@ public constructor(props:IProvisionFieldsProps){
 
             return pageToggles;
 
+        }
+
+        private updateTogggleDoEdit = (item): void => {
+            this.setState({
+                doEdit: !this.state.doEdit,
+            });
         }
 
         private updateTogggleDoMode = (item): void => {
