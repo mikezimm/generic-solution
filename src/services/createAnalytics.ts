@@ -1,5 +1,7 @@
-//Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
-import { Web } from "@pnp/sp/presets/all";
+import { sp } from '@pnp/sp';
+import { Web, } from '@pnp/sp/presets/all';
+
+import { getHelpfullError } from  './ErrorHandler';
 
 export function getBrowser(validTypes,changeSiteIcon){
 
@@ -8,87 +10,105 @@ export function getBrowser(validTypes,changeSiteIcon){
 
 }
 
+function getUrlVars() {
+    let vars = {};
+    if ( !location.search || location.search.length === 0 ) { return [] ; }
+    vars = location.search
+    .slice(1)
+    .split('&')
+    .map(p => p.split('='))
+    .reduce((obj, pair) => {
+      const [key, value] = pair.map(decodeURIComponent);
+      return ({ ...obj, [key]: value }) ;
+    }, {});
+    let params = Object.keys(vars).map( k => { return k + '=' + vars[k] ; } );
+    return params;
+  }
+
 /**
  * Be sure to update your analyticsList and analyticsWeb in en-us.js strings file
  * @param theProps 
  * @param theState 
  */
-export function saveAnalytics (theProps,theState) {
+export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, ActionJSON ) {
 
     //Do nothing if either of these strings is blank
-    if (!theProps.analyticsList) { return ; }
-    if (!theProps.analyticsWeb) { return ; }
+    if (!analyticsList) { return ; }
+    if (!analyticsWeb) { return ; }
 
-    if (  theProps.analyticsWeb.indexOf(theProps.tenant) === -1 ) {
-        //The current site is not in the expected tenant... skip analytics.
-        console.log('the analyticsWeb is not in the same tenant...',theProps.analyticsWeb,theProps.tenant);
-        return ;
-    } else {
+    //console.log('saveAnalytics: ', theProps, theState);
+    let startTime = getTheCurrentTime();
+    let web = Web(analyticsWeb);
+    //alert(delta);
+    //alert(getBrowser("Chrome",false));
+    /*
 
-        //console.log('saveAnalytics: ', theProps, theState);
-        let analyticsList = theProps.analyticsList;
-        let startTime = theProps.startTime;
-        let endTime = theState.endTime;
+    */
 
-        //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
-        const web = Web(theProps.analyticsWeb);
-
-        const delta = endTime.now - startTime.now;
-        //alert(delta);
-        //alert(getBrowser("Chrome",false));
-        /*
-
-        */
-        let siteLink = {
-            'Url': theProps.pageContext.web.serverRelativeUrl,
-            'Description': theProps.pageContext.web.serverRelativeUrl ,
-        };
-        
-        let itemInfo1 = "(" + theState.allTiles.length + ")"  + " - " +  theProps.getAll + " - " + " - " + theProps.listDefinition;
-        let itemInfo2 = "(" + theProps.listTitle + ")"  + " - " +  theProps.listWebURL;
-
-        let itemInfoProps = theProps.setSize +
-                " ImgFit: " +  theProps.setImgFit;
-
-        let heroCount;
-        if (theProps.heroTiles) { 
-            let itemInfoHero = 
-            " ShowHero: " +  theProps.showHero +
-            " HeroType: " +  theProps.heroType +
-            " HeroFit: " +  theProps.setHeroFit;
-            heroCount = theProps.heroTiles.length;
-            itemInfoProps += ' -Hero: ' + itemInfoHero; }
-    
-        web.lists.getByTitle(analyticsList).items.add({
-            'Title': ['Pivot-Tiles',theProps.scenario,theProps.setSize,theProps.heroType].join(' : '),
-            'zzzText1': startTime.now,      
-            'zzzText2': startTime.theTime,
-            'zzzNumber1': startTime.milliseconds,
-            'zzzText3': endTime.now,      
-            'zzzText4': endTime.theTime,
-            'zzzNumber2': endTime.milliseconds,
-            'zzzNumber3': delta,
-            'zzzNumber4': theState.allTiles.length,
-            'zzzNumber5': heroCount,
-            'zzzText5': itemInfo1,
-            'zzzText6': itemInfo2,
-            'zzzText7': itemInfoProps,
-            'SiteLink': siteLink,
-            'SiteTitle': theProps.pageContext.web.title,
-            'ListTitle': theProps.listTitle,
-
-
-            }).then((response) => {
-            //Reload the page
-                //location.reload();
-            }).catch((e) => {
-            //Throw Error
-                alert(e);
-        });
-
+    if ( !SiteLink || SiteLink === '' ) {
+        SiteLink = window.location.origin + window.location.pathname ;
+        if ( SiteLink.toLowerCase().indexOf('/sitePages/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/sitePages/')  );  }
+        if ( SiteLink.toLowerCase().indexOf('/documents/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/documents/')  );  }
+        if ( SiteLink.toLowerCase().indexOf('/siteassets/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/siteassets/')  );  }
+        if ( SiteLink.toLowerCase().indexOf('/lists/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/lists/')  );  }  
+        if ( SiteLink.toLowerCase().indexOf('/_layouts/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/_layouts/')  );  }       
     }
 
+    if ( webTitle === '' || !webTitle ) {
+        webTitle = SiteLink.substring(SiteLink.lastIndexOf("/") + 1);
+    }
 
+    let siteLink = {
+        'Url': SiteLink && SiteLink.indexOf('http') === 0 ? SiteLink : window.location.origin + SiteLink,
+        'Description': webTitle ,
+    };
+    
+    let targetSite = !TargetSite ? null : {
+        'Url': TargetSite.indexOf('http') === 0 ? TargetSite : window.location.origin + TargetSite,
+        'Description': TargetSite.replace(window.location.origin,'') ,
+    };
+
+    let targetList = !TargetList ? null :{
+        'Url': TargetList.indexOf('http') === 0 ? TargetList : window.location.origin + TargetList,
+        'Description': TargetList.replace(window.location.origin,'').replace(webTitle,'').replace(webTitle.toLowerCase(),'').replace('/lists',''),
+    };
+    
+    let PageURL = window.location.href;
+    let PageTitle = PageURL;
+    if ( PageTitle.indexOf('?') > 0 ) { PageTitle = PageTitle.substring(0, PageTitle.indexOf('?') -1 ) ; }
+    let PageLink = {
+        'Url': PageURL,
+        'Description': PageTitle.substring(PageTitle.lastIndexOf("/") + 1),
+    };
+/*
+    let ignoreKeys = [ 'pageContext', 'context', 'loadListItems', 'convertCategoryToIndex', 'WebpartElement', 'themeVariant', 'startTime' ];
+    Object.keys(theProps).map( key => {
+        if ( ignoreKeys.indexOf(key) < 0 ) { propsJSON[key] = theProps[key]; }
+    });
+*/
+
+    web.lists.getByTitle(analyticsList).items.add({
+        'Title': saveTitle,
+        'PageLink': PageLink,
+        'zzzText1': startTime.now,      
+        'zzzText2': startTime.theTime,
+        'zzzText3': itemInfo1,
+        'zzzText4': itemInfo2,
+        'SiteLink': siteLink,
+        'SiteTitle': webTitle,
+        'TargetSite': targetSite,
+        'Result': result,
+        'TargetList': targetList,
+        'zzzRichText1': ActionJSON ? JSON.stringify(ActionJSON) : null ,
+        'getParams': getUrlVars().join(' & '),
+        }).then((response) => {
+        //Reload the page
+            //location.reload();
+        }).catch((e) => {
+        //Throw Error
+            //alert(e);
+            console.log('e',getHelpfullError(e, true,true) );
+    });
 
 }
 
@@ -97,9 +117,7 @@ export function saveAnalyticsX (theTime) {
 
     let analyticsList = "TilesCycleTesting";
     let currentTime = theTime;
-    
-    //Updated Jan 5, 2020 per https://pnp.github.io/pnpjs/getting-started/
-    const web = Web('https://mcclickster.sharepoint.com/sites/Templates/SiteAudit/');
+    let web = Web('https://mcclickster.sharepoint.com/sites/Templates/SiteAudit/');
 
     web.lists.getByTitle(analyticsList).items.add({
         'Title': 'Pivot-Tiles x1asdf',

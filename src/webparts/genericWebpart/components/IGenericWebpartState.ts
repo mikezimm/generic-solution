@@ -9,6 +9,7 @@ import { ISelectedUser, } from './Charts/charts';
 import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
 
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
+import { IDefinedLists } from './ListProvisioning/component/provisionListComponent';
 
 
 
@@ -120,6 +121,8 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
     childListTitle: string;  // Static Name of list (for URL) - used for links and determined by first returned item
   
     pickedWeb : IPickedWebBasic;
+
+    makeThisList: IMakeThisList;
 
     // 3 - General how accurate do you want this to be
   

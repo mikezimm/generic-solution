@@ -70,7 +70,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     if ( listDefinition === 'Drilldown' ) {
         makeThisList.createTheseFields = PreConfiguredListTemplates('Drilldown');
         makeThisList.createTheseViews = PreConfigViews;
-//        makeThisList.createTheseItems = TMTDefaultProjectItems;
+        makeThisList.createTheseItems = [] ;// = TMTDefaultProjectItems;
         makeThisList.autoItemCreate = true;
 //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 
@@ -78,7 +78,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     } else if ( listDefinition === 'Drilldown' ) {
         makeThisList.createTheseFields = PreConfiguredListTemplates('Drilldown');
         makeThisList.createTheseViews = PreConfigViews;
-//        makeThisList.createTheseItems =  TMTTestTimeItems(currentUser);
+        makeThisList.createTheseItems = [] ;// =  TMTTestTimeItems(currentUser);
         makeThisList.autoItemCreate = false;
 //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
     }

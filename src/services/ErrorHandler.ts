@@ -15,6 +15,12 @@
     let detailItem = null;
     if (result.indexOf('Failed to fetch') > -1 ) { friendlyMessage = 'This can happen if the web url is not valid.'; }
     if (result.indexOf('A null value was detected in the items of a collection property value') > -1 ) { friendlyMessage= 'This can happen if you are saving a null value where an array is expected... Maybe try saving an empty array instead :).'; }
+
+    
+    if (result.indexOf('An unexpected \'StartObject\' node was found when reading from the JSON reader. A \'PrimitiveValue\' node was expected.') > -1 ) { 
+      friendlyMessage = 'Common causes:  Saving a Url Object or JSON Object to string column.';
+    }
+
     if (result.indexOf('An unexpected \'PrimitiveValue\' node was found when reading from the JSON reader. A \'StartObject\' node was expected') > -1 ) { 
       friendlyMessage = 'Common causes:  Saving a string to a URL column, saving text to multi-select choice column.';
     }

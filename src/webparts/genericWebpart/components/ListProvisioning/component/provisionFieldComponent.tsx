@@ -35,6 +35,8 @@ import { IMakeThisList } from './provisionWebPartList';
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
 import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '../../../../../services/stringServices';
 
+import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
+
 import { IFieldDef } from '../../fields/fieldDefinitions';
 import { createBasicTextField, createMultiLineTextField } from  '../../fields/textFieldBuilder';
 
@@ -71,6 +73,13 @@ export interface IProvisionFieldsProps {
 
     pageContext: PageContext;
 
+    // 1 - Analytics options
+    useListAnalytics: boolean;
+    analyticsWeb: string;
+    analyticsList: string;
+    tenant: string;
+    urlVars: {};
+
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning lists on other sites.
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
 
@@ -85,6 +94,9 @@ export interface IProvisionFieldsProps {
     provisionListTitles: string[];
 
     // 2 - Source and destination list information
+
+    makeThisList: IMakeThisList;
+    updateMakeThisList: any;
 
     lists: IMakeThisList[];
 
@@ -125,6 +137,8 @@ export interface IProvisionFieldsState {
     provisionListTitles: string[];
 
     // 2 - Source and destination list information
+    makeThisList: IMakeThisList;
+
     lists: IMakeThisList[];
 
 }
@@ -146,17 +160,43 @@ export default class ProvisionFields extends React.Component<IProvisionFieldsPro
         return thisField;
     }
 
-private clearHistory() {
-    let history: IMyHistory = {
-        count: 0,
-        errors: [],
-        columns: [],
-        views: [],
-        items: [],
-    };
-    return history;
+    private captureAnalytics(itemInfo2, result, ActionJSON ){
+        let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
 
-}
+        let TargetList = '';
+        let TargetSite = '';
+
+        if ( this.state && this.state.lists && this.state.lists[0] ) {
+            TargetList = this.state.lists[0] ? this.state.lists[0].listURL : '';
+            TargetSite = this.state.lists[0] ? this.state.lists[0].webURL : '';  
+
+        } else {
+            TargetList = this.props.makeThisList ? this.props.makeThisList.listURL : '';
+            TargetSite = this.props.makeThisList ? this.props.makeThisList.webURL : ''; 
+
+        }
+
+        //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
+        saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
+            currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
+            'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
+            'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
+            ActionJSON ); //richText
+
+    }
+
+    private clearHistory() {
+        let history: IMyHistory = {
+            count: 0,
+            errors: [],
+            columns: [],
+            views: [],
+            items: [],
+        };
+        return history;
+
+    }
+
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b.
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D
@@ -172,7 +212,7 @@ public constructor(props:IProvisionFieldsProps){
     super(props);
 
     let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
-    let theLists = [] ;
+    let theLists = this.props.makeThisList ? [ this.props.makeThisList ] : [] ;
 
     let allowOtherSites = this.props.allowOtherSites === true ? true : false;
     let alwaysReadOnly = this.props.alwaysReadOnly === true ? true : false;
@@ -183,6 +223,12 @@ public constructor(props:IProvisionFieldsProps){
         alwaysReadOnly = false;
     }
 
+    this.captureAnalytics('Constructor', 'Loading', null);
+
+    let makeThisList : IMakeThisList = this.props.makeThisList ? this.props.makeThisList : null ;
+
+    let provisionListTitles : string[] = this.props.provisionListTitles[0] && this.props.provisionListTitles[0].length > 0 ? [this.props.provisionListTitles[0]] : [ makeThisList.title ];
+
     this.state = {
 
         allowOtherSites: allowOtherSites,
@@ -192,20 +238,21 @@ public constructor(props:IProvisionFieldsProps){
         progress: null,
         history: this.clearHistory(),
 
-        doMode: true,
+        doMode: false,
         doList: true,
         doFields: true,
-        doViews: false,
+        doViews: true,
         doItems: false,
-        doEdit: false,
+        doEdit: makeThisList ? false : true ,
 
-        listNo: null,
+        listNo: makeThisList ? 0 : null,
 
         // 2 - Source and destination list information
 
+
         definedList: definedList,
         provisionWebs: this.props.provisionWebs.map( web => { return cleanURL(web) ; } ),
-        provisionListTitles: this.props.provisionListTitles,
+        provisionListTitles: provisionListTitles,
 
         //parentListURL: parentWeb + 'lists/' + this.props.parentListTitle, //Get from list item
         //childListURL: childWeb + 'lists/' + this.props.childListTitle, //Get from list item
@@ -217,6 +264,7 @@ public constructor(props:IProvisionFieldsProps){
         //childListTitle: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
 
         lists: theLists,
+        makeThisList: makeThisList,
 
     };
 
@@ -294,11 +342,7 @@ public constructor(props:IProvisionFieldsProps){
                 let theLabel = null;
                 let isDisabled = !thelist.webExists;
 
-                if ( this.state.definedList === availLists[0] ) {
-                    isDisabled = true;
-                    theLabel = availLists[0];
-
-                } else if ( thelist.webExists ) {
+                if ( thelist.webExists ) {
                     if ( thelist.title === '' ) {
                         theLabel = "Update Title";
                         isDisabled = true;
@@ -347,7 +391,7 @@ public constructor(props:IProvisionFieldsProps){
             
 
             //let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
-            let updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
+            let updateTitleFunctions = [this.UpdateTitle_0.bind(this)];
             let provisionButtons = buttons.map ( ( theButton, index ) => {
                 let thisTitle = this.state.provisionListTitles[index];
                 let titleBox = createBasicTextField(this.createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], styles.listProvTextField1 );
@@ -411,11 +455,11 @@ public constructor(props:IProvisionFieldsProps){
                 if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
 
                 listJSON = <div style={{ overflowY: 'auto' }}>
-                    <ReactJson src={ tempJSON } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                    <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
                 </div>;
 
-                listDetails = <div style={{display: '' }}>
-                        <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition }</h2></div>
+                listDetails = <div style={{display: '', marginBottom: '30px' }}>
+                        <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { links.JSONEditorShort } </span></h2></div>
                         { listJSON }
                     </div>;
 
@@ -501,6 +545,9 @@ public constructor(props:IProvisionFieldsProps){
     let readOnly: boolean  = this.isListReadOnly(mapThisList);
 
     if ( this.state.doMode === true ) {
+
+        this.captureAnalytics('Update List', 'Updating', mapThisList);
+
         let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems );
 
         let stateLists = this.state.lists;
@@ -804,14 +851,6 @@ public constructor(props:IProvisionFieldsProps){
         this.UpdateTitles(oldVal,0);
       }
 
-      private UpdateTitle_1(oldVal: any): any {
-        this.UpdateTitles(oldVal,1);
-      }
-
-      private UpdateTitle_2(oldVal: any): any {
-        this.UpdateTitles(oldVal,2);
-      }
-
       private UpdateJSON(oldVal: any): any {
         let newMapThisList = null;
 
@@ -855,13 +894,13 @@ public constructor(props:IProvisionFieldsProps){
 
         let definedList = this.state.definedList;
 
-        let reDefinedLists = this.getDefinedLists(definedList, true);
-        reDefinedLists[index].name = listName;
-        reDefinedLists[index].title = oldVal;
-        reDefinedLists[index].desc = oldVal + ' list for this Webpart';
-        reDefinedLists[index].listURL = this.state.provisionWebs[index] + ( reDefinedLists[index].template === 100 ? 'Lists/' : '') + listName;
+        let reDefinedList :  IMakeThisList = stateLists[0];
+        reDefinedList.name = listName;
+        reDefinedList.title = oldVal;
+        reDefinedList.desc = oldVal + ' list for this Webpart';
+        reDefinedList.listURL = this.state.provisionWebs[index] + ( reDefinedList.template === 100 ? 'Lists/' : '') + listName;
 
-        this.checkThisWeb(index, reDefinedLists, definedList);
+        this.checkThisWeb(index, [ reDefinedList ], definedList);
 
       }
 
@@ -906,14 +945,14 @@ public constructor(props:IProvisionFieldsProps){
 
         private getPageToggles() {
 
-            let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Do Mode</span>;
+            let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Mode</span>;
             let togDoMode = {
                 label: toggleLabel,
                 key: 'togDoMode',
                 _onChange: this.updateTogggleDoMode.bind(this),
                 checked: this.state.doMode,
-                onText: 'Do',
-                offText: 'Show',
+                onText: 'Build',
+                offText: 'Design',
                 className: '',
                 styles: '',
             };
@@ -923,8 +962,8 @@ public constructor(props:IProvisionFieldsProps){
                 key: 'togDoList',
                 _onChange: this.updateTogggleDoList.bind(this),
                 checked: this.state.doList,
-                onText: 'Do',
-                offText: 'Show',
+                onText: 'Include',
+                offText: 'Skip',
                 className: '',
                 styles: '',
             };
@@ -934,8 +973,8 @@ public constructor(props:IProvisionFieldsProps){
                 key: 'togDoFields',
                 _onChange: this.updateTogggleDoFields.bind(this),
                 checked: this.state.doFields,
-                onText: 'Do',
-                offText: 'Show',
+                onText: 'Include',
+                offText: 'Skip',
                 className: '',
                 styles: '',
             };
@@ -945,8 +984,8 @@ public constructor(props:IProvisionFieldsProps){
                 key: 'togDoViews',
                 _onChange: this.updateTogggleDoViews.bind(this),
                 checked: this.state.doViews,
-                onText: 'Do',
-                offText: 'Show',
+                onText: 'Include',
+                offText: 'Skip',
                 className: '',
                 styles: '',
             };
@@ -957,8 +996,8 @@ public constructor(props:IProvisionFieldsProps){
                 key: 'togDoItems',
                 _onChange: this.updateTogggleDoItems.bind(this),
                 checked: this.state.doItems,
-                onText: 'Do',
-                offText: 'Show',
+                onText: 'Include',
+                offText: 'Skip',
                 className: '',
                 styles: '',
             };

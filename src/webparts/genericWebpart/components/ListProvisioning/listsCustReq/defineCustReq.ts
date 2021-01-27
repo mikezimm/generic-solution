@@ -72,7 +72,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 //    if ( listDefinition !== 'Program' ) {
         makeThisList.createTheseFields = CustReqFields(listDefinition);
         makeThisList.createTheseViews = CustReqViews(listDefinition);
-//        makeThisList.createTheseItems = TMTDefaultProjectItems;
+        makeThisList.createTheseItems = [] ; // = TMTDefaultProjectItems;
         makeThisList.autoItemCreate = true;
 //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 
@@ -80,7 +80,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 //    } else if ( listDefinition === 'SORInfo' ) {
 //        makeThisList.createTheseFields = CustReqFields(listDefinition);
 //        makeThisList.createTheseViews = CustReqViews;
-//        makeThisList.createTheseItems =  TMTTestTimeItems(currentUser);
+        makeThisList.createTheseItems = [] ;// =  TMTTestTimeItems(currentUser);
 //        makeThisList.autoItemCreate = false;
 //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
 //    }

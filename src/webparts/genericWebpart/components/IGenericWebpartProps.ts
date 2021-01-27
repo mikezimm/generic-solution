@@ -13,8 +13,7 @@ export interface IGenericWebpartProps {
   pageContext: PageContext;
   wpContext: WebPartContext;
 
-  tenant: string;
-  urlVars: {};
+
   today: ITheTime;
   WebpartElement: HTMLElement;   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
@@ -23,7 +22,9 @@ export interface IGenericWebpartProps {
   useListAnalytics: boolean;
   analyticsWeb?: string;
   analyticsList?: string;
-
+  tenant: string;
+  urlVars: {};
+  
   // 2 - Source and destination list information
   parentListTitle: string;
   parentListWeb: string;

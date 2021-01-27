@@ -172,7 +172,7 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     if ( readOnly === true  ) {
         alert( 'Your list has been checked... scroll down to see the results :)' );
 
-    } else if ( makeThisList.alternateItemCreateMessage ) {
+    } else if ( doItems === true && createItems === true && makeThisList.alternateItemCreateMessage ) {
         alert( makeThisList.alternateItemCreateMessage );
 
     } else {

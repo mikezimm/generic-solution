@@ -250,8 +250,8 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
 
         // 1 - Analytics options
         useListAnalytics: this.properties.useListAnalytics,
-        analyticsWeb: strings.analyticsWeb,
         analyticsList: strings.analyticsList,
+        analyticsWeb: tenant + strings.analyticsWeb,
       
         // 2 - Source and destination list information
         parentListTitle: this.properties.parentListTitle,
