@@ -63,12 +63,8 @@ import { doesObjectExistInArray } from '../../../../../services/arrayServices';
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
  */
-export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | '';
-const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements','Drilldown'];
 
-const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles'];
-
-const dropDownWidth = 200;
+import { IDefinedLists, availLists, definedLists, dropDownWidth } from './provisionListComponent';
 
 export interface IProvisionFieldsProps {
     // 0 - Context
@@ -395,7 +391,8 @@ public constructor(props:IProvisionFieldsProps){
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
-                <span style={{ fontSize : 'xx-large'}}><mark>THIS PAGE IS BROKEN AND CAN RUIN LISTS... DO NOT USE</mark></span>
+                <span style={{ fontSize : 'xx-large'}}><mark>THIS PAGE IS CAN BREAK LISTS</mark></span>
+                <p>Every click is tracked :)</p>
                 <p>When selecting list type, it should set default list titles per list type.</p>
                 <ul>
                     <li>Set Title in onCreate</li>
@@ -831,11 +828,14 @@ public constructor(props:IProvisionFieldsProps){
                 if (  newMapThisList.createTheseItems && newMapThisList.createTheseItems.length > 0 ) { } else { doItems = false ; }
             }
 
+            let definedList = newMapThisList.definedList;
+
             this.setState({ 
                 lists: [newMapThisList],
                 doFields: doFields,
                 doViews: doViews,
                 doItems: doItems,
+                definedList: definedList,
                 listNo: 0,
             });
 

@@ -5,11 +5,13 @@ import { projectViews} from './viewsPivotTiles';  //Import view arrays for Proje
 
 import { IMyProgress, IUser } from '../../IReUsableInterfaces';
 
-import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
+import { IMakeThisList, provisionTheList,  } from '../component/provisionWebPartList';
 
 export type IValidTemplate = 100 | 101;
 
 import { cleanURL, camelize, cleanSPListURL } from '../../../../../services/stringServices';
+
+import { IDefinedLists } from '../component/provisionListComponent';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listTitle : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'OurTiles' | 'PivotTiles' , webURL: string, currentUser: IUser, pageURL: string ) {
@@ -38,6 +40,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 
     let makeThisList:  IMakeThisList = {
 
+        definedList: 'PivotTiles',
         title: listTitle,
         name: listName,
         webURL: webURL,

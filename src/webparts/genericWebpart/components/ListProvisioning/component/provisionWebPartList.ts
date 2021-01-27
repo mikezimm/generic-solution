@@ -14,6 +14,8 @@ import { IViewLog, addTheseViews } from '../../../../../services/listServices/vi
 
 import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
+import { IDefinedLists } from './provisionListComponent';
+
 export type IValidTemplate = 100 | 101;
 
 export interface IMakeThisList {
@@ -43,6 +45,7 @@ export interface IMakeThisList {
     existingTemplate: number;
     sameTemplate: boolean;
     listDefinition: string;
+    definedList: IDefinedLists;
 
 }
 export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean ): Promise<IServiceLog[]>{

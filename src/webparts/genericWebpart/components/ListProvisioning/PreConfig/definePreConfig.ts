@@ -7,6 +7,8 @@ import { IMyProgress, IUser } from '../../IReUsableInterfaces';
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
+import { IDefinedLists } from '../component/provisionListComponent';
+// definedList: 'PreConfig',
 export type IValidTemplate = 100 | 101;
 
 import { cleanURL, camelize, cleanSPListURL } from '../../../../../services/stringServices';
@@ -37,6 +39,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     let listName = cleanSPListURL(camelize(listTitle, true));
     let makeThisList:  IMakeThisList = {
 
+        definedList: 'PreConfig',
         title: listTitle,
         name: listName,
         webURL: webURL,
