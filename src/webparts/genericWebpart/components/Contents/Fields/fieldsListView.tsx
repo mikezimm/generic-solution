@@ -177,11 +177,13 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
             let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
 
             let dev = '';
-            if (Fld.Indexed === true) { dev += "Idx " ; }
-            if (Fld.CanBeDeleted !== true) { dev += "!Del" ; }
-            if (Fld.EnforceUniqueValues === true) { dev += "UQ" ; }
-            if (Fld.ReadOnlyField === true) { dev += "RO" ; }
-            if (Fld.Sealed === true) { dev += "S" ; }
+            let devT = '';
+            if (Fld.Indexed === true) { dev += "Idx " ; devT += 'Indexed '; }
+            if (Fld.Required === true) { dev += "Req " ; devT += 'Required '; }
+            if (Fld.CanBeDeleted !== true) { dev += "!Del " ; devT += 'Can\'t be deleted '; }
+            if (Fld.EnforceUniqueValues === true) { dev += "UQ " ; devT += 'EnforceUnique '; }
+            if (Fld.ReadOnlyField === true) { dev += "RO " ; devT += 'ReadOnly '; }
+            if (Fld.Sealed === true) { dev += "S " ; devT += 'Sealed '; }
 
             let metaClass = Fld.meta.indexOf( this.props.searchMeta ) > -1 ? styles.showMe : styles.hideMe;
 
@@ -202,7 +204,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
                 <td className={ styleSPFx } style={ trStyle }> { this.props.showSPFx ? this.getFieldSPFx(Fld) : null } </td>
                 <td className={ styleJSON } style={ trStyle }> { this.props.showJSON ? this.getFieldJSON(Fld) : null } </td>
 
-                <td className={ [styles.nowWrapping, columnsToVisible].join(', ') }> { dev } </td>
+                <td className={ [styles.nowWrapping, columnsToVisible].join(', ') } title= { devT }> { dev } </td>
 
                 <td className={ styleSpecial } style={ trStyle }> { this.getFieldSpecialValue( Fld ) } </td>
                 <td className= { styleRailsOff }>Rails Off Content</td>
@@ -295,7 +297,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
         fieldChoices3 = "<p>" + fieldChoices3 + "</p>";
 
 
-//        jsonX.push(  "'" +  + "': '" + "',"  )  ) ;
+//        jsonX.push(  "'" +  + "': '" + "\","  )  ) ;
 
         //Can be used to stop code at certain fields
         if (thisField.Title === 'DisplayName1') { 
@@ -305,36 +307,36 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
         }
 
 
-        if (thisField.Title) { jsonX.push(  buildMLineDiv(0 , "'Title': '" + thisField.Title + "',")  ); }
-        if (thisField.StaticName) { jsonX.push(  buildMLineDiv(0 , "'StaticName': '" + thisField.StaticName + "',")  ) ; }
-        if (thisField.Required) { jsonX.push(  buildMLineDiv(0 , "'Required': " + thisField.Required + "',")  ) ; }
-        if (thisField.Indexed) { jsonX.push(  buildMLineDiv(0 , "'Indexed':" + thisField.Indexed + "',")  ) ; }
+        if (thisField.Title) { jsonX.push(  buildMLineDiv(0 , "'Title': '" + thisField.Title + "\",")  ); }
+        if (thisField.StaticName) { jsonX.push(  buildMLineDiv(0 , "'StaticName': '" + thisField.StaticName + "\",")  ) ; }
+        if (thisField.Required) { jsonX.push(  buildMLineDiv(0 , "'Required': " + thisField.Required + "\",")  ) ; }
+        if (thisField.Indexed) { jsonX.push(  buildMLineDiv(0 , "'Indexed':" + thisField.Indexed + "\",")  ) ; }
 
         //https://msdn.microsoft.com/en-us/library/office/microsoft.sharepoint.client.fieldtype.aspx
         //I think we could use either of these to set the Field Type
-        //if (thisField.TypeAsString) { jsonX.push(  "'TypeAsString': '" + thisField.TypeAsString + "',")  ) ; }
-        if (thisField.FieldTypeKind) { jsonX.push(  buildMLineDiv(0 , "'FieldTypeKind': " + thisField.FieldTypeKind + "',")  ) ; }
+        //if (thisField.TypeAsString) { jsonX.push(  "'TypeAsString': '" + thisField.TypeAsString + "\",")  ) ; }
+        if (thisField.FieldTypeKind) { jsonX.push(  buildMLineDiv(0 , "'FieldTypeKind': " + thisField.FieldTypeKind + "\",")  ) ; }
         
-        if (thisField.Description) { jsonX.push(  buildMLineDiv(0 , "'Description': '" + thisField.Description + "',")  ) ; }
-        if (thisField.DefaultValue) { jsonX.push(  buildMLineDiv(0 , "'DefaultValue': " + thisField.DefaultValue + "',")  ) ; }
-        if (thisField.OutputType) { jsonX.push(  buildMLineDiv(0 , "'OutputType': " + thisField.OutputType + "',")  ) ; }
-        if (thisField.DateFormat) { jsonX.push(  buildMLineDiv(0 , "'DateFormat': '" + thisField.DateFormat + "',")  ) ; }
-        if (thisField.Hidden) { jsonX.push(  buildMLineDiv(0 , "'Hidden': " + thisField.Hidden + "',")  ) ; }
-        if (thisField.MinimumValue) { jsonX.push(  buildMLineDiv(0 , "'MinimumValue': " + thisField.MinimumValue + "',")  ) ; }
-        if (thisField.MaximumValue) { jsonX.push(  buildMLineDiv(0 , "'MaximumValue': " + thisField.MaximumValue + "',")  ) ; }
-        if (thisField.Choices) { jsonX.push(  buildMLineDiv(0 , "'Choices': " + fieldChoicesJ + "',")  ) ; }
-        if (thisField.Formula) { jsonX.push(  buildMLineDiv(0 , "'Formula': '" + thisField.Formula + "',")  ) ; }
-        if (thisField.EnforceUniqueValues) { jsonX.push(  buildMLineDiv(0 , "'EnforceUniqueValues': " + thisField.EnforceUniqueValues + "',")  ) ; }
+        if (thisField.Description) { jsonX.push(  buildMLineDiv(0 , "'Description': '" + thisField.Description + "\",")  ) ; }
+        if (thisField.DefaultValue) { jsonX.push(  buildMLineDiv(0 , "'DefaultValue': " + thisField.DefaultValue + "\",")  ) ; }
+        if (thisField.OutputType) { jsonX.push(  buildMLineDiv(0 , "'OutputType': " + thisField.OutputType + "\",")  ) ; }
+        if (thisField.DateFormat) { jsonX.push(  buildMLineDiv(0 , "'DateFormat': '" + thisField.DateFormat + "\",")  ) ; }
+        if (thisField.Hidden) { jsonX.push(  buildMLineDiv(0 , "'Hidden': " + thisField.Hidden + "\",")  ) ; }
+        if (thisField.MinimumValue) { jsonX.push(  buildMLineDiv(0 , "'MinimumValue': " + thisField.MinimumValue + "\",")  ) ; }
+        if (thisField.MaximumValue) { jsonX.push(  buildMLineDiv(0 , "'MaximumValue': " + thisField.MaximumValue + "\",")  ) ; }
+        if (thisField.Choices) { jsonX.push(  buildMLineDiv(0 , "'Choices': " + fieldChoicesJ + "\",")  ) ; }
+        if (thisField.Formula) { jsonX.push(  buildMLineDiv(0 , "'Formula': '" + thisField.Formula + "\",")  ) ; }
+        if (thisField.EnforceUniqueValues) { jsonX.push(  buildMLineDiv(0 , "'EnforceUniqueValues': " + thisField.EnforceUniqueValues + "\",")  ) ; }
 
-        if (thisField.SelectionMode) { jsonX.push(  buildMLineDiv(0 , "'SelectionMode': " + thisField.SelectionMode + "',")  ) ; }
-        if (thisField.DisplayFormat) { jsonX.push(  buildMLineDiv(0 , "'DisplayFormat': '" + thisField.DisplayFormat + "',")  ) ; }
-        if (thisField.FriendlyDisplayFormat) { jsonX.push(  buildMLineDiv(0 , "'FriendlyDisplayFormat': " + thisField.FriendlyDisplayFormat + "',")  ) ; }
-        if (thisField.DateTimeCalendarType) { jsonX.push(  buildMLineDiv(0 , "'DateTimeCalendarType': " + thisField.DateTimeCalendarType + "',")  ) ; }
-        if (thisField.EnforceUniqueValues) { jsonX.push(  buildMLineDiv(0 , "'EnforceUniqueValues': " + thisField.EnforceUniqueValues + "',")  ) ; }
+        if (thisField.SelectionMode) { jsonX.push(  buildMLineDiv(0 , "'SelectionMode': " + thisField.SelectionMode + "\",")  ) ; }
+        if (thisField.DisplayFormat) { jsonX.push(  buildMLineDiv(0 , "'DisplayFormat': '" + thisField.DisplayFormat + "\",")  ) ; }
+        if (thisField.FriendlyDisplayFormat) { jsonX.push(  buildMLineDiv(0 , "'FriendlyDisplayFormat': " + thisField.FriendlyDisplayFormat + "\",")  ) ; }
+        if (thisField.DateTimeCalendarType) { jsonX.push(  buildMLineDiv(0 , "'DateTimeCalendarType': " + thisField.DateTimeCalendarType + "\",")  ) ; }
+        if (thisField.EnforceUniqueValues) { jsonX.push(  buildMLineDiv(0 , "'EnforceUniqueValues': " + thisField.EnforceUniqueValues + "\",")  ) ; }
 
-        if (thisField.RichText) { jsonX.push(  buildMLineDiv(0 , "'RichText': " + thisField.RichText + "',")  ) ; }
-        if (thisField.NumberOfLines) { jsonX.push(  buildMLineDiv(0 , "'NumberOfLines': " + thisField.NumberOfLines + "',")  ) ; }
-        if (thisField.AddToDefaultContentType) { jsonX.push(  buildMLineDiv(0 , "'AddToDefaultContentType': " + thisField.AddToDefaultContentType + "',")  ) ; }
+        if (thisField.RichText) { jsonX.push(  buildMLineDiv(0 , "'RichText': " + thisField.RichText + "\",")  ) ; }
+        if (thisField.NumberOfLines) { jsonX.push(  buildMLineDiv(0 , "'NumberOfLines': " + thisField.NumberOfLines + "\",")  ) ; }
+        if (thisField.AddToDefaultContentType) { jsonX.push(  buildMLineDiv(0 , "'AddToDefaultContentType': " + thisField.AddToDefaultContentType + "\",")  ) ; }
        
         jsonX.push(  buildMLineDiv(0, "}" ) ) ;
         
@@ -400,14 +402,14 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
         var fieldChoices2 = "";
         var fieldChoices3 = "";
-        var fieldChoicesJ = "['";
+        var fieldChoicesJ = "[\"";
         if ( thisField.TypeAsString === "Choice" || thisField.TypeAsString === "MultiChoice") {
-          for (let member in thisField.Choices.results) {
+          for (let member in thisField.Choices) {
 
-            fieldChoices2 += thisField.results[member] + ";";
-            fieldChoices3 += thisField.results[member] + "<br>";
-            fieldChoicesJ += thisField.results[member] ;
-            if ( member == ( thisField.results.length - 1).toString() ) { fieldChoicesJ += "']"; } else {fieldChoicesJ += "','"; }
+            fieldChoices2 += thisField.Choices[member] + ";";
+            fieldChoices3 += thisField.Choices[member] + "<br>";
+            fieldChoicesJ += thisField.Choices[member] ;
+            if ( member == ( thisField.Choices.length - 1).toString() ) { fieldChoicesJ += "\"]"; } else {fieldChoicesJ += "\",\""; }
           }
         } //Need to show all values
         fieldChoices3 = "<p>" + fieldChoices3 + "</p>";
@@ -416,7 +418,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
         jsonZ.push(  buildMLineDiv(0 , "{"  )  ) ;
 
-//        jsonX.push(  "'" +  + "': '" + "',"  )  ) ;
+//        jsonX.push(  "'" +  + "': '" + "\","  )  ) ;
 
         //Can be used to stop code at certain fields
         if (thisField.Title === 'DisplayName1') { 
@@ -425,57 +427,120 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
         }
 
-        jsonZ.push(  buildMLineDiv(0 , "fieldType: {" + ""  )  ) ;
-        jsonZ.push(  buildMLineDiv( indent1 , "kind: " + thisField.FieldTypeKind + ","  )  ) ;
-        jsonZ.push(  buildMLineDiv( indent1 , "type:  '" + thisField['odata.type'] +"',"  )  ) ;
-        jsonZ.push(  buildMLineDiv( indent1 , "vType: " + "'ADD_VType_Here',"  )  ) ;
+        jsonZ.push(  buildMLineDiv(0 , "\"fieldType\": {" + ""  )  ) ;
+        jsonZ.push(  buildMLineDiv( indent1 , "\"kind\": " + thisField.FieldTypeKind + ","  )  ) ;
+        jsonZ.push(  buildMLineDiv( indent1 , "\"type\":  \"" + thisField['odata.type'] +"\","  )  ) ;
+
+        if ( ['SP.FieldText'].indexOf(thisField['odata.type']) > -1  ) {
+          jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"Text\""  )  ) ;
+
+        } else if ( thisField['odata.type'] === 'SP.FieldChoice' && thisField['FieldTypeKind'] === 23  ) {
+          jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"\""  )  ) ;
+
+        } else if ( thisField['odata.type'] === 'SP.FieldChoice' && thisField['FieldTypeKind'] === 6  ) {
+          jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"Text\""  )  ) ;
+
+        } else if ( ['SP.FieldDateTime'].indexOf(thisField['odata.type']) > -1 ) {
+          jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"DateTime\""  )  ) ;
+          
+        } else if ( ['SP.FieldCreationInformation','SP.FieldMultiLineText','SP.FieldCurrency','SP.FieldUrl',
+                    'SP.FieldMultiChoice','SP.FieldUserMulti','SP.FieldLocation','SP.FieldLookup','SP.FieldComputed'].indexOf(thisField['odata.type']) > -1 ) {
+          jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"\""  )  ) ;
+          
+        } else if ( ['SP.FieldUser','SP.FieldUser'].indexOf(thisField['odata.type']) > -1 ) {
+          jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"Integer\""  )  ) ;
+          
+        } else if ( ['SP.FieldNumber','SP.FieldNumber'].indexOf(thisField['odata.type']) > -1 ) {
+          jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"Number\""  )  ) ;
+          
+        } else if ( ['SP.Field','SP.Field'].indexOf(thisField['odata.type']) > -1 ) {
+          jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"Boolean\""  )  ) ;
+
+        } else if ( thisField['odata.type'] === 'SP.FieldCalculated' ) {
+
+          if ( thisField['OutputType'] === 2 ) { //Text
+            jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"Text\""  )  ) ;
+
+          } else if ( thisField['OutputType'] === 9 ) { //Number
+            jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"Number\""  )  ) ;
+
+          } else if ( thisField['OutputType'] === 10 ) { //Currency
+            jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"Currency\""  )  ) ;
+
+          } else if ( thisField['OutputType'] === 4 ) { //DateTime
+            jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"DateTime\""  )  ) ;
+
+          } else if ( thisField['OutputType'] === 8 ) { //Boolean
+            jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"Boolean\""  )  ) ;
+
+          } else {
+            jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"ADD_VType_Here\""  )  ) ;
+          }
+
+        } else {
+          jsonZ.push(  buildMLineDiv( indent1 , "\"vType\": " + "\"ADD_VType_Here\""  )  ) ;
+
+        }
+
         jsonZ.push(  buildMLineDiv(0 , "}" + ","  )  ) ;
 
-        if (thisField.Title) { jsonZ.push(  buildMLineDiv(0 , "title: '" + thisField.Title + "',"  )  ) ; }
-        if (thisField.StaticName) { jsonZ.push(  buildMLineDiv(0 , "name: '" + thisField.StaticName + "',"  )  ) ; }
+        if (thisField.Title) { jsonZ.push(  buildMLineDiv(0 , "\"title\": \"" + thisField.Title + "\","  )  ) ; }
+        if (thisField.StaticName) { jsonZ.push(  buildMLineDiv(0 , "\"name\": \"" + thisField.StaticName + "\","  )  ) ; }
+
+        //if (thisField.Choices ) { jsonZ.push(  buildMLineDiv( 0 , "\"choices\": [\"" + thisField.Choices.join('\",\"\") + "\"],"  )  ) ; }
 
         //https://msdn.microsoft.com/en-us/library/office/microsoft.sharepoint.client.fieldtype.aspx
         //I think we could use either of these to set the Field Type
         
-        jsonZ.push(  buildMLineDiv(0 , "onCreateProps: {" + ""  )  ) ;  
-        if (thisField.Description) { jsonZ.push(  buildMLineDiv( indent1 , "Description: '" + thisField.Description + "',"  )  ) ; }
-        if (thisField.EnforceUniqueValues) { jsonZ.push(  buildMLineDiv( indent1 , "EnforceUniqueValues: " + thisField.EnforceUniqueValues + ","  )  ) ; }
-        if (thisField.Group) { jsonZ.push(  buildMLineDiv( indent1 , "Group: '" + thisField.Group + "',"  )  ) ; }
-        if (thisField.Required == true ) { jsonZ.push(  buildMLineDiv( indent1 , "Required: " + thisField.Required + ","  )  ) ; }
-        if (thisField.Indexed == true ) { jsonZ.push(  buildMLineDiv( indent1 , "Indexed:" + thisField.Indexed + ","  )  ) ; }
-        if (thisField.Hidden == true ) { jsonZ.push(  buildMLineDiv( indent1 , "Hidden: " + thisField.Hidden + ","  )  ) ; }
-        if (thisField.ValidationFormula) { jsonZ.push(  buildMLineDiv( indent1 , "ValidationFormula: '" + thisField.ValidationFormula + "',"  )  ) ; }
-        if (thisField.ValidationMessage) { jsonZ.push(  buildMLineDiv( indent1 , "ValidationMessage: '" + thisField.ValidationMessage + "',"  )  ) ; }
+        jsonZ.push(  buildMLineDiv(0 , "\"onCreateProps\": {" + ""  )  ) ;
+        if (thisField.Description) { jsonZ.push(  buildMLineDiv( indent1 , "\"Description\": \"" + thisField.Description + "\","  )  ) ; }
+        if (thisField.EnforceUniqueValues) { jsonZ.push(  buildMLineDiv( indent1 , "\"EnforceUniqueValues\": " + thisField.EnforceUniqueValues + ","  )  ) ; }
+        if (thisField.Group) { jsonZ.push(  buildMLineDiv( indent1 , "\"Group\": \"" + thisField.Group + "\","  )  ) ; }
+        if (thisField.Required == true ) { jsonZ.push(  buildMLineDiv( indent1 , "\"Required\": " + thisField.Required + ","  )  ) ; }
+        if (thisField.Indexed == true ) { jsonZ.push(  buildMLineDiv( indent1 , "\"Indexed\":" + thisField.Indexed + ","  )  ) ; }
+        if (thisField.Hidden == true ) { jsonZ.push(  buildMLineDiv( indent1 , "\"Hidden\": " + thisField.Hidden + ","  )  ) ; }
+        if (thisField.ValidationFormula) { jsonZ.push(  buildMLineDiv( indent1 , "\"ValidationFormula\": \"" + thisField.ValidationFormula + "\","  )  ) ; }
+        if (thisField.ValidationMessage) { jsonZ.push(  buildMLineDiv( indent1 , "\"ValidationMessage\": \"" + thisField.ValidationMessage + "\","  )  ) ; }
+        jsonZ.push(  buildMLineDiv( indent1 , "\"EndOfObjectPlug\": \"IgnoreMe\""  )  ) ;
         jsonZ.push(  buildMLineDiv(0 , "}" + ","  )  ) ;
 
-        if ( thisField.SchemaXml.indexOf('ShowInNewForm="FALSE"') > -1  ) { jsonZ.push(  buildMLineDiv(0 , "showNew: false,"  )  ) ; }
-        if ( thisField.SchemaXml.indexOf('ShowInEditForm="FALSE"') > -1  ) { jsonZ.push(  buildMLineDiv(0 , "showEdit: false,"  )  ) ; }
-        if ( thisField.SchemaXml.indexOf('ShowInDisplayForm="FALSE"') > -1  ) { jsonZ.push(  buildMLineDiv(0 , "showDisplay: false,"  )  ) ; }
+        if ( thisField.SchemaXml.indexOf('ShowInNewForm="FALSE"') > -1  ) { jsonZ.push(  buildMLineDiv(0 , "\"showNew\": false,"  )  ) ; }
+        if ( thisField.SchemaXml.indexOf('ShowInEditForm="FALSE"') > -1  ) { jsonZ.push(  buildMLineDiv(0 , "\"showEdit\": false,"  )  ) ; }
+        if ( thisField.SchemaXml.indexOf('ShowInDisplayForm="FALSE"') > -1  ) { jsonZ.push(  buildMLineDiv(0 , "\"showDisplay\": false,"  )  ) ; }
 
-        if (thisField.DefaultValue) { jsonZ.push(  buildMLineDiv(0 , "DefaultValue: " + thisField.DefaultValue + ","  )  ) ; }
-        if (thisField.OutputType) { jsonZ.push(  buildMLineDiv(0 , "outputType: '" + thisField.OutputType + "',"  )  ) ; }
-        if (thisField.DateFormat) { jsonZ.push(  buildMLineDiv(0 , "dateFormat: '" + thisField.DateFormat + "',"  )  ) ; }
-        if (thisField.MinimumValue) { jsonZ.push(  buildMLineDiv(0 , "minValue: " + thisField.MinimumValue + ","  )  ) ; }
-        if (thisField.MaximumValue) { jsonZ.push(  buildMLineDiv(0 , "maxValue: " + thisField.MaximumValue + ","  )  ) ; }
-        if (thisField.Choices) { jsonZ.push(  buildMLineDiv(0 , "choices: '" + fieldChoicesJ + "',"  )  ) ; }
-        if (thisField.Formula) { jsonZ.push(  buildMLineDiv(0 , "formula: '" + thisField.Formula + "',"  )  ) ; }
+        if (thisField.DefaultValue) { 
 
-        if (thisField.SelectionMode) { jsonZ.push(  buildMLineDiv(0 , "selectionMode: " + thisField.SelectionMode + ","  )  ) ; }
-        if (thisField.SelectionGroup) { jsonZ.push(  buildMLineDiv(0 , "selectionGroup: " + thisField.SelectionGroup + ","  )  ) ; }
-        if (thisField.DisplayFormat) { jsonZ.push(  buildMLineDiv(0 , "displayFormat: '" + thisField.DisplayFormat + "',"  )  ) ; }
-        if (thisField.FriendlyDisplayFormat) { jsonZ.push(  buildMLineDiv(0 , "friendlyDisplayFormat: " + thisField.FriendlyDisplayFormat + ","  )  ) ; }
-        if (thisField.DateTimeCalendarType) { jsonZ.push(  buildMLineDiv(0 , "calendarType: " + thisField.DateTimeCalendarType + ","  )  ) ; }
-        if (thisField.EnforceUniqueValues) { jsonZ.push(  buildMLineDiv(0 , "EnforceUniqueValues: " + thisField.EnforceUniqueValues + ","  )  ) ; }
+          if ( ['SP.FieldText','SP.FieldChoice'].indexOf(thisField['odata.type']) > -1  ) {
+            jsonZ.push(  buildMLineDiv(0 , "\"DefaultValue\": \"" + thisField.DefaultValue + "\","  )  ) ; 
+          }
+
+        }
+        if (thisField.OutputType) { jsonZ.push(  buildMLineDiv(0 , "\"outputType\": \"" + thisField.OutputType + "\","  )  ) ; }
+        if (thisField.DateFormat) { jsonZ.push(  buildMLineDiv(0 , "\"dateFormat\": \"" + thisField.DateFormat + "\","  )  ) ; }
+        if (thisField.MinimumValue) { jsonZ.push(  buildMLineDiv(0 , "\"minValue\": " + thisField.MinimumValue + ","  )  ) ; }
+        if (thisField.MaximumValue) { jsonZ.push(  buildMLineDiv(0 , "\"maxValue\": " + thisField.MaximumValue + ","  )  ) ; }
+        if (thisField.Choices) { jsonZ.push(  buildMLineDiv(0 , "\"choices\": " + fieldChoicesJ + ","  )  ) ; }
+        if (thisField.Formula) { jsonZ.push(  buildMLineDiv(0 , "\"formula\": \"" + thisField.Formula + "\","  )  ) ; }
+
+        if (thisField.SelectionMode) { jsonZ.push(  buildMLineDiv(0 , "\"selectionMode\": " + thisField.SelectionMode + ","  )  ) ; }
+        if (thisField.SelectionGroup) { jsonZ.push(  buildMLineDiv(0 , "\"selectionGroup\": " + thisField.SelectionGroup + ","  )  ) ; }
+        if (thisField.DisplayFormat) { jsonZ.push(  buildMLineDiv(0 , "\"displayFormat\": '" + thisField.DisplayFormat + "\","  )  ) ; }
+        if (thisField.FriendlyDisplayFormat) { jsonZ.push(  buildMLineDiv(0 , "\"friendlyDisplayFormat\": " + thisField.FriendlyDisplayFormat + ","  )  ) ; }
+        if (thisField.DateTimeCalendarType) { jsonZ.push(  buildMLineDiv(0 , "\"calendarType\": " + thisField.DateTimeCalendarType + ","  )  ) ; }
+        if (thisField.EnforceUniqueValues) { jsonZ.push(  buildMLineDiv(0 , "\"EnforceUniqueValues\": " + thisField.EnforceUniqueValues + ","  )  ) ; }
 
         if ( thisField.FieldTypeKind == 3 ) { //This is rich text
-          jsonZ.push(  buildMLineDiv(0 , "richText: true,"  )  ) ;
-          jsonZ.push(  buildMLineDiv(0 , "numberOfLines: " + thisField.NumberOfLines + ","  )  ) ;
-          jsonZ.push(  buildMLineDiv(0 , "allowHyperlink: " + thisField.AllowHyperlink + ","  )  ) ;
-          jsonZ.push(  buildMLineDiv(0 , "appendOnly: " + thisField.AppendOnly + ","  )  ) ;
-          jsonZ.push(  buildMLineDiv(0 , "restrictedMode: " + thisField.RestrictedMode + ","  )  ) ;
+          jsonZ.push(  buildMLineDiv(0 , "\"richText\": true,"  )  ) ;
+          jsonZ.push(  buildMLineDiv(0 , "\"numberOfLines\": " + thisField.NumberOfLines + ","  )  ) ;
+          jsonZ.push(  buildMLineDiv(0 , "\"allowHyperlink\": " + thisField.AllowHyperlink + ","  )  ) ;
+          jsonZ.push(  buildMLineDiv(0 , "\"appendOnly\": " + thisField.AppendOnly + ","  )  ) ;
+          jsonZ.push(  buildMLineDiv(0 , "\"restrictedMode\": " + thisField.RestrictedMode + ","  )  ) ;
           
         }
-        if (thisField.AddToDefaultContentType) { jsonZ.push(  buildMLineDiv(0 , "addToDefaultContentType: " + thisField.AddToDefaultContentType + ","  )  ) ; }
+
+        if (thisField.AddToDefaultContentType) { jsonZ.push(  buildMLineDiv(0 , "\"addToDefaultContentType\": " + thisField.AddToDefaultContentType + ","  )  ) ; }
+
+        jsonZ.push(  buildMLineDiv( indent1 , "\"EndOfObjectPlug\": \"IgnoreMe\""  )  ) ;
 
         jsonZ.push(  buildMLineDiv(0 , "}" )  );
         
@@ -630,6 +695,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
         case "Text":
           specialColumn = Fld.TypeShortDescription;
+          if ( Fld.MaxLength < 255 ) { specialColumn += ' ; MaxLength =' + Fld.MaxLength ; }
           break;
 
         case "Note":

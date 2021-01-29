@@ -90,6 +90,8 @@ export interface IContentsFieldInfo extends Partial<IFieldInfo>{
     MinimumValue?: number;  //Number Fields
     MaximumValue?: number;  //Number Fields
 
+    MaxLength?: number; //Text Field
+
     DisplayFormat?: number;
     SelectionMode?: number;  //User Fields
     SelectionGroup?: number;  //User Fields
