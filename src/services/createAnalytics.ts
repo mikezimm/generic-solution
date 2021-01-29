@@ -80,6 +80,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
         'Url': PageURL,
         'Description': PageTitle.substring(PageTitle.lastIndexOf("/") + 1),
     };
+    
 /*
     let ignoreKeys = [ 'pageContext', 'context', 'loadListItems', 'convertCategoryToIndex', 'WebpartElement', 'themeVariant', 'startTime' ];
     Object.keys(theProps).map( key => {
