@@ -48,7 +48,7 @@ export interface IMakeThisList {
     definedList: IDefinedLists;
 
 }
-export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean ): Promise<IServiceLog[]>{
+export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean, requireAll: boolean = true ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
     let alertMe = false;
@@ -64,9 +64,13 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     if ( makeThisList.createTheseViews !== null && makeThisList.createTheseViews.length > 0  ) {
         hasViews = true; } else {  errMess += 'List defintion does not have any VIEWS defined.' ; }
 
-    if ( hasViews === false || hasFields === false ) {
-        alert( errMess );
-        return statusLog;
+    if ( ( hasViews === false && doViews === true ) || ( hasFields === false && doFields === true ) ) {
+
+        if ( requireAll === true ) {
+            alert( errMess );
+            return statusLog;
+        } else { console.log( 'provisionTheList', errMess) ; }
+
     }
 
     if ( readOnly === false  ) {

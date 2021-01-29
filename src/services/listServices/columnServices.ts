@@ -186,8 +186,13 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                         actualField = await listFields.createFieldAsXml(thisField.xml);
     
                     } else {
-    
-                        switch ( f.fieldType.type ){
+                        let thisFieldType = f['fieldType'];
+                        let thisType = thisFieldType['type'];
+                        let vType = thisFieldType['vType'];
+
+                        console.log('thisFieldType',thisFieldType);
+                        console.log('thisType',thisType);                      
+                        switch ( thisType ){
                             case cText.type :
                                 actualField = await listFields.addText( thisField.name,
                                     thisField.maxLength ? thisField.maxLength : 255,
@@ -207,8 +212,8 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
     
                             case cNumb.type :
                                 actualField = await listFields.addNumber(thisField.name,
-                                    thisField.minValue ? thisField.minValue : minInfinity,
-                                    thisField.maxValue ? thisField.maxValue : maxInfinity,
+                                    thisField.minValue === null || thisField.minValue === undefined ? minInfinity : thisField.minValue ,
+                                    thisField.maxValue === null || thisField.maxValue === undefined ? maxInfinity : thisField.maxValue ,
                                     thisField.onCreateProps);
                                 break ;
     
@@ -243,8 +248,10 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                                 let fieldGroup = thisField.onCreateProps.Group ? thisField.onCreateProps.Group : '';
                                 let fieldDesc = thisField.onCreateProps.Description ? thisField.onCreateProps.Description : '';
                                 let fieldSelectMode = thisField.selectionMode;
+                                let fieldRequired = thisField.onCreateProps.Required === true ? "TRUE" : "FALSE";
                                 let thisSchema = '<Field DisplayName="' + fieldTitle + '" Type="UserMulti"';
-                                thisSchema += ' Required="FALSE" StaticName="' + fieldName + '" Name="' + fieldName + '"';
+                                thisSchema += ' Required="' + fieldRequired + '"';
+                                thisSchema += ' StaticName="' + fieldName + '" Name="' + fieldName + '"';
                                 thisSchema += ' UserSelectionMode="' + fieldSelectMode + '"';
                                 thisSchema += ' Group="' + fieldGroup + '"';
                                 thisSchema += ' Description="' + fieldDesc + '"';
@@ -260,7 +267,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                                 actualField = await listFields.addCalculated(thisField.name,
                                     thisField.formula,
                                     thisField.dateFormat ? thisField.dateFormat : DateTimeFieldFormatType.DateOnly,
-                                    f.fieldType.vType === 'Number'? FieldTypes.Number : FieldTypes.Text,  //FieldTypes.Number is used for Calculated Link columns
+                                    vType === 'Number'? FieldTypes.Number : FieldTypes.Text,  //FieldTypes.Number is used for Calculated Link columns
                                     thisField.onCreateProps);
                                 break ;
     
@@ -278,8 +285,8 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
     
                             case cCurr.type :
                                 actualField = await listFields.addCurrency(thisField.name,
-                                    thisField.minValue ? thisField.minValue : minInfinity,
-                                    thisField.maxValue ? thisField.maxValue : maxInfinity,
+                                    thisField.minValue === null || thisField.minValue === undefined ? minInfinity : thisField.minValue ,
+                                    thisField.maxValue === null || thisField.maxValue === undefined ? maxInfinity : thisField.maxValue ,
                                     thisField.currencyLocalId ? thisField.currencyLocalId : maxInfinity,
                                     thisField.onCreateProps);
                                 break ;

@@ -227,7 +227,7 @@ public constructor(props:IProvisionFieldsProps){
 
     let makeThisList : IMakeThisList = this.props.makeThisList ? this.props.makeThisList : null ;
 
-    let provisionListTitles : string[] = this.props.provisionListTitles[0] && this.props.provisionListTitles[0].length > 0 ? [this.props.provisionListTitles[0]] : [ makeThisList.title ];
+    let provisionListTitles : string[] = this.props.provisionListTitles[0] && this.props.provisionListTitles[0].length > 0 ? [this.props.provisionListTitles[0]] : [ makeThisList ? makeThisList.title : 'Enter List Title' ];
 
     this.state = {
 
@@ -548,7 +548,7 @@ public constructor(props:IProvisionFieldsProps){
 
         this.captureAnalytics('Update List', 'Updating', mapThisList);
 
-        let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems );
+        let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems, false );
 
         let stateLists = this.state.lists;
         stateLists[listNo].listExists = true;
