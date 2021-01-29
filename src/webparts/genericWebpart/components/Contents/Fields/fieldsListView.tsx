@@ -501,7 +501,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
         if (thisField.Hidden == true ) { jsonZ.push(  buildMLineDiv( indent1 , "\"Hidden\": " + thisField.Hidden + ","  )  ) ; }
         if (thisField.ValidationFormula) { jsonZ.push(  buildMLineDiv( indent1 , "\"ValidationFormula\": \"" + thisField.ValidationFormula + "\","  )  ) ; }
         if (thisField.ValidationMessage) { jsonZ.push(  buildMLineDiv( indent1 , "\"ValidationMessage\": \"" + thisField.ValidationMessage + "\","  )  ) ; }
-        jsonZ.push(  buildMLineDiv( indent1 , "\"EndOfObjectPlug\": \"IgnoreMe\""  )  ) ;
+        jsonZ.push(  buildMLineDiv( indent1 , "\"IgnoreMe\": \"ToRemoveExtraComma\""  )  ) ;
         jsonZ.push(  buildMLineDiv(0 , "}" + ","  )  ) ;
 
         if ( thisField.SchemaXml.indexOf('ShowInNewForm="FALSE"') > -1  ) { jsonZ.push(  buildMLineDiv(0 , "\"showNew\": false,"  )  ) ; }
@@ -524,7 +524,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
         if (thisField.SelectionMode) { jsonZ.push(  buildMLineDiv(0 , "\"selectionMode\": " + thisField.SelectionMode + ","  )  ) ; }
         if (thisField.SelectionGroup) { jsonZ.push(  buildMLineDiv(0 , "\"selectionGroup\": " + thisField.SelectionGroup + ","  )  ) ; }
-        if (thisField.DisplayFormat) { jsonZ.push(  buildMLineDiv(0 , "\"displayFormat\": '" + thisField.DisplayFormat + "\","  )  ) ; }
+        if (thisField.DisplayFormat) { jsonZ.push(  buildMLineDiv(0 , "\"displayFormat\": " + thisField.DisplayFormat + ","  )  ) ; }
         if (thisField.FriendlyDisplayFormat) { jsonZ.push(  buildMLineDiv(0 , "\"friendlyDisplayFormat\": " + thisField.FriendlyDisplayFormat + ","  )  ) ; }
         if (thisField.DateTimeCalendarType) { jsonZ.push(  buildMLineDiv(0 , "\"calendarType\": " + thisField.DateTimeCalendarType + ","  )  ) ; }
         if (thisField.EnforceUniqueValues) { jsonZ.push(  buildMLineDiv(0 , "\"EnforceUniqueValues\": " + thisField.EnforceUniqueValues + ","  )  ) ; }
@@ -540,15 +540,15 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
 
         if (thisField.AddToDefaultContentType) { jsonZ.push(  buildMLineDiv(0 , "\"addToDefaultContentType\": " + thisField.AddToDefaultContentType + ","  )  ) ; }
 
-        jsonZ.push(  buildMLineDiv( indent1 , "\"EndOfObjectPlug\": \"IgnoreMe\""  )  ) ;
+        jsonZ.push(  buildMLineDiv( indent1 , "\"IgnoreMe\": \"ToRemoveExtraComma\""  )  ) ;
 
         jsonZ.push(  buildMLineDiv(0 , "}" )  );
         
         return jsonZ;
+
     }
 
     private getFieldSpecialValue ( Fld : IContentsFieldInfo ) {
-
 
       var specialColumn : string | JSX.Element = "";
 
@@ -558,8 +558,6 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
       let DateTimeCalendarType = '';
       let SelectionGroup = null;
       let SelectionMode = '';
-
-
 
       switch ( Fld.TypeAsString ) {
         case "Calculated":
