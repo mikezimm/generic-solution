@@ -117,6 +117,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
             let iconStyles: any = { root: {
               color: h.color ? h.color : "blue",
+              fontWeight: '700',
             }};
 
             let ref: any = h.ref;
