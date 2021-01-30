@@ -102,13 +102,12 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     fieldsToGet.map( ( f, idx ) => {
 
         fieldFilterLength = arrFieldFilter.length === 0 ? 0 : arrFieldFilter[ fieldFilterIndex ].length;
-        console.log('i,L,string', fieldFilterIndex, fieldFilterLength, arrFieldFilter[ fieldFilterIndex ] );
 
         if ( fieldFilterLength > 1000 ) {
 
             //Remove extra "or StaticName eq" from end before moving on to next one
             let lastStatNameIdx = arrFieldFilter[ fieldFilterIndex ].lastIndexOf('\' or StaticName eq \'');
-            arrFieldFilter[ fieldFilterIndex ] = arrFieldFilter[ fieldFilterIndex ].substring(0,lastStatNameIdx);
+            //arrFieldFilter[ fieldFilterIndex ] = arrFieldFilter[ fieldFilterIndex ].substring(0,lastStatNameIdx + 1);
 
             fieldFilterIndex ++ ;
             fieldFilterLength = 0 ;
@@ -116,7 +115,8 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
         }
 
-        let suffix =  fieldsToGet[ idx + 1 ] ? "' or StaticName eq '" : '';
+        //let suffix =  fieldsToGet[ idx + 1 ] ? "' or StaticName eq '" : '';
+        let suffix =  "' or StaticName eq '";
         arrFieldFilter[ fieldFilterIndex ] += f + suffix;
 
     });
@@ -159,15 +159,46 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
         console.log('ensuredList:', readOnly, ensuredList );
 
-        for (var i1=0; i1 < arrFieldFilter.length; i1 ++ ) {
-            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[i1] ).get() ;
-            console.log('currentFields:', currentFields );
-            console.log('theseFields:', theseFields );           
+/*
+        if ( arrFieldFilter.length > 0 ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[0] ).get() ;
+            console.log('theseFields', theseFields ) ;
             let prevFields = currentFields;
             currentFields = prevFields.concat(theseFields);
         }
+        if ( arrFieldFilter.length > 1 ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[1] ).get() ;
+            let prevFields = currentFields;
+            currentFields = prevFields.concat(theseFields);
+        }
+        if ( arrFieldFilter.length > 2 ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[2] ).get() ;
+            let prevFields = currentFields;
+            currentFields = prevFields.concat(theseFields);
+        }
+        if ( arrFieldFilter.length > 3 ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[3] ).get() ;
+            let prevFields = currentFields;
+            currentFields = prevFields.concat(theseFields);
+        }
+        if ( arrFieldFilter.length > 4 ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[4] ).get() ;
+            let prevFields = currentFields;
+            currentFields = prevFields.concat(theseFields);
+        }
+*/
 
-        console.log( 'currentFields', currentFields );
+//        currentFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[0] ).get() ;
+
+        for (var i1=0; i1 < arrFieldFilter.length; i1 ++ ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[i1] ).get() ;
+            console.log('currentFields:', currentFields );
+            console.log('theseFields:', theseFields );     
+            
+            theseFields.map( f=>{ currentFields.push( f ) ; });
+            //let prevFields = currentFields;
+            //currentFields = prevFields.concat(theseFields);
+        }
 
         currentViews = await listViews.get();
         
@@ -182,8 +213,10 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
             let theseFields = await ensuredList.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[i2] ).get() ;
             console.log('currentFields:', currentFields );
             console.log('theseFields:', theseFields );       
-            let prevFields = currentFields;
-            currentFields = prevFields.concat(theseFields);
+
+            theseFields.map( f=>{ currentFields.push( f ) ; });
+            //let prevFields = currentFields;
+            //currentFields = prevFields.concat(theseFields);
         }
 
         console.log( 'currentFields', currentFields );

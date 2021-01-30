@@ -160,8 +160,11 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                 if (foundField === true ) { 
 
                     let verifyField : any = checkIfFieldMatches( f, currentFields[foundFieldIndex] );
+                    
+                    console.log('checkIfFieldMatches ' + f.name, verifyField, f );
+
                     if ( verifyField === true ) {
-                        setProgress(false, "C", i, n , 'darkgreen', 'CheckMark', f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Looks ok ~ 160' );
+                        setProgress(false, "C", i, n , 'blueviolet', 'CheckMark', f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Looks ok ~ 160' );
                     } else {
                         setProgress(false, "E", i, n , 'darkorange', 'Warning12', f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Something Changed! ~ 162 ' + verifyField );
                     }
@@ -190,8 +193,8 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                         let thisType = thisFieldType['type'];
                         let vType = thisFieldType['vType'];
 
-                        console.log('thisFieldType',thisFieldType);
-                        console.log('thisType',thisType);                      
+                        console.log('Creating field',f);
+
                         switch ( thisType ){
                             case cText.type :
                                 actualField = await listFields.addText( thisField.name,
@@ -298,7 +301,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                     }
                     foundField = true;
                     statusLog = notify(statusLog, 'Created Field', 'Complete', step, f, actualField);
-                    setProgress(false, "C", i, n , 'darkgreen', 'CheckMark', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
+                    setProgress(false, "C", i, n , 'darkgreen', 'Add', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
                 }
                     
                 if ( step !== 'setForm' && step !== 'create' ) { // Will do changes1, changes2, changes3 and changesFinal
@@ -307,7 +310,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                     if ( thisField[step] != null ) {
                         const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
                         statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);
-                        setProgress(false, "C", i, n , 'darkgreen', 'CheckMark', f.name, 'Updated Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' other ~ 269' );
+                        setProgress(false, "C", i, n , 'indianred', 'Sync', f.name, 'Updated Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' other ~ 269' );
                     }
 
                 } else if ( foundField === true ) {
@@ -315,19 +318,19 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                         if ( thisField.showNew === false || thisField.showNew === true ) {
                             const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
                             statusLog = notify(statusLog, 'setShowNew Field', 'Complete',step, f, setDisp);
-                            setProgress(false, "C", i, n , 'darkgreen', 'CheckMark', f.name, 'setShowNew Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showNew ~ 277' );
+                            setProgress(false, "C", i, n , 'slategrey', 'AddTo', f.name, 'setShowNew Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showNew ~ 277' );
                         }
 
                         if ( thisField.showEdit === false || thisField.showNew === true ) {
                             const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInEditForm(thisField.showEdit);
                             statusLog = notify(statusLog, 'setShowEdit Field', 'Complete', step, f, setDisp);
-                            setProgress(false, "C", i, n , 'darkgreen', 'CheckMark', f.name, 'setShowEdit Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showEdit ~ 283' );
+                            setProgress(false, "C", i, n , 'saddlebrown', 'PageHeaderEdit', f.name, 'setShowEdit Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showEdit ~ 283' );
                         }
 
                         if ( thisField.showDisplay === false || thisField.showNew === true ) {
                             const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInDisplayForm(thisField.showDisplay);
                             statusLog = notify(statusLog, 'setShowDisplay Field', 'Complete', step, f, setDisp);
-                            setProgress(false, "C", i, n , 'darkgreen', 'CheckMark', f.name, 'setShowDisplay Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showDisplay ~ 289' );
+                            setProgress(false, "C", i, n , 'midnightblue', 'EntryView', f.name, 'setShowDisplay Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showDisplay ~ 289' );
                         }
                     } //END: if ( step === 'create' || step === 'setForm' ) {
 
@@ -335,7 +338,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                         if (thisField.onCreateChanges) {
                             const createChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
                             statusLog = notify(statusLog, 'onCreateChanges Field', 'update===' + JSON.stringify(thisField.onCreateChanges), step, f, createChanges);
-                            setProgress(false, "C", i, n , 'darkgreen', 'CheckMark', f.name, 'onCreateChanges Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' onCreateChanges ~ 297' );
+                            setProgress(false, "C", i, n , 'red', 'SyncStatus', f.name, 'onCreateChanges Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' onCreateChanges ~ 297' );
                         } //END: if (thisField.onCreateChanges) {
 
                     }
@@ -353,9 +356,6 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
 }
 
 function checkIfFieldMatches( definition : IMyFieldTypes, actual : any ){
-
-    console.log('checkIfFieldMatches definition:',definition);
-    console.log('checkIfFieldMatches actual:',actual);
 
     let result = '';
     if ( definition.fieldType.type !== actual['odata.type'] ) { 
@@ -388,6 +388,8 @@ function checkIfFieldMatches( definition : IMyFieldTypes, actual : any ){
             result += `\Formula is ${actual.Formula}, expected Nothing`;
         }
     }
+
+    if ( result !== '' ) { console.log('FAILED CHECK definition: ',definition, actual, result); }
 
     return result === '' ? true : result;
 
