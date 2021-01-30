@@ -1,6 +1,6 @@
 {
   "name": "generic-solution",
-  "version": "1.9.1",
+  "version": "1.10.1",
   "private": true,
   "main": "lib/index.js",
   "engines": {
@@ -27,7 +27,8 @@
     "@types/webpack-env": "1.13.1",
     "office-ui-fabric-react": "^6.214.1",
     "react": "16.8.5",
-    "react-dom": "16.8.5"
+    "react-dom": "16.8.5",
+    "react-json-view": "^1.20.4"
   },
   "resolutions": {
     "@types/react": "16.8.8"

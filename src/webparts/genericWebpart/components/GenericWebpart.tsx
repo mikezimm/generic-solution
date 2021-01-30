@@ -29,9 +29,7 @@ import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/co
 //import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
 import { defineTheList } from './ListProvisioning/Harmonie/defineHarmonie';
 import ProvisionLists from './ListProvisioning/component/provisionListComponent';
-import ProvisionFields from './FieldProvisioning/component/provisionFieldComponent';
-
-
+import ProvisionFields from './ListProvisioning/component/provisionFieldComponent';
 
 import InspectContents from './Contents/contentsComponent';
 
@@ -224,6 +222,8 @@ public constructor(props:IGenericWebpartProps){
         searchShow: true,
         searchCount: 0,
         searchWhere: '',
+
+        makeThisList: null,
   
   };
 }
@@ -356,6 +356,16 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       const provisionListPage  = this.props.allowRailsOff !== true ? null : 
         <div className= { defaultPageClass }>
           <ProvisionLists 
+
+              updateMakeThisList= { this.updateMakeThisList.bind(this) }
+              makeThisList={ this.state.makeThisList }
+              
+              useListAnalytics= { this.props.useListAnalytics }
+              analyticsWeb= { this.props.analyticsWeb }
+              analyticsList= { this.props.analyticsList }
+              tenant= { this.props.tenant }
+              urlVars= { this.props.urlVars }
+
               allowOtherSites={ false }
               alwaysReadOnly = { false }
               pageContext={ this.props.pageContext }
@@ -374,6 +384,18 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     const provisionFieldPage  = this.props.allowRailsOff !== true ? null : 
     <div className= { defaultPageClass }>
       <ProvisionFields 
+      
+        updateMakeThisList= { this.updateMakeThisList.bind(this) }
+        makeThisList={ this.state.makeThisList }
+
+        useListAnalytics= { this.props.useListAnalytics }
+        analyticsWeb= { this.props.analyticsWeb }
+        analyticsList= { this.props.analyticsList }
+        tenant= { this.props.tenant }
+        urlVars= { this.props.urlVars }
+
+
+
           allowOtherSites={ false }
           alwaysReadOnly = { false }
           pageContext={ this.props.pageContext }
@@ -392,6 +414,13 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       const provisionPagesPage = this.props.allowRailsOff !== true ? null :  
         <div className= { defaultPageClass }>
           <ProvisionPages 
+              
+              useListAnalytics= { this.props.useListAnalytics }
+              analyticsWeb= { this.props.analyticsWeb }
+              analyticsList= { this.props.analyticsList }
+              tenant= { this.props.tenant }
+              urlVars= { this.props.urlVars }
+
               allowOtherSites={ false }
               alwaysReadOnly = { false }
               pageContext={ this.props.pageContext }
@@ -416,6 +445,13 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
       const contentsPage = <div className= { defaultPageClass }>
         <InspectContents
+
+          useListAnalytics= { this.props.useListAnalytics }
+          analyticsWeb= { this.props.analyticsWeb }
+          analyticsList= { this.props.analyticsList }
+          tenant= { this.props.tenant }
+          urlVars= { this.props.urlVars }
+
           allowOtherSites={ false }
           pageContext={ this.props.pageContext }
           showPane={true}
@@ -536,6 +572,16 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     return;
 
   }
+
+
+  //definedList
+
+  private updateMakeThisList( makeThisList: IMakeThisList ) {
+
+    this.setState({ makeThisList: makeThisList, });
+  }
+
+
   //This does not work either to float right button/tab
     private _customRenderer(
       link: IPivotItemProps,

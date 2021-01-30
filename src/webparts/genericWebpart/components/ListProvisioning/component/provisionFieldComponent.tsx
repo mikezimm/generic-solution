@@ -7,12 +7,16 @@ import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldSty
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
+import ReactJson from "react-json-view";
+
 import { provisionTheList, IValidTemplate } from './provisionWebPartList';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionList.module.scss';
 import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+
+import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -22,7 +26,7 @@ import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButt
 
 import { PageContext } from '@microsoft/sp-page-context';
 
-import MyLogList from './fieldView';
+import MyLogList from './listView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
@@ -31,8 +35,10 @@ import { IMakeThisList } from './provisionWebPartList';
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
 import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '../../../../../services/stringServices';
 
+import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
+
 import { IFieldDef } from '../../fields/fieldDefinitions';
-import { createBasicTextField } from  '../../fields/textFieldBuilder';
+import { createBasicTextField, createMultiLineTextField } from  '../../fields/textFieldBuilder';
 
 /**
  * Steps to add new list def:
@@ -41,10 +47,10 @@ import { createBasicTextField } from  '../../fields/textFieldBuilder';
  * 3. Add logic to getDefinedLists to fetch the list definition
  * Rinse and repeat
  */
-import * as dHarm from '../../ListProvisioning/Harmonie/defineHarmonie';
-import * as dTMT from '../../ListProvisioning/ListsTMT/defineThisList';
-import * as dCust from '../../ListProvisioning/ListsCustReq/defineCustReq';
-import * as dPCP from '../../ListProvisioning/PreConfig/definePreConfig';
+import * as dHarm from '../Harmonie/defineHarmonie';
+import * as dTMT from '../ListsTMT/defineThisList';
+import * as dCust from '../ListsCustReq/defineCustReq';
+import * as dPCP from '../PreConfig/definePreConfig';
 
 import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 //import * as dFinT from '../ListsFinTasks/defineFinTasks';
@@ -59,17 +65,20 @@ import { doesObjectExistInArray } from '../../../../../services/arrayServices';
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
  */
-export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | '';
-const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements','Drilldown'];
 
-const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles'];
-
-const dropDownWidth = 200;
+import { IDefinedLists, availLists, definedLists, dropDownWidth } from './provisionListComponent';
 
 export interface IProvisionFieldsProps {
     // 0 - Context
 
     pageContext: PageContext;
+
+    // 1 - Analytics options
+    useListAnalytics: boolean;
+    analyticsWeb: string;
+    analyticsList: string;
+    tenant: string;
+    urlVars: {};
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning lists on other sites.
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
@@ -85,6 +94,9 @@ export interface IProvisionFieldsProps {
     provisionListTitles: string[];
 
     // 2 - Source and destination list information
+
+    makeThisList: IMakeThisList;
+    updateMakeThisList: any;
 
     lists: IMakeThisList[];
 
@@ -108,6 +120,15 @@ export interface IProvisionFieldsState {
     progress: IMyProgress;
     history: IMyHistory;
 
+    doMode: boolean;
+    doList: boolean;
+    doFields: boolean;
+    doViews: boolean;
+    doItems: boolean;
+    doEdit: boolean;
+
+    listNo: number;
+
     currentList: string;
 
     // 2 - Source and destination list information
@@ -116,6 +137,8 @@ export interface IProvisionFieldsState {
     provisionListTitles: string[];
 
     // 2 - Source and destination list information
+    makeThisList: IMakeThisList;
+
     lists: IMakeThisList[];
 
 }
@@ -137,17 +160,43 @@ export default class ProvisionFields extends React.Component<IProvisionFieldsPro
         return thisField;
     }
 
-private clearHistory() {
-    let history: IMyHistory = {
-        count: 0,
-        errors: [],
-        columns: [],
-        views: [],
-        items: [],
-    };
-    return history;
+    private captureAnalytics(itemInfo2, result, ActionJSON ){
+        let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
 
-}
+        let TargetList = '';
+        let TargetSite = '';
+
+        if ( this.state && this.state.lists && this.state.lists[0] ) {
+            TargetList = this.state.lists[0] ? this.state.lists[0].listURL : '';
+            TargetSite = this.state.lists[0] ? this.state.lists[0].webURL : '';  
+
+        } else {
+            TargetList = this.props.makeThisList ? this.props.makeThisList.listURL : '';
+            TargetSite = this.props.makeThisList ? this.props.makeThisList.webURL : ''; 
+
+        }
+
+        //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
+        saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
+            currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
+            'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
+            'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
+            ActionJSON ); //richText
+
+    }
+
+    private clearHistory() {
+        let history: IMyHistory = {
+            count: 0,
+            errors: [],
+            columns: [],
+            views: [],
+            items: [],
+        };
+        return history;
+
+    }
+
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b.
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D
@@ -163,7 +212,7 @@ public constructor(props:IProvisionFieldsProps){
     super(props);
 
     let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
-    let theLists = this.getDefinedLists(definedList, true) ;
+    let theLists = this.props.makeThisList ? [ this.props.makeThisList ] : [] ;
 
     let allowOtherSites = this.props.allowOtherSites === true ? true : false;
     let alwaysReadOnly = this.props.alwaysReadOnly === true ? true : false;
@@ -174,6 +223,12 @@ public constructor(props:IProvisionFieldsProps){
         alwaysReadOnly = false;
     }
 
+    this.captureAnalytics('Constructor', 'Loading', null);
+
+    let makeThisList : IMakeThisList = this.props.makeThisList ? this.props.makeThisList : null ;
+
+    let provisionListTitles : string[] = this.props.provisionListTitles[0] && this.props.provisionListTitles[0].length > 0 ? [this.props.provisionListTitles[0]] : [ makeThisList ? makeThisList.title : 'Enter List Title' ];
+
     this.state = {
 
         allowOtherSites: allowOtherSites,
@@ -183,11 +238,21 @@ public constructor(props:IProvisionFieldsProps){
         progress: null,
         history: this.clearHistory(),
 
+        doMode: false,
+        doList: true,
+        doFields: true,
+        doViews: true,
+        doItems: false,
+        doEdit: makeThisList ? false : true ,
+
+        listNo: makeThisList ? 0 : null,
+
         // 2 - Source and destination list information
+
 
         definedList: definedList,
         provisionWebs: this.props.provisionWebs.map( web => { return cleanURL(web) ; } ),
-        provisionListTitles: this.props.provisionListTitles,
+        provisionListTitles: provisionListTitles,
 
         //parentListURL: parentWeb + 'lists/' + this.props.parentListTitle, //Get from list item
         //childListURL: childWeb + 'lists/' + this.props.childListTitle, //Get from list item
@@ -199,6 +264,7 @@ public constructor(props:IProvisionFieldsProps){
         //childListTitle: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
 
         lists: theLists,
+        makeThisList: makeThisList,
 
     };
 
@@ -263,26 +329,20 @@ public constructor(props:IProvisionFieldsProps){
  */
 
 
-            let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
+            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } </div>;
 
             let thisPage = null;
             let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
 
             let createButtonOnClicks = [
                 this.CreateList_0.bind(this),
-                this.CreateList_1.bind(this),
-                this.CreateList_2.bind(this),
             ];
 
             const buttons: ISingleButtonProps[] = this.state.lists.map (( thelist, index ) => {
                 let theLabel = null;
                 let isDisabled = !thelist.webExists;
 
-                if ( this.state.definedList === availLists[0] ) {
-                    isDisabled = true;
-                    theLabel = availLists[0];
-
-                } else if ( thelist.webExists ) {
+                if ( thelist.webExists ) {
                     if ( thelist.title === '' ) {
                         theLabel = "Update Title";
                         isDisabled = true;
@@ -320,8 +380,18 @@ public constructor(props:IProvisionFieldsProps){
                     label: theLabel, buttonOnClick: createButtonOnClicks[index], };
             });
 
+
+            let listDefInputField = null;
+            let editToggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getEditToggles()) } </div>;
+
+            if ( this.state.lists && this.state.doMode !== true && this.state.doEdit === true ) { 
+                let JSONString = JSON.stringify(this.state.lists[0]);
+                listDefInputField = createMultiLineTextField( 'Paste List JSON', JSONString, this.UpdateJSON.bind(this), styles.listProvTextField1 );
+            }
+            
+
             //let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
-            let updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
+            let updateTitleFunctions = [this.UpdateTitle_0.bind(this)];
             let provisionButtons = buttons.map ( ( theButton, index ) => {
                 let thisTitle = this.state.provisionListTitles[index];
                 let titleBox = createBasicTextField(this.createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], styles.listProvTextField1 );
@@ -365,7 +435,8 @@ public constructor(props:IProvisionFieldsProps){
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
-                <span style={{ fontSize : 'xx-large'}}><mark>THIS PAGE IS BROKEN AND CAN RUIN LISTS... DO NOT USE</mark></span>
+                <span style={{ fontSize : 'xx-large'}}><mark>THIS PAGE IS CAN BREAK LISTS</mark></span>
+                <p>Every click is tracked :)</p>
                 <p>When selecting list type, it should set default list titles per list type.</p>
                 <ul>
                     <li>Set Title in onCreate</li>
@@ -373,25 +444,53 @@ public constructor(props:IProvisionFieldsProps){
                 </ul>
             </div>;
 
+            let listDetails = null;
+
+            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true && this.state.doEdit !== true ) {
+                let listJSON = null; 
+                       
+                let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] ));
+                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
+                if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
+                if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
+
+                listJSON = <div style={{ overflowY: 'auto' }}>
+                    <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                </div>;
+
+                listDetails = <div style={{display: '', marginBottom: '30px' }}>
+                        <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { links.JSONEditorShort } </span></h2></div>
+                        { listJSON }
+                    </div>;
+
+            } 
+
             const stackListTokens: IStackTokens = { childrenGap: 10 };
 
             thisPage = <div><div>{ disclaimers }</div>
 
-                <div> { listDropdown } </div>
+                <div> { toggles } </div>
                 <div> { provisionButtonRow } </div>
                 <div style={{ height:30} }> {  } </div>
-                <div> { myProgress } </div>
-                <div> {  } </div>
-                <div> <h2>{ this.state.currentList }</h2> </div>
-                <div>
-                <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
-                    { errorList }
-                    { fieldList }
-                    { viewList }
-                    { itemList }
-                </Stack>
-                </div>
 
+                <div style={{display: this.state.doMode === true ? '': 'none' }}>
+                        <div> { myProgress } </div>
+                        <div> {  } </div>
+                        <div> <h2>{ this.state.currentList }</h2> </div>
+                        <div>
+                        <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
+                            { errorList }
+                            { fieldList }
+                            { viewList }
+                            { itemList }
+                        </Stack>
+                        </div>
+                </div>
+                <div style={{display: this.state.doMode === true ? 'none': '' }}>
+                    { editToggles }
+                    { listDefInputField }
+                    { listDetails }
+                </div>
             </div>;
 
 /***
@@ -437,37 +536,37 @@ public constructor(props:IProvisionFieldsProps){
     this.CreateThisList(mapThisList, 0 );
   }
 
-  private CreateList_1(oldVal: any): any {
-    let mapThisList: IMakeThisList = this.state.lists[1];
-    this.CreateThisList(mapThisList, 1 );
-  }
-
-  private CreateList_2(oldVal: any): any {
-    let mapThisList: IMakeThisList = this.state.lists[2];
-    this.CreateThisList(mapThisList, 2 );
-  }
-
   private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
 
-    this.setState({ currentList: mapThisList + ' list: ' + mapThisList.title, history: this.clearHistory(), });
+    this.setState({ currentList: mapThisList.listDefinition + ' list: ' + mapThisList.title, history: this.clearHistory(), listNo: listNo });
 
     let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
 
     let readOnly: boolean  = this.isListReadOnly(mapThisList);
 
-    let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this));
+    if ( this.state.doMode === true ) {
 
-    let stateLists = this.state.lists;
-    stateLists[listNo].listExists = true;
+        this.captureAnalytics('Update List', 'Updating', mapThisList);
 
-    let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
+        let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems, false );
 
-    if ( listCreated ) {
-        this.setState({
-            currentList: workingMessage + listName,
-            lists: stateLists,
-        });
+        let stateLists = this.state.lists;
+        stateLists[listNo].listExists = true;
+
+        let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
+
+        if ( listCreated ) {
+            this.setState({
+                currentList: workingMessage + listName,
+                lists: stateLists,
+            });
+        }
+    } else {
+        console.log( 'listNo, mapThisList', listNo, mapThisList );
     }
+
+
+        
     return "Finished";
   }
 
@@ -752,12 +851,37 @@ public constructor(props:IProvisionFieldsProps){
         this.UpdateTitles(oldVal,0);
       }
 
-      private UpdateTitle_1(oldVal: any): any {
-        this.UpdateTitles(oldVal,1);
-      }
+      private UpdateJSON(oldVal: any): any {
+        let newMapThisList = null;
 
-      private UpdateTitle_2(oldVal: any): any {
-        this.UpdateTitles(oldVal,2);
+        try {
+            let doFields = this.state.doFields;
+            let doViews = this.state.doViews;
+            let doItems = this.state.doItems;
+
+            newMapThisList = JSON.parse(oldVal);
+
+            if ( this.state.lists.length === 0 ) {
+                if (  newMapThisList.createTheseFields && newMapThisList.createTheseFields.length > 0 ) { } else { doFields = false ; }
+                if (  newMapThisList.createTheseViews && newMapThisList.createTheseViews.length > 0 ) { } else { doViews = false ; }
+                if (  newMapThisList.createTheseItems && newMapThisList.createTheseItems.length > 0 ) { } else { doItems = false ; }
+            }
+
+            let definedList = newMapThisList.definedList;
+
+            this.setState({ 
+                lists: [newMapThisList],
+                doFields: doFields,
+                doViews: doViews,
+                doItems: doItems,
+                definedList: definedList,
+                listNo: 0,
+            });
+
+        } catch (e) {
+            alert('Opps! Invalid JSON!');
+        }
+
       }
 
       private UpdateTitles( oldVal: any, index: number ) {
@@ -770,16 +894,164 @@ public constructor(props:IProvisionFieldsProps){
 
         let definedList = this.state.definedList;
 
-        let reDefinedLists = this.getDefinedLists(definedList, true);
-        reDefinedLists[index].name = listName;
-        reDefinedLists[index].title = oldVal;
-        reDefinedLists[index].desc = oldVal + ' list for this Webpart';
-        reDefinedLists[index].listURL = this.state.provisionWebs[index] + ( reDefinedLists[index].template === 100 ? 'Lists/' : '') + listName;
+        let reDefinedList :  IMakeThisList = stateLists[0];
+        reDefinedList.name = listName;
+        reDefinedList.title = oldVal;
+        reDefinedList.desc = oldVal + ' list for this Webpart';
+        reDefinedList.listURL = this.state.provisionWebs[index] + ( reDefinedList.template === 100 ? 'Lists/' : '') + listName;
 
-        this.checkThisWeb(index, reDefinedLists, definedList);
+        this.checkThisWeb(index, [ reDefinedList ], definedList);
 
       }
 
 
+        /***
+         *         d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
+         *         `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'     88'  YP 
+         *            88    88    88 88      88      88      88ooooo `8bo.   
+         *            88    88    88 88  ooo 88  ooo 88      88~~~~~   `Y8b. 
+         *            88    `8b  d8' 88. ~8~ 88. ~8~ 88booo. 88.     db   8D 
+         *            YP     `Y88P'   Y888P   Y888P  Y88888P Y88888P `8888Y' 
+         *                                                                   
+         *                                                                   
+         */
+        private getEditToggles() {
+
+            let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Edit or View</span>;
+            let togDoEdit = {
+                label: toggleLabel,
+                key: 'togDoEdit',
+                _onChange: this.updateTogggleDoEdit.bind(this),
+                checked: this.state.doEdit,
+                onText: 'Edit',
+                offText: 'View',
+                className: '',
+                styles: '',
+            };
+            let theseToggles = [ togDoEdit ];
+
+            let pageToggles : IContentsToggles = {
+                toggles: theseToggles,
+                childGap: 20,
+                vertical: false,
+                hAlign: 'end',
+                vAlign: 'start',
+                rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+            };
+
+            return pageToggles;
+
+        }
+
+        private getPageToggles() {
+
+            let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Mode</span>;
+            let togDoMode = {
+                label: toggleLabel,
+                key: 'togDoMode',
+                _onChange: this.updateTogggleDoMode.bind(this),
+                checked: this.state.doMode,
+                onText: 'Build',
+                offText: 'Design',
+                className: '',
+                styles: '',
+            };
+
+            let togDoList = {
+                label: 'List Props',
+                key: 'togDoList',
+                _onChange: this.updateTogggleDoList.bind(this),
+                checked: this.state.doList,
+                onText: 'Include',
+                offText: 'Skip',
+                className: '',
+                styles: '',
+            };
+
+            let togDoFields = {
+                label: 'Fields',
+                key: 'togDoFields',
+                _onChange: this.updateTogggleDoFields.bind(this),
+                checked: this.state.doFields,
+                onText: 'Include',
+                offText: 'Skip',
+                className: '',
+                styles: '',
+            };
+
+            let togDoViews = {
+                label: 'Views',
+                key: 'togDoViews',
+                _onChange: this.updateTogggleDoViews.bind(this),
+                checked: this.state.doViews,
+                onText: 'Include',
+                offText: 'Skip',
+                className: '',
+                styles: '',
+            };
+
+            
+            let togDoItems = {
+                label: 'Items',
+                key: 'togDoItems',
+                _onChange: this.updateTogggleDoItems.bind(this),
+                checked: this.state.doItems,
+                onText: 'Include',
+                offText: 'Skip',
+                className: '',
+                styles: '',
+            };
+
+            let theseToggles = [togDoMode, togDoList, togDoFields, togDoViews, togDoItems ];
+
+            let pageToggles : IContentsToggles = {
+                toggles: theseToggles,
+                childGap: 20,
+                vertical: false,
+                hAlign: 'end',
+                vAlign: 'start',
+                rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+            };
+
+            return pageToggles;
+
+        }
+
+        private updateTogggleDoEdit = (item): void => {
+            this.setState({
+                doEdit: !this.state.doEdit,
+            });
+        }
+
+        private updateTogggleDoMode = (item): void => {
+            this.setState({
+                doMode: !this.state.doMode,
+            });
+        }
+
+        private updateTogggleDoList = (item): void => {
+            this.setState({
+                doList: !this.state.doList,
+            });
+        }
+
+        private updateTogggleDoFields = (item): void => {
+            this.setState({
+                doFields: !this.state.doFields,
+            });
+        }
+
+        private updateTogggleDoViews = (item): void => {
+            this.setState({
+                doViews: !this.state.doViews,
+            });
+        }
+
+
+        private updateTogggleDoItems = (item): void => {
+            this.setState({
+                doItems: !this.state.doItems,
+            });
+        }
 
 }

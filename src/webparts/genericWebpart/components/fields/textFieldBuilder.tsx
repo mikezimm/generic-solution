@@ -74,6 +74,29 @@ import {
   }
 
   
+ export function createMultiLineTextField(title: string, currentValue, updateField, blinkOnProjectClassName){
+  // it is possible to have an option to hide labels in lue of placeholder text for more compressed look
+
+  let placeHolder = 'Enter ' + title;
+   let defaultValue = "";
+   if (currentValue && currentValue !== "*") { defaultValue = currentValue; }
+  placeHolder = '';
+
+  let textField =  <TextField
+     //className={ [styles.textField, styles.highlightBlink].join(' ') }
+     className={ blinkOnProjectClassName }
+     defaultValue={ defaultValue }
+     label={ title }
+     placeholder={ placeHolder }
+     autoComplete='off'
+     onChanged={ updateField }
+     multiline={ true }
+     resizable={ true }
+     autoAdjustHeight={ true }
+   />;
+   
+   return textField;
+ }
 
  export function createSmartLinkField(field: IFieldDef, currentValue, updateField, blinkOnProjectClassName){
   // it is possible to have an option to hide labels in lue of placeholder text for more compressed look

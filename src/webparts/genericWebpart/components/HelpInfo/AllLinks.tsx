@@ -11,6 +11,9 @@ export const baseDevDocs = 'https://developer.microsoft.com/en-us/fabric#/contro
  *  Fabric UI Controls on DevDocs
  */
 
+export const JSONEditor = createLink( 'https://codebeautify.org/jsonviewer', '_blank', 'Edit JSON here: CodeBeautify.org');
+export const JSONEditorShort = createLink( 'https://codebeautify.org/jsonviewer', '_blank', 'Edit JSON here');
+
 export const devDocsWeb = createLink( baseDevDocs,'_blank', 'Fabric UI' );
 export const devDocsButton = createLink( baseDevDocs + 'button','_blank', 'Button' );
 export const devDocsStack = createLink( baseDevDocs + 'stack','_blank', 'Stack' );

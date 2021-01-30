@@ -5,11 +5,13 @@ import { projectViews} from './viewsPivotTiles';  //Import view arrays for Proje
 
 import { IMyProgress, IUser } from '../../IReUsableInterfaces';
 
-import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
+import { IMakeThisList, provisionTheList,  } from '../component/provisionWebPartList';
 
 export type IValidTemplate = 100 | 101;
 
 import { cleanURL, camelize, cleanSPListURL } from '../../../../../services/stringServices';
+
+import { IDefinedLists } from '../component/provisionListComponent';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listTitle : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'OurTiles' | 'PivotTiles' , webURL: string, currentUser: IUser, pageURL: string ) {
@@ -38,6 +40,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 
     let makeThisList:  IMakeThisList = {
 
+        definedList: 'PivotTiles',
         title: listTitle,
         name: listName,
         webURL: webURL,
@@ -68,7 +71,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     if ( listDefinition === 'PivotTiles' ) {
 //        makeThisList.createTheseFields = TMTProjectFields();
 //        makeThisList.createTheseViews = projectViews;
-//        makeThisList.createTheseItems = TMTDefaultProjectItems;
+        makeThisList.createTheseItems = [] ;// = TMTDefaultProjectItems;
         makeThisList.autoItemCreate = true;
 //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 
@@ -76,7 +79,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     } else if ( listDefinition === 'OurTiles' ) {
 //        makeThisList.createTheseFields = TMTTimeFields();
 //        makeThisList.createTheseViews = timeViewsFull;
-//        makeThisList.createTheseItems =  TMTTestTimeItems(currentUser);
+        makeThisList.createTheseItems = [] ;// =  TMTTestTimeItems(currentUser);
         makeThisList.autoItemCreate = false;
 //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
     }

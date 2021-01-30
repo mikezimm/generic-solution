@@ -33,12 +33,22 @@ import * as links from '../../HelpInfo/AllLinks';
 import { IMakeThisPage } from './provisionWebPartPages';
 
 import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+
+import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
+
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 export interface IProvisionPagesProps {
     // 0 - Context
     
     pageContext: PageContext;
+
+    // 1 - Analytics options
+    useListAnalytics: boolean;
+    analyticsWeb: string;
+    analyticsList: string;
+    tenant: string;
+    urlVars: {};
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning pages on other sites.
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
@@ -141,6 +151,14 @@ public constructor(props:IProvisionPagesProps){
     super(props);
 
     let thePages = this.createRandomPages(this.props.webURL); //this.props.pages.length > 0 ? this.props.pages : 
+
+    let TargetSite = this.props.webURL && this.props.webURL.length > 0 ? this.props.webURL : '';
+    //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
+    saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
+        '', '',//serverRelativeUrl, webTitle, PageURL,
+        'Provision Pages', TargetSite, null, //saveTitle, TargetSite, TargetList
+        'Pages', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
+        '' ); //richText
 
     this.state = { 
 

@@ -41,7 +41,14 @@ let SystemLists = ["WorkflowTasks", "Style Library",
 "TeamSiteFooterQL1List", "TeamSiteFooterQL2List",
 "SiteCollectionImages", "SiteCollectionDocuments", "FormServerTemplates", "Reports List", "PublishingImages",
 "AEInspiredTilesItemsList", "AEInspiredTilesAssetsList", "PublishedFeedList", "Workflow TasksList", "AEGoalThermometerAssetsList", "AEMetroGridAssetsList", "AEMetroGridItemsList", "AEMetroGridPicLibList", "AESwipeGalleryAssetsList",
-"AESwipeGalleryDefaultImagesList", "Workflows", "Workflow HistoryList", "OData__catalogs/fpdatasources", "IWConvertedForms", "Access Requests", "Style Library"
+"AESwipeGalleryDefaultImagesList", "Workflows", "Workflow HistoryList", "OData__catalogs/fpdatasources", "IWConvertedForms", "Access Requests", "Style Library",
+
+"OData__catalogs/appdata","OData__catalogs/appfiles","OData__catalogs/lt","OData__catalogs/solutions","OData__catalogs/theme","OData__catalogs/wp",
+
+"CCSAdvancedApprovalLogList","CCSWFHistory_Common_ErrorLogsList","CrowCanyonAppsEmailsList","CrowCanyonMailTemplatesList","Send MailsList","CrowCanyonAppsLib","NITROUserPreferencesList",
+
+"OData__catalogs/hubsite","OData__catalogs/MaintenanceLogs",
+
 ];
 
 let TempSysLists = ["OurGroupsList", "OurTilesList", "TemplateHistoryList", "Template HistoryList",
@@ -100,9 +107,11 @@ let entityMaps = [
     { name: '_catalogs/solutions', url: '_catalogs/solutions' },
     { name: '_catalogs/theme', url: '_catalogs/theme' },
     { name: '_catalogs/wp', url: '_catalogs/wp' },
+    { name: '_catalogs/hubsite', url: '_catalogs/hubsite' },
     { name: '', url: '' },
     { name: '', url: '' },
-    { name: '', url: '' },
+    { name: 'CrowCanyonAppsLib', url: 'CrowCanyonAppsLib' },
+    { name: 'NITROUserPreferences', url: 'NITROUserPreferencesList' },
     { name: '', url: '' },
     { name: '', url: '' },
     { name: '', url: '' },
@@ -201,6 +210,9 @@ function getListSort( theList: IContentsListInfo, listBuckets: IListBucketInfo[]
         bucketCategory = 'Template System';
 
     } else if ( SystemLists.indexOf(theList.EntityTypeName) > -1 || EntityMapsNames.indexOf(theList.EntityTypeName) > -1 ) {
+        bucketCategory = 'System';
+
+    } else if ( SystemLists.indexOf('OData__') === 0 ) {
         bucketCategory = 'System';
 
     } else { bucketCategory = 'Custom'; }

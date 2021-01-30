@@ -14,6 +14,8 @@ import { IViewLog, addTheseViews } from '../../../../../services/listServices/vi
 
 import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
+import { IDefinedLists } from './provisionListComponent';
+
 export type IValidTemplate = 100 | 101;
 
 export interface IMakeThisList {
@@ -43,9 +45,10 @@ export interface IMakeThisList {
     existingTemplate: number;
     sameTemplate: boolean;
     listDefinition: string;
+    definedList: IDefinedLists;
 
 }
-export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean ): Promise<IServiceLog[]>{
+export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean, requireAll: boolean = true ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];
     let alertMe = false;
@@ -61,9 +64,13 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     if ( makeThisList.createTheseViews !== null && makeThisList.createTheseViews.length > 0  ) {
         hasViews = true; } else {  errMess += 'List defintion does not have any VIEWS defined.' ; }
 
-    if ( hasViews === false || hasFields === false ) {
-        alert( errMess );
-        return statusLog;
+    if ( ( hasViews === false && doViews === true ) || ( hasFields === false && doFields === true ) ) {
+
+        if ( requireAll === true ) {
+            alert( errMess );
+            return statusLog;
+        } else { console.log( 'provisionTheList', errMess) ; }
+
     }
 
     if ( readOnly === false  ) {
@@ -87,14 +94,49 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
     let fieldFilter = "StaticName eq '" + fieldsToGet.join("' or StaticName eq '") + "'";
 
-    console.log('fieldFilter:', fieldFilter);
+    let arrFieldFilter = [''];
+    let fieldFilterIndex = 0;
+    let fieldFilterLength = 0;
+
+    /*    */
+    fieldsToGet.map( ( f, idx ) => {
+
+        fieldFilterLength = arrFieldFilter.length === 0 ? 0 : arrFieldFilter[ fieldFilterIndex ].length;
+
+        if ( fieldFilterLength > 1000 ) {
+
+            //Remove extra "or StaticName eq" from end before moving on to next one
+            let lastStatNameIdx = arrFieldFilter[ fieldFilterIndex ].lastIndexOf('\' or StaticName eq \'');
+            //arrFieldFilter[ fieldFilterIndex ] = arrFieldFilter[ fieldFilterIndex ].substring(0,lastStatNameIdx + 1);
+
+            fieldFilterIndex ++ ;
+            fieldFilterLength = 0 ;
+            arrFieldFilter.push('') ;
+
+        }
+
+        //let suffix =  fieldsToGet[ idx + 1 ] ? "' or StaticName eq '" : '';
+        let suffix =  "' or StaticName eq '";
+        arrFieldFilter[ fieldFilterIndex ] += f + suffix;
+
+    });
+
+    arrFieldFilter.map( (f, idx) => {
+        arrFieldFilter[idx]= "StaticName eq '" + arrFieldFilter[idx] ;
+        //Remove extra "or StaticName eq" from end before moving on to next one
+        let lastStatNameIdx = arrFieldFilter[idx].lastIndexOf('\' or StaticName eq \'') ;
+        arrFieldFilter[idx] = arrFieldFilter[idx].substring(0,lastStatNameIdx) + "\'" ;
+    });
+
+    console.log('arrFieldFilter:', arrFieldFilter);
+
 
     const thisWeb = Web(makeThisList.webURL);
 
     let ensuredList = null;
     let listFields = null;
     let listViews = null;
-    let currentFields = null;
+    let currentFields = [];
     let currentViews = null;
 
     if ( readOnly === false ) {
@@ -117,7 +159,47 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
         console.log('ensuredList:', readOnly, ensuredList );
 
-        currentFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter(fieldFilter).get();
+/*
+        if ( arrFieldFilter.length > 0 ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[0] ).get() ;
+            console.log('theseFields', theseFields ) ;
+            let prevFields = currentFields;
+            currentFields = prevFields.concat(theseFields);
+        }
+        if ( arrFieldFilter.length > 1 ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[1] ).get() ;
+            let prevFields = currentFields;
+            currentFields = prevFields.concat(theseFields);
+        }
+        if ( arrFieldFilter.length > 2 ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[2] ).get() ;
+            let prevFields = currentFields;
+            currentFields = prevFields.concat(theseFields);
+        }
+        if ( arrFieldFilter.length > 3 ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[3] ).get() ;
+            let prevFields = currentFields;
+            currentFields = prevFields.concat(theseFields);
+        }
+        if ( arrFieldFilter.length > 4 ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[4] ).get() ;
+            let prevFields = currentFields;
+            currentFields = prevFields.concat(theseFields);
+        }
+*/
+
+//        currentFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[0] ).get() ;
+
+        for (var i1=0; i1 < arrFieldFilter.length; i1 ++ ) {
+            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[i1] ).get() ;
+            console.log('currentFields:', currentFields );
+            console.log('theseFields:', theseFields );     
+            
+            theseFields.map( f=>{ currentFields.push( f ) ; });
+            //let prevFields = currentFields;
+            //currentFields = prevFields.concat(theseFields);
+        }
+
         currentViews = await listViews.get();
         
         console.log('currentFields:', readOnly, currentFields );
@@ -126,7 +208,21 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     } else {
         ensuredList = await thisWeb.lists.getByTitle(makeThisList.title);
         console.log('ensuredList:', readOnly, ensuredList );
-        currentFields = await ensuredList.fields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter(fieldFilter).get();
+
+        for (var i2=0; i2 < arrFieldFilter.length; i2 ++ ) {
+            let theseFields = await ensuredList.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[i2] ).get() ;
+            console.log('currentFields:', currentFields );
+            console.log('theseFields:', theseFields );       
+
+            theseFields.map( f=>{ currentFields.push( f ) ; });
+            //let prevFields = currentFields;
+            //currentFields = prevFields.concat(theseFields);
+        }
+
+        console.log( 'currentFields', currentFields );
+        
+//        currentFields = await ensuredList.fields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter(fieldFilter).get();
+
         currentViews = await ensuredList.views.get();
         console.log('currentFields:', readOnly, currentFields );
         console.log('currentViews:', readOnly, currentViews );
@@ -169,7 +265,7 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     if ( readOnly === true  ) {
         alert( 'Your list has been checked... scroll down to see the results :)' );
 
-    } else if ( makeThisList.alternateItemCreateMessage ) {
+    } else if ( doItems === true && createItems === true && makeThisList.alternateItemCreateMessage ) {
         alert( makeThisList.alternateItemCreateMessage );
 
     } else {

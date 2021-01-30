@@ -47,6 +47,8 @@ import { pivotOptionsGroup, } from '../../../../services/propPane';
  
 import { doesObjectExistInArray } from '../../../../services/arrayServices';
 
+import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../services/createAnalytics';
+
 import { IGenericWebpartProps } from '../IGenericWebpartProps';
 import { IGenericWebpartState } from '../IGenericWebpartState';
 
@@ -57,6 +59,13 @@ export interface IInspectContentsProps {
     parentState?: IGenericWebpartState;
 
     pageContext: PageContext;
+
+      // 1 - Analytics options
+    useListAnalytics: boolean;
+    analyticsWeb: string;
+    analyticsList: string;
+    tenant: string;
+    urlVars: {};
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
     pickedWeb : IPickedWebBasic;
@@ -121,6 +130,15 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
     public constructor(props:IInspectContentsProps){
     super(props);
+
+    let ServerRelativeUrl = this.props.pageContext.web.serverRelativeUrl;
+    let pickedWeb = this.props.pickedWeb ? this.props.pickedWeb.ServerRelativeUrl : ServerRelativeUrl;
+    //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
+    saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
+        ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+        'EasyContents', pickedWeb, null, //saveTitle, TargetSite, TargetList
+        'Contents', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
+        '' ); //richText
 
     let railsMode = this.props.allowRailsOff && this.props.showRailsOff ? true : false ;
     this.state = {
