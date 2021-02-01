@@ -25,7 +25,7 @@ export interface IMakeThisList {
     webURL: string;
     listURL: string;
     desc: string;
-    template: IValidTemplate;
+    template: IValidTemplate;  // listURL, template
     enableContentTypes: boolean;
     additionalSettings: { 
         EnableVersioning: boolean;
@@ -76,12 +76,14 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     if ( readOnly === false  ) {
         if ( makeThisList.autoItemCreate === true ) {
             createItems = true;
+        /*
         } else {
             //let confirmItems = confirm("We created your list, do you want us to create some sample Time entries so you can see how it looks?")
             if (confirm("Do you want us to: \n\nCreate some sample list items \n\nso you can see how it looks?")) {
                 //You pressed Ok, add items
                 createItems = true;
             }
+        */
         }
     }
 

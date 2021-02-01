@@ -31,9 +31,9 @@ import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, }
  *
  */
 
-const thisColumnGroup = 'Used in SocialiiS list';
+const thisColumnGroup = 'Used Periodic Reports libraries';
 const colPrefix = 'zzz';
-const thisDescription = 'Used in SocialiiS list';
+const thisDescription = 'Used Periodic Reports libraries';
 
 
 /***
@@ -151,7 +151,7 @@ export const SectionRep : IChoiceField = {
         fieldType: cCalcT,
         name: 'YearPer',
         //=[!Year]&"-"&[!Period]
-        formula: '=[' + YearRep.Title + ']&"-"&[' + PeriodRep.title + ']',
+        formula: '=[' + YearRep.title + ']&"-"&[' + PeriodRep.title + ']',
         dateFormat: DateTimeFieldFormatType.DateOnly,
         onCreateProps: {
             Group: thisColumnGroup,
@@ -191,7 +191,7 @@ export const SectionRep : IChoiceField = {
  */
 
 
-export function ReportsFields(listName: 'Reports' | 'Reports') {
+export function ReportsFields(listName: 'Reports1' | 'Reports2') {
     //return null;
 
     let theseFields: IMyFieldTypes[] = BuildReportsFields(listName);
@@ -201,7 +201,7 @@ export function ReportsFields(listName: 'Reports' | 'Reports') {
 }
 
 
-function BuildReportsFields(listName: 'Reports' | 'Reports') {
+function BuildReportsFields(listName: 'Reports1' | 'Reports2') {
 
     let theseFields: IMyFieldTypes[] = [];
 

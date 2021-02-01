@@ -53,7 +53,7 @@ export const PivotAllItemsView : IMyView = {
     orders: [ {field: ootbModified, asc: false} ],
 };
 
-export const projectViews : IMyView[] = [
+export const pivotViews : IMyView[] = [
     PivotAllItemsView, createRecentUpdatesView( PivotRecentUpdatesFields),
 
 

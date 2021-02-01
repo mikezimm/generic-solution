@@ -5,7 +5,7 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 
 import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, Lists, List } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import ReactJson from "react-json-view";
 
@@ -43,7 +43,7 @@ import { createBasicTextField } from  '../../fields/textFieldBuilder';
 /**
  * Steps to add new list def:
  * 1. Create folder and columns, define and view files
- * 2. Make sure the list def is in the availLists array
+ * 2. Make sure the list def is in the availLists array and definedLists array
  * 3. Add logic to getDefinedLists to fetch the list definition
  * Rinse and repeat
  */
@@ -52,23 +52,26 @@ import * as dTMT from '../ListsTMT/defineThisList';
 import * as dCust from '../ListsCustReq/defineCustReq';
 import * as dPCP from '../PreConfig/definePreConfig';
 
-import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 //import * as dFinT from '../ListsFinTasks/defineFinTasks';
-//import * as dReps from '../ListsReports/defineReports';
+import * as dReps from '../ListsReports/defineReports';
 //import * as dTurn from '../ListsTurnover/defineTurnover';
 //import * as dOurG from '../ListsOurGroups/defineOurGroups';
 //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
-//import * as dPivT from '../PivotTiles/definePivotTiles';
+import * as dPivT from '../PivotTiles/definePivotTiles';
 
+import { doesObjectExistInArray } from '../../../../../services/arrayServices';
 
 /**
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
+ * 
  */
 export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | '';
-export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements','Drilldown'];
 
-export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles'];
+//Add here to make available in dropdown (but does not work unless they are in the definedLists array )
+export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' ,  'OurGroups' ,  'Socialiis' , 'PivotTiles' , 'Drilldown'];
+
+export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles', 'Drilldown' ];
 
 export const dropDownWidth = 200;
 
@@ -434,11 +437,13 @@ public constructor(props:IProvisionListsProps){
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
-                <span style={{ fontSize : 'xx-large'}}><mark>THIS PAGE IS BROKEN AND CAN RUIN LISTS... DO NOT USE</mark></span>
+                <span style={{ fontSize : 'x-large'}}><mark>THIS PAGE IS BROKEN AND CAN RUIN LISTS... DO NOT USE</mark></span>
                 <p>When selecting list type, it should set default list titles per list type.</p>
                 <ul>
-                    <li>Set Title in onCreate</li>
-                    <li>Create columns fields and views for other common lists</li>
+                    <li>Pick List definition</li>
+                    <li>Pick List type (if more than one option is available)</li>
+                    <li>Set Title above button (or leave blank for default)</li>
+                    <li>Set Mode (1st Toggle).  Design just creates the json object you can look at.  Toggle to build.</li>
                 </ul>
             </div>;
 
@@ -801,7 +806,29 @@ public constructor(props:IProvisionListsProps){
             if ( progCustRequire ) { theLists.push( progCustRequire ); }
             if ( sorCustRequire ) { theLists.push( sorCustRequire ); }
 
+        } else if ( defineThisList === 'PivotTiles' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('PivotTiles');  provisionListTitles.push('OurTiles');  }
+
+            let pivotTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[0], 'PivotTiles' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let ourTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[1], 'OurTiles' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+        
+            if ( pivotTiles ) { theLists.push( pivotTiles ); }
+            if ( ourTiles ) { theLists.push( ourTiles ); }
+
+        } else if ( defineThisList === 'Reports' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Reports1');  provisionListTitles.push('Reports2');  }
+
+            let reports1 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[0], 'Reports1' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let reports2 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[1], 'Reports2' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+        
+            if ( reports1 ) { theLists.push( reports1 ); }
+            if ( reports2 ) { theLists.push( reports2 ); }
+
         }
+
+        //'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PreConfig' |
 
         if ( justReturnLists === true ) {
             return theLists;
@@ -853,7 +880,9 @@ public constructor(props:IProvisionListsProps){
 
         let theLists = this.getDefinedLists(thisValue, false);
 
-        this.setState({ lists: theLists, });
+        let doList: boolean = theLists.length === 0 ? null : theLists[0].template === 100 ? true : theLists[0].template === 101 ? false : null;
+
+        this.setState({ lists: theLists, doList: doList });
 
     }
 
@@ -883,7 +912,11 @@ public constructor(props:IProvisionListsProps){
         reDefinedLists[index].name = listName;
         reDefinedLists[index].title = oldVal;
         reDefinedLists[index].desc = oldVal + ' list for this Webpart';
-        reDefinedLists[index].listURL = this.state.provisionWebs[index] + ( reDefinedLists[index].template === 100 ? 'Lists/' : '') + listName;
+
+        reDefinedLists.map( theList => {
+            theList.template = this.state.doList === true ? 100 : 101 ;
+            theList.listURL = this.state.provisionWebs[index] + ( theList.template === 100 ? 'Lists/' : '') + listName;
+        });
 
         this.checkThisWeb(index, reDefinedLists, definedList);
 
@@ -916,12 +949,12 @@ public constructor(props:IProvisionListsProps){
             };
 
             let togDoList = {
-                label: 'List Props',
+                label: this.state.doList === true ? 'Make List' : 'Make Library',
                 key: 'togDoList',
                 _onChange: this.updateTogggleDoList.bind(this),
                 checked: this.state.doList,
-                onText: 'Include',
-                offText: 'Skip',
+                onText: '-',
+                offText: '-',
                 className: '',
                 styles: '',
             };
@@ -982,9 +1015,18 @@ public constructor(props:IProvisionListsProps){
         }
 
         private updateTogggleDoList = (item): void => {
-            this.setState({
-                doList: !this.state.doList,
+            //Similar to CreateThisList... just update existing list though
+            let stateLists = this.state.lists;
+
+            let newSetting = !this.state.doList;
+
+            stateLists.map( theList => {  // listURL, template
+                theList.template = newSetting === true ? 100 : 101;
+                theList.listURL = theList.webURL + ( newSetting === true ? 'lists/' : '' ) + theList.name;
             });
+
+            this.setState({ doList: !this.state.doList, lists: stateLists });
+
         }
 
         private updateTogggleDoFields = (item): void => {

@@ -229,6 +229,8 @@ public constructor(props:IProvisionFieldsProps){
 
     let provisionListTitles : string[] = this.props.provisionListTitles[0] && this.props.provisionListTitles[0].length > 0 ? [this.props.provisionListTitles[0]] : [ makeThisList ? makeThisList.title : 'Enter List Title' ];
 
+    let doList = makeThisList.template === 100 ? true : false;
+
     this.state = {
 
         allowOtherSites: allowOtherSites,
@@ -239,7 +241,7 @@ public constructor(props:IProvisionFieldsProps){
         history: this.clearHistory(),
 
         doMode: false,
-        doList: true,
+        doList: doList,
         doFields: true,
         doViews: true,
         doItems: false,
@@ -843,7 +845,9 @@ public constructor(props:IProvisionFieldsProps){
 
         let theLists = this.getDefinedLists(thisValue, false);
 
-        this.setState({ lists: theLists, });
+        let doList: boolean = theLists.length === 0 ? null : theLists[0].template === 100 ? true : theLists[0].template === 101 ? false : null;
+
+        this.setState({ lists: theLists, doList: doList });
 
     }
 
@@ -958,12 +962,12 @@ public constructor(props:IProvisionFieldsProps){
             };
 
             let togDoList = {
-                label: 'List Props',
+                label: this.state.doList === true ? 'Make List' : 'Make Library',
                 key: 'togDoList',
                 _onChange: this.updateTogggleDoList.bind(this),
                 checked: this.state.doList,
-                onText: 'Include',
-                offText: 'Skip',
+                onText: '-',
+                offText: '-',
                 className: '',
                 styles: '',
             };
@@ -1030,9 +1034,18 @@ public constructor(props:IProvisionFieldsProps){
         }
 
         private updateTogggleDoList = (item): void => {
-            this.setState({
-                doList: !this.state.doList,
+            //Similar to CreateThisList... just update existing list though
+            let stateLists = this.state.lists;
+
+            let newSetting = !this.state.doList;
+
+            stateLists.map( theList => {  // listURL, template
+                theList.template = newSetting === true ? 100 : 101;
+                theList.listURL = theList.webURL + ( newSetting === true ? 'lists/' : '' ) + theList.name;
             });
+
+            this.setState({ doList: !this.state.doList, lists: stateLists });
+
         }
 
         private updateTogggleDoFields = (item): void => {

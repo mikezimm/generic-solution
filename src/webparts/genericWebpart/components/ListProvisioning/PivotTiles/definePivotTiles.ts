@@ -1,7 +1,7 @@
 
 import { PivotTilesFields } from './columnsPivotTiles'; //Import column arrays (one file because both lists use many of same columns)
 
-import { projectViews} from './viewsPivotTiles';  //Import view arrays for Project list
+import { pivotViews} from './viewsPivotTiles';  //Import view arrays for Project list
 
 import { IMyProgress, IUser } from '../../IReUsableInterfaces';
 
@@ -69,16 +69,16 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     };
 
     if ( listDefinition === 'PivotTiles' ) {
-//        makeThisList.createTheseFields = TMTProjectFields();
-//        makeThisList.createTheseViews = projectViews;
+        makeThisList.createTheseFields = PivotTilesFields();
+        makeThisList.createTheseViews = pivotViews;
         makeThisList.createTheseItems = [] ;// = TMTDefaultProjectItems;
-        makeThisList.autoItemCreate = true;
+        makeThisList.autoItemCreate = false;
 //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 
 
     } else if ( listDefinition === 'OurTiles' ) {
-//        makeThisList.createTheseFields = TMTTimeFields();
-//        makeThisList.createTheseViews = timeViewsFull;
+        makeThisList.createTheseFields = PivotTilesFields();
+        makeThisList.createTheseViews = pivotViews;
         makeThisList.createTheseItems = [] ;// =  TMTTestTimeItems(currentUser);
         makeThisList.autoItemCreate = false;
 //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';

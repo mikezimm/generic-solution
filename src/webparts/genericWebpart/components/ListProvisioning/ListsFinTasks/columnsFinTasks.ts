@@ -36,6 +36,8 @@ const thisColumnGroup = 'Used in SocialiiS list';
 const colPrefix = 'zzz';
 const thisDescription = 'Used in SocialiiS list';
 
+export type IFinTasksDefs = 'Finance Tasks' | 'OurTasks' ;
+
 
 /***
  *    d88888b db    db  .d8b.  .88b  d88. d8888b. db      d88888b       .o88b.  .d88b.  db      db    db .88b  d88. d8b   db .d8888.
@@ -438,7 +440,7 @@ export const IsCurrentVerFin : IBooleanField = {
  */
 
 
-export function FinTasksFields(listName: 'OurTasks' | 'OurTasks') {
+export function FinTasksFields(listName: IFinTasksDefs ) {
     //return null;
 
     let theseFields: IMyFieldTypes[] = BuildFinTasksFields(listName);
@@ -448,7 +450,7 @@ export function FinTasksFields(listName: 'OurTasks' | 'OurTasks') {
 }
 
 
-function BuildFinTasksFields(listName: 'OurTasks' | 'OurTasks') {
+function BuildFinTasksFields(listName: IFinTasksDefs ) {
 
     let theseFields: IMyFieldTypes[] = [];
 
