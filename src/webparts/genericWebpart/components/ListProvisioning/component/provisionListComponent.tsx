@@ -52,7 +52,7 @@ import * as dTMT from '../ListsTMT/defineThisList';
 import * as dCust from '../ListsCustReq/defineCustReq';
 import * as dPCP from '../PreConfig/definePreConfig';
 
-//import * as dFinT from '../ListsFinTasks/defineFinTasks';
+import * as dFinT from '../ListsFinTasks/defineFinTasks';
 import * as dReps from '../ListsReports/defineReports';
 //import * as dTurn from '../ListsTurnover/defineTurnover';
 //import * as dOurG from '../ListsOurGroups/defineOurGroups';
@@ -826,9 +826,21 @@ public constructor(props:IProvisionListsProps){
             if ( reports1 ) { theLists.push( reports1 ); }
             if ( reports2 ) { theLists.push( reports2 ); }
 
-        }
 
-        //'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PreConfig' |
+        } else if ( defineThisList === 'Finance Tasks' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Finance Tasks');  provisionListTitles.push('OurTasks');  }
+
+            let finTasks : IMakeThisList = dFinT.defineTheList( 101 , provisionListTitles[0], 'Finance Tasks' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let ourTasks : IMakeThisList = dFinT.defineTheList( 101 , provisionListTitles[1], 'OurTasks' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+        
+            if ( finTasks ) { theLists.push( finTasks ); }
+            if ( ourTasks ) { theLists.push( ourTasks ); }
+
+        } 
+
+
+        //'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PreConfig' |  dFinT
 
         if ( justReturnLists === true ) {
             return theLists;

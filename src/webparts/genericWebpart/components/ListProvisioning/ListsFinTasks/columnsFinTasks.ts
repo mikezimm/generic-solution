@@ -85,16 +85,16 @@ export const example : ITextField = {
  *
  */
 
-let Choice1 = ["01 Jan", "02 Feb", "03 Mar", "03 EQ3", "04 Apr", "05 May", "06 Jun", "06 EQ6", "07 Jul", "08 Aug", "09 Sep", "09 EQ9", "10 Oct", "11 Nov", "11 FC", "12 Dec", "12 EQ12"];
+export const Choice1Periods = ["01 Jan", "02 Feb", "03 Mar", "03 EQ3", "04 Apr", "05 May", "06 Jun", "06 EQ6", "07 Jul", "08 Aug", "09 Sep", "09 EQ9", "10 Oct", "11 Nov", "11 FC", "12 Dec", "12 EQ12"];
 export const PeriodFin : IChoiceField = {
     fieldType: cChoice,
     name: 'Period',
     title: 'Period',
-    choices: Choice1,
+    choices: Choice1Periods,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice1[Choice1.length-1] + '"',
+        DefaultFormula:'="' + Choice1Periods[Choice1Periods.length-1] + '"',
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -102,16 +102,16 @@ export const PeriodFin : IChoiceField = {
 //    }
 };
 
-let Choice2 = ["2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033", "2034", "2035"];
+export const Choice2Years = ["2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033", "2034", "2035"];
 export const YearFin : IChoiceField = {
     fieldType: cChoice,
     name: 'Year',
     title: 'Year',
-    choices: Choice2,
+    choices: Choice2Years,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice2[Choice2.length-1] + '"',
+        DefaultFormula:'="' + Choice2Years[Choice2Years.length-1] + '"',
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -124,7 +124,7 @@ export const PercentCompleteFin : INumberField = {
     name: 'PercentComplete',
     title: '% Complete',
     minValue: 0,
-    maxValue: 1000,
+    maxValue: 1,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Used by webpart to sort list of projects.',
@@ -194,16 +194,16 @@ export const ReferenceFin : ITextField = {
     }
 };
 
-let Choice3 = ["Group", "Company", "Other"];
+export const FinTasksFrequencyChoices = ['Daily','Weekly','Monthly','Quarterly','Annual','Week 1','PC Week','Other',];
 export const FrequencyFin : IChoiceField = {
     fieldType: cChoice,
     name: 'Frequency',
     title: 'Frequency',
-    choices: Choice3,
+    choices: FinTasksFrequencyChoices,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice3[Choice3.length-1] + '"',
+        DefaultFormula:'="' + FinTasksFrequencyChoices[FinTasksFrequencyChoices.length-1] + '"',
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -211,16 +211,16 @@ export const FrequencyFin : IChoiceField = {
 //    }
 };
 
-let Choice4 = ["Group", "Company", "Other"];
+export const OOTBTaskPriorityChoices = ["(1) High", "(2) Normal", "(3) Low"];
 export const PriorityFin : IChoiceField = {
     fieldType: cChoice,
     name: 'Priority',
     title: 'Priority',
-    choices: Choice4,
+    choices: OOTBTaskPriorityChoices,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice4[Choice4.length-1] + '"',
+        DefaultFormula:'="' + OOTBTaskPriorityChoices[OOTBTaskPriorityChoices.length-1] + '"',
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -228,16 +228,16 @@ export const PriorityFin : IChoiceField = {
 //    }
 };
 
-let Choice5 = ["Group", "Company", "Other"];
+export const FinanceStageChoices = ['1. Preperation','2. Reporting','3. Distribution','4. Other',];
 export const StageFin : IChoiceField = {
     fieldType: cChoice,
     name: 'Stage',
     title: 'Stage',
-    choices: Choice5,
+    choices: FinanceStageChoices,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice5[Choice5.length-1] + '"',
+        DefaultFormula:'="' + FinanceStageChoices[FinanceStageChoices.length-1] + '"',
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -245,16 +245,16 @@ export const StageFin : IChoiceField = {
 //    }
 };
 
-let Choice6 = ["Group", "Company", "Other"];
+export const OOTBTaskStatus = ['Not Started','In Progress','Completed','Deferred','Waiting on someone else',];
 export const StatusFin : IChoiceField = {
     fieldType: cChoice,
     name: 'Status',
     title: 'Task Status',
-    choices: Choice6,
+    choices: OOTBTaskStatus,
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice6[Choice6.length-1] + '"',
+        DefaultFormula:'="' + OOTBTaskStatus[OOTBTaskStatus.length-1] + '"',
         Indexed: true,
     },
 //    onCreateChanges: {

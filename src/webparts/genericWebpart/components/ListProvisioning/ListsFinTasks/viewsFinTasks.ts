@@ -60,6 +60,12 @@ import {IFinTasksDefs,
     ReviewDateFin,   //BOTH
     YearPerFinCalc,   //BOTH
     YearPerFreqFinCalc,   //BOTH
+    Choice1Periods,
+    Choice2Years,
+    FinTasksFrequencyChoices,
+    FinanceStageChoices,
+    OOTBTaskPriorityChoices,
+    OOTBTaskStatus,
 } from './columnsFinTasks';
 
 //let checks = StepChecks(0,5);  // Email
@@ -100,7 +106,6 @@ export const TasksByUserView : IMyView = {
 	},
 };
 
-
 export const TasksByStatusFin : IMyView = {
     Title: 'By Status',
     iFields: 	stdViewFields,
@@ -113,7 +118,6 @@ export const TasksByStatusFin : IMyView = {
 		],
 	},
 };
-
 
 export const TasksByYearPerView : IMyView = {
     Title: 'By YearPeriod',
