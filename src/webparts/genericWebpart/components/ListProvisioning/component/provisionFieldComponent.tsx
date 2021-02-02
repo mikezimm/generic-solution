@@ -229,7 +229,7 @@ public constructor(props:IProvisionFieldsProps){
 
     let provisionListTitles : string[] = this.props.provisionListTitles[0] && this.props.provisionListTitles[0].length > 0 ? [this.props.provisionListTitles[0]] : [ makeThisList ? makeThisList.title : 'Enter List Title' ];
 
-    let doList = makeThisList.template === 100 ? true : false;
+    let doList = makeThisList && makeThisList.template === 100 ? true : false;
 
     this.state = {
 

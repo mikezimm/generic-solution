@@ -321,14 +321,16 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             foundField = true;
                             // if any of the fields does not get created, raise an exception in the console log
                             let errMessage = getHelpfullError(e, alertMe, consoleLog);
-                            if (errMessage.indexOf('missing a column') > -1) {
-                                let err = `The ${myList.title} list does not have this column yet:  ${f.name}`;
+                            if (errMessage.indexOf('The formula refers to a column that does not exist.') > -1 || errMessage.indexOf('Check the formula') > -1 ) {
+                                let errField: any = f;
+                                let err = `Here's the formula you have for ${f.name} \n\n ${ errField.formula}`;
                                 statusLog = notify(statusLog, 'Create Field', err, step, f, null);
+                                errMessage = err + '\n\n' + errMessage;
                             } else {
                                 let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
                                 statusLog = notify(statusLog, 'Create Field', err, step, f, null);
                             }
-                            setProgress(false, "C", i, n , 'red', 'Error', f.name, 'Error Creating Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created Normal ~ 332' );
+                            setProgress(false, "C", i, n , 'red', 'Error', f.name, 'Error Creating Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, errMessage + ' ~ 331' );
         
                         }
                     }
@@ -341,7 +343,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                     if ( thisField[step] != null ) {
                         const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
                         statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);
-                        setProgress(false, "C", i, n , 'indianred', 'Sync', f.name, 'Updated Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' other ~ 269' );
+                        setProgress(false, "C", i, n , 'midnightblue', 'Sync', f.name, 'Updated Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' other ~ 269' );
                     }
 
                 } else if ( foundField === true ) {
@@ -369,7 +371,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                         if (thisField.onCreateChanges) {
                             const createChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
                             statusLog = notify(statusLog, 'onCreateChanges Field', 'update===' + JSON.stringify(thisField.onCreateChanges), step, f, createChanges);
-                            setProgress(false, "C", i, n , 'red', 'SyncStatus', f.name, 'onCreateChanges Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' onCreateChanges ~ 297' );
+                            setProgress(false, "C", i, n , 'darkred', 'SyncStatus', f.name, 'onCreateChanges Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' onCreateChanges ~ 297' );
                         } //END: if (thisField.onCreateChanges) {
 
                     }
