@@ -863,6 +863,7 @@ public constructor(props:IProvisionFieldsProps){
             let doViews = this.state.doViews;
             let doItems = this.state.doItems;
 
+            //oldVal = oldVal.replace('doubleQuotes','\"');
             newMapThisList = JSON.parse(oldVal);
 
             if ( this.state.lists.length === 0 ) {
@@ -883,7 +884,7 @@ public constructor(props:IProvisionFieldsProps){
             });
 
         } catch (e) {
-            alert('Opps! Invalid JSON!');
+            alert('Opps! Invalid JSON!' + e );
         }
 
       }

@@ -63,6 +63,10 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         hasFields = true; } else { errMess += 'List defintion does not have any FIELDS defined.' ; }
     if ( makeThisList.createTheseViews !== null && makeThisList.createTheseViews.length > 0  ) {
         hasViews = true; } else {  errMess += 'List defintion does not have any VIEWS defined.' ; }
+    if ( makeThisList.createTheseFields === null  ) {
+        hasViews = true; } else {  errMess += 'List defintion does not have any FIELDS defined.' ; }
+    if ( makeThisList.createTheseViews === null  ) {
+        hasViews = true; } else {  errMess += 'List defintion does not have any VIEWS defined.' ; }
 
     if ( ( hasViews === false && doViews === true ) || ( hasFields === false && doFields === true ) ) {
 

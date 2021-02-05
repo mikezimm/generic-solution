@@ -4,6 +4,8 @@ import { sp } from '@pnp/sp';
 
 import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
+import { Choice1Periods, Choice2Years } from './columnsFinTasks';
+
 export const SampleComments = 'This item was created for sample purposes.  Please delete me before using!';
 
 /**
@@ -77,19 +79,12 @@ function createRandomTimeEntry(qty, user = null){
         allItems.push({
             Title: 'Test for user: ' + thisUser + ' - ' + thisStory + ' - ' + thisChapter + ' # ' + i,
             UserId: thisUser,
-            ProjectID1: 'Proj1: ' + getRandomInt(1,50),
-            ProjectID2: 'Proj2: ' + getRandomInt(200,300),
-            Story: thisStory,
-            Chapter: thisChapter,
+            Year: getRandomFromArray(Choice2Years),
+            Period: getRandomFromArray(Choice1Periods),
+            Status: thisChapter,
             StartTime: start.toLocaleString(),
             EndTime: end.toLocaleString(),
-            Category1: { results: [getRandomFromArray(category1s)]},
-            Category2: { results: [getRandomFromArray(category2s)]},
-            EntryType: getRandomFromArray(periods),
-            OriginalStart: start.toLocaleString(),
-            OriginalEnd: end.toLocaleString(),
-            OriginalHours: randomMinutes / (60000 * 60) * 1 * ( 1 + getRandomChance(0, 30, -20,20)/100 ), // 15% chance that random minutes will be 10-20% higher than original
-            Location: getRandomFromArray(location),
+
             Comments: SampleComments,
             Settings: ''
 

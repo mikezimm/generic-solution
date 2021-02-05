@@ -153,6 +153,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                         let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
                         statusLog = notify(statusLog, 'Checked Field', err, step, f, null);
                     }
+                    setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Col: ' + f.name, 'Houston we have a problem: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Error! ~ 156' );
                 }
             }
 
@@ -198,7 +199,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                                 let err = `The ${myList.title} list had this error so there was a problem:  `;
                                 statusLog = notify(statusLog, 'Create XML Field', err, step, f, null);
                             }
-                            setProgress(false, "C", i, n , 'red', 'Error', f.name, 'Error Creating Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' create XML ~ 201' );
+                            setProgress(false, "E", i, n , 'red', 'Error', f.name, 'Error Creating Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' create XML ~ 201' );
                         }
 
     
@@ -315,8 +316,9 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             }
                             foundField = true;
                             statusLog = notify(statusLog, 'Created Field', 'Complete', step, f, actualField);
+                            setProgress(false, "E", i, n , 'darkgreen', 'Add', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
                             setProgress(false, "C", i, n , 'darkgreen', 'Add', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
-        
+
                         } catch (e) {
                             foundField = true;
                             // if any of the fields does not get created, raise an exception in the console log
@@ -330,7 +332,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                                 let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
                                 statusLog = notify(statusLog, 'Create Field', err, step, f, null);
                             }
-                            setProgress(false, "C", i, n , 'red', 'Error', f.name, 'Error Creating Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, errMessage + ' ~ 331' );
+                            setProgress(false, "E", i, n , 'red', 'Error', f.name, 'Error Creating Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, errMessage + ' ~ 331' );
         
                         }
                     }
