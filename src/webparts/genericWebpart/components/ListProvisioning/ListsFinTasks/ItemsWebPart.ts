@@ -4,7 +4,7 @@ import { sp } from '@pnp/sp';
 
 import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
-import { Choice1Periods, Choice2Years } from './columnsFinTasks';
+import { Choice1Periods, Choice2Years, FinTasksFrequencyChoices, FinanceStageChoices , OOTBTaskPriorityChoices, OOTBTaskStatus } from './columnsFinTasks';
 
 export const SampleComments = 'This item was created for sample purposes.  Please delete me before using!';
 
@@ -53,52 +53,60 @@ function randomDate(start, end) {
 }
 
 
-function createRandomTimeEntry(qty, user = null){
+function createRandomListItem(qty, user : number[] = []){
 
     let allItems : IAnyArray = [];
 
     const statuss = ['Story A', 'Story B', 'Story C',null];
-    const years = ['Chapter 1', 'Chapter 2', 'Chapter 3','Chapter 4', 'Chapter 5', 'Chapter 6',null];
-    const periods = ['manual','sinceLast','slider','start'];
-    const category1s = ['Cat A', 'Cat B', 'Cat C']; 
-    const category2s = ['Cat 1', 'Cat 2', 'Cat 3'];
-
-    const location = ['Office','Customer','Home','Other'];
 
     for (let i = 0; i < qty ; i++) {
         let thisStory = getRandomFromArray(statuss);
-        let thisChapter = getRandomFromArray(years);
+        let years = getRandomFromArray(Choice1Periods);
 
         let start = randomDate(new Date(2020, 0, 1), new Date());
         let randomMinutes = getRandomInt(20, 180) * 60 * 1000;
-        let end = new Date(start.getTime() + randomMinutes);
 
         //Based on intial testing, ID 1 is an account, not a name, ID 2 Title is empty.
-        let thisUser = user === null ? getRandomInt(3,8) : user;
+        let thisUser1 = user.length === 0 ? getRandomInt(5,15) : getRandomFromArray(user);
+        let thisUser2 = user.length === 0 ? getRandomInt(5,15) : getRandomFromArray(user);
+        let thisUser3 = user.length === 0 ? getRandomInt(5,15) : getRandomFromArray(user);
+        let thisUser4 = user.length === 0 ? getRandomInt(5,15) : getRandomFromArray(user);
 
         allItems.push({
-            Title: 'Test for user: ' + thisUser + ' - ' + thisStory + ' - ' + thisChapter + ' # ' + i,
-            UserId: thisUser,
+            Title: 'Test for user: ' + thisUser1 + ' - ' + thisStory + ' - ' + years + ' # ' + i,
+            /*            */
+            /**
+             * NOTE FOR NEXT TIME YOU DO THIS !!!!!!
+             * ALWAYS PUT Id After the Single User Field Name here!
+             * 
+             * https://stackoverflow.com/a/21006981
+             * 
+             */
+            AssignedToId: thisUser1,
+            BackupId: thisUser2,
+            ReviewerId: thisUser3,
+            ReviewerAlternateId: thisUser4,
             Year: getRandomFromArray(Choice2Years),
             Period: getRandomFromArray(Choice1Periods),
-            Status: thisChapter,
-            StartTime: start.toLocaleString(),
-            EndTime: end.toLocaleString(),
+            DueDate: start.toLocaleString(),
+            ReviewDays: getRandomInt(0, 10),
 
             Comments: SampleComments,
-            Settings: ''
+            Frequency: getRandomFromArray(FinTasksFrequencyChoices),
+            Stage: getRandomFromArray( FinanceStageChoices ),
+            Priority: getRandomFromArray( OOTBTaskPriorityChoices ),
+            Status: getRandomFromArray( OOTBTaskStatus ) ,
 
         });
     }
     return allItems;
 }
 
-export function TMTTestTimeItems(currentUser){
+export function FinanceTaskItems(currentUser : number[]){
 
-    let allItems = createRandomTimeEntry( 10, null);
-    let userItems = createRandomTimeEntry( 20, currentUser.Id);
-    let returnItems = allItems.concat(userItems);
-    console.log('TMTTestTimeItems:', returnItems);
-    return returnItems;
+    let allItems = createRandomListItem( 40, currentUser);
+    //let returnItems = allItems.concat(userItems);
+    //console.log('FinanceTaskItems:', allItems);
+    return allItems;
 
 } 

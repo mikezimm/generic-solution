@@ -7,6 +7,8 @@ import { IMyProgress, IUser } from '../../IReUsableInterfaces';
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
+import { FinanceTaskItems } from './ItemsWebPart';
+
 import { IDefinedLists } from '../component/provisionListComponent';
 // definedList: 'PreConfig',
 
@@ -15,7 +17,7 @@ export type IValidTemplate = 100 | 101;
 import { cleanURL, camelize, cleanSPListURL } from '../../../../../services/stringServices';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IFinTasksDefs , webURL: string, currentUser: IUser, pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IFinTasksDefs , webURL: string, currentUser: number[], pageURL: string ) {
 
     //Sometimes the webURL is undefined  (when props are empty)
     pageURL = pageURL.toLowerCase();
@@ -37,6 +39,8 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         isListOnThisWeb = true;
     }
 
+    webURL = webURL.replace('_layouts/15/','');  //Remove all the workbench urls
+    
     let listName = cleanSPListURL(camelize(listTitle, true));
     let makeThisList:  IMakeThisList = {
 
@@ -56,7 +60,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         createTheseViews: null,
         createTheseItems: null,
         autoItemCreate: false,
-        listURL: webURL + ( template === 100 ? 'Lists/' : '') + listName,
+        listURL: webURL + ( template === 100 ? 'lists/' : '') + listName,
         confirmed: false,
         onCurrentSite: isListOnThisWeb,
         webExists: false,
@@ -65,6 +69,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         existingTemplate: null,
         sameTemplate: false,
         listDefinition: listDefinition,
+        validUserIds: currentUser,
 
     };
 
@@ -72,7 +77,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 //    if ( listDefinition !== 'Program' ) {
         makeThisList.createTheseFields = FinTasksFields(listDefinition);
         makeThisList.createTheseViews = FinTasksViews;
-        makeThisList.createTheseItems = [] ; // = TMTDefaultProjectItems;
+        makeThisList.createTheseItems = FinanceTaskItems(currentUser) ; // = TMTDefaultProjectItems;
         makeThisList.autoItemCreate = false;
 //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 

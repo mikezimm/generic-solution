@@ -119,7 +119,7 @@ export const YearRep : IChoiceField = {
 let Choice3 = ["Group", "Company", "Other"];
 export const ScopeRep : IChoiceField = {
     fieldType: cChoice,
-    name: 'Scope',
+    name: 'Category1',
     title: 'Scope',
     choices: Choice3,
     onCreateProps: {
@@ -136,7 +136,7 @@ export const ScopeRep : IChoiceField = {
 let Choice4 = ["ACQ Module", "AL16", "Auditors", "Balance sheet", "Cash Flow", "Consolidation", "Equity", "File to ADS", "Fixed Assets", "Group Journals", "Head", "Inventory", "JV and Minority", "Management Reports", "Other Move", "PR-Earnings slides", "PR-Fin Rep", "PR-Key ratios", "Product Liability", "Restructuring", "Sales Analysis", "Validations", "Headcount", "Labor Minutes", "OverTime", "Project Hours", "Scrap", "Memo write down evaluation", "Planning", "Comments from auditors", "Engineering", "Bridge", "Engineering", "Memo write down evaluation", "Weekly Flash", "By Weekly OT", "Finance Heads", "Hours for Plants", "Weekly Temp Labor", "Activity Report", "AR Reconciliation", "AR Aging Reports", "Bad Debt Reserve", "AR Invoice Detail", "Cash Adjust", "Price Accruals", "AP Recon", "AP Detail", "POAI", "Live-AST ANA Recon", "Update Library Settings"];
 export const SectionRep : IChoiceField = {
     fieldType: cChoice,
-    name: 'BinderSection',
+    name: 'Category2',
     title: 'Section',
     choices: Choice4,
     onCreateProps: {

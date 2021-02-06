@@ -316,7 +316,6 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             }
                             foundField = true;
                             statusLog = notify(statusLog, 'Created Field', 'Complete', step, f, actualField);
-                            setProgress(false, "E", i, n , 'darkgreen', 'Add', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
                             setProgress(false, "C", i, n , 'darkgreen', 'Add', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
 
                         } catch (e) {

@@ -140,6 +140,7 @@ export interface IProvisionFieldsState {
     makeThisList: IMakeThisList;
 
     lists: IMakeThisList[];
+    validUserIds: number[];
 
 }
 
@@ -267,6 +268,8 @@ public constructor(props:IProvisionFieldsProps){
 
         lists: theLists,
         makeThisList: makeThisList,
+
+        validUserIds: [],
 
     };
 
@@ -674,6 +677,21 @@ public constructor(props:IProvisionFieldsProps){
             if ( this.state.lists ) { testLists = JSON.parse(JSON.stringify(this.state.lists)) ; definedList = this.state.definedList; }
         }
 
+        if ( this.state.validUserIds.length === 0 ) {
+            const thisWeb = Web( this.props.provisionWebs[0] );
+            thisWeb.siteUsers.get().then((responseUsers) => {
+                let validUserIds : any[] = [];
+                responseUsers.map ( u => {
+                    if ( u.UserId !== null && u.UserPrincipalName !== null ) { validUserIds.push( u.Id ); }
+                });
+                console.log('validUserIds SiteUsers:', validUserIds );
+                this.setState({  validUserIds: validUserIds, });
+            }).catch((e) => {
+                let errMessage = getHelpfullError(e, true, true);
+                console.log('Not able to get SiteUsers', errMessage);
+            });
+        }
+
         if ( testLists.length > 0 ) {
             for ( let i in testLists ) {
                 this.checkThisWeb(parseInt(i,10), testLists, definedList);
@@ -757,8 +775,8 @@ public constructor(props:IProvisionFieldsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Projects');  provisionListTitles.push('TrackMyTime');  }
 
-            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( parentList ) { theLists.push( parentList ); }
             if ( childList ) { theLists.push( childList ); }
@@ -903,7 +921,9 @@ public constructor(props:IProvisionFieldsProps){
         reDefinedList.name = listName;
         reDefinedList.title = oldVal;
         reDefinedList.desc = oldVal + ' list for this Webpart';
-        reDefinedList.listURL = this.state.provisionWebs[index] + ( reDefinedList.template === 100 ? 'Lists/' : '') + listName;
+
+        let provisionWebs = this.state.provisionWebs[index] ? this.state.provisionWebs[index] : this.state.provisionWebs[0] ;
+        reDefinedList.listURL = provisionWebs + ( reDefinedList.template === 100 ? 'lists/' : '') + listName;
 
         this.checkThisWeb(index, [ reDefinedList ], definedList);
 

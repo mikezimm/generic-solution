@@ -50,10 +50,76 @@ export const ReportAllItemsView : IMyView = {
     orders: [ {field: ootbModified, asc: false} ],
 };
 
+export const ReportsByEditor : IMyView = {
+    Title: 'By Editor',
+    iFields: 	ReportRecentUpdatesFields,
+    TabularView: true,
+    RowLimit: 30,
+    orders: [ {field: ootbModified, asc: false} ],
+    groups: { collapse: true, limit: 30,
+		fields: [
+			{field: ootbEditor, asc: false},
+		],
+	},
+};
+
+export const ReportsByYear : IMyView = {
+    Title: 'By Year',
+    iFields: 	stdViewFields,
+    TabularView: true,
+    RowLimit: 30,
+    orders: [ {field: YearPerRepCalc, asc: false},{field: ootbModified, asc: false} ],
+    groups: { collapse: true, limit: 30,
+		fields: [
+			{field: YearRep, asc: false},
+		],
+	},
+};
+
+export const ReportsByYearPer : IMyView = {
+    Title: 'By YearPeriod',
+    iFields: 	stdViewFields,
+    TabularView: true,
+    RowLimit: 30,
+    orders: [ {field: YearPerRepCalc, asc: false},{field: ootbModified, asc: false} ],
+    groups: { collapse: true, limit: 30,
+		fields: [
+			{field: YearPerRepCalc, asc: false},
+		],
+	},
+};
+
+export const ReportsByCategory1 : IMyView = {
+    Title: 'By Scope',
+    iFields: 	stdViewFields,
+    TabularView: true,
+    RowLimit: 30,
+    orders: [ {field: YearPerRepCalc, asc: false},{field: ootbModified, asc: false} ],
+    groups: { collapse: true, limit: 30,
+		fields: [
+			{field: ScopeRep, asc: true},
+		],
+	},
+};
+
+export const ReportsByCategory2 : IMyView = {
+    Title: 'By Section',
+    iFields: 	stdViewFields,
+    TabularView: true,
+    RowLimit: 30,
+    orders: [ {field: YearPerRepCalc, asc: false},{field: ootbModified, asc: false} ],
+    groups: { collapse: true, limit: 30,
+		fields: [
+			{field: SectionRep, asc: true},
+		],
+	},
+};
+
 export const reportViews : IMyView[] = [
     ReportAllItemsView, createRecentUpdatesView( ReportRecentUpdatesFields),
-
-
+    ReportsByEditor,
+    ReportsByYear, ReportsByYearPer,
+    ReportsByCategory1,ReportsByCategory2
 ] ;
 
 

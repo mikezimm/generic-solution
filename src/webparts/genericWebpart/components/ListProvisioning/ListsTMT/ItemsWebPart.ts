@@ -68,7 +68,7 @@ export const TMTDefaultProjectItems  = [
 
 ];
 
-function createRandomTimeEntry(qty, user = null){
+function createRandomTimeEntry(qty, user : number[] = []){
 
     let allItems : IAnyArray = [];
 
@@ -88,11 +88,25 @@ function createRandomTimeEntry(qty, user = null){
         let end = new Date(start.getTime() + randomMinutes);
 
         //Based on intial testing, ID 1 is an account, not a name, ID 2 Title is empty.
-        let thisUser = user === null ? getRandomInt(3,8) : user;
+        let thisUser = user.length === 0 ? getRandomInt(5,15) : getRandomFromArray(user);
+        let leaderUser = user.length === 0 ? getRandomInt(5,15) : getRandomFromArray(user);
+        let teamUsers = user.length === 0 ? [getRandomInt(5,15)] : [getRandomFromArray(user),getRandomFromArray(user),getRandomFromArray(user)];
 
         allItems.push({
             Title: 'Test for user: ' + thisUser + ' - ' + thisStory + ' - ' + thisChapter + ' # ' + i,
+
+            /**
+             * NOTE FOR NEXT TIME YOU DO THIS !!!!!!
+             * ALWAYS PUT Id After the Single User Field Name here!
+             * 
+             * https://stackoverflow.com/a/21006981
+             * 
+             */
+
             UserId: thisUser,
+            LeaderId: leaderUser,
+            TeamId: { 'results':teamUsers },
+
             ProjectID1: 'Proj1: ' + getRandomInt(1,50),
             ProjectID2: 'Proj2: ' + getRandomInt(200,300),
             Story: thisStory,
@@ -114,12 +128,10 @@ function createRandomTimeEntry(qty, user = null){
     return allItems;
 }
 
-export function TMTTestTimeItems(currentUser){
+export function TMTTestTimeItems(currentUser : number[]){
 
-    let allItems = createRandomTimeEntry( 10, null);
-    let userItems = createRandomTimeEntry( 20, currentUser.Id);
-    let returnItems = allItems.concat(userItems);
-    console.log('TMTTestTimeItems:', returnItems);
-    return returnItems;
+    let allItems = createRandomTimeEntry( 40, currentUser);
+    console.log('TMTTestTimeItems:', allItems);
+    return allItems;
 
 } 

@@ -312,6 +312,7 @@ export const RevAlternateFin : IUserField = {
 export const DueDateFin : IDateTimeField = {
     fieldType: cDate,
     name: 'DueDate',
+    title: 'Due Date',
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
@@ -370,7 +371,7 @@ export const IsCurrentVerFin : IBooleanField = {
         fieldType: cCalcN,
         name: 'ReviewDate',
         //=[Due Date]-ReviewDays*1
-        formula: '=[' + DueDateFin.title + ']-[' + ReviewDaysFin.title + '*1]',
+        formula: '=[' + DueDateFin.title + ']-[' + ReviewDaysFin.name + ']',
         dateFormat: DateTimeFieldFormatType.DateOnly,
         onCreateProps: {
             Group: thisColumnGroup,
@@ -423,6 +424,7 @@ export const IsCurrentVerFin : IBooleanField = {
  *
  *
  */
+
 /***
  *     .o88b.  .d88b.  db      db    db .88b  d88. d8b   db       .d8b.  d8888b. d8888b.  .d8b.  db    db .d8888.
  *    d8P  Y8 .8P  Y8. 88      88    88 88'YbdP`88 888o  88      d8' `8b 88  `8D 88  `8D d8' `8b `8b  d8' 88'  YP
@@ -444,8 +446,6 @@ export function FinTasksFields(listName: IFinTasksDefs ) {
     //return null;
 
     let theseFields: IMyFieldTypes[] = BuildFinTasksFields(listName);
-
-    console.log('HarmonieEmailFields', theseFields);
     return theseFields;
 }
 

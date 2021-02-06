@@ -149,6 +149,8 @@ export interface IProvisionListsState {
 
     lists: IMakeThisList[];
 
+    validUserIds: number[];
+
 }
 
 export default class ProvisionLists extends React.Component<IProvisionListsProps, IProvisionListsState> {
@@ -269,6 +271,8 @@ public constructor(props:IProvisionListsProps){
 
         makeThisList: makeThisList,
         lists: theLists,
+
+        validUserIds: [],
 
     };
 
@@ -402,7 +406,7 @@ public constructor(props:IProvisionListsProps){
 
 
             let listLinks = this.state.lists.map( mapThisList => (
-                mapThisList.listExists ? links.createLink( mapThisList.listURL, '_none',  'Go to: ' + mapThisList.title ) : null ));
+                mapThisList.listExists ? links.createLink( mapThisList.listURL.replace('_layouts/15/undefined',''), '_none',  'Go to: ' + mapThisList.title ) : null ));
 
             const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
 
@@ -680,6 +684,7 @@ public constructor(props:IProvisionListsProps){
         console.log('_updateStateOnPropsChange:', doThis, this.props );
         let testLists : IMakeThisList[] = [];
         let definedList : IDefinedLists = null;
+
         if ( doThis === 'props' ) {
             if ( this.props.lists ) { testLists = JSON.parse(JSON.stringify(this.props.lists)) ; definedList = this.props.definedList; }
 
@@ -687,6 +692,20 @@ public constructor(props:IProvisionListsProps){
             if ( this.state.lists ) { testLists = JSON.parse(JSON.stringify(this.state.lists)) ; definedList = this.state.definedList; }
         }
 
+        if ( this.state.validUserIds.length === 0 ) {
+            const thisWeb = Web( this.props.provisionWebs[0] );
+            thisWeb.siteUsers.get().then((responseUsers) => {
+                let validUserIds : any[] = [];
+                responseUsers.map ( u => {
+                    if ( u.UserId !== null && u.UserPrincipalName !== null ) { validUserIds.push( u.Id ); }
+                });
+                console.log('validUserIds SiteUsers:', validUserIds );
+                this.setState({  validUserIds: validUserIds, });
+            }).catch((e) => {
+                let errMessage = getHelpfullError(e, true, true);
+                console.log('Not able to get SiteUsers', errMessage);
+            });
+        }
         if ( testLists.length > 0 ) {
             for ( let i in testLists ) {
                 this.checkThisWeb(parseInt(i,10), testLists, definedList);
@@ -716,12 +735,12 @@ public constructor(props:IProvisionListsProps){
                 testLists[index].onCurrentSite = testLists[index].webURL.toLowerCase() === this.props.pageContext.web.absoluteUrl.toLowerCase() + '/' ? true : false; 
             }
 
-            this.updateStateLists(index, testLists, definedList);
+            this.updateStateLists(index, testLists, definedList, );
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisWeb', errMessage);
-            this.updateStateLists(index, testLists, definedList);
+            this.updateStateLists(index, testLists, definedList, );
 
         });
     }
@@ -741,7 +760,7 @@ public constructor(props:IProvisionListsProps){
     }
 */
 
-    private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ) {
+    private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists) {
         let stateLists = this.state.lists;
         if (stateLists === undefined ) { stateLists = this.props.lists ; }
         stateLists[index] = testLists[index];
@@ -770,8 +789,8 @@ public constructor(props:IProvisionListsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Projects');  provisionListTitles.push('TrackMyTime');  }
 
-            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( parentList ) { theLists.push( parentList ); }
             if ( childList ) { theLists.push( childList ); }
@@ -826,13 +845,12 @@ public constructor(props:IProvisionListsProps){
             if ( reports1 ) { theLists.push( reports1 ); }
             if ( reports2 ) { theLists.push( reports2 ); }
 
-
         } else if ( defineThisList === 'Finance Tasks' ) {
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Finance Tasks');  provisionListTitles.push('OurTasks');  }
 
-            let finTasks : IMakeThisList = dFinT.defineTheList( 101 , provisionListTitles[0], 'Finance Tasks' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let ourTasks : IMakeThisList = dFinT.defineTheList( 101 , provisionListTitles[1], 'OurTasks' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let finTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[0], 'Finance Tasks' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let ourTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[1], 'OurTasks' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( finTasks ) { theLists.push( finTasks ); }
             if ( ourTasks ) { theLists.push( ourTasks ); }
@@ -924,10 +942,10 @@ public constructor(props:IProvisionListsProps){
         reDefinedLists[index].name = listName;
         reDefinedLists[index].title = oldVal;
         reDefinedLists[index].desc = oldVal + ' list for this Webpart';
-
+        let provisionWebs = this.state.provisionWebs[index] ? this.state.provisionWebs[index] : this.state.provisionWebs[0] ;
         reDefinedLists.map( theList => {
             theList.template = this.state.doList === true ? 100 : 101 ;
-            theList.listURL = this.state.provisionWebs[index] + ( theList.template === 100 ? 'Lists/' : '') + listName;
+            theList.listURL =  ( provisionWebs ) + ( theList.template === 100 ? 'lists/' : '') + listName;
         });
 
         this.checkThisWeb(index, reDefinedLists, definedList);

@@ -19,7 +19,7 @@ export type IValidTemplate = 100 | 101;
 import { cleanURL, camelize, cleanSPListURL } from '../../../../../services/stringServices';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'Projects' | 'TrackMyTime' , webURL: string, currentUser: IUser, pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'Projects' | 'TrackMyTime' , webURL: string, currentUser: number[], pageURL: string ) {
 
     //Sometimes the webURL is undefined  (when props are empty)
     pageURL = pageURL.toLowerCase();
@@ -41,6 +41,8 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         isListOnThisWeb = true;
     }
     
+    webURL = webURL.replace('_layouts/15/','');  //Remove all the workbench urls
+    
     let listName = cleanSPListURL(camelize(listTitle, true));
     let makeThisList:  IMakeThisList = {
 
@@ -60,7 +62,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         createTheseViews: null,
         createTheseItems: null,
         autoItemCreate: false,
-        listURL: webURL + ( template === 100 ? 'Lists/' : '') + listName,
+        listURL: webURL + ( template === 100 ? 'lists/' : '') + listName,
         confirmed: false,
         onCurrentSite: isListOnThisWeb,
         webExists: false,
@@ -69,6 +71,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         existingTemplate: null,
         sameTemplate: false,
         listDefinition: listDefinition,
+        validUserIds: [],
     
     };
 

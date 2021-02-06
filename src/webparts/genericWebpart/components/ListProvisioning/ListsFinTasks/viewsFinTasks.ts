@@ -52,7 +52,7 @@ import {IFinTasksDefs,
     BackupFin,   //BOTH
     ReviewerFin,   //BOTH
     RevAlternateFin,   //BOTH
-    DueDateFin,   //BOTH
+    DueDateFin,   //BOTH   
     RevisionDateFin,   //BOTH
     StartDateFin,   //BOTH
     HasCopyDestFin,   //BOTH
@@ -66,7 +66,7 @@ import {IFinTasksDefs,
     FinanceStageChoices,
     OOTBTaskPriorityChoices,
     OOTBTaskStatus,
-} from './columnsFinTasks';
+} from './columnsFinTasks'; //
 
 //let checks = StepChecks(0,5);  // Email
 
@@ -132,10 +132,33 @@ export const TasksByYearPerView : IMyView = {
 	},
 };
 
+export const DatesView : IMyView = {
+    Title: 'Dates Summary',
+    iFields: 	['Edit', YearFin, PeriodFin, ReferenceFin, ootbTitle, StatusFin, DueDateFin, DueDateFin, RevisionDateFin, StartDateFin, ReviewDateFin, ReviewDaysFin,  ],
+    TabularView: true,
+    RowLimit: 33,
+    orders: [ {field: DueDateFin, asc: false} ],
+    groups: { collapse: true, limit: 30,
+		fields: [
+			{field: YearFin, asc: false},
+		],
+	},
+};
+
+export const UsersView : IMyView = {
+    Title: 'Users impacted',
+    iFields: 	['Edit', YearFin, PeriodFin, ReferenceFin, ootbTitle, AssignedToFin,BackupFin,ReviewerFin,RevAlternateFin ],
+    TabularView: true,
+    RowLimit: 33,
+    orders: [ {field: DueDateFin, asc: false} ],
+
+};
+
 export const FinTasksViews : IMyView[] = [
     FinTasksAllItemsView, createRecentUpdatesView( FinTasksRecentUpdatesFields),
     TasksYourUserEntries, TasksByUserView,
     TasksByYearPerView, TasksByStatusFin,
+    UsersView, DatesView
 
 ] ;
 

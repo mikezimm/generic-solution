@@ -46,6 +46,7 @@ export interface IMakeThisList {
     sameTemplate: boolean;
     listDefinition: string;
     definedList: IDefinedLists;
+    validUserIds?: number[];
 
 }
 export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean, requireAll: boolean = true ): Promise<IServiceLog[]>{
@@ -59,14 +60,17 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     let hasViews: boolean = false;
     let errMess= '';
 
-    if ( makeThisList.createTheseFields !== null && makeThisList.createTheseFields.length > 0 ) {
+
+    if ( makeThisList.createTheseFields === null || makeThisList.createTheseFields === undefined  ) {
+        hasFields = false; errMess += 'List defintion does not have any FIELDS (createTheseFields) defined.' ; }
+    else if (  makeThisList.createTheseFields.length > 0 ) {
         hasFields = true; } else { errMess += 'List defintion does not have any FIELDS defined.' ; }
-    if ( makeThisList.createTheseViews !== null && makeThisList.createTheseViews.length > 0  ) {
+
+    if ( makeThisList.createTheseViews === null || makeThisList.createTheseViews === undefined  ) {
+        hasViews = false;  errMess += 'List defintion does not have any VIEWS (createTheseViews) defined.' ; }
+    else if ( makeThisList.createTheseViews.length > 0  ) {
         hasViews = true; } else {  errMess += 'List defintion does not have any VIEWS defined.' ; }
-    if ( makeThisList.createTheseFields === null  ) {
-        hasViews = true; } else {  errMess += 'List defintion does not have any FIELDS defined.' ; }
-    if ( makeThisList.createTheseViews === null  ) {
-        hasViews = true; } else {  errMess += 'List defintion does not have any VIEWS defined.' ; }
+
 
     if ( ( hasViews === false && doViews === true ) || ( hasFields === false && doFields === true ) ) {
 
@@ -78,7 +82,7 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     }
 
     if ( readOnly === false  ) {
-        if ( makeThisList.autoItemCreate === true ) {
+        //if ( makeThisList.autoItemCreate === true ) {
             createItems = true;
         /*
         } else {
@@ -88,7 +92,7 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
                 createItems = true;
             }
         */
-        }
+        //}
     }
 
     if ( makeThisList.createTheseItems == null || makeThisList.createTheseItems == undefined ) { createItems = false; }
@@ -258,7 +262,9 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         let chunk = 3;
 
         if ( totalItems <= 50 ) {
+
             result3 = await addTheseItemsToList(makeThisList, thisWeb, makeThisList.createTheseItems, setProgress, true, true);
+
         } else {
             for (var i=0; i < totalItems; i += chunk) {
                 createThisBatch = makeThisList.createTheseItems.slice(i, i+chunk);
