@@ -13,6 +13,9 @@ import {
   PropertyPaneButtonType,
 } from '@microsoft/sp-webpart-base';
 
+import { PropertyPaneWebPartInformation } from '@pnp/spfx-property-controls/lib/PropertyPaneWebPartInformation';
+import { PropertyPanePropertyEditor } from '@pnp/spfx-property-controls/lib/PropertyPanePropertyEditor';
+
 import * as strings from 'GenericWebpartWebPartStrings';
 import { pivotOptionsGroup} from './index';
 
@@ -83,6 +86,22 @@ export class IntroPage {
         { groupName: 'Web Part Info',
           isCollapsed: true ,
           groupFields: [
+            /*
+            PropertyPaneWebPartInformation({
+              description: `This is a <strong>demo webpart</strong>, used to demonstrate all the <a href="https://aka.ms/sppnp">PnP</a> property controls`,
+              moreInfoLink: `https://pnp.github.io/sp-dev-fx-property-controls/`,
+              videoProperties: {
+                embedLink: `https://www.youtube.com/embed/d_9o3tQ90zo`,
+                properties: { allowFullScreen: true}
+              },
+              key: 'webPartInfoId'
+            }) , 
+
+            PropertyPanePropertyEditor({
+              webpart: this,
+              key: 'propertyEditor'
+            })  , 
+*/
             PropertyPaneLabel('About Text', {
               text: 'This webpart gets helps track your time using SharePoint :).'
             }),
