@@ -989,8 +989,9 @@ public constructor(props:IProvisionListsProps){
                 styles: '',
             };
 
+            let listNo = this.state.listNo; 
             let togDoFields = {
-                label: 'Fields',
+                label: 'Fields ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseFields.length})` : '' ),
                 key: 'togDoFields',
                 _onChange: this.updateTogggleDoFields.bind(this),
                 checked: this.state.doFields,
@@ -1001,7 +1002,7 @@ public constructor(props:IProvisionListsProps){
             };
 
             let togDoViews = {
-                label: 'Views',
+                label: 'Views ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseViews.length})` : '' ),
                 key: 'togDoViews',
                 _onChange: this.updateTogggleDoViews.bind(this),
                 checked: this.state.doViews,
@@ -1013,7 +1014,7 @@ public constructor(props:IProvisionListsProps){
 
             
             let togDoItems = {
-                label: 'Items',
+                label: 'Items ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseItems.length})` : '' ),
                 key: 'togDoItems',
                 _onChange: this.updateTogggleDoItems.bind(this),
                 checked: this.state.doItems,
