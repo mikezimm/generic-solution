@@ -20,7 +20,7 @@ export function buildPropsHoverCard (item: any, highlightKeys: string[], special
 
     const iconClassInfo = mergeStyles({
         fontSize: 18,
-        margin: '3px',
+        margin: '2px',
         verticalAlign: 'bottom',
         padding: '0px !important',
         fontWeight: 600,
@@ -28,8 +28,8 @@ export function buildPropsHoverCard (item: any, highlightKeys: string[], special
 
       const iconClassInfoSmaller = mergeStyles({
         fontSize: 16,
-        margin: '3px',
-        verticalAlign: 'top',
+        margin: '2px',
+        verticalAlign: 'unset',
         padding: '0px !important',
         fontWeight: 600,
       });
@@ -42,9 +42,7 @@ export function buildPropsHoverCard (item: any, highlightKeys: string[], special
     let hiddenIcon = item.Hidden === true ? <Icon title={ 'Hidden' } iconName={ "Hide3"} className={ iconClassInfoSmaller } styles = { { root: { color: 'blue'}} }/> : null;
     let requiredIcon = item.Required === true ? <Icon title={ 'Required' } iconName={ "AsteriskSolid"} className={ iconClassInfoSmaller } styles = {{ root: { color: 'red'}}}/> : null;
     let readOnly = item.ReadOnlyField === true ? <Icon title={ 'ReadOnly' } iconName={ "Lock12"} className={ iconClassInfoSmaller } styles = { { root: { color: 'green'}} }/> : null;
-    let indexed = item.Indexed === true ? <Icon title={ 'Indexed' } iconName={ "Database"} className={ iconClassInfoSmaller } styles = { { root: { color: 'purple'}} }/> : null;
-
-    
+    let indexed = item.Indexed === true ? <Icon title={ 'Indexed' } iconName={ "Database"} className={ iconClassInfoSmaller } styles = { { root: { color: 'purple'}} }/> : null; 
 
     const onRenderHoverCard = (): JSX.Element => {
 
@@ -112,7 +110,7 @@ export function buildPropsHoverCard (item: any, highlightKeys: string[], special
             onRenderPlainCard: onRenderHoverCard,
             renderData: 'testRenderData'
           }}>
-          { normalIcon } { hiddenIcon } { requiredIcon } { readOnly } { indexed }
+          <div style={{ whiteSpace: 'nowrap'}}>{ normalIcon } { hiddenIcon } { requiredIcon } { readOnly } { indexed }</div>
         </HoverCard>
     </div>;
 
