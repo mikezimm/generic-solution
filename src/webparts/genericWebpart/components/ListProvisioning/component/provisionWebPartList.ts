@@ -16,6 +16,8 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
 import { IDefinedLists } from './provisionListComponent';
 
+import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+
 export type IValidTemplate = 100 | 101;
 
 export interface IMakeThisList {
@@ -287,5 +289,68 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     markComplete();
 
     return statusLog;
+
+}
+
+import { cleanURL, camelize, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
+
+export function defineTheListMaster ( template: IValidTemplate , listTitle : string, listDefinition: string , webURL: string, pageURL: string, definedList: IDefinedLists ) {
+
+    //Sometimes the webURL is undefined  (when props are empty)
+    pageURL = pageURL.toLowerCase();
+    if ( webURL ) {
+        let webLastIndexOf = webURL.lastIndexOf('/');
+        if ( webURL.length > 0 && webLastIndexOf != webURL.length -1 ) { webURL += '/'; }
+    }
+    if ( pageURL.length > 0 && pageURL.lastIndexOf('/') != pageURL.length -1 ) { pageURL += '/'; }
+
+    let isListOnThisWeb = false;
+
+    if ( webURL === '' ) {
+        isListOnThisWeb = true;
+
+    } else if ( webURL === undefined ) {
+        isListOnThisWeb = true;
+
+    } else if ( pageURL === webURL ) {
+        isListOnThisWeb = true;
+    }
+
+    webURL = webURL.replace('_layouts/15/','');  //Remove all the workbench urls
+
+    let listName = cleanSPListURL(camelize(listTitle, true));
+    let makeThisList:  IMakeThisList = {
+
+        definedList: definedList,
+        title: listTitle,
+        name: listName,
+        webURL: webURL,
+        desc: listTitle + ' list for this Webpart',
+        template: template,
+        enableContentTypes: true,
+        additionalSettings: {
+            EnableVersioning: true,
+            MajorVersionLimit: 50,
+            OnQuickLaunch: true,
+         },
+        createTheseFields: null,
+        createTheseViews: null,
+        createTheseItems: null,
+        autoItemCreate: false,
+        listURL: webURL + ( template === 100 ? 'lists/' : '') + listName,
+        confirmed: false,
+        onCurrentSite: isListOnThisWeb,
+        webExists: false,
+        listExists: false,
+        listExistedB4: false,
+        existingTemplate: null,
+        sameTemplate: false,
+        listDefinition: listDefinition,
+
+    };
+
+    //let listResult = await provisionTheList( makeThisList, setProgress );
+
+    return makeThisList;
 
 }

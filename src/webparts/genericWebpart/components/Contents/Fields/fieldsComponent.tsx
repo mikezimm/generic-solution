@@ -71,6 +71,7 @@ export const pivCats = {
     boolean: {title: 'Boolean' , desc: '', order: 1},
     computed:  {title: 'Computed' , desc: '', order: 1},
     system: {title: '9', desc: 'System', order: 9 },
+    required:  {title: '*', desc: 'Required', order: 9 },
 };
 
 
@@ -734,9 +735,11 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
         let computed = this.buildFilterPivot(pivCats.computed);
 
+        let required = this.buildFilterPivot(pivCats.required);
+
         let system = this.buildFilterPivot({title: '9', desc: 'System', order: 9 });
 
-        let thesePivots = [visible, text, calculated, choice, look, user, number, date, url, boolean, computed, system ,hidden];
+        let thesePivots = [visible, required, text, calculated, choice, look, user, number, date, url, boolean, computed, system ,hidden];
 
         return thesePivots;
     }

@@ -14,10 +14,10 @@ import { IGenericWebpartProps } from './components/IGenericWebpartProps';
 
 import { PageContext } from '@microsoft/sp-page-context';
 
-import { makeTheTimeObject } from '../../services/dateServices';
+import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/dateServices';
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../services/createAnalytics';
 
-import { getHelpfullError, } from '../../services/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
 import { sp } from '@pnp/sp';
 

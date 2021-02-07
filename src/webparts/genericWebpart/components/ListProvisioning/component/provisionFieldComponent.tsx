@@ -766,7 +766,7 @@ public constructor(props:IProvisionFieldsProps){
         if ( justReturnLists === false ) { provisionListTitles = [] ; }
 
         if ( defineThisList === availLists[0] ) {
-            //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
             this.setState({
                 lists: theLists,
                 definedList: defineThisList,
@@ -785,8 +785,8 @@ public constructor(props:IProvisionFieldsProps){
             
             if ( justReturnLists === false ) {  provisionListTitles.push('BUEmails');  provisionListTitles.push('Emails');  }
 
-            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( buEmails ) { theLists.push( buEmails ); }
             if ( justEmails ) { theLists.push( justEmails ); }
@@ -795,8 +795,8 @@ public constructor(props:IProvisionFieldsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Drilldown');  provisionListTitles.push('Drilldown');  }
 
-            let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( buEmails ) { theLists.push( buEmails ); }
             if ( justEmails ) { theLists.push( justEmails ); }
@@ -805,8 +805,8 @@ public constructor(props:IProvisionFieldsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Program');  provisionListTitles.push('SORInfo');  }
 
-            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( progCustRequire ) { theLists.push( progCustRequire ); }
             if ( sorCustRequire ) { theLists.push( sorCustRequire ); }

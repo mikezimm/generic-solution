@@ -45,8 +45,8 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
 
 import { analyticsList } from 'GenericWebpartWebPartStrings';
 
-import { cleanURL, camelize } from '../../../services/stringServices';
-import { getHelpfullError } from '../../../services/ErrorHandler';
+import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
 import * as links from './HelpInfo/AllLinks';
 import  EarlyAccess from './HelpInfo/EarlyAccess';
@@ -267,8 +267,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       parentListWeb = cleanURL(parentListWeb);
       childListWeb = cleanURL(childListWeb);
   
-      let parentList : IMakeThisList = defineTheList( 101 , parentName, 'Emails' , parentListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
-      let childList : IMakeThisList = defineTheList( 101 , childName, 'Emails' , childListWeb, currentUser, this.props.pageContext.web.absoluteUrl );
+      let parentList : IMakeThisList = defineTheList( 101 , parentName, 'Emails' , parentListWeb, [currentUser.Id], this.props.pageContext.web.absoluteUrl );
+      let childList : IMakeThisList = defineTheList( 101 , childName, 'Emails' , childListWeb, [currentUser.Id], this.props.pageContext.web.absoluteUrl );
   
       if ( parentList ) { theLists.push( parentList ); }
       if ( childList ) { theLists.push( childList ); }
