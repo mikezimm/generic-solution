@@ -15,13 +15,13 @@ import { IMyView,  } from '../../../../../services/listServices/viewTypes'; //Im
 
 import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
 
-import { makeSmallTimeObject, ITheTime} from '../../../../../services/dateServices';
+import { makeSmallTimeObject, ITheTime} from '@mikezimm/npmfunctions/dist/dateServices';
 
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
 
-import { encodeDecodeString } from '../../../../../services/stringServices';
+import { encodeDecodeString } from '@mikezimm/npmfunctions/dist/stringServices';
 
-import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
 import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
 

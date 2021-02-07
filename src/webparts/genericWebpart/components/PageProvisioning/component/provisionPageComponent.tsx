@@ -32,7 +32,7 @@ import * as links from '../../HelpInfo/AllLinks';
 
 import { IMakeThisPage } from './provisionWebPartPages';
 
-import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 

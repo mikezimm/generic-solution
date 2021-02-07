@@ -9,7 +9,7 @@ import { IMakeThisList, provisionTheList,  } from '../component/provisionWebPart
 
 export type IValidTemplate = 100 | 101;
 
-import { cleanURL, camelize, cleanSPListURL } from '../../../../../services/stringServices';
+import { cleanURL, camelize, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
 
 import { IDefinedLists } from '../component/provisionListComponent';
 

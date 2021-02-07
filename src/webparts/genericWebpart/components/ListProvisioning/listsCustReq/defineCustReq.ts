@@ -12,7 +12,7 @@ import { IDefinedLists } from '../component/provisionListComponent';
 
 export type IValidTemplate = 100 | 101;
 
-import { cleanURL, camelize, cleanSPListURL } from '../../../../../services/stringServices';
+import { cleanURL, camelize, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: ICustReqDefs , webURL: string, currentUser: IUser, pageURL: string ) {

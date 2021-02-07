@@ -32,8 +32,8 @@ import * as links from '../../HelpInfo/AllLinks';
 
 import { IMakeThisList } from './provisionWebPartList';
 
-import { getHelpfullError, } from '../../../../../services/ErrorHandler';
-import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '../../../../../services/stringServices';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 
@@ -52,7 +52,7 @@ import * as dTMT from '../ListsTMT/defineThisList';
 import * as dCust from '../ListsCustReq/defineCustReq';
 import * as dPCP from '../PreConfig/definePreConfig';
 
-import { doesObjectExistInArray } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 //import * as dFinT from '../ListsFinTasks/defineFinTasks';
 //import * as dReps from '../ListsReports/defineReports';
 //import * as dTurn from '../ListsTurnover/defineTurnover';
