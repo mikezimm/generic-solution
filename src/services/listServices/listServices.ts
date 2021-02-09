@@ -16,11 +16,11 @@ import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberF
 import { MyFieldDef, changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
     cMText, cText, cNumb, cURL, cUser, cMUser } from './columnTypes';
 
-import { doesObjectExistInArray, compareArrays, ICompareResult, stringifyKeyValue } from '../arrayServices';
+import { doesObjectExistInArray, compareArrays, ICompareResult, stringifyKeyValue } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 import { IListInfo, IMyListInfo, IServiceLog, notify } from './listTypes';
 
-import { getHelpfullError } from '../ErrorHandler';
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
@@ -43,11 +43,29 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
     let result3 = [];
 
     if ( totalItems <= 50 ) {
-        result3 = await addTheseItemsToListNoBatch(myList, thisWeb, ItemsToAdd, setProgress, true, true);
+
+        try {
+            result3 = await addTheseItemsToListNoBatch(myList, thisWeb, ItemsToAdd, setProgress, true, true);
+        } catch (e) {
+            let errMessage = getHelpfullError(e, alertMe, consoleLog);
+            let err = errMessage;
+            statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);
+            setProgress(false, "E", 'i', totalItems , 'darkred', 'ErrorBadge', ItemsToAdd + ' Missing column', 'Items: ' + myList.title, 'Adding Item ' + 'i' + ' of ' + totalItems + ' item', 'Add item ~ 109\n' + err);
+        }
+
     } else {
         for (var i=0; i < totalItems; i += chunk) {
             createThisBatch = ItemsToAdd.slice(i, i+chunk);
-            result3 = await addTheseItemsToListInBatch(myList, thisWeb, createThisBatch, setProgress, true, true);
+            try {
+                result3 = await addTheseItemsToListInBatch(myList, thisWeb, createThisBatch, setProgress, true, true);
+            } catch (e) {
+                let errMessage = getHelpfullError(e, alertMe, consoleLog);
+                let err = errMessage;
+                statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);
+                setProgress(false, "E", 'i', totalItems , 'darkred', 'ErrorBadge', ItemsToAdd + ' Missing column', 'Items: ' + myList.title, 'Adding Item ' + 'i' + ' of ' + totalItems + ' item', 'Add item ~ 109\n' + err);
+            }
+            
+            
         }
     }
 
@@ -88,6 +106,7 @@ export async function addTheseItemsToListNoBatch( myList: IMyListInfo, thisWeb, 
         let thisItem = stringifyKeyValue(item, 0, '===');
         i ++;
         if ( !item.Title ) { item.Title = 'Unknown error'; }
+
         try {
             delete item.compareArrays;
             await list.items.add( item , entityTypeFullName).then(b => {
@@ -99,18 +118,31 @@ export async function addTheseItemsToListNoBatch( myList: IMyListInfo, thisWeb, 
             let errMessage = getHelpfullError(e, alertMe, consoleLog);
 
             let missingColumn = false;
+            let userFieldMissingID = false;
+
             if ( errMessage.indexOf('missing a column') > -1 ) { missingColumn = true; }
             if ( errMessage.indexOf('does not exist on list') > -1 ) { missingColumn = true; }
             if ( errMessage.indexOf('does not exist on type') > -1 ) { missingColumn = true; }
 
+            if ( errMessage.indexOf("A 'PrimitiveValue' node with non-null value was found when trying to read the value of a navigation property") > -1 ) { userFieldMissingID = true; }
+
             if ( missingColumn ) {
                 let err = `The ${myList.title} list does not have a column yet:  ${thisItem}`;
-                statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);
-                setProgress(false, "E", i, totalItems , 'darkred', 'ErrorBadge', item.Title + ' Missing column', 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 109\n' + err);
+                statusLog = notify(statusLog, 'Error creating Item', err, null, null, null, null);
+                console.log('Issue trying to create this item (missing column):', item );
+                setProgress(false, "E", i, totalItems , 'darkred', 'ErrorBadge', item.Title + ' Missing column', 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 132\n' + err);
+
+            } else if ( userFieldMissingID ) {
+                let err = `Your Item object may have mis-identied a User column.  BE SURE user column is followed by Id such as:  EditorId`;
+                statusLog = notify(statusLog, 'Error creating Item', err, null, null, null, null);
+                console.log('Issue trying to create this item: (User field without Id)', item );
+                setProgress(false, "E", i, totalItems , 'darkred', 'ErrorBadge', item.Title + ' Wrong column key', 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 137\n' + err);
+
             } else {
                 let err = errMessage;
                 statusLog = notify(statusLog, 'Problem processing item', err, null, null, null, null);
-                setProgress(false, "E", i, totalItems , 'darkred', 'ErrorBadge', item.Title, 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + '  item', 'Add item ~ 113 + \n' + err);
+                console.log('Issue trying to create this item:', item );
+                setProgress(false, "E", i, totalItems , 'darkred', 'ErrorBadge', item.Title, 'Items: ' + myList.title, 'Adding Item ' + i + ' of ' + totalItems + '  item', 'Add item ~ 142 + \n' + err);
             }
         }
 

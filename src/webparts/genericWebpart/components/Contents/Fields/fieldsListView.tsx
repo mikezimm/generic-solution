@@ -172,7 +172,10 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
           //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
           let detailsCard = buildPropsHoverCard(Fld, ["Title","TypeAsString","TypeDisplayName","Description","StaticName","Group","Id","FillInChoice","Hidden","Indexed","Required"], ["odata.type", "FieldTypeKind","meta","searchString"] , true, null );
 
-            let fieldSettingsURL = !this.props.showSettings ? Fld.StaticName : createLink(this.props.webURL + "/_layouts/15/FldEdit.aspx?List={" + this.props.listGuid + "}&Field=" + Fld.StaticName, '_blank', Fld.StaticName);
+            let showSettings = this.props.showSettings === true ? true : false;
+            if ( Fld.bucketCategory === 'System') { showSettings = false ; }
+
+            let fieldSettingsURL = !showSettings ? Fld.StaticName : createLink(this.props.webURL + "/_layouts/15/FldEdit.aspx?List={" + this.props.listGuid + "}&Field=" + Fld.StaticName, '_blank', Fld.StaticName);
 
             let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
 

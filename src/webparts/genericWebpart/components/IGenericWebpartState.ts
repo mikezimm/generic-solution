@@ -1,6 +1,6 @@
 import { IFormFields, IProjectFormFields } from './fields/fieldDefinitions';
 
-import { ITheTime } from '../../../services/dateServices';
+import { ITheTime } from '@mikezimm/npmfunctions/dist/dateServices';
 
 import { IUser, IPivot, IMyPivots, IMyIcons, IMyFonts, ILink, IChartSeries, ICharNote, IMyProgress, IPickedWebBasic } from './IReUsableInterfaces';
 

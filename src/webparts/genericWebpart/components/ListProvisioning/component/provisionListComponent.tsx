@@ -5,7 +5,7 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 
 import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, Lists, List } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import ReactJson from "react-json-view";
 
@@ -32,8 +32,8 @@ import * as links from '../../HelpInfo/AllLinks';
 
 import { IMakeThisList } from './provisionWebPartList';
 
-import { getHelpfullError, } from '../../../../../services/ErrorHandler';
-import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '../../../../../services/stringServices';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 
@@ -43,7 +43,7 @@ import { createBasicTextField } from  '../../fields/textFieldBuilder';
 /**
  * Steps to add new list def:
  * 1. Create folder and columns, define and view files
- * 2. Make sure the list def is in the availLists array
+ * 2. Make sure the list def is in the availLists array and definedLists array
  * 3. Add logic to getDefinedLists to fetch the list definition
  * Rinse and repeat
  */
@@ -52,23 +52,26 @@ import * as dTMT from '../ListsTMT/defineThisList';
 import * as dCust from '../ListsCustReq/defineCustReq';
 import * as dPCP from '../PreConfig/definePreConfig';
 
-import { doesObjectExistInArray } from '../../../../../services/arrayServices';
-//import * as dFinT from '../ListsFinTasks/defineFinTasks';
-//import * as dReps from '../ListsReports/defineReports';
+import * as dFinT from '../ListsFinTasks/defineFinTasks';
+import * as dReps from '../ListsReports/defineReports';
 //import * as dTurn from '../ListsTurnover/defineTurnover';
 //import * as dOurG from '../ListsOurGroups/defineOurGroups';
 //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
-//import * as dPivT from '../PivotTiles/definePivotTiles';
+import * as dPivT from '../PivotTiles/definePivotTiles';
 
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 /**
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
+ * 
  */
 export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | '';
-export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements','Drilldown'];
 
-export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles'];
+//Add here to make available in dropdown (but does not work unless they are in the definedLists array )
+export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' ,  'OurGroups' ,  'Socialiis' , 'PivotTiles' , 'Drilldown'];
+
+export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles', 'Drilldown' ];
 
 export const dropDownWidth = 200;
 
@@ -145,6 +148,8 @@ export interface IProvisionListsState {
     makeThisList: IMakeThisList;
 
     lists: IMakeThisList[];
+
+    validUserIds: number[];
 
 }
 
@@ -266,6 +271,8 @@ public constructor(props:IProvisionListsProps){
 
         makeThisList: makeThisList,
         lists: theLists,
+
+        validUserIds: [],
 
     };
 
@@ -399,7 +406,7 @@ public constructor(props:IProvisionListsProps){
 
 
             let listLinks = this.state.lists.map( mapThisList => (
-                mapThisList.listExists ? links.createLink( mapThisList.listURL, '_none',  'Go to: ' + mapThisList.title ) : null ));
+                mapThisList.listExists ? links.createLink( mapThisList.listURL.replace('_layouts/15/undefined',''), '_none',  'Go to: ' + mapThisList.title ) : null ));
 
             const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
 
@@ -434,11 +441,13 @@ public constructor(props:IProvisionListsProps){
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
-                <span style={{ fontSize : 'xx-large'}}><mark>THIS PAGE IS BROKEN AND CAN RUIN LISTS... DO NOT USE</mark></span>
+                <span style={{ fontSize : 'x-large'}}><mark>THIS PAGE IS BROKEN AND CAN RUIN LISTS... DO NOT USE</mark></span>
                 <p>When selecting list type, it should set default list titles per list type.</p>
                 <ul>
-                    <li>Set Title in onCreate</li>
-                    <li>Create columns fields and views for other common lists</li>
+                    <li>Pick List definition</li>
+                    <li>Pick List type (if more than one option is available)</li>
+                    <li>Set Title above button (or leave blank for default)</li>
+                    <li>Set Mode (1st Toggle).  Design just creates the json object you can look at.  Toggle to build.</li>
                 </ul>
             </div>;
 
@@ -502,7 +511,7 @@ public constructor(props:IProvisionListsProps){
  */
 
             return (
-                <div className={ styles.infoPane }>
+                <div className={ styles.infoPane } style={{ paddingBottom: '20px' }}>
                     { thisPage }
                 </div>
             );
@@ -675,6 +684,7 @@ public constructor(props:IProvisionListsProps){
         console.log('_updateStateOnPropsChange:', doThis, this.props );
         let testLists : IMakeThisList[] = [];
         let definedList : IDefinedLists = null;
+
         if ( doThis === 'props' ) {
             if ( this.props.lists ) { testLists = JSON.parse(JSON.stringify(this.props.lists)) ; definedList = this.props.definedList; }
 
@@ -682,6 +692,20 @@ public constructor(props:IProvisionListsProps){
             if ( this.state.lists ) { testLists = JSON.parse(JSON.stringify(this.state.lists)) ; definedList = this.state.definedList; }
         }
 
+        if ( this.state.validUserIds.length === 0 ) {
+            const thisWeb = Web( this.props.provisionWebs[0] );
+            thisWeb.siteUsers.get().then((responseUsers) => {
+                let validUserIds : any[] = [];
+                responseUsers.map ( u => {
+                    if ( u.UserId !== null && u.UserPrincipalName !== null ) { validUserIds.push( u.Id ); }
+                });
+                console.log('validUserIds SiteUsers:', validUserIds );
+                this.setState({  validUserIds: validUserIds, });
+            }).catch((e) => {
+                let errMessage = getHelpfullError(e, true, true);
+                console.log('Not able to get SiteUsers', errMessage);
+            });
+        }
         if ( testLists.length > 0 ) {
             for ( let i in testLists ) {
                 this.checkThisWeb(parseInt(i,10), testLists, definedList);
@@ -711,12 +735,12 @@ public constructor(props:IProvisionListsProps){
                 testLists[index].onCurrentSite = testLists[index].webURL.toLowerCase() === this.props.pageContext.web.absoluteUrl.toLowerCase() + '/' ? true : false; 
             }
 
-            this.updateStateLists(index, testLists, definedList);
+            this.updateStateLists(index, testLists, definedList, );
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisWeb', errMessage);
-            this.updateStateLists(index, testLists, definedList);
+            this.updateStateLists(index, testLists, definedList, );
 
         });
     }
@@ -736,7 +760,7 @@ public constructor(props:IProvisionListsProps){
     }
 */
 
-    private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ) {
+    private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists) {
         let stateLists = this.state.lists;
         if (stateLists === undefined ) { stateLists = this.props.lists ; }
         stateLists[index] = testLists[index];
@@ -765,8 +789,8 @@ public constructor(props:IProvisionListsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Projects');  provisionListTitles.push('TrackMyTime');  }
 
-            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( parentList ) { theLists.push( parentList ); }
             if ( childList ) { theLists.push( childList ); }
@@ -775,8 +799,8 @@ public constructor(props:IProvisionListsProps){
             
             if ( justReturnLists === false ) {  provisionListTitles.push('BUEmails');  provisionListTitles.push('Emails');  }
 
-            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( buEmails ) { theLists.push( buEmails ); }
             if ( justEmails ) { theLists.push( justEmails ); }
@@ -785,8 +809,8 @@ public constructor(props:IProvisionListsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Drilldown');  provisionListTitles.push('Drilldown');  }
 
-            let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( buEmails ) { theLists.push( buEmails ); }
             if ( justEmails ) { theLists.push( justEmails ); }
@@ -795,13 +819,46 @@ public constructor(props:IProvisionListsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Program');  provisionListTitles.push('SORInfo');  }
 
-            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( progCustRequire ) { theLists.push( progCustRequire ); }
             if ( sorCustRequire ) { theLists.push( sorCustRequire ); }
 
-        }
+        } else if ( defineThisList === 'PivotTiles' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('PivotTiles');  provisionListTitles.push('OurTiles');  }
+
+            let pivotTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[0], 'PivotTiles' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let ourTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[1], 'OurTiles' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+        
+            if ( pivotTiles ) { theLists.push( pivotTiles ); }
+            if ( ourTiles ) { theLists.push( ourTiles ); }
+
+        } else if ( defineThisList === 'Reports' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Reports1');  provisionListTitles.push('Reports2');  }
+
+            let reports1 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[0], 'Reports1' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let reports2 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[1], 'Reports2' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+        
+            if ( reports1 ) { theLists.push( reports1 ); }
+            if ( reports2 ) { theLists.push( reports2 ); }
+
+        } else if ( defineThisList === 'Finance Tasks' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Finance Tasks');  provisionListTitles.push('OurTasks');  }
+
+            let finTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[0], 'Finance Tasks' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let ourTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[1], 'OurTasks' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+        
+            if ( finTasks ) { theLists.push( finTasks ); }
+            if ( ourTasks ) { theLists.push( ourTasks ); }
+
+        } 
+
+
+        //'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PreConfig' |  dFinT
 
         if ( justReturnLists === true ) {
             return theLists;
@@ -853,7 +910,9 @@ public constructor(props:IProvisionListsProps){
 
         let theLists = this.getDefinedLists(thisValue, false);
 
-        this.setState({ lists: theLists, });
+        let doList: boolean = theLists.length === 0 ? null : theLists[0].template === 100 ? true : theLists[0].template === 101 ? false : null;
+
+        this.setState({ lists: theLists, doList: doList });
 
     }
 
@@ -883,7 +942,11 @@ public constructor(props:IProvisionListsProps){
         reDefinedLists[index].name = listName;
         reDefinedLists[index].title = oldVal;
         reDefinedLists[index].desc = oldVal + ' list for this Webpart';
-        reDefinedLists[index].listURL = this.state.provisionWebs[index] + ( reDefinedLists[index].template === 100 ? 'Lists/' : '') + listName;
+        let provisionWebs = this.state.provisionWebs[index] ? this.state.provisionWebs[index] : this.state.provisionWebs[0] ;
+        reDefinedLists.map( theList => {
+            theList.template = this.state.doList === true ? 100 : 101 ;
+            theList.listURL =  ( provisionWebs ) + ( theList.template === 100 ? 'lists/' : '') + listName;
+        });
 
         this.checkThisWeb(index, reDefinedLists, definedList);
 
@@ -916,18 +979,19 @@ public constructor(props:IProvisionListsProps){
             };
 
             let togDoList = {
-                label: 'List Props',
+                label: this.state.doList === true ? 'Make List' : 'Make Library',
                 key: 'togDoList',
                 _onChange: this.updateTogggleDoList.bind(this),
                 checked: this.state.doList,
-                onText: 'Include',
-                offText: 'Skip',
+                onText: '-',
+                offText: '-',
                 className: '',
                 styles: '',
             };
 
+            let listNo = this.state.listNo; 
             let togDoFields = {
-                label: 'Fields',
+                label: 'Fields ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseFields.length})` : '' ),
                 key: 'togDoFields',
                 _onChange: this.updateTogggleDoFields.bind(this),
                 checked: this.state.doFields,
@@ -938,7 +1002,7 @@ public constructor(props:IProvisionListsProps){
             };
 
             let togDoViews = {
-                label: 'Views',
+                label: 'Views ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseViews.length})` : '' ),
                 key: 'togDoViews',
                 _onChange: this.updateTogggleDoViews.bind(this),
                 checked: this.state.doViews,
@@ -950,7 +1014,7 @@ public constructor(props:IProvisionListsProps){
 
             
             let togDoItems = {
-                label: 'Items',
+                label: 'Items ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseItems.length})` : '' ),
                 key: 'togDoItems',
                 _onChange: this.updateTogggleDoItems.bind(this),
                 checked: this.state.doItems,
@@ -982,9 +1046,18 @@ public constructor(props:IProvisionListsProps){
         }
 
         private updateTogggleDoList = (item): void => {
-            this.setState({
-                doList: !this.state.doList,
+            //Similar to CreateThisList... just update existing list though
+            let stateLists = this.state.lists;
+
+            let newSetting = !this.state.doList;
+
+            stateLists.map( theList => {  // listURL, template
+                theList.template = newSetting === true ? 100 : 101;
+                theList.listURL = theList.webURL + ( newSetting === true ? 'lists/' : '' ) + theList.name;
             });
+
+            this.setState({ doList: !this.state.doList, lists: stateLists });
+
         }
 
         private updateTogggleDoFields = (item): void => {

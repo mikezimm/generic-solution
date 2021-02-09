@@ -31,9 +31,9 @@ import * as links from '../../HelpInfo/AllLinks';
 
 import { IWPart,  } from './partsFunction';
 
-import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
-import { addItemToArrayIfItDoesNotExist, } from '../../../../../services/arrayServices';
+import { addItemToArrayIfItDoesNotExist, } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 

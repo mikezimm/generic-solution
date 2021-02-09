@@ -19,9 +19,9 @@ import {  } from './groupsFunctions';
 
 import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
 
-import { ITheTime } from '../../../../../services/dateServices';
+import { ITheTime } from '@mikezimm/npmfunctions/dist/dateServices';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
@@ -51,7 +51,7 @@ import MyLogGroup from './groupsListView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
-import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 export interface IMyPivCat {

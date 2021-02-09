@@ -19,13 +19,13 @@ import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICh
 
 //import { analyticsList } from 'InspectThisSiteWebPartStrings';
 
-import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '../../../../../services/dateServices';
+import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '@mikezimm/npmfunctions/dist/dateServices';
 
-import { cleanURL, camelize } from '../../../../../services/stringServices';
+import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
 
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
  
-import { doesObjectExistInArray } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 import * as pages from './thisSiteFunctions';
 

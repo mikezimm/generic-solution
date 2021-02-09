@@ -14,7 +14,7 @@ import {  } from './listsFunction';
 
 import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
@@ -44,7 +44,7 @@ import MyLogList from './listView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
-import { getHelpfullError, } from '../../../../../services/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 export interface IMyPivCat {

@@ -20,11 +20,11 @@ import { IMyView,  } from '../../../../../services/listServices/viewTypes'; //Im
 
 import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
 
-import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '../../../../../services/dateServices';
+import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '@mikezimm/npmfunctions/dist/dateServices';
 
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
 
-import { getHelpfullError } from '../../../../../services/ErrorHandler';
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
 import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 

@@ -15,10 +15,10 @@ import { IMyProgress } from '../../webparts/genericWebpart/components/IReUsableI
 
 import { IListInfo, IMyListInfo, IServiceLog, notify,  } from './listTypes';
 
-import { doesObjectExistInArray } from '../arrayServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 import { getXMLObjectFromString } from '../XMLServices';
 
-import { getHelpfullError } from '../ErrorHandler';
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";

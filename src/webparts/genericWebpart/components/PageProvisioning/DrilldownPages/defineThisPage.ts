@@ -8,7 +8,7 @@ import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType } from "@
 
 export type IValidTemplate = 100 | 101;
 
-import { cleanURL, camelize } from '../../../../../services/stringServices';
+import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
 
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 

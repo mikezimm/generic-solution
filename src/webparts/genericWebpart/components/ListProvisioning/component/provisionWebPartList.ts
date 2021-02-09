@@ -16,6 +16,8 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
 import { IDefinedLists } from './provisionListComponent';
 
+import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+
 export type IValidTemplate = 100 | 101;
 
 export interface IMakeThisList {
@@ -25,7 +27,7 @@ export interface IMakeThisList {
     webURL: string;
     listURL: string;
     desc: string;
-    template: IValidTemplate;
+    template: IValidTemplate;  // listURL, template
     enableContentTypes: boolean;
     additionalSettings: { 
         EnableVersioning: boolean;
@@ -46,6 +48,7 @@ export interface IMakeThisList {
     sameTemplate: boolean;
     listDefinition: string;
     definedList: IDefinedLists;
+    validUserIds?: number[];
 
 }
 export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean, requireAll: boolean = true ): Promise<IServiceLog[]>{
@@ -59,10 +62,17 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     let hasViews: boolean = false;
     let errMess= '';
 
-    if ( makeThisList.createTheseFields !== null && makeThisList.createTheseFields.length > 0 ) {
+
+    if ( makeThisList.createTheseFields === null || makeThisList.createTheseFields === undefined  ) {
+        hasFields = false; errMess += 'List defintion does not have any FIELDS (createTheseFields) defined.' ; }
+    else if (  makeThisList.createTheseFields.length > 0 ) {
         hasFields = true; } else { errMess += 'List defintion does not have any FIELDS defined.' ; }
-    if ( makeThisList.createTheseViews !== null && makeThisList.createTheseViews.length > 0  ) {
+
+    if ( makeThisList.createTheseViews === null || makeThisList.createTheseViews === undefined  ) {
+        hasViews = false;  errMess += 'List defintion does not have any VIEWS (createTheseViews) defined.' ; }
+    else if ( makeThisList.createTheseViews.length > 0  ) {
         hasViews = true; } else {  errMess += 'List defintion does not have any VIEWS defined.' ; }
+
 
     if ( ( hasViews === false && doViews === true ) || ( hasFields === false && doFields === true ) ) {
 
@@ -74,15 +84,17 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     }
 
     if ( readOnly === false  ) {
-        if ( makeThisList.autoItemCreate === true ) {
+        //if ( makeThisList.autoItemCreate === true ) {
             createItems = true;
+        /*
         } else {
             //let confirmItems = confirm("We created your list, do you want us to create some sample Time entries so you can see how it looks?")
             if (confirm("Do you want us to: \n\nCreate some sample list items \n\nso you can see how it looks?")) {
                 //You pressed Ok, add items
                 createItems = true;
             }
-        }
+        */
+        //}
     }
 
     if ( makeThisList.createTheseItems == null || makeThisList.createTheseItems == undefined ) { createItems = false; }
@@ -252,7 +264,9 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         let chunk = 3;
 
         if ( totalItems <= 50 ) {
+
             result3 = await addTheseItemsToList(makeThisList, thisWeb, makeThisList.createTheseItems, setProgress, true, true);
+
         } else {
             for (var i=0; i < totalItems; i += chunk) {
                 createThisBatch = makeThisList.createTheseItems.slice(i, i+chunk);
@@ -275,5 +289,68 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     markComplete();
 
     return statusLog;
+
+}
+
+import { cleanURL, camelize, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
+
+export function defineTheListMaster ( template: IValidTemplate , listTitle : string, listDefinition: string , webURL: string, pageURL: string, definedList: IDefinedLists ) {
+
+    //Sometimes the webURL is undefined  (when props are empty)
+    pageURL = pageURL.toLowerCase();
+    if ( webURL ) {
+        let webLastIndexOf = webURL.lastIndexOf('/');
+        if ( webURL.length > 0 && webLastIndexOf != webURL.length -1 ) { webURL += '/'; }
+    }
+    if ( pageURL.length > 0 && pageURL.lastIndexOf('/') != pageURL.length -1 ) { pageURL += '/'; }
+
+    let isListOnThisWeb = false;
+
+    if ( webURL === '' ) {
+        isListOnThisWeb = true;
+
+    } else if ( webURL === undefined ) {
+        isListOnThisWeb = true;
+
+    } else if ( pageURL === webURL ) {
+        isListOnThisWeb = true;
+    }
+
+    webURL = webURL.replace('_layouts/15/','');  //Remove all the workbench urls
+
+    let listName = cleanSPListURL(camelize(listTitle, true));
+    let makeThisList:  IMakeThisList = {
+
+        definedList: definedList,
+        title: listTitle,
+        name: listName,
+        webURL: webURL,
+        desc: listTitle + ' list for this Webpart',
+        template: template,
+        enableContentTypes: true,
+        additionalSettings: {
+            EnableVersioning: true,
+            MajorVersionLimit: 50,
+            OnQuickLaunch: true,
+         },
+        createTheseFields: null,
+        createTheseViews: null,
+        createTheseItems: null,
+        autoItemCreate: false,
+        listURL: webURL + ( template === 100 ? 'lists/' : '') + listName,
+        confirmed: false,
+        onCurrentSite: isListOnThisWeb,
+        webExists: false,
+        listExists: false,
+        listExistedB4: false,
+        existingTemplate: null,
+        sameTemplate: false,
+        listDefinition: listDefinition,
+
+    };
+
+    //let listResult = await provisionTheList( makeThisList, setProgress );
+
+    return makeThisList;
 
 }

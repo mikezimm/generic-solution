@@ -24,13 +24,13 @@ import {  } from '../contentsComponent';
 
 //import { analyticsList } from 'InspectThisSiteWebPartStrings';
 
-import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '../../../../../services/dateServices';
+import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '@mikezimm/npmfunctions/dist/dateServices';
 
-import { cleanURL, camelize } from '../../../../../services/stringServices';
+import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
 
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
  
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '../../../../../services/arrayServices';
+import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 import {  } from '../Fields/fieldsFunctions';
 

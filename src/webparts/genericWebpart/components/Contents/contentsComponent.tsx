@@ -41,11 +41,11 @@ import { Web } from "@pnp/sp/presets/all";
 
 //import { analyticsList } from 'InspectContentsWebPartStrings';
 
-import { cleanURL, camelize } from '../../../../services/stringServices';
+import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
 
 import { pivotOptionsGroup, } from '../../../../services/propPane';
  
-import { doesObjectExistInArray } from '../../../../services/arrayServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../services/createAnalytics';
 
