@@ -125,7 +125,8 @@ export interface IProvisionFieldsState {
     doFields: boolean;
     doViews: boolean;
     doItems: boolean;
-    doEdit: boolean;
+    doEditMain: boolean;
+    doEditFields: boolean;
 
     listNo: number;
 
@@ -246,7 +247,8 @@ public constructor(props:IProvisionFieldsProps){
         doFields: true,
         doViews: true,
         doItems: false,
-        doEdit: makeThisList ? false : true ,
+        doEditMain: makeThisList ? false : true ,
+        doEditFields: false,
 
         listNo: makeThisList ? 0 : null,
 
@@ -385,15 +387,7 @@ public constructor(props:IProvisionFieldsProps){
                     label: theLabel, buttonOnClick: createButtonOnClicks[index], };
             });
 
-
-            let listDefInputField = null;
-            let editToggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getEditToggles()) } </div>;
-
-            if ( this.state.lists && this.state.doMode !== true && this.state.doEdit === true ) { 
-                let JSONString = JSON.stringify(this.state.lists[0]);
-                listDefInputField = createMultiLineTextField( 'Paste List JSON', JSONString, this.UpdateJSON.bind(this), styles.listProvTextField1 );
-            }
-            
+        
 
             //let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
             let updateTitleFunctions = [this.UpdateTitle_0.bind(this)];
@@ -449,23 +443,49 @@ public constructor(props:IProvisionFieldsProps){
                 </ul>
             </div>;
 
-            let listDetails = null;
 
-            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true && this.state.doEdit !== true ) {
-                let listJSON = null; 
+            let listDetails = null;
+            let editToggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getEditToggles()) } </div>;
+
+            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true ) {
                        
                 let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] ));
                 if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
                 if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
                 if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
 
-                listJSON = <div style={{ overflowY: 'auto' }}>
-                    <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                </div>;
+                let JSONString = JSON.stringify(this.state.lists[0]);
+                let listDefInputField = this.state.doEditMain === true ? 
+                    createMultiLineTextField( 'Paste List JSON', JSONString, this.UpdateJSON.bind(this), styles.listProvTextField1 ) :
+                    <div style={{ overflowY: 'auto' }}>
+                        <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                    </div>;
 
                 listDetails = <div style={{display: '', marginBottom: '30px' }}>
-                        <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { links.JSONEditorShort } </span></h2></div>
-                        { listJSON }
+                        <div><h2>Details for list: <span style={{fontSize: 'small', paddingLeft: '50px'}}> { links.JSONEditorShort } </span></h2></div>
+                        { listDefInputField }
+                    </div>;
+
+            } 
+
+
+            let fieldDetails = null;
+
+            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true  ) {
+ 
+                let tempJSON = this.state.lists[ this.state.listNo ].createTheseFields ? JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ].createTheseFields )) : [];
+                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
+    
+                let JSONString = JSON.stringify(this.state.lists[0].createTheseFields);
+                let fieldDefInputField = this.state.doEditFields === true ? 
+                        createMultiLineTextField( 'Paste fields JSON', JSONString, this.UpdateJSONFields.bind(this), styles.listProvTextField1 ) :
+                        <div style={{ overflowY: 'auto' }}>
+                            <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                        </div>;
+
+                fieldDetails = <div style={{display: '', marginBottom: '30px' }}>
+                        <div><h2>Details for fields:  <span style={{fontSize: 'small', paddingLeft: '50px'}}> { links.JSONEditorShort } </span></h2></div>
+                        { fieldDefInputField }
                     </div>;
 
             } 
@@ -493,8 +513,9 @@ public constructor(props:IProvisionFieldsProps){
                 </div>
                 <div style={{display: this.state.doMode === true ? 'none': '' }}>
                     { editToggles }
-                    { listDefInputField }
+                    { fieldDetails }
                     { listDetails }
+
                 </div>
             </div>;
 
@@ -510,7 +531,7 @@ public constructor(props:IProvisionFieldsProps){
  */
 
             return (
-                <div className={ styles.infoPane }>
+                <div className={ styles.infoPane } style={{ paddingBottom: '20px' }}>
                     { thisPage }
                 </div>
             );
@@ -902,10 +923,47 @@ public constructor(props:IProvisionFieldsProps){
             });
 
         } catch (e) {
-            alert('Opps! Invalid JSON!' + e );
+            alert('Opps! Invalid List JSON!' + e );
         }
 
       }
+
+      private UpdateJSONFields(oldVal: any): any {
+        let newMapThisList : IMakeThisList = null;
+
+        try {
+            let doFields = this.state.doFields;
+
+            //oldVal = oldVal.replace('doubleQuotes','\"');
+            newMapThisList  = this.state.lists[0];
+
+            if ( oldVal.indexOf('{') === 0 && oldVal.lastIndexOf('}') === oldVal.length ) {
+                oldVal= '[' + oldVal + ']';
+            }
+
+            let newFields = JSON.parse(oldVal);
+
+            if ( this.state.lists.length === 0 ) {
+                if (  newMapThisList.createTheseFields && newMapThisList.createTheseFields.length > 0 ) { } else { doFields = false ; }
+            }
+
+            newMapThisList.createTheseFields = newFields;
+
+            let definedList = newMapThisList.definedList;
+
+            this.setState({ 
+                lists: [newMapThisList],
+                doFields: doFields,
+                definedList: definedList,
+                listNo: 0,
+            });
+
+        } catch (e) {
+            alert('Opps! Invalid Field JSON!' + e );
+        }
+
+      }
+
 
       private UpdateTitles( oldVal: any, index: number ) {
         let provisionListTitles = this.state.provisionListTitles;
@@ -942,18 +1000,31 @@ public constructor(props:IProvisionFieldsProps){
          */
         private getEditToggles() {
 
-            let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Edit or View</span>;
-            let togDoEdit = {
-                label: toggleLabel,
+            let toggleLabelMain = <span style={{ color: '', fontWeight: 700, whiteSpace: 'nowrap'}}>Edit or View entire list</span>;
+            let togDoEditMain = {
+                label: toggleLabelMain,
                 key: 'togDoEdit',
-                _onChange: this.updateTogggleDoEdit.bind(this),
-                checked: this.state.doEdit,
+                _onChange: this.updateTogggleDoEditMain.bind(this),
+                checked: this.state.doEditMain,
                 onText: 'Edit',
                 offText: 'View',
                 className: '',
                 styles: '',
             };
-            let theseToggles = [ togDoEdit ];
+
+            let toggleLabel = <span style={{ color: '', fontWeight: 700, whiteSpace: 'nowrap'}}>Edit or View columns</span>;
+            let togDoEditFields = {
+                label: toggleLabel,
+                key: 'togDoEdit',
+                _onChange: this.updateTogggleDoEditFields.bind(this),
+                checked: this.state.doEditFields,
+                onText: 'Edit',
+                offText: 'View',
+                className: '',
+                styles: '',
+            };
+
+            let theseToggles = [ togDoEditFields, togDoEditMain ];
 
             let pageToggles : IContentsToggles = {
                 toggles: theseToggles,
@@ -961,7 +1032,7 @@ public constructor(props:IProvisionFieldsProps){
                 vertical: false,
                 hAlign: 'end',
                 vAlign: 'start',
-                rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+                rootStyle: { width: 200, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
             };
 
             return pageToggles;
@@ -1044,9 +1115,15 @@ public constructor(props:IProvisionFieldsProps){
 
         }
 
-        private updateTogggleDoEdit = (item): void => {
+        private updateTogggleDoEditMain = (item): void => {
             this.setState({
-                doEdit: !this.state.doEdit,
+                doEditMain: !this.state.doEditMain,
+            });
+        }
+
+        private updateTogggleDoEditFields = (item): void => {
+            this.setState({
+                doEditFields: !this.state.doEditFields,
             });
         }
 

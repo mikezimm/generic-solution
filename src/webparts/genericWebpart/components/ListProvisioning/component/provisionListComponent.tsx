@@ -511,7 +511,7 @@ public constructor(props:IProvisionListsProps){
  */
 
             return (
-                <div className={ styles.infoPane }>
+                <div className={ styles.infoPane } style={{ paddingBottom: '20px' }}>
                     { thisPage }
                 </div>
             );
