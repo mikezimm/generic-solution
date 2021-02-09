@@ -937,7 +937,9 @@ public constructor(props:IProvisionFieldsProps){
             //oldVal = oldVal.replace('doubleQuotes','\"');
             newMapThisList  = this.state.lists[0];
 
-            if ( oldVal.indexOf('{') === 0 && oldVal.lastIndexOf('}') === oldVal.length ) {
+            let firstBrace =oldVal.indexOf('{');
+            let closingBrace =  oldVal.lastIndexOf('}');
+            if ( firstBrace === 0 && closingBrace === ( oldVal.length - 1 ) ) {
                 oldVal= '[' + oldVal + ']';
             }
 

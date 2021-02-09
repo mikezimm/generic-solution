@@ -1,9 +1,9 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
   "solution": {
-    "name": "generic-solution-client-side-solution",
+    "name": "Easy Contents Webpart",
     "id": "bd2cf944-5fb9-4f48-bde1-a5970368de0d",
-    "version": "1.1.10.1",
+    "version": "1.1.11.1",
     "includeClientSideAssets": true,
     "isDomainIsolated": false
   },
