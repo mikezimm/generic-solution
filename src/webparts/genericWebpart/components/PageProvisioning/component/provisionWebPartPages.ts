@@ -5,7 +5,7 @@ import { sp } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
-import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText, IClientsidePage } from "@pnp/sp/clientside-pages";
+import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText, IClientsidePage, ClientsidePageFromFile  } from "@pnp/sp/clientside-pages";
 
 import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 
@@ -48,8 +48,97 @@ export interface IMakeThisPage {
 
 }
 
+export async function copyThisPage( destWeb: IWeb, pageName: string ): Promise<IServiceLog[]>{
+
+    let statusLog : IServiceLog[] = [];
+
+    console.log('getting page here:');
+    try {
+    // use the web factory to target a specific web  https://autoliv.sharepoint.com/sites/webpartdev/SitePages/Home(1).aspx
+    const page2 = await Web("https://autoliv.sharepoint.com/sites/SPOImagineering/Migration/").loadClientsidePage("/sites/SPOImagineering/Migration/SitePages/" + pageName + ".aspx");
+    console.log( 'Source page ' + pageName , page2 );
+
+        try {
+            const pageCopy2a = await page2.copy(destWeb, pageName, pageName);
+            console.log( 'Succeded pasting page ' + pageName , pageCopy2a );
+
+        } catch (e){
+            console.log( 'Failed pasting page ' + pageName  );
+
+        }
+
+    } catch (e) {
+            console.log( 'Failed getting page ' + pageName  );
+    }
+
+
+    return statusLog;
+
+}
+
+    
 //export async function provisionTestPage( makeThisPage:  IMakeThisPage, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
     export async function provisionDrilldownPage( makeThisPage:  IMakeThisPage, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
+
+
+        // our page instance
+
+        //
+//        console.log('getting page here:');
+//        const page: IClientsidePage = await sp.web.loadClientsidePage("/sites/Infoiis/SitePages/Home.aspx");
+ //       console.log( 'Home page 1' , page );
+
+        // use the web factory to target a specific web  https://autoliv.sharepoint.com/sites/webpartdev/SitePages/Home(1).aspx
+//        const page2 = await Web("https://autoliv.sharepoint.com/sites/WebPartDev/").loadClientsidePage("/sites/WebPartDev/SitePages/Home(1).aspx");
+//        console.log( 'Home page 1' , page2 );
+
+        // creates a published copy of the page
+        //const pageCopy = await page.copy(sp.web, "newpagename", "New Page Title");
+
+        // creates a published copy of the page
+        const thisWeb = Web('https://autoliv.sharepoint.com/sites/TheFordBUHub/');
+
+        // const pageCopy2a = await page2.copy(thisWeb, "Contents2", "Contents2"); //This only worked on Home(1)
+//        await copyThisPage( thisWeb, 'Test-Blank-Pivot');  //Succeded
+//        await copyThisPage( thisWeb, 'ContentsX');  //Succeded
+//        await copyThisPage( thisWeb, 'Youtube');  //Succeded
+//        await copyThisPage( thisWeb, 'Hub-Connections');  //Succeded
+//        await copyThisPage( thisWeb, 'Twitter');  //Succeded
+        await copyThisPage( thisWeb, 'TestBUHome');  //Succeded
+
+        /**
+         * Known issues:  
+         * Hero webpart with images/links
+         * Picture webpart with picture
+         * File Viewer with file
+         * 
+         * Error message:  400  "Server relative urls must start with SPWeb.ServerRelativeUrl"
+         * 
+         * 
+         * 
+         */
+
+        //await copyThisPage( thisWeb, 'Bing-Maps');  //Succeded
+
+        //await copyThisPage( thisWeb, 'TestBlankPivot');  //Failed
+        //await copyThisPage( thisWeb, 'Home');  //Failed
+        //await copyThisPage( thisWeb, 'Markdown');  //Failed
+        //await copyThisPage( thisWeb, 'News');  //Failed
+        //await copyThisPage( thisWeb, 'List');  //Failed
+
+        //await copyThisPage( thisWeb, 'Links');
+        //await copyThisPage( thisWeb, 'YouTube---WebPart-Showcase.aspx');
+        
+
+        //const pageCopy2b = await page2.copy(sp.web, "newpagename2x", "New Page Title2x");
+
+        // creates a draft (unpublished) copy of the page
+        //const pageCopy2 = await page.copy(sp.web, "newpagename", "New Page Title", false);
+
+        // edits to pageCopy2 ...
+
+        // publish the page
+
 
         let buildTheseWebparts : IWebPartDef[] = createDrilldownDemoWebParts();
 
