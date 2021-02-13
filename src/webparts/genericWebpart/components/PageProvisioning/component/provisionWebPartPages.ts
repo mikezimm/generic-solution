@@ -48,27 +48,53 @@ export interface IMakeThisPage {
 
 }
 
-export async function copyThisPage( destWeb: IWeb, pageName: string ): Promise<IServiceLog[]>{
+export async function copyThisPage( destWeb: IWeb, sourcePageName: string, destPageName : string = null): Promise<IServiceLog[]>{
 
+    if ( destPageName === '' || destPageName === null ) { destPageName = sourcePageName; }
     let statusLog : IServiceLog[] = [];
 
     console.log('getting page here:');
     try {
-    // use the web factory to target a specific web  https://autoliv.sharepoint.com/sites/webpartdev/SitePages/Home(1).aspx
-    const page2 = await Web("https://autoliv.sharepoint.com/sites/SPOImagineering/Migration/").loadClientsidePage("/sites/SPOImagineering/Migration/SitePages/" + pageName + ".aspx");
-    console.log( 'Source page ' + pageName , page2 );
 
-        try {
-            const pageCopy2a = await page2.copy(destWeb, pageName, pageName);
-            console.log( 'Succeded pasting page ' + pageName , pageCopy2a );
+        /**
+         * Need to look at this for ContentCanvas1
+         * https://joaojmendes.com/2019/02/08/read-and-update-spfx-webpart-properties-from-code/
+         * 
+         */
 
-        } catch (e){
-            console.log( 'Failed pasting page ' + pageName  );
+        // use the web factory to target a specific web  https://autoliv.sharepoint.com/sites/webpartdev/SitePages/Home(1).aspx
+    const page2 = await Web("https://autoliv.sharepoint.com/sites/Patterns/").loadClientsidePage("/sites/Patterns/SitePages/" + sourcePageName + ".aspx");
 
-        }
+//    let page2X = JSON.stringify(page2);
+//    let page2Y = JSON.parse(page2X);
+
+    console.log( 'Source page sections' + sourcePageName , page2.sections );
+    console.log( 'Source page data' + sourcePageName , page2.data );
+    console.log( 'Source page _data' + sourcePageName , page2['_data'] );
+    //console.log( 'Source page ' + sourcePageName , page2. );
+
+    try {
+        const pageCopy2a = await page2.copy(destWeb, sourcePageName, sourcePageName);
+        console.log( 'Succeded pasting page ' + sourcePageName , pageCopy2a );
+        //console.log( 'CanvaseContent1 _data' + sourcePageName , pageCopy2a['_data'] ); // this did not give any meaningful information related to the page
+        console.log( 'Succeded pasting page pageCopy2a.prototype.Target.json ' + sourcePageName , pageCopy2a['_data.ok'] );
+
+    } catch (e){
+        console.log( 'Failed pasting page ' + sourcePageName  );
+
+    }
+    /*
+    try {
+        const pageCopy2Y = await page2Y.copy(destWeb, sourcePageName + 'Y', sourcePageName + 'Y');
+        console.log( 'Succeded pasting page ' + sourcePageName , pageCopy2Y );
+
+    } catch (e){
+        console.log( 'Failed pasting page ' + sourcePageName  );
+
+    }*/
 
     } catch (e) {
-            console.log( 'Failed getting page ' + pageName  );
+            console.log( 'Failed getting page ' + sourcePageName  );
     }
 
 
@@ -96,15 +122,13 @@ export async function copyThisPage( destWeb: IWeb, pageName: string ): Promise<I
         //const pageCopy = await page.copy(sp.web, "newpagename", "New Page Title");
 
         // creates a published copy of the page
-        const thisWeb = Web('https://autoliv.sharepoint.com/sites/TheFordBUHub/');
+        const thisWeb = Web('https://autoliv.sharepoint.com/sites/Patterns/Sub1/');
 
         // const pageCopy2a = await page2.copy(thisWeb, "Contents2", "Contents2"); //This only worked on Home(1)
-//        await copyThisPage( thisWeb, 'Test-Blank-Pivot');  //Succeded
-//        await copyThisPage( thisWeb, 'ContentsX');  //Succeded
-//        await copyThisPage( thisWeb, 'Youtube');  //Succeded
-//        await copyThisPage( thisWeb, 'Hub-Connections');  //Succeded
-//        await copyThisPage( thisWeb, 'Twitter');  //Succeded
-        await copyThisPage( thisWeb, 'TestBUHome');  //Succeded
+//        await copyThisPage( thisWeb, 'Connecting-to-our-hub', 'Test-Copy');  //Succeded
+//        await copyThisPage( thisWeb, 'Hub-Connections', 'Test-Copy2');  //Succeded
+        await copyThisPage( thisWeb, 'Hero', '');  //Succeded
+        await copyThisPage( thisWeb, 'HeroGoogle', '');  //Succeded
 
         /**
          * Known issues:  
