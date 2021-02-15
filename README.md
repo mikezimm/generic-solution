@@ -37,6 +37,7 @@ npm install @pnp/spfx-property-controls
 npm install --save office-ui-fabric-react
 npm install webpack-bundle-analyzer --save-dev
 npm install react-json-view
+npm install @mikezimm/npmfunctions@0.0.10
 ```
 
 After installing webpack analyzer, be sure to update the gulpfile.js so it actually builds the map.

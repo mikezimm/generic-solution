@@ -51,6 +51,10 @@ import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 import * as links from './HelpInfo/AllLinks';
 import  EarlyAccess from './HelpInfo/EarlyAccess';
 
+import { createIconButton } from './createButtons/IconButton';
+
+import { createGridDates } from '../../../services/sampleData';
+
 
 const emptyString = (value: string | Date) : string => { return "";};
 
@@ -498,9 +502,26 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               { contentsPage }
           </PivotItem>    
 
+          { this.props.urlVars['create'] ===  "true" ?
+                <PivotItem headerText="Create">
+                    { createIconButton('Cat', 'Create Items', createGridDates , 'CreateID', {
+                        root: {padding:'20px !important', height: 32},//color: 'green' works here
+                        icon: { 
+                          fontSize: 28,
+                          fontWeight: "normal",
+                          margin: '0px 2px',
+                          color: '#00457e', //This will set icon color
+                      },
+                      }) 
+                    }
+                </PivotItem>
+          : null }
+
           <PivotItem headerText="Help">
               { infoPage }
           </PivotItem>
+
+
 
         </Pivot></div>;
 

@@ -10,6 +10,8 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState } from "@pnp/sp/clientside-pages";
 
+import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/getFunctions';
+
 import { provisionThePage, IValidTemplate, provisionTestPage, provisionDrilldownPage } from './provisionWebPartPages';
 import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 import { defineDrilldownPage } from '../DrilldownPages/defineThisPage';
@@ -37,6 +39,8 @@ import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
+
+import {  getAllItems, ISitePagesList,  } from './GetPatternPages';
 
 export interface IProvisionPagesProps {
     // 0 - Context
@@ -89,6 +93,8 @@ export interface IProvisionPagesState {
     
     // 2 - Source and destination list information
     pages: IMakeThisPage[];
+
+    fetchList: ISitePagesList;
 
 }
 
@@ -153,6 +159,31 @@ public constructor(props:IProvisionPagesProps){
     let thePages = this.createRandomPages(this.props.webURL); //this.props.pages.length > 0 ? this.props.pages : 
 
     let TargetSite = this.props.webURL && this.props.webURL.length > 0 ? this.props.webURL : '';
+
+    //Copied from GridCharts for createFetchList
+    let allColumns : string[] = [];
+    let dropDownColumns: string[] = ['Features','Topic'];
+    let searchColumns : string[] = ['Title'];
+    let metaColumns : string[] = [];
+    let expandDates : string[] = [];
+    let selectedDropdowns: string[] = [];
+    //allColumns.push( this.props.dateColumn );
+    //allColumns.push( this.props.valueColumn );
+
+    searchColumns.map( c => { allColumns.push( c ) ; });
+    metaColumns.map( c => { allColumns.push( c ) ; });
+
+    let dropDownSort : string[] = dropDownColumns.map( c => { let c1 = c.replace('>','') ; if ( c1.indexOf('-') === 0 ) { return 'dec' ; } else if ( c1.indexOf('+') === 0 ) { return 'asc' ; } else { return ''; } });
+
+    dropDownColumns.map( c => { let c1 = c.replace('>','').replace('+','').replace('-','') ; searchColumns.push( c1 ) ; metaColumns.push( c1 ) ; allColumns.push( c1 ); selectedDropdowns.push('') ; });
+
+    let basicList : IZBasicList = createFetchList( this.props.webURL, null, 'SitePages', null, null, null, this.props.pageContext, allColumns, searchColumns, metaColumns, expandDates );
+    //Have to do this to add dropDownColumns and dropDownSort to IZBasicList
+    let tempList : any = basicList;
+    tempList.dropDownColumns = dropDownColumns;
+    tempList.dropDownSort = dropDownSort;
+    let fetchList : ISitePagesList = tempList;
+    
     //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
     saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
         '', '',//serverRelativeUrl, webTitle, PageURL,
@@ -172,6 +203,8 @@ public constructor(props:IProvisionPagesProps){
         webURL: this.props.webURL,
 
         pages: thePages,
+
+        fetchList: fetchList,
 
     };
 
@@ -278,7 +311,6 @@ public constructor(props:IProvisionPagesProps){
                 return {     disabled: isDisabled,  checked: true, primary: false,
                     label: theLabel, buttonOnClick: createButtonOnClicks[index], };
             });
-
 
             let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
 
