@@ -89,7 +89,7 @@ import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, 
  */
 
  export interface ISitePagesList extends IZBasicList {
-    dropdownColumns: string[];
+    dropDownColumns: string[];
     dropDownSort: string[];
   }
 
@@ -214,10 +214,10 @@ function buildMetaFromItem( theItem: IPatternItemInfo, sitePages: ISitePagesList
         
     });
 
-    sitePages.dropdownColumns.map( ( col , colIndex ) => {
+    sitePages.dropDownColumns.map( ( col , colIndex ) => {
 
         let actualColName = col.replace('>', '' ).replace('+', '' ).replace('-', '' );
-        let parentColName = colIndex > 0 && col.indexOf('>') > -1 ? sitePages.dropdownColumns[colIndex - 1] : null;
+        let parentColName = colIndex > 0 && col.indexOf('>') > -1 ? sitePages.dropDownColumns[colIndex - 1] : null;
         parentColName = parentColName !== null ? parentColName.replace('>', '' ).replace('+', '' ).replace('-', '' ) : null;
 
         let thisItemsChoices = theItem[ actualColName ];

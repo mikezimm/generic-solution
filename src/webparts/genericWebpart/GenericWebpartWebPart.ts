@@ -23,6 +23,8 @@ import { sp } from '@pnp/sp';
 
 import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
 
+require('../../services/GrayPropPaneAccordions.css');
+
 import { defineTheList } from './components/ListProvisioning/ListsTMT/defineThisList';
 
 import { IMyProgress } from './components/IReUsableInterfaces';
