@@ -27,7 +27,7 @@ require('../../services/GrayPropPaneAccordions.css');
 
 import { defineTheList } from './components/ListProvisioning/ListsTMT/defineThisList';
 
-import { IMyProgress } from './components/IReUsableInterfaces';
+import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 // 2020-09-08:  Add for dynamic data refiners.
 import { IDynamicDataCallables, IDynamicDataPropertyDefinition } from '@microsoft/sp-dynamic-data';

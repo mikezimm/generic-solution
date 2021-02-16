@@ -4,14 +4,14 @@ import { sp, Views, IViews } from "@pnp/sp/presets/all";
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
-    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from './columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '@mikezimm/npmfunctions/dist/columnTypes';
 
 import { MyFieldDef, changes, cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
-	cMText, cText, cNumb, cURL, cUser, cMUser, minInfinity, maxInfinity } from './columnTypes';
+	cMText, cText, cNumb, cURL, cUser, cMUser, minInfinity, maxInfinity } from '@mikezimm/npmfunctions/dist/columnTypes';
 
-import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, MyOperator, BeginsWith } from './viewTypes';
+import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, MyOperator, BeginsWith } from '@mikezimm/npmfunctions/dist/viewTypes';
 
-import { IMyProgress } from '../../webparts/genericWebpart/components/IReUsableInterfaces';
+import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IListInfo, IMyListInfo, IServiceLog, notify,  } from './listTypes';
 

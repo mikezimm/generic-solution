@@ -11,9 +11,9 @@ import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../
 
 import { IContentsViewInfo, IViewBucketInfo } from  './viewsComponent';
 
-import { changes, IMyFieldTypes } from '../../../../../services/listServices/columnTypes'; //Import view arrays for Time list
+import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/columnTypes'; //Import view arrays for Time list
 
-import { IMyView,  } from '../../../../../services/listServices/viewTypes'; //Import view arrays for Time list
+import { IMyView,  } from '@mikezimm/npmfunctions/dist/viewTypes'; //Import view arrays for Time list
 
 import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
 
@@ -37,7 +37,7 @@ import { pivCats } from './viewsComponent';
 export type IValidTemplate = 100 | 101;
 
 import { MyFieldDef, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
-    cMText, cText, cNumb, cURL, cUser, cMUser, myFieldDefs } from '../../../../../services/listServices/columnTypes';
+    cMText, cText, cNumb, cURL, cUser, cMUser, myFieldDefs } from '@mikezimm/npmfunctions/dist/columnTypes';
 
 
 let SystemViews = [ 'AccessPolicy', '_ModerationStatus', '_ModerationComments', 'SyncClientId', '_CommentCount', '_CommentFlags', 'ContentTypeId', 'ContentVersion',

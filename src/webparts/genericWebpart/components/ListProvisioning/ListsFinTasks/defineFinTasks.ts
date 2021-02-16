@@ -3,7 +3,7 @@ import { FinTasksFields, IFinTasksDefs } from './columnsFinTasks'; //Import colu
 
 import { FinTasksViews,  } from './viewsFinTasks';  //Import view arrays for Project list
 
-import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 

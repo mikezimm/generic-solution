@@ -191,6 +191,4 @@ export interface IContentsListInfo {
   ListExperienceOptions: number;
   MultipleDataList: boolean;
 
-
-
 }

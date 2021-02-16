@@ -3,7 +3,7 @@ import { ITheTime } from '@mikezimm/npmfunctions/dist/dateServices';
 import { PageContext } from '@microsoft/sp-page-context';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 
-import { IMyProgress } from './IReUsableInterfaces';
+import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 export interface IGenericWebpartProps {
  

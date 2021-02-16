@@ -21,7 +21,7 @@ import { defineDrilldownPage } from '../DrilldownPages/defineThisPage';
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionPage.module.scss';
-import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IMyProgress, } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -44,7 +44,7 @@ import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 import {  getAllItems, ISitePagesList,  } from './GetPatternPages';
 
-export interface IProvisionPagesProps {
+export interface IProvisionPatternsProps {
     // 0 - Context
     
     pageContext: PageContext;
@@ -59,6 +59,7 @@ export interface IProvisionPagesProps {
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning pages on other sites.
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
 
+    
     pickedWeb : IPickedWebBasic;
     webURL: string;
     showPane: boolean;
@@ -80,7 +81,7 @@ export interface IMyHistory {
     items: IMyProgress[];
 }
 
-export interface IProvisionPagesState {
+export interface IProvisionPatternsState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning pages on other sites.
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local pages
@@ -101,7 +102,7 @@ export interface IProvisionPagesState {
 
 }
 
-export default class ProvisionPages extends React.Component<IProvisionPagesProps, IProvisionPagesState> {
+export default class ProvisionPatterns extends React.Component<IProvisionPatternsProps, IProvisionPatternsState> {
 
 
 private clearHistory() {
@@ -156,7 +157,7 @@ private createRandomPages(webURL: string){
  *                                                                                                       
  */
 
-public constructor(props:IProvisionPagesProps){
+public constructor(props:IProvisionPatternsProps){
     super(props);
 
     let thePages = this.createRandomPages(this.props.webURL); //this.props.pages.length > 0 ? this.props.pages : 
@@ -190,7 +191,7 @@ public constructor(props:IProvisionPagesProps){
     //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
     saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
         '', '',//serverRelativeUrl, webTitle, PageURL,
-        'Provision Pages', TargetSite, null, //saveTitle, TargetSite, TargetList
+        'Provision Patterns', TargetSite, null, //saveTitle, TargetSite, TargetList
         'Pages', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
         '' ); //richText
 
@@ -255,7 +256,7 @@ public constructor(props:IProvisionPagesProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IProvisionPagesProps> {
+    public render(): React.ReactElement<IProvisionPatternsProps> {
 
 
 
@@ -278,53 +279,12 @@ public constructor(props:IProvisionPagesProps){
             let thisPage = null;
             let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
 
-            let createButtonOnClicks = [
-                this.CreatePage_0.bind(this),
-                this.CreatePage_1.bind(this),
-                this.CreatePage_2.bind(this),
-            ];
-
-            
-            const buttons: ISingleButtonProps[] = this.state.pages.map (( thePage, index ) => {
-                let theLabel = null;
-                let isDisabled = !thePage.webExists;
-                if ( thePage.webExists ) {
-                    if ( this.isPageReadOnly(thePage) === false ) {
-
-                        if ( thePage.pageExists === true ) {
-                            theLabel = "UPDATE " + thePage.title + " Page";
-
-                        } else {
-                            theLabel = "Create " + thePage.title + " Page";
-                        }
-
-                    } else {
-                        if ( thePage.pageExists === true ) {
-                            theLabel = "Verify " + thePage.title + " Page";
-
-                        } else {
-                            theLabel = "Can't verify " + thePage.title + " Page";
-                            isDisabled = true;
-                        }
-                    }
-                } else {
-                    theLabel = thePage.title + ' web does not exist!';
-                }
-                
-                return {     disabled: isDisabled,  checked: true, primary: false,
-                    label: theLabel, buttonOnClick: createButtonOnClicks[index], };
-            });
-
-            let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
-
-            let pageLinks = this.state.pages.map( mapThisPage => (
-                mapThisPage.pageExists ? links.createLink( mapThisPage.pageURL, '_blank',  'Go to: ' + mapThisPage.title ) : null ));
+            let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={ [] } horizontal={true}/></div>;
 
             const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
 
             let provisionButtonRow = <Stack horizontal={true} wrap={true} horizontalAlign={"start"} verticalAlign= {"center"} tokens={stackProvisionTokens}>{/* Stack for Buttons and Fields */}
                     { provisionButtons }
-                    { pageLinks }
                     {  }
                 </Stack>;
 
@@ -355,7 +315,6 @@ public constructor(props:IProvisionPagesProps){
                 <h3>Next Steps</h3>
                 <ul>
                     <li>Build typed objects for specific webparts and page layouts</li>
-                    <li>Set webpart properties for common ootb components</li>
                 </ul>
             </div>;
 
@@ -416,20 +375,6 @@ public constructor(props:IProvisionPagesProps){
    *                                                                                                         
    */
 
-  private CreatePage_0(oldVal: any): any {
-    let mapThisPage: IMakeThisPage = this.state.pages[0];
-    this.CreateThisPage(mapThisPage, 0 );
-  }
-
-  private CreatePage_1(oldVal: any): any {
-    let mapThisPage: IMakeThisPage = this.state.pages[1];
-    this.CreateThisPage(mapThisPage, 1 );
-  }
-  
-  private CreatePage_2(oldVal: any): any {
-    let mapThisPage: IMakeThisPage = this.state.pages[2];
-    this.CreateThisPage(mapThisPage, 2 );
-  }
 
   private CreateThisPage( mapThisPage: IMakeThisPage, pageNo: number ): any {
 
@@ -473,6 +418,7 @@ public constructor(props:IProvisionPagesProps){
     return readOnly;
 
   }
+
   private markComplete() {
 
     this.setState({
@@ -551,6 +497,8 @@ public constructor(props:IProvisionPagesProps){
  */
 
     private _updateStateOnPropsChange(doThis: 'props' | 'state' ): void {
+
+
         console.log('_updateStateOnPropsChange:', doThis, this.props );
         let testPages : IMakeThisPage[] = [];
         if ( doThis === 'props' ) {

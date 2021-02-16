@@ -12,7 +12,7 @@ import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/lis
 
 import styles from '../contents.module.scss';
 
-import { IMyProgress, IUser, IPickedWebBasic } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser, IPickedWebBasic } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 

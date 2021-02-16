@@ -15,7 +15,7 @@ import styles from '../contents.module.scss';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IPickedWebBasic } from '../../IReUsableInterfaces';
+import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IPickedWebBasic } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 //import { analyticsList } from 'InspectThisSiteWebPartStrings';
 
@@ -195,7 +195,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
     public constructor(props:IInspectThisSiteProps){
     super(props);
 
-    let parentWeb = cleanURL(this.props.pickedWeb.Url);
+    let parentWeb = cleanURL(this.props.pickedWeb.url);
 
     let pickedWeb = null; //this.getThisWeb( parentWeb );
 
@@ -225,7 +225,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
 
 
     public componentDidMount() {
-        let pickedWeb = this.getThisWeb( this.props.pickedWeb.Url );
+        let pickedWeb = this.getThisWeb( this.props.pickedWeb.url );
     }
 
 
@@ -243,7 +243,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
 
     public componentDidUpdate(prevProps){
 
-        let rebuildPart = prevProps.pickedWeb.url === this.props.pickedWeb.Url ? false : true;
+        let rebuildPart = prevProps.pickedWeb.url === this.props.pickedWeb.url ? false : true;
         if (rebuildPart === true) {
         this._updateStateOnPropsChange({});
         }

@@ -27,7 +27,7 @@ import {  } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
-import { IMyProgress, IUser, IPickedWebBasic } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser, IPickedWebBasic } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -41,7 +41,7 @@ import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
-import { IMyPivots, IPivot,  } from '../../IReUsableInterfaces';
+import { IMyPivots, IPivot,  } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogWeb from './websListView';
@@ -321,7 +321,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinWebs= { this.state.showDesc } 
-                        webURL = { this.props.pickedWeb.Url } descending={false} titles={null} 
+                        webURL = { this.props.pickedWeb.url } descending={false} titles={null} 
                         ></MyLogWeb>;
                 })
 
@@ -347,7 +347,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
               </div>
             </div>;
 
-            let disclaimers = <h3>Subsites for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
+            let disclaimers = <h3>Subsites for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.url, '_blank', this.props.pickedWeb.url )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -428,7 +428,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
     private getWebDefs() {
         let listGuid = '';
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
-        let result : any = allAvailableWebs( this.props.pickedWeb.Url, this.createSearchBuckets(), this.addTheseWebsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableWebs( this.props.pickedWeb.url, this.createSearchBuckets(), this.addTheseWebsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -892,8 +892,8 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
 
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Webs */}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
 
 
                 </Stack>

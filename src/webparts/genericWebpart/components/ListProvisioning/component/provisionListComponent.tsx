@@ -14,7 +14,7 @@ import { provisionTheList, IValidTemplate } from './provisionWebPartList';
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionList.module.scss';
-import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 

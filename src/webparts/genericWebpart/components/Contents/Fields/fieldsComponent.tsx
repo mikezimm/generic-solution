@@ -27,7 +27,7 @@ import {  } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
-import { IPickedList, IMyProgress, IUser, IPickedWebBasic } from '../../IReUsableInterfaces';
+import { IPickedList, IMyProgress, IUser, IPickedWebBasic } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -41,7 +41,7 @@ import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
-import { IMyPivots, IPivot,  } from '../../IReUsableInterfaces';
+import { IMyPivots, IPivot,  } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogField from './fieldsListView';
@@ -347,7 +347,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinFields= { this.state.showDesc } 
-                        webURL = { this.props.pickedWeb.Url } descending={false} titles={null}   
+                        webURL = { this.props.pickedWeb.url } descending={false} titles={null}   
                         listGuid = { this.props.pickedList.guid }
                         ></MyLogField>;
                 })
@@ -374,7 +374,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
               </div>
             </div>;
 
-            let disclaimers = <h3>Columns for { this.props.pickedList.title} located here: { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
+            let disclaimers = <h3>Columns for { this.props.pickedList.title} located here: { createLink( this.props.pickedWeb.url, '_blank', this.props.pickedWeb.url )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -452,7 +452,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     private getFieldDefs() {
         let listGuid = '';
         if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
-        let result : any = allAvailableFields( this.props.pickedWeb.Url, listGuid, this.createSearchBuckets(), this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableFields( this.props.pickedWeb.url, listGuid, this.createSearchBuckets(), this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -910,15 +910,15 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Fields */}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/user.aspx?obj={" + listGUID + listLibString + listGUID + "}" ,'_blank', 'Permissions' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/LstSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Versioning' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/AdvSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Advanced' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ManageCheckedOutFiles.aspx?List=(" + listGUID + ")" ,'_blank', 'Orphan files' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/IndexedColumns.aspx?List=(" + listGUID + ")" ,'_blank', 'Index' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/AddFieldFromTemplate.aspx?List=(" + listGUID + ")" ,'_blank', 'Add Site Col' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/fldNew.aspx?List=(" + listGUID + ")" ,'_blank', '+ New Col' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/user.aspx?obj={" + listGUID + listLibString + listGUID + "}" ,'_blank', 'Permissions' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/LstSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Versioning' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/AdvSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Advanced' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ManageCheckedOutFiles.aspx?List=(" + listGUID + ")" ,'_blank', 'Orphan files' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/IndexedColumns.aspx?List=(" + listGUID + ")" ,'_blank', 'Index' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/AddFieldFromTemplate.aspx?List=(" + listGUID + ")" ,'_blank', 'Add Site Col' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/fldNew.aspx?List=(" + listGUID + ")" ,'_blank', '+ New Col' )}
 
                 </Stack>
         </div>;

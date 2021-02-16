@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import {IGenericWebpartState, } from '../IGenericWebpartState';
 
-import { ILink, IUser, } from '../IReUsableInterfaces';
+import { ILink, IUser, } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IGenericWebpartProps } from '../IGenericWebpartProps';
 

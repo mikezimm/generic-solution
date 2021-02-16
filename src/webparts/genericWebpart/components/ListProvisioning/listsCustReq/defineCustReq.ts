@@ -3,7 +3,7 @@ import { CustReqFields, ICustReqDefs } from './columnsCustReq'; //Import column 
 
 import { CustReqViews,  } from './viewsCustReq';  //Import view arrays for Project list
 
-import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 

@@ -7,7 +7,7 @@ import { timeViewsFull } from './viewsChildList'; //Import view arrays for Time 
 
 import { TMTDefaultProjectItems, TMTTestTimeItems, } from './ItemsWebPart'; // Import items to create in the list
 
-import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 

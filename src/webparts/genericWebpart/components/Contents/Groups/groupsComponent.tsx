@@ -30,7 +30,7 @@ import {  } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
-import { IPickedWebBasic, IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IPickedWebBasic, IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -44,7 +44,7 @@ import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
-import { IMyPivots, IPivot,  } from '../../IReUsableInterfaces';
+import { IMyPivots, IPivot,  } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogGroup from './groupsListView';
@@ -327,7 +327,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
                         showUsers = { this.state.showUsers } blueBar={ this.state.blueBar }
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
-                        webURL = { this.props.pickedWeb.Url } descending={false} titles={null}
+                        webURL = { this.props.pickedWeb.url } descending={false} titles={null}
                         ></MyLogGroup>;
                 })
 
@@ -353,7 +353,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
               </div>
             </div>;
 
-            let disclaimers = <h3>Groups for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
+            let disclaimers = <h3>Groups for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.url, '_blank', this.props.pickedWeb.url )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -449,7 +449,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
         let listGuid = '';
         if ( showUsers === null ) { showUsers = this.state.showUsers; }
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
-        let result : any = allAvailableGroups( this.props.pickedWeb.Url, showUsers, this.createSearchBuckets(), this.addTheseGroupsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableGroups( this.props.pickedWeb.url, showUsers, this.createSearchBuckets(), this.addTheseGroupsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -828,8 +828,8 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
 
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Webs */}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
 
                 </Stack>
         </div>;

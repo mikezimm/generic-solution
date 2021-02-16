@@ -11,10 +11,10 @@ import { IItemAddResult } from "@pnp/sp/items";
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField ,
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField ,
-    IMultiChoiceField , IDepLookupField , ILocationField } from './columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField } from '@mikezimm/npmfunctions/dist/columnTypes';
 
 import { MyFieldDef, changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
-    cMText, cText, cNumb, cURL, cUser, cMUser } from './columnTypes';
+    cMText, cText, cNumb, cURL, cUser, cMUser } from '@mikezimm/npmfunctions/dist/columnTypes';
 
 import { doesObjectExistInArray, compareArrays, ICompareResult, stringifyKeyValue } from '@mikezimm/npmfunctions/dist/arrayServices';
 
