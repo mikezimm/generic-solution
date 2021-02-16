@@ -146,23 +146,8 @@ private createRandomPages(webURL: string){
     return pages;
 
 }
-/***
- *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
- *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
- *         8P      88    88 88V8o 88 `8bo.      88    88oobY' 88    88 8P         88    88    88 88oobY' 
- *         8b      88    88 88 V8o88   `Y8b.    88    88`8b   88    88 8b         88    88    88 88`8b   
- *         Y8b  d8 `8b  d8' 88  V888 db   8D    88    88 `88. 88b  d88 Y8b  d8    88    `8b  d8' 88 `88. 
- *          `Y88P'  `Y88P'  VP   V8P `8888Y'    YP    88   YD ~Y8888P'  `Y88P'    YP     `Y88P'  88   YD 
- *                                                                                                       
- *                                                                                                       
- */
 
-public constructor(props:IProvisionPatternsProps){
-    super(props);
-
-    let thePages = this.createRandomPages(this.props.webURL); //this.props.pages.length > 0 ? this.props.pages : 
-
-    let TargetSite = this.props.webURL && this.props.webURL.length > 0 ? this.props.webURL : '';
+private buildFetchList() {
 
     //Copied from GridCharts for createFetchList
     let allColumns : string[] = [];
@@ -181,12 +166,36 @@ public constructor(props:IProvisionPatternsProps){
 
     dropDownColumns.map( c => { let c1 = c.replace('>','').replace('+','').replace('-','') ; searchColumns.push( c1 ) ; metaColumns.push( c1 ) ; allColumns.push( c1 ); selectedDropdowns.push('') ; });
 
-    let basicList : IZBasicList = createFetchList( this.props.webURL, null, 'SitePages', null, null, null, this.props.pageContext, allColumns, searchColumns, metaColumns, expandDates );
+    let performance : IPerformanceSettings = null;
+    let isLibrary = true ;
+    let basicList : IZBasicList = createFetchList( this.props.webURL, null, 'Site Pages', 'SitePages', isLibrary, performance, this.props.pageContext, allColumns, searchColumns, metaColumns, expandDates );
     //Have to do this to add dropDownColumns and dropDownSort to IZBasicList
     let tempList : any = basicList;
     tempList.dropDownColumns = dropDownColumns;
     tempList.dropDownSort = dropDownSort;
     let fetchList : ISitePagesList = tempList;
+
+    return fetchList;
+}
+/***
+ *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
+ *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
+ *         8P      88    88 88V8o 88 `8bo.      88    88oobY' 88    88 8P         88    88    88 88oobY' 
+ *         8b      88    88 88 V8o88   `Y8b.    88    88`8b   88    88 8b         88    88    88 88`8b   
+ *         Y8b  d8 `8b  d8' 88  V888 db   8D    88    88 `88. 88b  d88 Y8b  d8    88    `8b  d8' 88 `88. 
+ *          `Y88P'  `Y88P'  VP   V8P `8888Y'    YP    88   YD ~Y8888P'  `Y88P'    YP     `Y88P'  88   YD 
+ *                                                                                                       
+ *                                                                                                       
+ */
+
+public constructor(props:IProvisionPatternsProps){
+    super(props);
+
+    let thePages = this.createRandomPages(this.props.webURL); //this.props.pages.length > 0 ? this.props.pages : 
+
+    let TargetSite = this.props.webURL && this.props.webURL.length > 0 ? this.props.webURL : '';
+
+    let fetchList : ISitePagesList = this.buildFetchList();
     
     //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
     saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
@@ -221,9 +230,11 @@ public constructor(props:IProvisionPatternsProps){
   }
 
   public componentDidMount() {
-    this._updateStateOnPropsChange('state');
-  }
 
+    console.log('fetchList componentDidMount:', this.state.fetchList );
+    getAllItems( this.state.fetchList, null, null, null );
+    
+  }
 
   /***
  *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
@@ -238,9 +249,14 @@ public constructor(props:IProvisionPatternsProps){
 
   public componentDidUpdate(prevProps){
 
-    if ( prevProps.pages != this.props.pages ) {
+    if ( prevProps.webURL != this.props.webURL ) {
+        
+        let fetchList : ISitePagesList = this.buildFetchList();
 
-        this._updateStateOnPropsChange('props');
+        console.log('fetchList componentDidMount:', fetchList );
+        this.setState({ fetchList: fetchList,   });
+        getAllItems( fetchList, null, null, null );
+
     }
 
   }

@@ -172,6 +172,7 @@ export async function getAllItems( sitePages: ISitePagesList, addTheseItemsToSta
         i.searchString = buildSearchStringFromItem( i, sitePages );
     });
 
+    console.log('All Patternpages: ', allItems );
     //private addTheseItemsToState( sitePages: ISitePagesList, allItems , errMessage : string ) {
     allItems = addTheseItemsToState( sitePages, allItems, errMessage );
 
