@@ -12,6 +12,7 @@ define([], function() {
 
     "analyticsList": "EasyContentsLog",
     "analyticsWeb": "/sites/Templates/Analytics/",
+    "patternsWeb": "/sites/Patterns/",
     "minClickWeb": "",
     
     // 2 - Source and destination list information

@@ -458,7 +458,6 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               allLoaded={false}
               webURL = { webUrl }
               currentUser = {this.state.currentUser }
-              pages = { this.state.allPages }
 
             ></ProvisionPatterns>
         </div>;
@@ -515,7 +514,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         
       :<div className= { defaultPageClass } style={{ paddingLeft: 10, paddingRight: 20 }}>
         <Pivot aria-label="Provision Options"
-          defaultSelectedIndex ={ 3 }>
+          defaultSelectedIndex ={ 4 }>
 
           <PivotItem headerText="Fields">
                 { provisionFieldPage }
