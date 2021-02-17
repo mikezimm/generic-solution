@@ -17,7 +17,11 @@ import { createLink } from '../../HelpInfo/AllLinks';
 
 import { createIconButton } from '../../createButtons/IconButton';
 
+import { IPageProvisionPivots } from './provisionPatternsComponent';
+
 export interface IMyPatternsListProps {
+
+    mode: IPageProvisionPivots;
     title: string;
     titles: [];
     items: IPatternItemInfo[];
@@ -163,10 +167,23 @@ export default class MyPatternsList extends React.Component<IMyPatternsListProps
 
             let allIndex = h.allIndex.toString();
             let patternStyles = JSON.parse(JSON.stringify(defButtonStyles));
-            patternStyles.root.color = this.props.quedIds.indexOf(allIndex) > -1 ? 'red !important' : 'black';
             patternStyles.root.fontWeight = "600 !important";
 
-            let queIcon = createIconButton('CloudDownload', 'Que Page', this.props.quePage, allIndex , patternStyles );
+            let buttonIcon = 'Info';
+            let buttonTitle = 'TBD';
+
+            if ( this.props.mode === 'Select') {
+              patternStyles.root.color = this.props.quedIds.indexOf(allIndex) > -1 ? 'green !important' : 'black';
+              buttonIcon = 'CloudDownload';
+              buttonTitle = 'Que Page';
+
+            } else if ( this.props.mode === 'Que'){
+              patternStyles.root.color = 'red !important';
+              buttonIcon = 'Cancel';
+              buttonTitle = 'Cancel Page';
+            }
+
+            let queIcon = createIconButton( buttonIcon, buttonTitle, this.props.quePage, allIndex , patternStyles );
 
             let titleLink = createLink( h["File"]["ServerRelativeUrl"], '_blank', h.Title);
 
@@ -175,7 +192,7 @@ export default class MyPatternsList extends React.Component<IMyPatternsListProps
               <td> { topic } </td>
               <td className={ styles.nowWrapping }> {  feature  }</td>
               <td> { titleLink } </td>
-              <td>{detailsCard}</td>
+              <td> {detailsCard}</td>
               <td className={ styleDesc }> {  description  }</td>
               <td className={ styleIDs }> {  h.partId  }</td>
               <td className={ styleProps }> { partProps }</td>

@@ -28,6 +28,8 @@ import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, 
 
 import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
+import { spliceCopyArray } from '@mikezimm/npmfunctions/dist/arrayServices';
+
 import { provisionThePage, IValidTemplate, provisionTestPage, provisionDrilldownPage } from './provisionWebPartPages';
 import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
 import { defineDrilldownPage } from '../DrilldownPages/defineThisPage';
@@ -383,13 +385,15 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
             if ( this.state.mode === 'Select') {
 
                 let patternList = <MyPatternsList 
-                    quePage= { ( q : any ) => this._quePage( q, 'Testing') }
+                    mode = { this.state.mode }
+                    quePage= { ( q : any ) => this._quePage( q, 'Select') }
                     quedIds= { this.state.quedIds }
                     title={ 'Available Patterns'}           items={ this.state.searchedItems }
                     descending={false}          titles={null}            ></MyPatternsList>;
 
                 let quedList = <MyPatternsList 
-                    quePage= { ( q : any ) => this._quePage( q, 'Testing2') }
+                    mode = { 'Que' }
+                    quePage= { ( q : any ) => this._quePage( q, 'Que') }
                     quedIds= { this.state.quedIds }
                     title={ 'Qued Patterns'}           items={ this.state.quedPages }
                     descending={false}          titles={null}            ></MyPatternsList>;
@@ -578,16 +582,61 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
 
   }
 
-    private _quePage( q, test ) {
+    private removeItemsFromObjectArray( array: any[], key: string, keyValue: any ) {
+        let newArray: any[] = [];
+        array.map( item => {
+            if ( !item[key] || item[key] !== keyValue ) { 
+                //If not a matching key then just push all items or if the keyValue <> the remove input
+                newArray.push( item );
+            }
+        });
+        return newArray;
+    }
+
+    private removeItemsFromFlatArray( array: any[], value: any, pushNull: boolean, pushUndefined: boolean ) {
+        let newArray: any[] = [];
+        array.map( item => {
+            if ( item !== value ) { 
+                //If not a matching key then just push all items or if the keyValue <> the remove input
+                newArray.push( item );
+            } else if ( pushNull === true && item === null ) {
+                newArray.push( item );
+            } else if ( pushUndefined === true && item === undefined ) {
+                newArray.push( item );
+            }
+        });
+        return newArray;
+    }
+
+    private _quePage( q, mode : IPageProvisionPivots ) {
         let Id = q.currentTarget.parentElement.id;
 
-        console.log('_quePage', Id, q, test );
+//        console.log('_quePage', Id, q, mode );
 
         let quedIds: string[] = this.state.quedIds;
-        quedIds.push(Id);
-
         let quedPages = this.state.quedPages;
-        quedPages.push( this.state.allItems[Id]);
+
+        let lastStateChange = '';
+        let stateChangeLog: string[] = this.state.stateChangeLog;
+
+        if ( mode === 'Select') {
+            if ( quedIds.indexOf(Id) > - 1 ){
+                alert('You already added this page (green cloud icon)... you can only add it once :)');
+
+            } else {
+                quedIds.push(Id);
+                quedPages.push( this.state.allItems[Id]);
+                lastStateChange = 'Selected page: ' + this.state.allItems[Id].Title;
+            }
+
+        } else if ( mode === 'Que' ) {
+            quedPages = this.removeItemsFromObjectArray ( quedPages, 'Id', this.state.allItems[Id].Id );
+            quedIds = this.removeItemsFromFlatArray (quedIds, Id , false, false );
+            lastStateChange = 'Removed page: ' + this.state.allItems[Id].Title;
+
+        }
+
+        stateChangeLog.push( lastStateChange );
 
         console.log('quedIds', quedIds, quedPages );
 
