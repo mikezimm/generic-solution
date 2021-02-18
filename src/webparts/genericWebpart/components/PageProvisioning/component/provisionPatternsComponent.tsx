@@ -107,7 +107,7 @@ export interface IFetchListInfo {
     selectedDropdowns: string[]; //array of selected choices for dropdowns
 }
 
-export type IPageProvisionPivots =  'Available' | 'Selected' | 'Copy';
+export type IPageProvisionPivots =  'Current' | 'Available' | 'Selected' | 'Copy';
 
 export interface IProvisionPatternsState {
 
@@ -126,6 +126,7 @@ export interface IProvisionPatternsState {
     mode: IPageProvisionPivots;
     
     // 2 - Source and destination list information
+    currentItems: IPatternItemInfo[];
     allItems: IPatternItemInfo[];
     searchedItems: IPatternItemInfo[];
     searchCount: number;
@@ -137,6 +138,7 @@ export interface IProvisionPatternsState {
     quedSolutions: string[];
 
     fetchList: ISitePagesList;
+    currentList: ISitePagesList;
 
     stateError: any[];
 
@@ -151,6 +153,7 @@ export interface IProvisionPatternsState {
 
 
 export const pivCats = {
+    current: {title: 'Current', desc: '', order: 1, count: null, icon: null },
     select: {title: 'Available', desc: '', order: 1, count: null, icon: null },
     que: {title: 'Selected', desc: '', order: 100, count: null, icon: null },
     copy: {title: 'Copy', desc: '', order: 1, count: null, icon: null },
@@ -195,11 +198,12 @@ public createPivotObject(setPivot, display){
 
 private getFieldPivots() {
 
+    let current = this.buildFilterPivot( pivCats.current );
     let select = this.buildFilterPivot( pivCats.select );
     let que = this.buildFilterPivot(pivCats.que);
     let copy = this.buildFilterPivot(pivCats.copy);
 
-    let thesePivots = [select, que, copy];
+    let thesePivots = [current, select, que, copy];
 
     return thesePivots;
 }
@@ -250,7 +254,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
     }
 
-    private buildFetchList() {
+    private buildFetchList( location: 'current' | 'patterns') {
 
         //Copied from GridCharts for createFetchList
         let allColumns : string[] = ["File/ServerRelativeUrl"];
@@ -276,7 +280,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             restFilter: '',
         };
         let isLibrary = true ;
-        let basicList : IZBasicList = createFetchList( this.props.tenant + strings.patternsWeb, null, 'Site Pages', 'SitePages', isLibrary, performance, this.props.pageContext, allColumns, searchColumns, metaColumns, expandDates );
+        let basicList : IZBasicList = createFetchList( this.props.tenant + ( location === 'patterns' ? strings.patternsWeb : this.props.webURL ) , null, 'Site Pages', 'SitePages', isLibrary, performance, this.props.pageContext, allColumns, searchColumns, metaColumns, expandDates );
         //Have to do this to add dropDownColumns and dropDownSort to IZBasicList
         let tempList : any = basicList;
         tempList.dropDownColumns = this.dropDownColumns;
@@ -301,8 +305,9 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
         let TargetSite = this.props.webURL && this.props.webURL.length > 0 ? this.props.webURL : '';
 
-        let fetchInfo : IFetchListInfo = this.buildFetchList();
-        
+        let fetchInfo : IFetchListInfo = this.buildFetchList( 'patterns' );
+        let currentInfo : IFetchListInfo = this.buildFetchList( 'current' );
+
         //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
         saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
             '', '',//serverRelativeUrl, webTitle, PageURL,
@@ -322,6 +327,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             webURL: this.props.webURL,
 
             allItems: [],
+            currentItems: [],
             searchedItems: [],
             searchCount: 0,
             errMessage: '',
@@ -333,6 +339,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
             mode: 'Available',
             fetchList: fetchInfo.fetchList,
+            currentList: currentInfo.fetchList,
 
             stateError: [],
 
@@ -380,7 +387,8 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
     if ( prevProps.webURL != this.props.webURL ) {
 
-        let fetchInfo : IFetchListInfo = this.buildFetchList();
+        let fetchInfo : IFetchListInfo = this.buildFetchList('patterns');
+        let currentInfo : IFetchListInfo = this.buildFetchList('current');
 
         console.log('fetchList componentDidMount:', fetchInfo );
         this.setState({ fetchList: fetchInfo.fetchList, selectedDropdowns: fetchInfo.selectedDropdowns, });
@@ -483,7 +491,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
                 </div>;
             }
 
-            let disclaimers = <div style={{ paddingTop: '30px', paddingBottom: '20px', display: 'block '}}>
+            let disclaimers = <div style={{ paddingTop: '30px', paddingBottom: '20px', paddingLeft: '10px', display: 'block '}}>
 
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"}  verticalAlign={"center"} tokens={ stackHeadingTokens }>{/* Stack for Buttons and Fields */}
                     <div style={{whiteSpace: 'nowrap'}}><span style={{ fontSize: 'larger', fontWeight: 600}}>
