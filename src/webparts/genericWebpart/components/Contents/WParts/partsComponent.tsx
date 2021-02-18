@@ -8,7 +8,7 @@ import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import { IValidTemplate, allAvailableWebParts } from './partsFunction';
-import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 
 import styles from '../contents.module.scss';
 

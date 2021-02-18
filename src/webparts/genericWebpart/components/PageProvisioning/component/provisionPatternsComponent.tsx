@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons, IPage } from 'office-ui-fabric-react';
+import { CompoundButton, Stack, StackItem, IStackTokens, elementContains, initializeIcons, IPage } from 'office-ui-fabric-react';
 
 import {
     MessageBar,
@@ -33,7 +33,7 @@ import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcon
 import { spliceCopyArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 
 import { provisionThePage, IValidTemplate, provisionTestPage, provisionDrilldownPage } from './provisionWebPartPages';
-import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 import { defineDrilldownPage } from '../DrilldownPages/defineThisPage';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
@@ -54,7 +54,7 @@ import * as strings from 'GenericWebpartWebPartStrings';
 
 import * as links from '../../HelpInfo/AllLinks';
 
-import { IMakeThisPage } from './provisionWebPartPages';
+import { copyPatterns } from './provisionPatternsFunctions';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
@@ -108,6 +108,7 @@ export interface IFetchListInfo {
 }
 
 export type IPageProvisionPivots =  'Current' | 'Available' | 'Selected' | 'Copy';
+export type ILocation = 'current' | 'patterns';
 
 export interface IProvisionPatternsState {
 
@@ -115,6 +116,8 @@ export interface IProvisionPatternsState {
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local pages
 
     allLoaded: boolean;
+    patternsLoaded: boolean;
+    currentLoaded: boolean;
 
     webURL: string;
 
@@ -128,6 +131,7 @@ export interface IProvisionPatternsState {
     // 2 - Source and destination list information
     currentItems: IPatternItemInfo[];
     allItems: IPatternItemInfo[];
+
     searchedItems: IPatternItemInfo[];
     searchCount: number;
     errMessage: string;
@@ -233,31 +237,10 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
     }
 
-    private createRandom(str: string, webURL: string) {
-
-        let rightNow = new Date();
-        let todayTime = rightNow.getTime() ;
-        let title =  str + ' - ' + getRandomInt(1,1000);
-
-        let makeThisPage:  IMakeThisPage = {
-            title: title,
-            name: title,
-            webURL: webURL,
-            pageLayout: 'Article',
-            onCurrentSite: true,
-            webExists: true,
-            pageExists: false,
-            pageExistedB4: false,
-        };
-
-        return makeThisPage;
-
-    }
-
-    private buildFetchList( location: 'current' | 'patterns') {
+    private buildFetchList( location: ILocation ) {
 
         //Copied from GridCharts for createFetchList
-        let allColumns : string[] = ["File/ServerRelativeUrl"];
+        let allColumns : string[] = ["File/ServerRelativeUrl","File/Name"];  // File expanders here:  https://github.com/SharePoint/PnP-JS-Core/issues/778#issuecomment-380575103
 
         let searchColumns : string[] = ['Title'];
         let metaColumns : string[] = [];
@@ -269,9 +252,10 @@ private buildFilterPivot(pivCat: IMyPivCat) {
         searchColumns.map( c => { allColumns.push( c ) ; });
         metaColumns.map( c => { allColumns.push( c ) ; });
 
-        let dropDownSort : string[] = this.dropDownColumns.map( c => { let c1 = c.replace('>','') ; if ( c1.indexOf('-') === 0 ) { return 'dec' ; } else if ( c1.indexOf('+') === 0 ) { return 'asc' ; } else { return ''; } });
+        let dropDownColumns = location === 'patterns' ? this.dropDownColumns : [];
+        let dropDownSort : string[] = dropDownColumns.map( c => { let c1 = c.replace('>','') ; if ( c1.indexOf('-') === 0 ) { return 'dec' ; } else if ( c1.indexOf('+') === 0 ) { return 'asc' ; } else { return ''; } });
 
-        this.dropDownColumns.map( c => { let c1 = c.replace('>','').replace('+','').replace('-','') ; searchColumns.push( c1 ) ; metaColumns.push( c1 ) ; allColumns.push( c1 ); selectedDropdowns.push('') ; });
+        dropDownColumns.map( c => { let c1 = c.replace('>','').replace('+','').replace('-','') ; searchColumns.push( c1 ) ; metaColumns.push( c1 ) ; allColumns.push( c1 ); selectedDropdowns.push('') ; });
 
         let performance : IPerformanceSettings = {
             fetchCount: 1000,
@@ -280,12 +264,14 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             restFilter: '',
         };
         let isLibrary = true ;
-        let basicList : IZBasicList = createFetchList( this.props.tenant + ( location === 'patterns' ? strings.patternsWeb : this.props.webURL ) , null, 'Site Pages', 'SitePages', isLibrary, performance, this.props.pageContext, allColumns, searchColumns, metaColumns, expandDates );
+        let libraryWeb = location === 'patterns' ? this.props.tenant + strings.patternsWeb : this.props.webURL;
+        let basicList : IZBasicList = createFetchList( libraryWeb , null, 'Site Pages', 'SitePages', isLibrary, performance, this.props.pageContext, allColumns, searchColumns, metaColumns, expandDates );
         //Have to do this to add dropDownColumns and dropDownSort to IZBasicList
         let tempList : any = basicList;
-        tempList.dropDownColumns = this.dropDownColumns;
+        tempList.dropDownColumns = dropDownColumns;
         tempList.dropDownSort = dropDownSort;
         let fetchList : ISitePagesList = tempList;
+        fetchList.location = location;
 
         return { fetchList: fetchList, selectedDropdowns: selectedDropdowns, };
     }
@@ -321,6 +307,9 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             alwaysReadOnly: this.props.alwaysReadOnly === true ? true : false,
             currentPage: '',
             allLoaded: this.props.allLoaded,
+            patternsLoaded: false,
+            currentLoaded: false,
+
             progress: null,
             history: this.clearHistory(),
 
@@ -369,7 +358,10 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
         console.log('fetchList componentDidMount:', this.state.fetchList );
         getAllItems( this.state.fetchList, this.addTheseItemsToState, this.setProgress, this.markComplete );
-        
+  
+        console.log('fetchList componentDidMount:', this.state.currentList );
+        getAllItems( this.state.currentList, this.addTheseItemsToState, this.setProgress, this.markComplete );
+
     }
 
   /***
@@ -391,8 +383,10 @@ private buildFilterPivot(pivCat: IMyPivCat) {
         let currentInfo : IFetchListInfo = this.buildFetchList('current');
 
         console.log('fetchList componentDidMount:', fetchInfo );
-        this.setState({ fetchList: fetchInfo.fetchList, selectedDropdowns: fetchInfo.selectedDropdowns, });
+        this.setState({ fetchList: fetchInfo.fetchList, selectedDropdowns: fetchInfo.selectedDropdowns, currentList: currentInfo.fetchList });
+
         getAllItems( fetchInfo.fetchList, this.addTheseItemsToState, this.setProgress, this.markComplete );
+        getAllItems( currentInfo.fetchList, this.addTheseItemsToState, this.setProgress, this.markComplete );
 
     }
 
@@ -444,21 +438,25 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
             let mode : IPageProvisionPivots = this.state.mode;
 
-            if ( mode === 'Available' || mode === 'Selected' ) {
+            if ( mode === 'Available' || mode === 'Selected' || mode === 'Current') {
 
-                let noItemsMessage : any = mode === 'Available' ? 'There were no valid Patterns found :(' : 'You have not selected any patterns to copy yet :(';
+                let noItemsMessage : any = null;
+                let blueBar = '';
+                let items : IPatternItemInfo[] = [];
                 if ( this.state.allLoaded !== true ) {
-                    noItemsMessage = <Spinner size={SpinnerSize.large} label={ 'Loading Patterns' } labelPosition='left'></Spinner>;
-                }
-
+                    noItemsMessage = <Spinner size={SpinnerSize.large} label={ 'Loading Patterns' } labelPosition='left'></Spinner>; }
+                if ( mode === 'Available' ) { noItemsMessage = 'There were no valid Patterns found :(' ; blueBar = 'Available Patterns' ; items = this.state.searchedItems ; }
+                else if ( mode === 'Selected' ) { noItemsMessage = 'You have not selected any patterns to copy yet :(' ; blueBar = 'Selected Patterns' ; items = this.state.quedPages ; }
+                else if ( mode === 'Current' ) { noItemsMessage = 'There are no pages in your current site.' ; blueBar = 'Current Pages' ; items = this.state.currentItems ; }
+                
                 thisPage = <div><MyPatternsList 
-                        blueBar = { mode === 'Available' ? 'Available Patterns' : 'Selected Patterns' }
+                        blueBar = { blueBar }
                         mode = { mode }
                         noItemsMessage = { noItemsMessage }
                         quePage= { ( q : any ) => this._quePage( q, mode ) }
-                        quedIds= { this.state.quedIds }
-                        title={ mode === 'Available' ? 'Available Patterns' : 'Selected Patterns' } 
-                        items={ mode === 'Available' ? this.state.searchedItems : this.state.quedPages }
+                        quedIds= { mode === 'Current' ? [] : this.state.quedIds }
+                        title={ blueBar } 
+                        items={ items }
                         descending={false}          titles={null}            >
                     </MyPatternsList></div>;
 
@@ -503,30 +501,52 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
             </div>;
 
+
+                        
+            const buttons: ISingleButtonProps[] = [];
+
+            if ( this.state.mode === 'Selected' ) {
+                let theLabel = 'Copy patterns' ;
+                let isDisabled = this.state.quedPages.length > 0 ? false : true ;
+                
+                buttons.push({     disabled: isDisabled,  checked: true, primary: false,
+                    label: theLabel, buttonOnClick: this._copyPatterns.bind(this), } ) ;
+            }
+
+            let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
+
             let searchStatus = 'Searching for the meaning of life....';
             if ( mode === 'Available' ) {  searchStatus = 'Searching about ' + this.state.searchCount + ' pages'; }
             let searchBox =           
                 <div className = {[stylesC.searchContainer, stylesC.padLeft20 ].join(' ')} style = {{ paddingBottom: '20px'}}>
-                    <SearchBox
-                        className={stylesC.searchBox}
-                        styles={{ root: { maxWidth: 300 } }}
-                        placeholder={ this.state.mode === 'Selected' ? 'Disabled' : 'Search' }
-                        disabled={ this.state.mode === 'Selected' ? true : false }
-                        //onSearch={ this._textSearch.bind(this) }
-                        //onChange={ this._textSearch.bind(this) }
-                        onSearch={ ( t ) => this._textSearch( t, mode) }
-                        onChange={ ( t ) => this._textSearch( t, mode) }
-                        //onFocus={ () => console.log('this.state',  this.state) }
-                        //onBlur={ () => console.log('onBlur called') }
-                    />
-                    <div className={stylesC.searchStatus}>
-                        { searchStatus }
-                        { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
-                    </div>
+                    <Stack horizontal={true} wrap={true} horizontalAlign={"start"}  verticalAlign={"center"} tokens={ stackHeadingTokens }>{/* Stack for Buttons and Fields */}
+                        <StackItem >
+                            <SearchBox
+                                className={stylesC.searchBox}
+                                styles={{ root: { maxWidth: 300 } }}
+                                placeholder={ this.state.mode === 'Selected' ? 'Disabled' : 'Search' }
+                                disabled={ this.state.mode === 'Selected' ? true : false }
+                                //onSearch={ this._textSearch.bind(this) }
+                                //onChange={ this._textSearch.bind(this) }
+                                onSearch={ ( t ) => this._textSearch( t, mode) }
+                                onChange={ ( t ) => this._textSearch( t, mode) }
+                                //onFocus={ () => console.log('this.state',  this.state) }
+                                //onBlur={ () => console.log('onBlur called') }
+                            />
+                            <div className={stylesC.searchStatus}>
+                                { searchStatus }
+                                { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
+                            </div>
+                        </StackItem>
+                        <StackItem >
+                            { provisionButtons }
+                        </StackItem>
+                    </Stack>
                 </div>;
 
             pivCats.select.count = this.state.allItems.length;
             pivCats.que.count = this.state.quedIds.length > 0 ? this.state.quedIds.length : undefined ;
+            pivCats.current.count = this.state.currentItems.length > 0 ? this.state.currentItems.length : undefined ;
             pivCats.copy.count = undefined ;
 
             let fieldPivots = <div style={{paddingBottom: '20px'}}> { this.createPivotObject(this.state.mode, '') } </div>;
@@ -642,7 +662,12 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
   }
 
+  private _copyPatterns = (item): void => {
 
+    this.setState({ mode: 'Copy' }) ;
+    copyPatterns( this.state.currentList.webURL, this.state.quedPages, this.setProgress.bind(this), this.markComplete.bind(this) ) ;
+
+  }
   
   public _onChangeMode = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
@@ -718,6 +743,8 @@ private buildFilterPivot(pivCat: IMyPivCat) {
         this.setState({
             quedIds: quedIds,
             quedPages: quedPages,
+            lastStateChange: lastStateChange,
+            stateChangeLog: stateChangeLog,
         });
 
     }   
@@ -885,26 +912,6 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
 
     }
-
-    private checkThisWeb(index: number, testPages : IMakeThisPage[] ){
-        const thisWeb = Web(testPages[index].webURL);
-        testPages[index].webExists = false;
-        testPages[index].pageExists = false;
-
-        /*
-        thisWeb.pages.get().then((response) => {
-            testPages[index].webExists = true;
-            this.checkThisPage(index, testPages, thisWeb);
-
-        }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
-            console.log('checkThisWeb', errMessage);
-            this.updateStatePages(index, testPages);
-        });
-    */
-
-    }
-
     
   /***
  *     .d8b.  d8888b. d8888b.      d888888b d888888b d88888b .88b  d88. .d8888.      d888888b  .d88b.       .d8888. d888888b  .d8b.  d888888b d88888b 
@@ -920,11 +927,17 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
     private addTheseItemsToState( fetchList: ISitePagesList, theseItems: IPatternItemInfo[] , errMessage : string, allNewData : boolean = true ) {
 
+        let location: ILocation = fetchList.location;
+        let patternsLoaded: boolean = location === 'patterns' ? true : this.state.patternsLoaded;
+        let currentLoaded: boolean = location === 'current' ? this.state.currentLoaded : true ;
+
+        let dropDownColumns = location === 'patterns' ? this.dropDownColumns : [];
+
         if ( errMessage !== '') {
             let stateError : any[] = [];
 
             stateError.push( <div style={{ padding: '15px', background: 'yellow' }}> <span style={{ fontSize: 'larger', fontWeight: 600 }}>Had some issues getting Pattern Pages</span> </div>);
-            this.dropDownColumns.map( ddc => {
+            dropDownColumns.map( ddc => {
                 if ( errMessage.indexOf( '\'' + ddc + '\'') > -1 ) { 
                     stateError.push( <div style={{ padding: '15px', background: 'yellow' }}> <span style={{ fontSize: 'larger', fontWeight: 500 }}>Make sure { <em>ddc</em> } column is on the SitePages library</span> </div>);
                 }
@@ -939,32 +952,56 @@ private buildFilterPivot(pivCat: IMyPivCat) {
         } else {
 
             //Only use pages where Topic !== Hide
+
             let showItems : IPatternItemInfo[] = [];
-            theseItems.map( item => {
-                if ( item.Topic !== 'Hide' && item.Topic.indexOf('Hide') < 0 ) { showItems.push(item) ; }
-            });
+            if ( location === 'patterns' ) {
+                theseItems.map( item => {
+                    if ( item.Topic !== 'Hide' && item.Topic.indexOf('Hide') < 0 ) { showItems.push(item) ; }
+                });
+            } else { showItems = theseItems; }
 
             if ( showItems.length < 300 ) {
                 console.log('addTheseItemsToState showItems: ', showItems);
             } {
                 console.log('addTheseItemsToState showItems: QTY: ', showItems.length );
             }
-        
-            let allItems = allNewData === false ? this.state.allItems : showItems;
-        
+            
+            let allItems : IPatternItemInfo[] = [];
+            let currentItems : IPatternItemInfo[] = [];
+
+            if ( location === 'patterns' ) {
+                allItems = allNewData === false ? this.state.allItems : showItems;
+                currentItems = this.state.currentItems;
+
+            } else if ( location === 'current' ) {
+                currentItems = allNewData === false ? this.state.currentItems : showItems;
+                allItems = this.state.allItems;
+            }
+            
+
+
             let dropDownItems : IDropdownOption[][] = allNewData === true ? this.buildDataDropdownItems( fetchList, allItems ) : this.state.dropDownItems ;
         
+            let lastStateChange = 'Fetched (' + showItems.length + ')' + location + ' items';
+            let stateChangeLog: string[] = this.state.stateChangeLog;
+            stateChangeLog.push( lastStateChange ) ;
+
             this.setState({
             /*          */
                 allItems: allItems,
+                currentItems: currentItems,
                 searchedItems: allItems, //newFilteredItems,  //Replaced with showItems to update when props change.
                 searchCount: allItems.length,
                 errMessage: errMessage,
                 searchText: '',
                 searchMeta: [],
                 fetchList: fetchList,
-                allLoaded: true,
+                allLoaded: patternsLoaded === true && currentLoaded === true ? true : false,
+                patternsLoaded: patternsLoaded,
+                currentLoaded: currentLoaded,
                 dropDownItems: dropDownItems,
+                lastStateChange: lastStateChange,
+                stateChangeLog: stateChangeLog,
         
             });
         
@@ -986,10 +1023,12 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
         let dropDownItems : IDropdownOption[][] = [];
 
-        this.dropDownColumns.map( ( col, colIndex ) => {
+        let dropDownColumns = fetchList.location === 'patterns' ? this.dropDownColumns : [];
+        
+        dropDownColumns.map( ( col, colIndex ) => {
 
         let actualColName = col.replace('>', '' ).replace('+', '' ).replace('-', '' );
-        let parentColName = colIndex > 0 && col.indexOf('>') > -1 ? this.dropDownColumns[colIndex - 1] : null;
+        let parentColName = colIndex > 0 && col.indexOf('>') > -1 ? dropDownColumns[colIndex - 1] : null;
         parentColName = parentColName !== null ? parentColName.replace('>', '' ).replace('+', '' ).replace('-', '' ) : null;
 
         let thisColumnChoices : IDropdownOption[] = [];

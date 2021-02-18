@@ -1,6 +1,6 @@
 import { Web } from "@pnp/sp/presets/all";
 
-import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 
 import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/columnTypes'; //Import view arrays for Time list
 

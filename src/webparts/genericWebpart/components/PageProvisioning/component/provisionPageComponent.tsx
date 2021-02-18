@@ -15,7 +15,7 @@ import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, 
 import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { provisionThePage, IValidTemplate, provisionTestPage, provisionDrilldownPage } from './provisionWebPartPages';
-import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 import { defineDrilldownPage } from '../DrilldownPages/defineThisPage';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';

@@ -13,7 +13,7 @@ import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Conta
 
 import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
-import { IListInfo, IMyListInfo, IServiceLog, notify,  } from './listTypes';
+import { IListInfo, IMyListInfo, IServiceLog, notify,  } from '@mikezimm/npmfunctions/dist/listTypes';
 
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 import { getXMLObjectFromString } from '../XMLServices';

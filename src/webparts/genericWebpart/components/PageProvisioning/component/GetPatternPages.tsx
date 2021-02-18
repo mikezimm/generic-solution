@@ -10,7 +10,7 @@
  *                                                                                                                                  
  */
 
-import { Web, IList, IItem } from "@pnp/sp/presets/all";
+import { Web, IList, IItem, Item } from "@pnp/sp/presets/all";
 
 import "@pnp/sp/webs";
 import "@pnp/sp/clientside-pages/web";
@@ -78,6 +78,8 @@ import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, 
 
 import * as strings from 'GenericWebpartWebPartStrings';
 
+import { ILocation } from './provisionPatternsComponent';
+
  /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
  *    88'     `8b  d8' 88  `8D .8P  Y8. 88  `8D `~~88~~'        `88'   888o  88 `~~88~~' 88'     88  `8D 88'     d8' `8b d8P  Y8 88'     88'  YP 
@@ -89,9 +91,12 @@ import * as strings from 'GenericWebpartWebPartStrings';
  *                                                                                                                                               
  */
 
+ export const NitroPages = [ 'CCSMSTeamsUtils', 'CCSBrandingSettings', 'CCSEditForm', 'CCSNewForm', 'CCSDisplayForm', '', '', '', ];
+
  export interface ISitePagesList extends IZBasicList {
     dropDownColumns: string[];
     dropDownSort: string[];
+    location: ILocation;
   }
 
 
@@ -101,6 +106,7 @@ import * as strings from 'GenericWebpartWebPartStrings';
     Title: string;
     Description: string;
     "File/ServerRelativeUrl": string;
+    "File/Name": string;
     "BannerImageUrl.Url": string;
     allIndex: number;
     Features: string[];
@@ -171,6 +177,11 @@ export async function getAllItems( sitePages: ISitePagesList, addTheseItemsToSta
 
         i.allIndex = index;
         //Add Meta tags
+        
+        if ( NitroPages.indexOf( i.Title) > -1 ) {
+            i.Features = ['Crow Canyon'] ;
+            if ( !i.Description || i.Description === '' ) { i.Description = 'Application page for Crow Canyon software' ; }
+        }
         i.meta = buildMetaFromItem( i, sitePages );
         
         //Add Search string

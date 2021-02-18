@@ -18,7 +18,7 @@ import { MyFieldDef, changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, c
 
 import { doesObjectExistInArray, compareArrays, ICompareResult, stringifyKeyValue } from '@mikezimm/npmfunctions/dist/arrayServices';
 
-import { IListInfo, IMyListInfo, IServiceLog, notify } from './listTypes';
+import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/listTypes';
 
 import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 

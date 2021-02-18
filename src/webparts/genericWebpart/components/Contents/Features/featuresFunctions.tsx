@@ -5,7 +5,7 @@ import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, IPrincipalInfo, Pr
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 
 import { IContentsFeatureInfo, IFeatureBucketInfo } from  './featuresComponent';
 

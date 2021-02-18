@@ -188,7 +188,7 @@ export default class MyPatternsList extends React.Component<IMyPatternsListProps
 
             let queIcon = createIconButton( buttonIcon, buttonTitle, this.props.quePage, allIndex , patternStyles );
 
-            let titleLink = createLink( h["File"]["ServerRelativeUrl"], '_blank', h.Title);
+            let titleLink = createLink( h["File"]["ServerRelativeUrl"], '_blank', h['File']['Name']);
 
             return <tr>
               <td> { queIcon } </td>

@@ -13,7 +13,7 @@ import "@pnp/sp/webs";
 
 import { IValidTemplate, allAvailableViews } from './viewsFunctions';
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 
 import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
 
