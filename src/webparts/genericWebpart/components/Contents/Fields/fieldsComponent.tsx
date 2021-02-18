@@ -27,7 +27,7 @@ import {  } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
-import { IPickedList, IMyProgress, IUser, IPickedWebBasic } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedList, IMyProgress, IUser, IPickedWebBasic, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -51,27 +51,21 @@ import * as links from '../../HelpInfo/AllLinks';
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
-export interface IMyPivCat {
-    title: string;
-    desc: string;
-    order: number;
-}
-
 export const pivCats = {
-    visible: {title: 'Visible', desc: '', order: 1},
-    hidden: {title: 'Hidden', desc: '', order: 100},
-    text: {title: 'Text', desc: '', order: 1},
-    calculated: {title: 'Calculated', desc: '', order: 1},
-    choice: {title: 'Choice', desc: '', order: 1},
-    look: {title: 'Lookup', desc: '', order: 1},
-    user: {title: 'User', desc: '', order: 1},
-    number: {title: 'Number', desc: '', order: 1},
-    date: {title: 'Date', desc: '', order: 1},
-    url: {title: 'URL', desc: '', order: 1},      
-    boolean: {title: 'Boolean' , desc: '', order: 1},
-    computed:  {title: 'Computed' , desc: '', order: 1},
-    system: {title: '9', desc: 'System', order: 9 },
-    required:  {title: '*', desc: 'Required', order: 9 },
+    visible: {title: 'Visible', desc: '', order: 1, count: null },
+    hidden: {title: 'Hidden', desc: '', order: 100, count: null },
+    text: {title: 'Text', desc: '', order: 1, count: null },
+    calculated: {title: 'Calculated', desc: '', order: 1, count: null },
+    choice: {title: 'Choice', desc: '', order: 1, count: null },
+    look: {title: 'Lookup', desc: '', order: 1, count: null },
+    user: {title: 'User', desc: '', order: 1, count: null },
+    number: {title: 'Number', desc: '', order: 1, count: null },
+    date: {title: 'Date', desc: '', order: 1, count: null },
+    url: {title: 'URL', desc: '', order: 1, count: null },      
+    boolean: {title: 'Boolean' , desc: '', order: 1, count: null },
+    computed:  {title: 'Computed' , desc: '', order: 1, count: null },
+    system: {title: '9', desc: 'System', order: 9, count: null },
+    required:  {title: '*', desc: 'Required', order: 9, count: null },
 };
 
 
@@ -737,7 +731,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
         let required = this.buildFilterPivot(pivCats.required);
 
-        let system = this.buildFilterPivot({title: '9', desc: 'System', order: 9 });
+        let system = this.buildFilterPivot({title: '9', desc: 'System', order: 9, count: null  });
 
         let thesePivots = [visible, required, text, calculated, choice, look, user, number, date, url, boolean, computed, system ,hidden];
 

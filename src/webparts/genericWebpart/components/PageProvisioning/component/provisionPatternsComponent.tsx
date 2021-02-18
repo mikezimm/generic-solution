@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
+import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons, IPage } from 'office-ui-fabric-react';
 
 import {
     MessageBar,
@@ -16,8 +16,10 @@ import {
     IDropdownOption,
   } from "office-ui-fabric-react";
 
+  import { Spinner, SpinnerSize, SpinnerLabelPosition } from 'office-ui-fabric-react/lib/Spinner';
+
 import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, Lists, LimitedWebPartManager } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import "@pnp/sp/webs";
 import "@pnp/sp/clientside-pages/web";
@@ -26,7 +28,7 @@ import { CreateClientsidePage, PromotedState } from "@pnp/sp/clientside-pages";
 
 import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/getFunctions';
 
-import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { spliceCopyArray } from '@mikezimm/npmfunctions/dist/arrayServices';
 
@@ -57,6 +59,8 @@ import { IMakeThisPage } from './provisionWebPartPages';
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
+
+import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
@@ -103,7 +107,7 @@ export interface IFetchListInfo {
     selectedDropdowns: string[]; //array of selected choices for dropdowns
 }
 
-export type IPageProvisionPivots =  'Select' | 'Que' | 'Copy';
+export type IPageProvisionPivots =  'Available' | 'Selected' | 'Copy';
 
 export interface IProvisionPatternsState {
 
@@ -147,15 +151,71 @@ export interface IProvisionPatternsState {
 
 
 export const pivCats = {
-    visible: {title: 'Select', desc: '', order: 1},
-    hidden: {title: 'Que', desc: '', order: 100},
-    text: {title: 'Copy', desc: '', order: 1},
+    select: {title: 'Available', desc: '', order: 1, count: null, icon: null },
+    que: {title: 'Selected', desc: '', order: 100, count: null, icon: null },
+    copy: {title: 'Copy', desc: '', order: 1, count: null, icon: null },
 
 };
 
 export default class ProvisionPatterns extends React.Component<IProvisionPatternsProps, IProvisionPatternsState> {
 
     private dropDownColumns: string[] = ['Features','Topic'];
+
+    
+
+    /***
+ *         d8888b. d888888b db    db  .d88b.  d888888b .d8888. 
+ *         88  `8D   `88'   88    88 .8P  Y8. `~~88~~' 88'  YP 
+ *         88oodD'    88    Y8    8P 88    88    88    `8bo.   
+ *         88~~~      88    `8b  d8' 88    88    88      `Y8b. 
+ *         88        .88.    `8bd8'  `8b  d8'    88    db   8D 
+ *         88      Y888888P    YP     `Y88P'     YP    `8888Y' 
+ *                                                             
+ *                                                             
+ */
+
+
+public createPivotObject(setPivot, display){
+
+    let theseStyles = null;
+
+    let pivotField = 
+    <Pivot 
+      style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
+      styles={ theseStyles }
+      linkSize= { pivotOptionsGroup.getPivSize('large') }
+      linkFormat= { pivotOptionsGroup.getPivFormat('links') }
+      onLinkClick= { this._onChangeMode.bind(this) }  //{this.specialClick.bind(this)}
+      selectedKey={ setPivot }
+      headersOnly={true}>
+        {this.getFieldPivots()}
+    </Pivot>;
+    return pivotField;
+  }
+
+private getFieldPivots() {
+
+    let select = this.buildFilterPivot( pivCats.select );
+    let que = this.buildFilterPivot(pivCats.que);
+    let copy = this.buildFilterPivot(pivCats.copy);
+
+    let thesePivots = [select, que, copy];
+
+    return thesePivots;
+}
+
+private buildFilterPivot(pivCat: IMyPivCat) {
+    let p = <PivotItem 
+        itemCount={ pivCat.count }
+        itemIcon={ '' }
+        headerText={ pivCat.title }
+        itemKey={ pivCat.title }
+        >
+        { pivCat.desc }
+    </PivotItem>;
+
+    return p;
+}
 
     private clearHistory() {
         let history: IMyHistory = {
@@ -254,7 +314,7 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
 
             allowOtherSites: this.props.allowOtherSites === true ? true : false,
             alwaysReadOnly: this.props.alwaysReadOnly === true ? true : false,
-            currentPage: 'Click Button to start',
+            currentPage: '',
             allLoaded: this.props.allLoaded,
             progress: null,
             history: this.clearHistory(),
@@ -271,7 +331,7 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
             quedSolutions:[],
             quedIds: [],
 
-            mode: 'Select',
+            mode: 'Available',
             fetchList: fetchInfo.fetchList,
 
             stateError: [],
@@ -353,7 +413,7 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
                 </div>
             );
         
-        } else if ( this.state.allItems && this.state.allItems.length > 0 ) {
+        } else {
 
 
 
@@ -370,47 +430,30 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
 
 
             let thisPage = null;
-            let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
-
-            let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={ [] } horizontal={true}/></div>;
-
-            const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
-
-            let provisionButtonRow = <Stack horizontal={true} wrap={true} horizontalAlign={"start"} verticalAlign= {"center"} tokens={stackProvisionTokens}>{/* Stack for Buttons and Fields */}
-                    { provisionButtons }
-                    {  }
-                </Stack>;
 
             const stackPageTokens: IStackTokens = { childrenGap: 10 };
-            if ( this.state.mode === 'Select') {
+            const stackHeadingTokens: IStackTokens = { childrenGap: 40 };
 
-                let patternList = <MyPatternsList 
-                    mode = { this.state.mode }
-                    quePage= { ( q : any ) => this._quePage( q, 'Select') }
-                    quedIds= { this.state.quedIds }
-                    title={ 'Available Patterns'}           items={ this.state.searchedItems }
-                    descending={false}          titles={null}            ></MyPatternsList>;
+            let mode : IPageProvisionPivots = this.state.mode;
 
-                let quedList = <MyPatternsList 
-                    mode = { 'Que' }
-                    quePage= { ( q : any ) => this._quePage( q, 'Que') }
-                    quedIds= { this.state.quedIds }
-                    title={ 'Qued Patterns'}           items={ this.state.quedPages }
-                    descending={false}          titles={null}            ></MyPatternsList>;
+            if ( mode === 'Available' || mode === 'Selected' ) {
 
-                thisPage = <div>
-                    <div> { provisionButtonRow } </div>
-                    <div style={{ height:30} }> {  } </div>
-                    <div> {  } </div>
-                    <div> <h2>{ this.state.currentPage }</h2> </div>
-                    <div>
-                    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
-                        { patternList }
-                        { quedList }  
-                    </Stack>
-                    </div>
+                let noItemsMessage : any = mode === 'Available' ? 'There were no valid Patterns found :(' : 'You have not selected any patterns to copy yet :(';
+                if ( this.state.allLoaded !== true ) {
+                    noItemsMessage = <Spinner size={SpinnerSize.large} label={ 'Loading Patterns' } labelPosition='left'></Spinner>;
+                }
 
-                </div>;
+                thisPage = <div><MyPatternsList 
+                        blueBar = { mode === 'Available' ? 'Available Patterns' : 'Selected Patterns' }
+                        mode = { mode }
+                        noItemsMessage = { noItemsMessage }
+                        quePage= { ( q : any ) => this._quePage( q, mode ) }
+                        quedIds= { this.state.quedIds }
+                        title={ mode === 'Available' ? 'Available Patterns' : 'Selected Patterns' } 
+                        items={ mode === 'Available' ? this.state.searchedItems : this.state.quedPages }
+                        descending={false}          titles={null}            >
+                    </MyPatternsList></div>;
+
             } else {
 
                 let myProgress = this.state.progress == null ? null : <ProgressIndicator 
@@ -420,20 +463,18 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
                 progressHidden={this.state.progress.progressHidden}/>;
 
                 let errorList = <MyLogList 
-                    title={ 'Errors'}           items={ this.state.history.errors }
+                    title={ 'Error'}           items={ this.state.history.errors }
                     descending={false}          titles={null}            ></MyLogList>;
 
                 let copiedList = <MyLogList 
-                    title={ 'Copied'}           items={ this.state.history.columns }
+                    title={ 'Copie'}           items={ this.state.history.columns }
                     descending={false}          titles={null}            ></MyLogList>;
 
                 thisPage = <div>
-                    <div> { provisionButtonRow } </div>
                     <div style={{ height:30} }> {  } </div>
                     <div> { myProgress } </div>
-                    <div> <h2>{ this.state.currentPage }</h2> </div>
                     <div>
-                    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
+                    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={ stackPageTokens }>{/* Stack for Buttons and Fields */}
                         { errorList }
                         { copiedList }  
                     </Stack>
@@ -442,37 +483,53 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
                 </div>;
             }
 
-            let disclaimers = <div>
-                <h3>Next Steps</h3>
-                <ul>
-                    <li>Build typed objects for specific webparts and page layouts</li>
-                </ul>
+            let disclaimers = <div style={{ paddingTop: '30px', paddingBottom: '20px', display: 'block '}}>
+
+                <Stack horizontal={true} wrap={true} horizontalAlign={"start"}  verticalAlign={"center"} tokens={ stackHeadingTokens }>{/* Stack for Buttons and Fields */}
+                    <div style={{whiteSpace: 'nowrap'}}><span style={{ fontSize: 'larger', fontWeight: 600}}>
+                            Use this page to copy Patterns (our pre-built pages) to your site :)</span></div>
+
+                    <div style={{ whiteSpace: 'nowrap'}}>
+                            { links.createLink(this.props.webURL , '_none', this.props.webURL.replace( this.props.tenant, '' ))}</div> 
+                </Stack>
+
             </div>;
 
+            let searchStatus = 'Searching for the meaning of life....';
+            if ( mode === 'Available' ) {  searchStatus = 'Searching about ' + this.state.searchCount + ' pages'; }
             let searchBox =           
-                <div className={[stylesC.searchContainer, stylesC.padLeft20 ].join(' ')} >
+                <div className = {[stylesC.searchContainer, stylesC.padLeft20 ].join(' ')} style = {{ paddingBottom: '20px'}}>
                     <SearchBox
                         className={stylesC.searchBox}
                         styles={{ root: { maxWidth: 300 } }}
-                        placeholder="Search"
+                        placeholder={ this.state.mode === 'Selected' ? 'Disabled' : 'Search' }
+                        disabled={ this.state.mode === 'Selected' ? true : false }
                         //onSearch={ this._textSearch.bind(this) }
                         //onChange={ this._textSearch.bind(this) }
-                        onSearch={ ( t ) => this._textSearch( t, this.state.mode) }
-                        onChange={ ( t ) => this._textSearch( t, this.state.mode) }
+                        onSearch={ ( t ) => this._textSearch( t, mode) }
+                        onChange={ ( t ) => this._textSearch( t, mode) }
                         //onFocus={ () => console.log('this.state',  this.state) }
                         //onBlur={ () => console.log('onBlur called') }
                     />
                     <div className={stylesC.searchStatus}>
-                        { 'Searching about ' + this.state.searchCount + ' pages' }
+                        { searchStatus }
                         { /* 'Searching ' + (this.state.searchType !== 'all' ? this.state.filteredTiles.length : ' all' ) + ' items' */ }
                     </div>
                 </div>;
 
+            pivCats.select.count = this.state.allItems.length;
+            pivCats.que.count = this.state.quedIds.length > 0 ? this.state.quedIds.length : undefined ;
+            pivCats.copy.count = undefined ;
+
+            let fieldPivots = <div style={{paddingBottom: '20px'}}> { this.createPivotObject(this.state.mode, '') } </div>;
 
             let pageHeader = <div>
                 { disclaimers }
+                { fieldPivots }
                 { searchBox }
+
             </div>;
+
 
 /***
  *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -491,12 +548,7 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
                     { thisPage }
                 </div>
             );
-            
-        } else {
-            console.log('provisionPage.tsx return null');
-            return (  <div className={ styles.infoPane }>
-                <h2>There are no pages to provision</h2>
-            </div> );
+
         }
 
     }   //End Public Render
@@ -582,6 +634,21 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
 
   }
 
+
+  
+  public _onChangeMode = (item): void => {
+    //This sends back the correct pivot category which matches the category on the tile.
+    let e: any = event;
+    console.log('searchForItems: e',e);
+    console.log('searchForItems: item', item);
+    console.log('searchForItems: this', this);
+
+    this.setState({
+        mode: item.props.itemKey,
+    });
+
+  }
+
     private removeItemsFromObjectArray( array: any[], key: string, keyValue: any ) {
         let newArray: any[] = [];
         array.map( item => {
@@ -619,7 +686,7 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
         let lastStateChange = '';
         let stateChangeLog: string[] = this.state.stateChangeLog;
 
-        if ( mode === 'Select') {
+        if ( mode === 'Available') {
             if ( quedIds.indexOf(Id) > - 1 ){
                 alert('You already added this page (green cloud icon)... you can only add it once :)');
 
@@ -629,7 +696,7 @@ export default class ProvisionPatterns extends React.Component<IProvisionPattern
                 lastStateChange = 'Selected page: ' + this.state.allItems[Id].Title;
             }
 
-        } else if ( mode === 'Que' ) {
+        } else if ( mode === 'Selected' ) {
             quedPages = this.removeItemsFromObjectArray ( quedPages, 'Id', this.state.allItems[Id].Id );
             quedIds = this.removeItemsFromFlatArray (quedIds, Id , false, false );
             lastStateChange = 'Removed page: ' + this.state.allItems[Id].Title;

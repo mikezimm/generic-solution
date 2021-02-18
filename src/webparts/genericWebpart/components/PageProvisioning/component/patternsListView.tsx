@@ -23,6 +23,7 @@ export interface IMyPatternsListProps {
 
     mode: IPageProvisionPivots;
     title: string;
+    noItemsMessage: any;
     titles: [];
     items: IPatternItemInfo[];
     descending: boolean;
@@ -124,20 +125,20 @@ export default class MyPatternsList extends React.Component<IMyPatternsListProps
         root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
         icon: { 
           fontSize: 18,
-          fontWeight: "600",
+          fontWeight: "400",
           margin: '10px 5px',  //This puts the margin around the buttons
           //color: '#00457e', //This will set icon color : 00457e
        },
       };
 
-      if ( this.props.items != null && this.props.items.length > 0 ) { 
+      if ( this.props.items != null ) { // && this.props.items.length > 0 ) { 
 
         let logItems : IPatternItemInfo[] = this.props.items;
         let styleDesc = styles.showCell; //this.props.showDesc ? styles.showCell : styles.hideMe;
         let styleIDs = styles.hideMe ; //this.props.showIDs ? styles.showCell : styles.hideMe;
         let styleProps = this.props.showProps ? styles.showCell : styles.hideMe;
 
-        let itemRows = logItems.length === 0 ? null : logItems.map( h => { 
+        let itemRows = logItems.length === 0 ? [] : logItems.map( h => { 
 
             //let itemIcon = h.icon ? <Icon iconName={h.icon} className={iconClassAction} /> : null;
             let itemIcon = null;
@@ -172,14 +173,16 @@ export default class MyPatternsList extends React.Component<IMyPatternsListProps
             let buttonIcon = 'Info';
             let buttonTitle = 'TBD';
 
-            if ( this.props.mode === 'Select') {
-              patternStyles.root.color = this.props.quedIds.indexOf(allIndex) > -1 ? 'green !important' : 'black';
-              buttonIcon = 'CloudDownload';
+            if ( this.props.mode === 'Available') {
+              let isSelected = this.props.quedIds.indexOf(allIndex) > -1 ? true : false;
+              patternStyles.root.color = isSelected ? 'green !important' : 'black';
+              buttonIcon = isSelected ? 'CheckboxComposite' : 'Checkbox';
+              if ( isSelected ) { patternStyles.icon.fontWeight = "600 !important"; }
               buttonTitle = 'Que Page';
 
-            } else if ( this.props.mode === 'Que'){
+            } else if ( this.props.mode === 'Selected'){
               patternStyles.root.color = 'red !important';
-              buttonIcon = 'Cancel';
+              buttonIcon = 'Delete';
               buttonTitle = 'Cancel Page';
             }
 
@@ -192,36 +195,45 @@ export default class MyPatternsList extends React.Component<IMyPatternsListProps
               <td> { topic } </td>
               <td className={ styles.nowWrapping }> {  feature  }</td>
               <td> { titleLink } </td>
-              <td> {detailsCard}</td>
+
               <td className={ styleDesc }> {  description  }</td>
               <td className={ styleIDs }> {  h.partId  }</td>
               <td className={ styleProps }> { partProps }</td>
+              <td> {detailsCard}</td>
             </tr>; 
         });
 
 //        let logTable = itemRows === null ? <div>Nothing to show</div> : <table style={{ display: 'block'}} className={stylesInfo.infoTable}>
+        let tableFooter = [];
+        if ( logItems.length === 0 ) {
+          let noItemsMessage = this.props.noItemsMessage ? this.props.noItemsMessage : 'There are no items to show.';
+          tableFooter.push ( <div style={{ padding: '25px' }}><span style= {{ fontSize: '20px', color: 'red' }}> { noItemsMessage } </span></div> );
+        }
 
-        let logTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
-            <tr>
-              <th>Que up</th>
-              <th>Topic</th>
-              <th>Features</th>
-              <th>{ this.props.title }</th>
-              <th>Icon</th>
-              <th className={ styleDesc }>Description</th>
-              <th className={ styleIDs }>ID</th>
-              <th className={ styleProps }>Keys</th>
-            </tr>
-            { itemRows }
-        </table>;
+        let logTable = <div><table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
+              <tr>
+                <th>Que up</th>
+                <th>Topic</th>
+                <th>Features</th>
+                <th>{ this.props.title }</th>
+
+                <th className={ styleDesc }>Description</th>
+                <th className={ styleIDs }>ID</th>
+                <th className={ styleProps }>Keys</th>
+                <th>Icon</th>
+              </tr>
+              { itemRows }
+          </table>
+          { tableFooter }
+        </div>;
 
         let barText = this.props.blueBar && this.props.blueBar != null ? this.props.blueBar : '';
-        if (barText != '') { barText = barText + 'Patterns: (' + this.props.items.length + ')'  ; }
+        if (barText != '') { barText = barText + ' (' + this.props.items.length + ')'  ; }
 
         let webTitle = null;
         
         if ( barText != null ) {
-          webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ barText } - ( { this.props.items.length } )</span></div>;
+          webTitle =<div className={ stylesInfo.infoHeading }><span style={{ paddingLeft: 20 }}>{ barText }</span></div>;
         }
 
         return (
