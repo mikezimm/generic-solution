@@ -203,7 +203,7 @@ private getFieldPivots() {
     let que = this.buildFilterPivot(pivCats.que);
     let copy = this.buildFilterPivot(pivCats.copy);
 
-    let thesePivots = [current, select, que, copy];
+    let thesePivots = [select, que, copy, current];
 
     return thesePivots;
 }
