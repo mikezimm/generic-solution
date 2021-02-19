@@ -33,7 +33,7 @@ import { IPatternItemInfo } from  './GetPatternPages';
 
 export type IValidTemplate = 100 | 101;
 
-export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo, destPageName : string = null, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
+export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo, destPageName : string = null, setProgress: any, markComplete: any, i: number, n: number ): Promise<IServiceLog[]>{
 
     let sourcePageName : string = sourcePage["File"]["Name"].replace('.aspx','');
     if ( destPageName === '' || destPageName === null ) { destPageName = sourcePageName; }
@@ -63,7 +63,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
             console.log( 'Succeded pasting page ' + sourcePageName , pageCopy2a );
             //console.log( 'CanvaseContent1 _data' + sourcePageName , pageCopy2a['_data'] ); // this did not give any meaningful information related to the page
             console.log( 'Succeded pasting page pageCopy2a.prototype.Target.json ' + sourcePageName , pageCopy2a['_data.ok'] );
-            setProgress(false, "C", 'i', 'n' , 'green', 'CheckboxComposite', 'Page: ' + sourcePageName, 'Page copied: ' + sourcePageName , 'Page ' + sourcePageName, 'Copied sourcepage' + ' Success! ~ 66' );
+            setProgress(false, "C", i, n , 'green', 'CheckboxComposite', 'Page: ' + sourcePageName, 'Page copied: ' + sourcePageName , 'Page ' + sourcePageName, 'Copied sourcepage' + ' Success! ~ 66' );
 
         } catch (e){
             console.log( 'Failed pasting page ' + sourcePageName  );
@@ -71,7 +71,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
             if (errMessage.indexOf('missing a column') > -1) {
                 statusLog = notify(statusLog, 'Checked Field', 'err', 'step', 'f', null);
             }
-            setProgress(false, "E", 'i', 'n' , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 74' );
+            setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 74' );
         }
 
 
@@ -81,7 +81,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
         if (errMessage.indexOf('missing a column') > -1) {
             statusLog = notify(statusLog, 'Checked Field', 'err', 'step', 'f', null);
         }
-        setProgress(false, "E", 'i', 'n' , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 84' );
+        setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 84' );
     }
 
    /*
@@ -100,7 +100,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
 
     
 //export async function provisionTestPage( makeThisPage:  IPatternItemInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-    export async function copyPatterns( destWeb: string, thesePages:  IPatternItemInfo[], setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
+    export async function copyPatterns( destWeb: string, thesePages:  IPatternItemInfo[], setProgress: any, markComplete: any, finishFunction: any ): Promise<IServiceLog[]>{
 
         let statusLog : IServiceLog[] = [];
         const thisWeb = Web(destWeb);
@@ -125,8 +125,10 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
         for ( let i = 0; i < thesePages.length; i++) {
             
             let thisPage = thesePages[i];
-            let statusLogPage : IServiceLog[] = await copyThisPage( thisWeb, thisPage, '', setProgress, markComplete );  //Succeded
+            let statusLogPage : IServiceLog[] = await copyThisPage( thisWeb, thisPage, '', setProgress, markComplete, i+1, thesePages.length );  //Succeded
             statusLogPage.map( item => { statusLogPage.push( item ) ; } ) ;
+
+            if ( i === thesePages.length -1 ) { finishFunction() ; }
         }
  
         return statusLog;

@@ -463,10 +463,10 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             } else {
 
                 let myProgress = this.state.progress == null ? null : <ProgressIndicator 
-                label={this.state.progress.label} 
-                description={this.state.progress.description} 
-                percentComplete={this.state.progress.percentComplete} 
-                progressHidden={this.state.progress.progressHidden}/>;
+                    label={this.state.progress.label} 
+                    description={this.state.progress.description} 
+                    percentComplete={this.state.progress.percentComplete} 
+                    progressHidden={this.state.progress.progressHidden}/>;
 
                 let errorList = <MyLogList 
                     title={ 'Error'}           items={ this.state.history.errors }
@@ -477,7 +477,6 @@ private buildFilterPivot(pivCat: IMyPivCat) {
                     descending={false}          titles={null}            ></MyLogList>;
 
                 thisPage = <div>
-                    <div style={{ height:30} }> {  } </div>
                     <div> { myProgress } </div>
                     <div>
                     <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={ stackPageTokens }>{/* Stack for Buttons and Fields */}
@@ -496,14 +495,17 @@ private buildFilterPivot(pivCat: IMyPivCat) {
                             Use this page to copy Patterns (our pre-built pages) to your site :)</span></div>
 
                     <div style={{ whiteSpace: 'nowrap'}}>
-                            { links.createLink(this.props.webURL , '_none', this.props.webURL.replace( this.props.tenant, '' ))}</div> 
+                            { <span style={{ fontSize: 'larger' }}> { links.createLink(this.props.webURL , '_none', this.props.webURL.replace( this.props.tenant, '' )) } </span> } </div> 
+                            
+                    <div style={{ whiteSpace: 'nowrap'}}>
+                            { <span style={{ fontSize: 'larger' }}> {links.createLink(this.props.webURL + '/SitePages/' , '_none', 'Site Pages')} </span>} </div> 
                 </Stack>
 
             </div>;
 
 
                         
-            const buttons: ISingleButtonProps[] = [];
+            const buttons: ISingleButtonProps[] = []; //ITCD  ITPPM
 
             if ( this.state.mode === 'Selected' ) {
                 let theLabel = 'Copy patterns' ;
@@ -665,9 +667,16 @@ private buildFilterPivot(pivCat: IMyPivCat) {
   private _copyPatterns = (item): void => {
 
     this.setState({ mode: 'Copy' }) ;
-    copyPatterns( this.state.currentList.webURL, this.state.quedPages, this.setProgress.bind(this), this.markComplete.bind(this) ) ;
+    copyPatterns( this.state.currentList.webURL, this.state.quedPages, this.setProgress.bind(this), this.markComplete.bind(this), this._updateCurrentPages.bind(this)) ;
 
   }
+
+    private _updateCurrentPages() {
+        
+        let currentInfo : IFetchListInfo = this.buildFetchList('current');
+        getAllItems( currentInfo.fetchList, this.addTheseItemsToState, this.setProgress, this.markComplete );
+
+    }
   
   public _onChangeMode = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
@@ -1002,6 +1011,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
                 dropDownItems: dropDownItems,
                 lastStateChange: lastStateChange,
                 stateChangeLog: stateChangeLog,
+                stateError: patternsLoaded === true && currentLoaded === true ? [] : this.state.stateError,
         
             });
         
