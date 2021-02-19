@@ -496,7 +496,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
                     <div style={{ whiteSpace: 'nowrap'}}>
                             { <span style={{ fontSize: 'larger' }}> { links.createLink(this.props.webURL , '_none', this.props.webURL.replace( this.props.tenant, '' )) } </span> } </div> 
-                            
+
                     <div style={{ whiteSpace: 'nowrap'}}>
                             { <span style={{ fontSize: 'larger' }}> {links.createLink(this.props.webURL + '/SitePages/' , '_none', 'Site Pages')} </span>} </div> 
                 </Stack>
@@ -965,7 +965,15 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             let showItems : IPatternItemInfo[] = [];
             if ( location === 'patterns' ) {
                 theseItems.map( item => {
-                    if ( item.Topic !== 'Hide' && item.Topic.indexOf('Hide') < 0 ) { showItems.push(item) ; }
+                    if ( item.FileSystemObjectType === 0 ) { //Only get files  https://docs.microsoft.com/en-us/previous-versions/office/sharepoint-server/ee537053(v=office.15), File=0, Folder=1, Web=2
+                        let relativeUrl = item['File']['ServerRelativeUrl'] ? item['File']['ServerRelativeUrl'] : '';
+                        let isTemplate = relativeUrl.toLowerCase().indexOf('/sitepages/templates/') > -1 ? true : false;
+                        if ( isTemplate === false ) { //Ignore all items in the Templates folder
+                            if ( item.LayoutWebpartsContent !== null ) { //Ignore all items without webparts.
+                                if ( item.Topic !== 'Hide' && item.Topic.indexOf('Hide') < 0 ) { showItems.push(item) ; }
+                            }
+                        }
+                    } 
                 });
             } else { showItems = theseItems; }
 
