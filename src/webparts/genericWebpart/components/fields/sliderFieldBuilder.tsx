@@ -4,7 +4,7 @@ import * as React from 'react';
 
 import {IGenericWebpartState, } from '../IGenericWebpartState';
 
-import { ILink, IUser, } from '../IReUsableInterfaces';
+import { ILink, IUser, } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IGenericWebpartProps } from '../IGenericWebpartProps';
 
@@ -15,16 +15,19 @@ import styles from '../GenericWebpart.module.scss';
 
 export function createSlider(parentProps:IGenericWebpartProps , parentState: IGenericWebpartState, _onChange){
 
-
-  if ( parentState.currentTimePicker !== 'slider') { return ""; }
-  let maxTime = parentProps.timeSliderMax;
+let parentStatecurrentTimePicker = 'parentState.currentTimePicker';
+let parentPropstimeSliderMax = 0; //parentState.timeSliderMax';
+let parentStatetimeSliderValue = 0; //'parentState.timeSliderValue';
+let parentPropstimeSliderInc = 0; //'parentProp.stimeSliderInc;'
+  if ( parentStatecurrentTimePicker !== 'slider') { return ""; }
+  let maxTime = parentPropstimeSliderMax;
   return (
     <div style={{minWidth: 400, }}>
       <Slider 
-      label={ ((parentState.timeSliderValue < 0)  ? "Start time is in the past" : "End time is Back to the future" ) }
+      label={ ((parentStatetimeSliderValue < 0)  ? "Start time is in the past" : "End time is Back to the future" ) }
       min={ -1 * maxTime } 
       max={ maxTime } 
-      step={ parentProps.timeSliderInc } 
+      step={ parentPropstimeSliderInc } 
       defaultValue={ 0 } 
       valueFormat={value => `${value} mins`}
       showValue 

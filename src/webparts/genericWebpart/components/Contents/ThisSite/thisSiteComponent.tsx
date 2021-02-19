@@ -18,7 +18,7 @@ import styles from '../contents.module.scss';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../../IReUsableInterfaces';
+import { IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import {  } from '../contentsComponent';
 
@@ -233,7 +233,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
     public constructor(props:IInspectThisSiteProps){
     super(props);
 
-    let parentWeb = cleanURL(this.props.pickedWeb.Url);
+    let parentWeb = cleanURL(this.props.pickedWeb.url);
 
     let pickedWeb = null; //this.getThisWeb( parentWeb );
 
@@ -290,7 +290,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
      */
 
     public componentDidUpdate(prevProps){
-        let rebuildPart = prevProps.pickedWeb.Url === this.props.pickedWeb.Url ? false : true;
+        let rebuildPart = prevProps.pickedWeb.url === this.props.pickedWeb.url ? false : true;
         if (rebuildPart === true) {
         this._updateStateOnPropsChange({});
         }
@@ -326,7 +326,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
                     showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
                     items={ bucket }    specialAlt= { false }
                     searchMeta= { this.state.searchMeta } showRailsOff= { this.state.allowRailsOff } 
-                    webURL = { this.props.pickedWeb.Url } descending={false} titles={null} 
+                    webURL = { this.props.pickedWeb.url } descending={false} titles={null} 
                     ></MyLogProps>;
             })
 
@@ -352,7 +352,7 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
         </div>
         </div>;
 
-        let disclaimers = <h3>Properties for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
+        let disclaimers = <h3>Properties for { this.props.pickedWeb.title} located here: { createLink( this.props.pickedWeb.url, '_blank', this.props.pickedWeb.url )  }</h3>;
 
         const stackPageTokens: IStackTokens = { childrenGap: 10 };
 
@@ -532,8 +532,8 @@ public _onSearchForMeta = (item): void => {
     private getPropDefs() {
         let listGuid = '';
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
-    //    let resultWeb : any = allWebProps( this.props.pickedWeb.Url, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
-        let resultSite : any = allWebProps( this.props.pickedWeb.Url, this.createSearchBuckets(), this.addThesePropsToState.bind(this), null, null );
+    //    let resultWeb : any = allWebProps( this.props.pickedWeb.url, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
+        let resultSite : any = allWebProps( this.props.pickedWeb.url, this.createSearchBuckets(), this.addThesePropsToState.bind(this), null, null );
 
     }
 
@@ -617,8 +617,8 @@ public _onSearchForMeta = (item): void => {
 
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Webs */}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
 
 
                 </Stack>

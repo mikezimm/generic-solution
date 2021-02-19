@@ -13,6 +13,7 @@ declare interface IGenericWebpartWebPartStrings {
   // 1 - Analytics options
   analyticsWeb: string;
   analyticsList: string;
+  patternsWeb: string;
   minClickWeb: string;
 
   // 2 - Source and destination list information

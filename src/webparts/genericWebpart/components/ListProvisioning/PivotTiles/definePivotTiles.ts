@@ -3,7 +3,7 @@ import { PivotTilesFields } from './columnsPivotTiles'; //Import column arrays (
 
 import { pivotViews} from './viewsPivotTiles';  //Import view arrays for Project list
 
-import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IMakeThisList, provisionTheList,  } from '../component/provisionWebPartList';
 

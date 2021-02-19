@@ -17,8 +17,8 @@ import { IGenericWebpartState } from './IGenericWebpartState';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IRefinerRules, RefineRuleValues } from './IReUsableInterfaces';
-import { IPickedList, IPickedWebBasic,  } from './IReUsableInterfaces';
+import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IRefinerRules, RefineRuleValues } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedList, IPickedWebBasic,  } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 import InfoPage from './HelpInfo/infoPages';
@@ -39,6 +39,7 @@ import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList
 import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/component/provisionPageComponent';
 import { defineThePage } from './PageProvisioning/FinancePages/defineThisPage';
 import ProvisionPages from './PageProvisioning/component/provisionPageComponent';
+import ProvisionPatterns from './PageProvisioning/component/provisionPatternsComponent';
 
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
 
@@ -50,6 +51,10 @@ import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
 import * as links from './HelpInfo/AllLinks';
 import  EarlyAccess from './HelpInfo/EarlyAccess';
+
+import { createIconButton } from './createButtons/IconButton';
+
+import { createGridDates } from '../../../services/sampleData';
 
 
 const emptyString = (value: string | Date) : string => { return "";};
@@ -250,6 +255,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       id: r['Id'] , //
       Id: r['Id'] , //
       ID: r['Id'] , //
+      remoteID: null,
       isSiteAdmin: r['IsSiteAdmin'],
       LoginName: r['LoginName'],
       Name: r['LoginName'],
@@ -375,7 +381,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               lists = { [] }
 
               definedList = { '' }
-              provisionWebs = { [ this.state.pickedWeb ? this.state.pickedWeb.Url : '' ] }
+              provisionWebs = { [ this.state.pickedWeb ? this.state.pickedWeb.url : '' ] }
               provisionListTitles = { [] }
 
             ></ProvisionLists>
@@ -405,7 +411,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           lists = { [] }
 
           definedList = { '' }
-          provisionWebs = { [ this.state.pickedWeb ? this.state.pickedWeb.Url : '' ] }
+          provisionWebs = { [ this.state.pickedWeb ? this.state.pickedWeb.url : '' ] }
           provisionListTitles = { [] }
 
         ></ProvisionFields>
@@ -420,6 +426,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               analyticsList= { this.props.analyticsList }
               tenant= { this.props.tenant }
               urlVars= { this.props.urlVars }
+              pickedWeb = { this.state.pickedWeb }
 
               allowOtherSites={ false }
               alwaysReadOnly = { false }
@@ -432,6 +439,29 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
             ></ProvisionPages>
         </div>;
+
+      const provisionPatternsPage = this.props.allowRailsOff !== true ? null :  
+        <div className= { defaultPageClass }>
+          <ProvisionPatterns 
+              
+              useListAnalytics= { this.props.useListAnalytics }
+              analyticsWeb= { this.props.analyticsWeb }
+              analyticsList= { this.props.analyticsList }
+              tenant= { this.props.tenant }
+              urlVars= { this.props.urlVars }
+              pickedWeb = { this.state.pickedWeb }
+
+              allowOtherSites={ false }
+              alwaysReadOnly = { false }
+              pageContext={ this.props.pageContext }
+              showPane={true}
+              allLoaded={false}
+              webURL = { webUrl }
+              currentUser = {this.state.currentUser }
+
+            ></ProvisionPatterns>
+        </div>;
+
 
       const infoPage = this.props.allowRailsOff !== true ? null : 
         <div>
@@ -484,23 +514,48 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         
       :<div className= { defaultPageClass } style={{ paddingLeft: 10, paddingRight: 20 }}>
         <Pivot aria-label="Provision Options"
-          defaultSelectedIndex ={ 3 }>
+          defaultSelectedIndex ={ 4 }>
+
           <PivotItem headerText="Fields">
                 { provisionFieldPage }
           </PivotItem>
+
           <PivotItem headerText="Lists">
                 { provisionListPage }
           </PivotItem>
+
           <PivotItem headerText="Pages">
               { provisionPagesPage }
           </PivotItem>
+
+          <PivotItem headerText="Patterns">
+              { provisionPatternsPage }
+          </PivotItem>
+          
           <PivotItem headerText="Contents">
               { contentsPage }
           </PivotItem>    
 
+          { this.props.urlVars['create'] ===  "true" ?
+                <PivotItem headerText="Create">
+                    { createIconButton('Cat', 'Create Items', createGridDates , 'CreateID', {
+                        root: {padding:'20px !important', height: 32},//color: 'green' works here
+                        icon: { 
+                          fontSize: 28,
+                          fontWeight: "normal",
+                          margin: '0px 2px',
+                          color: '#00457e', //This will set icon color
+                      },
+                      }) 
+                    }
+                </PivotItem>
+          : null }
+
           <PivotItem headerText="Help">
               { infoPage }
           </PivotItem>
+
+
 
         </Pivot></div>;
 
@@ -545,7 +600,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           ServerRelativeUrl: 'Site ServerRelativeUrl',
           guid: 'Site Guid',
           title: 'Site Title',
-          Url: 'siteURL',
+          url: 'siteURL',
           siteIcon: 'Site Icon',
           error: errMessage,
       };
@@ -556,7 +611,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
             ServerRelativeUrl: webbie.ServerRelativeUrl,
             guid: webbie.Id,
             title: webbie.Title,
-            Url: webbie.Url,
+            url: webbie.Url,
             siteIcon: webbie.SiteLogoUrl,
             error: errMessage,
         };

@@ -1,6 +1,6 @@
 
 
-import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IMakeThisPage, provisionThePage  } from '../component/provisionWebPartPages';
 

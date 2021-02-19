@@ -6,7 +6,7 @@ import { DateTimePicker, DateConvention, TimeConvention, TimeDisplayControlType 
 
 import {IGenericWebpartState, } from '../IGenericWebpartState';
 
-import { ILink, IUser, } from '../IReUsableInterfaces';
+import { ILink, IUser, } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IGenericWebpartProps } from '../IGenericWebpartProps';
 

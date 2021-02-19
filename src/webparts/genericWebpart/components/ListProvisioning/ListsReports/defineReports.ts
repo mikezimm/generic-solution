@@ -3,7 +3,7 @@ import { ReportsFields } from './columnsReports'; //Import column arrays (one fi
 
 import { reportViews} from './viewsReports';  //Import view arrays for Project list
 
-import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { IMakeThisList, provisionTheList,  } from '../component/provisionWebPartList';
 

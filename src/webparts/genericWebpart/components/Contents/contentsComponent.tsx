@@ -15,7 +15,7 @@ import styles from './contents.module.scss';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '../IReUsableInterfaces';
+import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import InfoPage from '../HelpInfo/infoPages';
 
@@ -197,7 +197,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         let validWeb = !this.props.pickedWeb || this.props.pickedWeb.error !== null ? false : true;
 
         if ( validWeb === true ) {
-            pickedWebUrl = this.props.pickedWeb.Url;
+            pickedWebUrl = this.props.pickedWeb.url;
 
         } else {
             pickedWebError = 'Web not found';
@@ -220,7 +220,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
                 allowCrazyLink = { this.props.allowCrazyLink }
-                //webURL = { this.props.pickedWeb.Url }
+                //webURL = { this.props.pickedWeb.url }
             ></InspectThisSite>
         </div>;
 

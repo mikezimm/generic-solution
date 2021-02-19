@@ -16,7 +16,7 @@ import "@pnp/sp/webs";
 
 import { IValidTemplate, allAvailableFields } from './fieldsFunctions';
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 
 import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
 
@@ -27,7 +27,7 @@ import {  } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
-import { IPickedList, IMyProgress, IUser, IPickedWebBasic } from '../../IReUsableInterfaces';
+import { IPickedList, IMyProgress, IUser, IPickedWebBasic, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -41,7 +41,7 @@ import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
-import { IMyPivots, IPivot,  } from '../../IReUsableInterfaces';
+import { IMyPivots, IPivot,  } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogField from './fieldsListView';
@@ -51,27 +51,21 @@ import * as links from '../../HelpInfo/AllLinks';
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
-export interface IMyPivCat {
-    title: string;
-    desc: string;
-    order: number;
-}
-
 export const pivCats = {
-    visible: {title: 'Visible', desc: '', order: 1},
-    hidden: {title: 'Hidden', desc: '', order: 100},
-    text: {title: 'Text', desc: '', order: 1},
-    calculated: {title: 'Calculated', desc: '', order: 1},
-    choice: {title: 'Choice', desc: '', order: 1},
-    look: {title: 'Lookup', desc: '', order: 1},
-    user: {title: 'User', desc: '', order: 1},
-    number: {title: 'Number', desc: '', order: 1},
-    date: {title: 'Date', desc: '', order: 1},
-    url: {title: 'URL', desc: '', order: 1},      
-    boolean: {title: 'Boolean' , desc: '', order: 1},
-    computed:  {title: 'Computed' , desc: '', order: 1},
-    system: {title: '9', desc: 'System', order: 9 },
-    required:  {title: '*', desc: 'Required', order: 9 },
+    visible: {title: 'Visible', desc: '', order: 1, count: null },
+    hidden: {title: 'Hidden', desc: '', order: 100, count: null },
+    text: {title: 'Text', desc: '', order: 1, count: null },
+    calculated: {title: 'Calculated', desc: '', order: 1, count: null },
+    choice: {title: 'Choice', desc: '', order: 1, count: null },
+    look: {title: 'Lookup', desc: '', order: 1, count: null },
+    user: {title: 'User', desc: '', order: 1, count: null },
+    number: {title: 'Number', desc: '', order: 1, count: null },
+    date: {title: 'Date', desc: '', order: 1, count: null },
+    url: {title: 'URL', desc: '', order: 1, count: null },      
+    boolean: {title: 'Boolean' , desc: '', order: 1, count: null },
+    computed:  {title: 'Computed' , desc: '', order: 1, count: null },
+    system: {title: '9', desc: 'System', order: 9, count: null },
+    required:  {title: '*', desc: 'Required', order: 9, count: null },
 };
 
 
@@ -347,7 +341,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         showXML= { this.state.showXML } showJSON= { this.state.showJSON } showSPFx= { this.state.showSPFx } showMinFields= { this.state.showDesc } 
-                        webURL = { this.props.pickedWeb.Url } descending={false} titles={null}   
+                        webURL = { this.props.pickedWeb.url } descending={false} titles={null}   
                         listGuid = { this.props.pickedList.guid }
                         ></MyLogField>;
                 })
@@ -374,7 +368,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
               </div>
             </div>;
 
-            let disclaimers = <h3>Columns for { this.props.pickedList.title} located here: { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
+            let disclaimers = <h3>Columns for { this.props.pickedList.title} located here: { createLink( this.props.pickedWeb.url, '_blank', this.props.pickedWeb.url )  }</h3>;
             
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -452,7 +446,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     private getFieldDefs() {
         let listGuid = '';
         if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
-        let result : any = allAvailableFields( this.props.pickedWeb.Url, listGuid, this.createSearchBuckets(), this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableFields( this.props.pickedWeb.url, listGuid, this.createSearchBuckets(), this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -737,7 +731,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
         let required = this.buildFilterPivot(pivCats.required);
 
-        let system = this.buildFilterPivot({title: '9', desc: 'System', order: 9 });
+        let system = this.buildFilterPivot({title: '9', desc: 'System', order: 9, count: null  });
 
         let thesePivots = [visible, required, text, calculated, choice, look, user, number, date, url, boolean, computed, system ,hidden];
 
@@ -910,15 +904,15 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Fields */}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/user.aspx?obj={" + listGUID + listLibString + listGUID + "}" ,'_blank', 'Permissions' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/LstSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Versioning' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/AdvSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Advanced' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/ManageCheckedOutFiles.aspx?List=(" + listGUID + ")" ,'_blank', 'Orphan files' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/IndexedColumns.aspx?List=(" + listGUID + ")" ,'_blank', 'Index' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/AddFieldFromTemplate.aspx?List=(" + listGUID + ")" ,'_blank', 'Add Site Col' )}
-                    { createLink( this.props.pickedWeb.Url + "/_layouts/15/fldNew.aspx?List=(" + listGUID + ")" ,'_blank', '+ New Col' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ListEdit.aspx?List=(" + listGUID + ")" ,'_blank', 'List Settings' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ListGeneralSettings.aspx?List=(" + listGUID + ")" ,'_blank', 'Title' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/user.aspx?obj={" + listGUID + listLibString + listGUID + "}" ,'_blank', 'Permissions' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/LstSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Versioning' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/AdvSetng.aspx?List=(" + listGUID + ")" ,'_blank', 'Advanced' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/ManageCheckedOutFiles.aspx?List=(" + listGUID + ")" ,'_blank', 'Orphan files' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/IndexedColumns.aspx?List=(" + listGUID + ")" ,'_blank', 'Index' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/AddFieldFromTemplate.aspx?List=(" + listGUID + ")" ,'_blank', 'Add Site Col' )}
+                    { createLink( this.props.pickedWeb.url + "/_layouts/15/fldNew.aspx?List=(" + listGUID + ")" ,'_blank', '+ New Col' )}
 
                 </Stack>
         </div>;

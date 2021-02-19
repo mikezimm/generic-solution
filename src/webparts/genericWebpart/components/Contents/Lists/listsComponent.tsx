@@ -12,7 +12,7 @@ import "@pnp/sp/webs";
 import { IValidTemplate, allAvailableLists } from './listsFunction';
 import {  } from './listsFunction';
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 
 import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
 
@@ -23,7 +23,7 @@ import {  } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
-import { IPickedList, IMyProgress, IUser, IPickedWebBasic } from '../../IReUsableInterfaces';
+import { IPickedList, IMyProgress, IUser, IPickedWebBasic } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -37,7 +37,7 @@ import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
-import { IMyPivots, IPivot,  } from '../../IReUsableInterfaces';
+import { IMyPivots, IPivot,  } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogList from './listView';
@@ -290,7 +290,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
                         title={ ''}           items={ bucket }
                         showDesc = { this.state.showDesc } 
-                        webURL = { this.props.pickedWeb.Url }
+                        webURL = { this.props.pickedWeb.url }
                         allowCrazyLink = { this.props.allowCrazyLink }
                         pickThisList = { this.props.pickThisList }  descending={false}  titles={null}>
 
@@ -318,7 +318,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
               </div>
             </div>;
 
-        let disclaimers = <h3>Contents for { createLink( this.props.pickedWeb.Url, '_blank', this.props.pickedWeb.Url )  }</h3>;
+        let disclaimers = <h3>Contents for { createLink( this.props.pickedWeb.url, '_blank', this.props.pickedWeb.url )  }</h3>;
 
             let xyz = <div>
                 <h3>Next steps</h3>
@@ -384,7 +384,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             );
 
         } else {
-            console.log('provisionPage.tsx return null');
+            console.log('listComponents.tsx return null');
             return (  <div className={ styles.contents }>
                 <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
                 <h2>There are no parts to see</h2>
@@ -395,7 +395,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
 
     private getListDefs() {
-        let result : any = allAvailableLists( this.props.pickedWeb.Url, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableLists( this.props.pickedWeb.url, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -783,16 +783,16 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         let stackSettingTokens = { childrenGap: 20 };
         let settingLinks = <div style={{ padding: 15, fontSize: 'large', }}>
                 <Stack horizontal={true} wrap={true} horizontalAlign={"start"} tokens={stackSettingTokens}>{/* Stack for Buttons and Fields */}
-                { createLink( this.props.pickedWeb.Url + "/_layouts/15/viewlsts.aspx" ,'_blank', 'Contents' )}                
-                { createLink( this.props.pickedWeb.Url + "/SiteAssets" ,'_blank', 'SiteAssets' )}
-                { createLink( this.props.pickedWeb.Url + "/SitePages" ,'_blank', 'SitePages' )}
+                { createLink( this.props.pickedWeb.url + "/_layouts/15/viewlsts.aspx" ,'_blank', 'Contents' )}                
+                { createLink( this.props.pickedWeb.url + "/SiteAssets" ,'_blank', 'SiteAssets' )}
+                { createLink( this.props.pickedWeb.url + "/SitePages" ,'_blank', 'SitePages' )}
 
-                { createLink( this.props.pickedWeb.Url + "/_layouts/15/settings.aspx" ,'_blank', 'Site Settings' )}
-                { createLink( this.props.pickedWeb.Url + "/_layouts/15/user.aspx" ,'_blank', 'Permissions' )}
-                { createLink( this.props.pickedWeb.Url + "/_layouts/15/prjsetng.aspx" ,'_blank', 'Title/Logo' )}
-                { createLink( this.props.pickedWeb.Url + "/_layouts/15/AreaNavigationSettings.aspx" ,'_blank', 'Navigation' )}
-                { createLink( this.props.pickedWeb.Url + "/_layouts/15/people.aspx" ,'_blank', 'Groups' )}
-                { createLink( this.props.pickedWeb.Url + "/_layouts/15/ManageFeatures.aspx" ,'_blank', 'Features' )}            
+                { createLink( this.props.pickedWeb.url + "/_layouts/15/settings.aspx" ,'_blank', 'Site Settings' )}
+                { createLink( this.props.pickedWeb.url + "/_layouts/15/user.aspx" ,'_blank', 'Permissions' )}
+                { createLink( this.props.pickedWeb.url + "/_layouts/15/prjsetng.aspx" ,'_blank', 'Title/Logo' )}
+                { createLink( this.props.pickedWeb.url + "/_layouts/15/AreaNavigationSettings.aspx" ,'_blank', 'Navigation' )}
+                { createLink( this.props.pickedWeb.url + "/_layouts/15/people.aspx" ,'_blank', 'Groups' )}
+                { createLink( this.props.pickedWeb.url + "/_layouts/15/ManageFeatures.aspx" ,'_blank', 'Features' )}            
             </Stack>
         </div>;
 

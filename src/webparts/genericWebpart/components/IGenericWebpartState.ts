@@ -2,7 +2,7 @@ import { IFormFields, IProjectFormFields } from './fields/fieldDefinitions';
 
 import { ITheTime } from '@mikezimm/npmfunctions/dist/dateServices';
 
-import { IUser, IPivot, IMyPivots, IMyIcons, IMyFonts, ILink, IChartSeries, ICharNote, IMyProgress, IPickedWebBasic } from './IReUsableInterfaces';
+import { IUser, IPivot, IMyPivots, IMyIcons, IMyFonts, ILink, IChartSeries, ICharNote, IPickedWebBasic } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ISelectedUser, } from './Charts/charts';
 
@@ -12,6 +12,21 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
 import { IDefinedLists } from './ListProvisioning/component/provisionListComponent';
 
 
+
+
+export interface IMyProgress {
+
+  time: string;
+  logLabel: string;
+  label: string;
+  description: string;
+  percentComplete?: number;
+  progressHidden?: boolean;
+  icon?: string;
+  color?: string;
+  ref?: string;
+  refElement?: any;
+}
 
 
   export interface IUserSummary { 

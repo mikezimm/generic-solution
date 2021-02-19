@@ -1,10 +1,10 @@
 import { Web } from "@pnp/sp/presets/all";
 
-import { IListInfo, IMyListInfo, IServiceLog } from '../../../../../services/listServices/listTypes'; //Import view arrays for Time list
+import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 
-import { changes, IMyFieldTypes } from '../../../../../services/listServices/columnTypes'; //Import view arrays for Time list
+import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/columnTypes'; //Import view arrays for Time list
 
-import { IMyView,  } from '../../../../../services/listServices/viewTypes'; //Import view arrays for Time list
+import { IMyView,  } from '@mikezimm/npmfunctions/dist/viewTypes'; //Import view arrays for Time list
 
 import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
 
@@ -16,7 +16,7 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
 import { IDefinedLists } from './provisionListComponent';
 
-import { IMyProgress, IUser } from '../../IReUsableInterfaces';
+import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 export type IValidTemplate = 100 | 101;
 

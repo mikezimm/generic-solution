@@ -35,6 +35,12 @@ export function createIconButton(iconName, titleText, _onClick, thisID,  iconSty
       thisID = thisID.replace(/[^\w\s|-]/gi, '');
     }
 
+    /**
+     * 
+     * Usage for id on return call
+     * e.target.parentElement.id
+     * 
+     */
     //console.log('createIconButton:', iconStyles);
 
     return (
