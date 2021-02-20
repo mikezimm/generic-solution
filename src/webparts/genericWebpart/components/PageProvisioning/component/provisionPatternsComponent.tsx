@@ -974,6 +974,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
                             if ( relativeUrl !== '' && hasCanvas === true && inTemplatesFolder === false ) { 
                                 if ( item.Topic !== 'Hide' && item.Topic.indexOf('Hide') < 0 ) { showPage = true ; }
                             }
+                            
                         } else if ( location === 'current' ) {
                             if ( relativeUrl !== '' ) { showPage = true ; }
                         }

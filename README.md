@@ -63,3 +63,6 @@ gulp test - TODO
 gulp serve - TODO
 gulp bundle - TODO
 gulp package-solution - TODO
+
+
+ContentTypeId ne '0x012000F6C75276DBE501468CA3CC575AD8E159'
