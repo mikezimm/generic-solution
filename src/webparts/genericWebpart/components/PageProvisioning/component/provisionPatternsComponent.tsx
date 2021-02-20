@@ -963,19 +963,31 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             //Only use pages where Topic !== Hide
 
             let showItems : IPatternItemInfo[] = [];
-            if ( location === 'patterns' ) {
                 theseItems.map( item => {
                     if ( item.FileSystemObjectType === 0 ) { //Only get files  https://docs.microsoft.com/en-us/previous-versions/office/sharepoint-server/ee537053(v=office.15), File=0, Folder=1, Web=2
                         let relativeUrl = item['File']['ServerRelativeUrl'] ? item['File']['ServerRelativeUrl'] : '';
-                        let isTemplate = relativeUrl.toLowerCase().indexOf('/sitepages/templates/') > -1 ? true : false;
-                        if ( isTemplate === false ) { //Ignore all items in the Templates folder
-                            if ( item.LayoutWebpartsContent !== null ) { //Ignore all items without webparts.
-                                if ( item.Topic !== 'Hide' && item.Topic.indexOf('Hide') < 0 ) { showItems.push(item) ; }
+                        let hasCanvas = item.LayoutWebpartsContent !== null ? true : false;
+                        let inTemplatesFolder = relativeUrl.toLowerCase().indexOf('/sitepages/templates/') > -1 ? true : false;
+
+                        let showPage : boolean = false;
+                        if ( location === 'patterns' ) {
+                            if ( relativeUrl !== '' && hasCanvas === true && inTemplatesFolder === false ) { 
+                                if ( item.Topic !== 'Hide' && item.Topic.indexOf('Hide') < 0 ) { showPage = true ; }
                             }
+                        } else if ( location === 'current' ) {
+                            if ( relativeUrl !== '' ) { showPage = true ; }
+                        }
+
+                        if ( showPage === true ) { //Ignore all items in the Templates folder
+                            showItems.push(item) ; 
                         }
                     } 
                 });
-            } else { showItems = theseItems; }
+
+            //Need to do this to reset the allIndex based on the actual items saved in state allItems.
+            showItems.map ( ( item, index ) => {
+                item.allIndex = index;
+            });
 
             if ( showItems.length < 300 ) {
                 console.log('addTheseItemsToState showItems: ', showItems);
@@ -995,8 +1007,6 @@ private buildFilterPivot(pivCat: IMyPivCat) {
                 allItems = this.state.allItems;
             }
             
-
-
             let dropDownItems : IDropdownOption[][] = allNewData === true ? this.buildDataDropdownItems( fetchList, allItems ) : this.state.dropDownItems ;
         
             let lastStateChange = 'Fetched (' + showItems.length + ')' + location + ' items';
