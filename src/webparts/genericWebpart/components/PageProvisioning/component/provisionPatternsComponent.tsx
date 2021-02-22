@@ -294,9 +294,10 @@ private buildFilterPivot(pivCat: IMyPivCat) {
         let fetchInfo : IFetchListInfo = this.buildFetchList( 'patterns' );
         let currentInfo : IFetchListInfo = this.buildFetchList( 'current' );
 
+        let ServerRelativeUrl = this.props.pageContext.web.serverRelativeUrl;
         //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
         saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
-            '', '',//serverRelativeUrl, webTitle, PageURL,
+            ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle, PageURL,
             'Provision Patterns', TargetSite, null, //saveTitle, TargetSite, TargetList
             'Pages', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
             '' ); //richText
@@ -496,7 +497,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
 
                     <div style={{ whiteSpace: 'nowrap'}}>
                             { <span style={{ fontSize: 'larger' }}> { links.createLink(this.props.webURL , '_none', this.props.webURL.replace( this.props.tenant, '' )) } </span> } </div> 
-                            
+
                     <div style={{ whiteSpace: 'nowrap'}}>
                             { <span style={{ fontSize: 'larger' }}> {links.createLink(this.props.webURL + '/SitePages/' , '_none', 'Site Pages')} </span>} </div> 
                 </Stack>
@@ -584,97 +585,114 @@ private buildFilterPivot(pivCat: IMyPivCat) {
     }   //End Public Render
 
 
-  private isPageReadOnly (mapThisPage) {
+    private isPageReadOnly (mapThisPage) {
 
-    let readOnly = true;
-    if ( this.state.alwaysReadOnly === false ) {                //First test, only allow updates if the state is explicitly set so alwaysReadOnly === false
-        if (mapThisPage.onCurrentSite === true ) {
-            readOnly = false;                                   //If page is on current site, then allow writing (readonly = false)
-        } else if ( this.state.allowOtherSites === true ) {
-            readOnly = false;                                   //Else If you explicitly tell it to allowOtherSites, then allow writing (readonly = false)
+        let readOnly = true;
+        if ( this.state.alwaysReadOnly === false ) {                //First test, only allow updates if the state is explicitly set so alwaysReadOnly === false
+            if (mapThisPage.onCurrentSite === true ) {
+                readOnly = false;                                   //If page is on current site, then allow writing (readonly = false)
+            } else if ( this.state.allowOtherSites === true ) {
+                readOnly = false;                                   //Else If you explicitly tell it to allowOtherSites, then allow writing (readonly = false)
+            }
         }
+
+        return readOnly;
+
     }
 
-    return readOnly;
+    private markComplete() {
 
-  }
+        this.setState({
+            currentPage: 'Finished ' + this.state.currentPage,
+        });
 
-  private markComplete() {
-
-    this.setState({
-        currentPage: 'Finished ' + this.state.currentPage,
-    });
-
-  }
-
-   /**
-    * 
-    * @param progressHidden 
-    * @param page : page you want to add this to 'E' | 'C' | 'V' | 'I'
-    * @param current : current index of progress
-    * @param ofThese : total count of items in progress
-    * @param color : color of label like red, yellow, green, null
-    * @param icon : Fabric Icon name if desired
-    * @param logLabel : short label of item used for displaying in page
-    * @param label : longer label used in Progress Indicator and hover card
-    * @param description 
-    */
-  private setProgress(progressHidden: boolean, page: 'E' | 'C' | 'V' | 'I', current: number , ofThese: number, color: string, icon: string, logLabel: string, label: string, description: string, ref: string = null ){
-    let thisTime = new Date().toLocaleTimeString();
-    const percentComplete = ofThese !== 0 ? current/ofThese : 0;
-
-    logLabel = current > 0 ? current + '/' + ofThese + ' - ' + logLabel : logLabel ;
-    let progress: IMyProgress = {
-        ref: ref,
-        time: thisTime,
-        logLabel: logLabel,
-        label: label + '- at ' + thisTime,
-        description: description,
-        percentComplete: percentComplete,
-        progressHidden: progressHidden,
-        color: color,
-        icon: icon,
-      };
-
-    //console.log('setting Progress:', progress);
-
-    let history: IMyHistory = this.state.history;
-    //let newHistory = null;
-    
-
-    if ( history === null ){
-
-    } else {
-        history.count ++;
-        if ( page === 'E') {
-            history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
-        } else if ( page === 'C') {
-            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
-        } else if ( page === 'V') {
-            history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
-        } else if ( page === 'I') {
-            history.items = history.items.length === 0 ? [progress] : [progress].concat(history.items);
-        }
     }
 
-    this.setState({
-        progress: progress,
-        history: history,
-    });
+    /**
+        * 
+        * @param progressHidden 
+        * @param page : page you want to add this to 'E' | 'C' | 'V' | 'I'
+        * @param current : current index of progress
+        * @param ofThese : total count of items in progress
+        * @param color : color of label like red, yellow, green, null
+        * @param icon : Fabric Icon name if desired
+        * @param logLabel : short label of item used for displaying in page
+        * @param label : longer label used in Progress Indicator and hover card
+        * @param description 
+        */
+    private setProgress(progressHidden: boolean, page: 'E' | 'C' | 'V' | 'I', current: number , ofThese: number, color: string, icon: string, logLabel: string, label: string, description: string, ref: string = null ){
+        let thisTime = new Date().toLocaleTimeString();
+        const percentComplete = ofThese !== 0 ? current/ofThese : 0;
 
-  }
+        logLabel = current > 0 ? current + '/' + ofThese + ' - ' + logLabel : logLabel ;
+        let progress: IMyProgress = {
+            ref: ref,
+            time: thisTime,
+            logLabel: logLabel,
+            label: label + '- at ' + thisTime,
+            description: description,
+            percentComplete: percentComplete,
+            progressHidden: progressHidden,
+            color: color,
+            icon: icon,
+        };
 
-  private _copyPatterns = (item): void => {
+        //console.log('setting Progress:', progress);
 
-    this.setState({ mode: 'Copy' }) ;
-    copyPatterns( this.state.currentList.webURL, this.state.quedPages, this.setProgress.bind(this), this.markComplete.bind(this), this._updateCurrentPages.bind(this)) ;
+        let history: IMyHistory = this.state.history;
+        //let newHistory = null;
+        
 
-  }
+        if ( history === null ){
+
+        } else {
+            history.count ++;
+            if ( page === 'E') {
+                history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
+            } else if ( page === 'C') {
+                history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+            } else if ( page === 'V') {
+                history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
+            } else if ( page === 'I') {
+                history.items = history.items.length === 0 ? [progress] : [progress].concat(history.items);
+            }
+        }
+
+        this.setState({
+            progress: progress,
+            history: history,
+        });
+
+    }
+
+    private _copyPatterns = (item): void => {
+
+        this.setState({ mode: 'Copy' }) ;
+        copyPatterns( this.state.currentList.webURL, this.state.quedPages, this.setProgress.bind(this), this.markComplete.bind(this), this._updateCurrentPages.bind(this)) ;
+
+    }
 
     private _updateCurrentPages() {
         
         let currentInfo : IFetchListInfo = this.buildFetchList('current');
         getAllItems( currentInfo.fetchList, this.addTheseItemsToState, this.setProgress, this.markComplete );
+
+
+        let TargetSite = this.props.webURL && this.props.webURL.length > 0 ? this.props.webURL : '';
+
+        let saveHistoryObject = {
+            progress: this.state.progress,
+            history: this.state.history,
+        }
+        let hadErrors = this.state.history.errors.length > 0 ? true : false;
+        let saveHistoryStringified = JSON.stringify(saveHistoryObject);
+        let ServerRelativeUrl = this.props.pageContext.web.serverRelativeUrl;
+        //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
+        saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
+            ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle, PageURL,
+            'Provision Patterns', TargetSite, null, //saveTitle, TargetSite, TargetList
+            'Pages', 'Copied Pages', 'Complete' + ( hadErrors ? ' with some issues' : ' no issues!'), //itemInfo1, itemInfo2, result, 
+            saveHistoryStringified ); //richText
 
     }
   
@@ -963,11 +981,32 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             //Only use pages where Topic !== Hide
 
             let showItems : IPatternItemInfo[] = [];
-            if ( location === 'patterns' ) {
                 theseItems.map( item => {
-                    if ( item.Topic !== 'Hide' && item.Topic.indexOf('Hide') < 0 ) { showItems.push(item) ; }
+                    if ( item.FileSystemObjectType === 0 ) { //Only get files  https://docs.microsoft.com/en-us/previous-versions/office/sharepoint-server/ee537053(v=office.15), File=0, Folder=1, Web=2
+                        let relativeUrl = item['File']['ServerRelativeUrl'] ? item['File']['ServerRelativeUrl'] : '';
+                        let hasCanvas = item.LayoutWebpartsContent !== null ? true : false;
+                        let inTemplatesFolder = relativeUrl.toLowerCase().indexOf('/sitepages/templates/') > -1 ? true : false;
+
+                        let showPage : boolean = false;
+                        if ( location === 'patterns' ) {
+                            if ( relativeUrl !== '' && hasCanvas === true && inTemplatesFolder === false ) { 
+                                if ( item.Topic !== 'Hide' && item.Topic.indexOf('Hide') < 0 ) { showPage = true ; }
+                            }
+                            
+                        } else if ( location === 'current' ) {
+                            if ( relativeUrl !== '' ) { showPage = true ; }
+                        }
+
+                        if ( showPage === true ) { //Ignore all items in the Templates folder
+                            showItems.push(item) ; 
+                        }
+                    } 
                 });
-            } else { showItems = theseItems; }
+
+            //Need to do this to reset the allIndex based on the actual items saved in state allItems.
+            showItems.map ( ( item, index ) => {
+                item.allIndex = index;
+            });
 
             if ( showItems.length < 300 ) {
                 console.log('addTheseItemsToState showItems: ', showItems);
@@ -987,8 +1026,6 @@ private buildFilterPivot(pivCat: IMyPivCat) {
                 allItems = this.state.allItems;
             }
             
-
-
             let dropDownItems : IDropdownOption[][] = allNewData === true ? this.buildDataDropdownItems( fetchList, allItems ) : this.state.dropDownItems ;
         
             let lastStateChange = 'Fetched (' + showItems.length + ')' + location + ' items';

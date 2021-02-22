@@ -53,17 +53,17 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
             //    let page2X = JSON.stringify(page2);
     //    let page2Y = JSON.parse(page2X);
 
-        console.log( 'Source page sections' + sourcePageName , page2.sections );
-        console.log( 'Source page data' + sourcePageName , page2.data );
-        console.log( 'Source page _data' + sourcePageName , page2['_data'] );
+        console.log( 'Source page ' + sourcePageName , page2 );
+        //console.log( 'Source page sections' + sourcePageName , page2.json );  //Property 'json' is protected and only accessible within class '_ClientsidePage' and its subclasses.
         //console.log( 'Source page ' + sourcePageName , page2. );
 
         try {
             const pageCopy2a = await page2.copy(destWeb, sourcePageName, sourcePageName);
-            console.log( 'Succeded pasting page ' + sourcePageName , pageCopy2a );
+            pageCopy2a.layoutType = 'NoImage';
+            await pageCopy2a.save();
             //console.log( 'CanvaseContent1 _data' + sourcePageName , pageCopy2a['_data'] ); // this did not give any meaningful information related to the page
             console.log( 'Succeded pasting page pageCopy2a.prototype.Target.json ' + sourcePageName , pageCopy2a['_data.ok'] );
-            setProgress(false, "C", i, n , 'green', 'CheckboxComposite', 'Page: ' + sourcePageName, 'Page copied: ' + sourcePageName , 'Page ' + sourcePageName, 'Copied sourcepage' + ' Success! ~ 66' );
+            setProgress(false, "C", i, n , 'green', 'CheckboxComposite', 'Page: ' + sourcePageName, 'Page copied: ' + sourcePageName , 'Page = ' + sourcePageName, 'Copied sourcepage' + ' Success! ~ 66' );
 
         } catch (e){
             console.log( 'Failed pasting page ' + sourcePageName  );
@@ -71,17 +71,18 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
             if (errMessage.indexOf('missing a column') > -1) {
                 statusLog = notify(statusLog, 'Checked Field', 'err', 'step', 'f', null);
             }
-            setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 74' );
+            setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page = ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 74' );
         }
 
 
     } catch (e) {
         // if any of the fields does not exist, raise an exception in the console log
         let errMessage = getHelpfullError(e, true, true);
-        if (errMessage.indexOf('missing a column') > -1) {
-            statusLog = notify(statusLog, 'Checked Field', 'err', 'step', 'f', null);
+        if (errMessage.indexOf('The file') > -1 && errMessage.indexOf('does not exist.') > -1 ) {
+            let err = `The page ${sourcePageName} does not exist... was it deleted?`;
+            statusLog = notify(statusLog, 'Checked Field', err, 'step', 'f', null);
         }
-        setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 84' );
+        setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page = ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 84' );
     }
 
    /*
