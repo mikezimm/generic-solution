@@ -63,7 +63,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
             await pageCopy2a.save();
             //console.log( 'CanvaseContent1 _data' + sourcePageName , pageCopy2a['_data'] ); // this did not give any meaningful information related to the page
             console.log( 'Succeded pasting page pageCopy2a.prototype.Target.json ' + sourcePageName , pageCopy2a['_data.ok'] );
-            setProgress(false, "C", i, n , 'green', 'CheckboxComposite', 'Page: ' + sourcePageName, 'Page copied: ' + sourcePageName , 'Page ' + sourcePageName, 'Copied sourcepage' + ' Success! ~ 66' );
+            setProgress(false, "C", i, n , 'green', 'CheckboxComposite', 'Page: ' + sourcePageName, 'Page copied: ' + sourcePageName , 'Page = ' + sourcePageName, 'Copied sourcepage' + ' Success! ~ 66' );
 
         } catch (e){
             console.log( 'Failed pasting page ' + sourcePageName  );
@@ -71,7 +71,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
             if (errMessage.indexOf('missing a column') > -1) {
                 statusLog = notify(statusLog, 'Checked Field', 'err', 'step', 'f', null);
             }
-            setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 74' );
+            setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page = ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 74' );
         }
 
 
@@ -82,7 +82,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
             let err = `The page ${sourcePageName} does not exist... was it deleted?`;
             statusLog = notify(statusLog, 'Checked Field', err, 'step', 'f', null);
         }
-        setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 84' );
+        setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Page: ' + sourcePageName, 'Houston we have a problem: ' + sourcePageName , 'Page = ' + sourcePageName, 'Getting sourcepage' + ' Error! ~ 84' );
     }
 
    /*
