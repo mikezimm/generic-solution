@@ -294,9 +294,10 @@ private buildFilterPivot(pivCat: IMyPivCat) {
         let fetchInfo : IFetchListInfo = this.buildFetchList( 'patterns' );
         let currentInfo : IFetchListInfo = this.buildFetchList( 'current' );
 
+        let ServerRelativeUrl = this.props.pageContext.web.serverRelativeUrl;
         //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
         saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
-            '', '',//serverRelativeUrl, webTitle, PageURL,
+            ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle, PageURL,
             'Provision Patterns', TargetSite, null, //saveTitle, TargetSite, TargetList
             'Pages', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
             '' ); //richText
@@ -685,9 +686,10 @@ private buildFilterPivot(pivCat: IMyPivCat) {
         }
         let hadErrors = this.state.history.errors.length > 0 ? true : false;
         let saveHistoryStringified = JSON.stringify(saveHistoryObject);
+        let ServerRelativeUrl = this.props.pageContext.web.serverRelativeUrl;
         //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
         saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
-            '', '',//serverRelativeUrl, webTitle, PageURL,
+            ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle, PageURL,
             'Provision Patterns', TargetSite, null, //saveTitle, TargetSite, TargetList
             'Pages', 'Copied Pages', 'Complete' + ( hadErrors ? ' with some issues' : ' no issues!'), //itemInfo1, itemInfo2, result, 
             saveHistoryStringified ); //richText
