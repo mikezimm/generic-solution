@@ -152,7 +152,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
           };
 
           let groupTitle = Grp.Title != null && Grp.Title.indexOf('SharingLinks') === 0 ? Grp.Title.slice(0, 20) : Grp.Title;
-          let groupLink = createLink(this.props.webURL + '_layouts/15/people.aspx?MembershipGroupId=' + Grp.Id, '_blank', groupTitle );
+          let groupLink = createLink(this.props.webURL + '/_layouts/15/people.aspx?MembershipGroupId=' + Grp.Id, '_blank', groupTitle );
 
           let userString = Grp.userString;
           
