@@ -128,6 +128,7 @@ public constructor(props:IInfoAboutMeProps){
                 {/* 3 files to update version number:  package-solution.json, package-lock.json, package.json*/}
                 <table className={styles.infoTable}>
                     <tr><th>Date</th><th>Version</th><th>Focus</th><th>Notes</th></tr>
+                    <tr><td>2021-02-19</td><td>{'1.1.12.5'}</td><td>Fix Group Settings link</td></tr>
                     <tr><td>2021-02-19</td><td>{'1.1.12.4'}</td><td>Fix Current list display</td></tr>
                     <tr><td>2021-02-19</td><td>{'1.1.12.3'}</td><td>Fix allIndex on showItems bug</td></tr>
                     <tr><td>2021-02-19</td><td>{'1.1.12.2'}</td><td>Fix when Patterns sitepages has Templates folder (null items error)</td></tr>
