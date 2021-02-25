@@ -318,6 +318,8 @@ export function defineTheListMaster ( template: IValidTemplate , listTitle : str
 
     webURL = webURL.replace('_layouts/15/','');  //Remove all the workbench urls
 
+    if ( webURL.lastIndexOf('/') !== webURL.length - 1 ) { webURL += '/' ; }
+    
     let listName = cleanSPListURL(camelize(listTitle, true));
     let makeThisList:  IMakeThisList = {
 
@@ -340,7 +342,7 @@ export function defineTheListMaster ( template: IValidTemplate , listTitle : str
         listURL: webURL + ( template === 100 ? 'lists/' : '') + listName,
         confirmed: false,
         onCurrentSite: isListOnThisWeb,
-        webExists: false,
+        webExists: true,
         listExists: false,
         listExistedB4: false,
         existingTemplate: null,

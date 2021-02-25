@@ -111,52 +111,13 @@ public constructor(props:IAdvancedProps){
 
             let thisPage = null;
             let projectID0 = <tr><td>ProjectID1/2</td><td>{links.devDocsText}</td><td>See documentation link for additional syntax options.</td></tr>;
-            let projectID1 = <tr><td></td><td>PrefixText...</td><td>Text followed by 3 dots will always include the PrefixText and then let you type whatever you want after that.</td></tr>;
-            let projectID2 = <tr><td></td><td>mask=aa99</td><td>Start column with 'mask=', followed by text.  Use 'a' to require a letter and '9' for any number.  Any other characters become part of the result value.</td></tr>;
-            let projectID3 = <tr><td></td><td>mask=aa99</td><td>This example will force the user to enter 2 letters followed by 2 numbers.</td></tr>;
-            let projectID4 = <tr><td></td><td>mask=(999) 999-9999</td><td>This example will force user to enter a phone number in US Format</td></tr>;
-            let projectID5 = <tr><td>ProjectID1/2<br/>Category1/2</td><td>hideme;ThisProject</td><td>Begin ProjectID Value with 'hideme;' and it will hide that column from the entry form and auto-paste the remaining text in the saved item.  In this case, you will not see the field in the entry form and the text 'ThisProject' will be pasted into the save entry for this field.</td></tr>;
-
-
-            
-
-            let Category0 = <tr><td>Category1/2</td><td></td><td></td></tr>;
-
-            let options0 = <tr><td>Options</td><td>prop1=val1;prop2=val2</td><td>Sets Project list formatting.  Properties should be <b>separated by ; with = between property and setting</b>.  Use standard css syntax for colors and sizes... examples:  32px, x-large, green, #33333</td></tr>;
-            let options1 = <tr><td></td><td>size=20px;icon=Mail</td><td>size sets the font-size.  icon adds an {links.devDocsIcon} to left of Project Title</td></tr>;
-            let options2 = <tr><td></td><td>fWeight=bold;fStyle=italic</td><td>size sets font-weight and font-style</td></tr>;
-            let options3 = <tr><td></td><td>fcolor=red;bgColor=yellow</td><td>sets font-color to red, icon-color to green, background to yellow</td></tr>;
-
-            let options4 = <tr><td>Options^</td><td>{links.gitTMTOptionsWiki}</td><td>You can create a formula here to automatically build option text on all your projects.  <br/>If you have anything in the normal Options column, it will over-ride this calculated value.</td></tr>;
-
-            let activity1 = <tr><td>ActivityType</td><td>Choices: Build; Ship; JIRA.  {links.gitTMTActivityTypeWiki}</td><td>Choices defining typical types of activity.  Used to help build Activity Links with formulas.</td></tr>;
-            let activity2 = <tr><td>Activity</td><td>Example:  B123432</td><td>Number or ID of the Activity Type which can be used to build up the Activity Link with formulas.</td></tr>;
-            let activity3 = <tr><td>ActivityURL^</td><td>{links.gitTMTActivityURLWiki}</td><td>This is the URL that the user can click on in the center panel of the web part when selecting a project.  Have SharePoint calculate the URL you want someone to click on based on the Activity Type and Activity.</td></tr>;
-            let activity4 = <tr><td>Options^</td><td>{links.gitTMTOptionsWiki}</td><td>This is the URL that the user can click on in the center panel of the web part when selecting a project.  Have SharePoint calculate the URL you want someone to click on based on the Activity Type and Activity.</td></tr>;
 
             thisPage = <div>
                 <h2></h2>
                 <table className={styles.infoTable}>
                     <tr><th>Column</th><th>Example</th><th>What it does</th></tr>
 
-                    { projectID0 }
-                    { projectID1 }
-                    { projectID2 }
-                    { projectID3 }
-                    { projectID4 }
-                    { projectID5 }
-
-                    { Category0 }
-
-                    { options0 }
-                    { options1 }
-                    { options2 }
-                    { options3 }
-
-                    { options4 }   
-                    { activity1 }       
-                    { activity2 } 
-                    { activity3 }    
+                    { /* projectID0 */ }
 
                 </table>
             </div>;
@@ -173,7 +134,7 @@ public constructor(props:IAdvancedProps){
  */
 
             return (
-                <div className={ styles.infoPane }>
+                <div className={ styles.infoPane } style={{ paddingBottom: '30px'}}>
                     { thisPage }
                 </div>
             );

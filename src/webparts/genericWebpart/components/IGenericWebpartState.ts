@@ -136,6 +136,7 @@ export interface IMyProgress {
     childListTitle: string;  // Static Name of list (for URL) - used for links and determined by first returned item
   
     pickedWeb : IPickedWebBasic;
+    isCurrentWeb: boolean;
 
     makeThisList: IMakeThisList;
 

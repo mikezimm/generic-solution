@@ -170,6 +170,7 @@ public constructor(props:IGenericWebpartProps){
         childListTitle: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
 
         pickedWeb: null,
+        isCurrentWeb: false,
         // 3 - General how accurate do you want this to be
       
         // 4 - Info Options
@@ -335,6 +336,18 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       let webUrl = this.state.parentListWeb && this.state.parentListWeb.length > 0 ? this.state.parentListWeb : this.props.pageContext.web.absoluteUrl;
       let defaultPageClass = this.state.stateError.length === 0 ? styles.showPage : styles.hidePage;
 
+      let allowOtherSites = false;
+      let parentListWeb = cleanURL(this.props.parentListWeb);
+      //if ( parentListWeb.toLowerCase().indexOf( '.sharepoint.com/sites/Templates/'.toLowerCase() ) === 0 ) { allowOtherSites = true ; } 
+      //else if ( parentListWeb.toLowerCase().indexOf( '.sharepoint.com/sites/WebPartDev/'.toLowerCase() ) === 0 ) { allowOtherSites = true ; } 
+      //else if ( this.props.urlVars['allowOtherSites'] && this.props.urlVars['allowOtherSites'] === "true" ) { allowOtherSites = true; }
+
+      if ( this.props.urlVars['allowOtherSites'] && this.props.urlVars['allowOtherSites'] === "true" ) { allowOtherSites = true; }
+
+      let isCurrentWeb = this.state.isCurrentWeb;
+      let notAllowOtherSites =  <div><div style={{ padding: '30px', background: 'yellow', margin: '20px', marginBottom: '50px', textAlign: 'center' }}>
+        <span style={{ fontSize: 'x-large', color: 'red'}}> Feature not available Cross-Site</span> </div><div style={{height: '20px'}}></div></div>;
+
       let thisWebURL = this.props.allowRailsOff !== true ? null : 
         <div style={{ display: 'inline-table', paddingBottom: '20px', paddingTop: '20px', width: '100%', background: 'lightgray' }}>
           <span style={{ paddingLeft: '20px', paddingRight: '20px', fontSize: 'larger', fontWeight: 600 }}>WebURL</span>
@@ -372,7 +385,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               tenant= { this.props.tenant }
               urlVars= { this.props.urlVars }
 
-              allowOtherSites={ false }
+              allowOtherSites={ allowOtherSites }
               alwaysReadOnly = { false }
               pageContext={ this.props.pageContext }
               showPane={true}
@@ -380,29 +393,32 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               currentUser = {this.state.currentUser }
               lists = { [] }
 
+              pickedWeb = { this.state.pickedWeb }
+              isCurrentWeb = { this.state.isCurrentWeb }
+              
               definedList = { '' }
-              provisionWebs = { [ this.state.pickedWeb ? this.state.pickedWeb.url : '' ] }
               provisionListTitles = { [] }
 
             ></ProvisionLists>
           </div>;
 
     const provisionFieldPage  = this.props.allowRailsOff !== true ? null : 
-    <div className= { defaultPageClass }>
-      <ProvisionFields 
-      
-        updateMakeThisList= { this.updateMakeThisList.bind(this) }
-        makeThisList={ this.state.makeThisList }
+      <div className= { defaultPageClass }>
+        <ProvisionFields 
+        
+          updateMakeThisList= { this.updateMakeThisList.bind(this) }
+          makeThisList={ this.state.makeThisList }
 
-        useListAnalytics= { this.props.useListAnalytics }
-        analyticsWeb= { this.props.analyticsWeb }
-        analyticsList= { this.props.analyticsList }
-        tenant= { this.props.tenant }
-        urlVars= { this.props.urlVars }
+          useListAnalytics= { this.props.useListAnalytics }
+          analyticsWeb= { this.props.analyticsWeb }
+          analyticsList= { this.props.analyticsList }
+          tenant= { this.props.tenant }
+          urlVars= { this.props.urlVars }
 
+          pickedWeb = { this.state.pickedWeb }
+          isCurrentWeb = { this.state.isCurrentWeb }
 
-
-          allowOtherSites={ false }
+          allowOtherSites={ allowOtherSites }
           alwaysReadOnly = { false }
           pageContext={ this.props.pageContext }
           showPane={true}
@@ -411,7 +427,6 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           lists = { [] }
 
           definedList = { '' }
-          provisionWebs = { [ this.state.pickedWeb ? this.state.pickedWeb.url : '' ] }
           provisionListTitles = { [] }
 
         ></ProvisionFields>
@@ -428,7 +443,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               urlVars= { this.props.urlVars }
               pickedWeb = { this.state.pickedWeb }
 
-              allowOtherSites={ false }
+              allowOtherSites={ allowOtherSites }
               alwaysReadOnly = { false }
               pageContext={ this.props.pageContext }
               showPane={true}
@@ -451,7 +466,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               urlVars= { this.props.urlVars }
               pickedWeb = { this.state.pickedWeb }
 
-              allowOtherSites={ false }
+              allowOtherSites={ allowOtherSites }
               alwaysReadOnly = { false }
               pageContext={ this.props.pageContext }
               showPane={true}
@@ -482,7 +497,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           tenant= { this.props.tenant }
           urlVars= { this.props.urlVars }
 
-          allowOtherSites={ false }
+          allowOtherSites={ allowOtherSites }
           pageContext={ this.props.pageContext }
           showPane={true}
           allLoaded={false}
@@ -517,15 +532,15 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           defaultSelectedIndex ={ 4 }>
 
           <PivotItem headerText="Fields">
-                { provisionFieldPage }
+                { ( isCurrentWeb === true || allowOtherSites === true ? provisionFieldPage : notAllowOtherSites ) }
           </PivotItem>
 
           <PivotItem headerText="Lists">
-                { provisionListPage }
+                { ( isCurrentWeb === true || allowOtherSites === true ? provisionListPage : notAllowOtherSites ) }
           </PivotItem>
 
           <PivotItem headerText="Pages">
-              { provisionPagesPage }
+                { ( isCurrentWeb === true || allowOtherSites === true ? provisionPagesPage : notAllowOtherSites ) }
           </PivotItem>
 
           <PivotItem headerText="Patterns">
@@ -620,9 +635,13 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         errMessage = getHelpfullError(e, true, true );
         stateError.push( <div style={{ padding: '15px', background: 'yellow' }}> <span style={{ fontSize: 'larger', fontWeight: 600 }}>Can't find the site</span> </div>);
         stateError.push( <div style={{ paddingLeft: '25px', paddingBottom: '30px', background: 'yellow' }}> <span style={{ fontSize: 'large', color: 'red'}}> { errMessage }</span> </div>);
+        pickedWeb.error = errMessage;
+
       }
 
-      this.setState({ parentListWeb: newValue, stateError: stateError, pickedWeb: pickedWeb });
+      let isCurrentWeb: boolean = false;
+      if ( newValue.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
+      this.setState({ parentListWeb: newValue, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb });
 
     return;
 

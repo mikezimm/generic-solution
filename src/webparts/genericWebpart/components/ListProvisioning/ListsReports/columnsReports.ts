@@ -196,7 +196,7 @@ export function ReportsFields(listName: 'Reports1' | 'Reports2') {
 
     let theseFields: IMyFieldTypes[] = BuildReportsFields(listName);
 
-    console.log('HarmonieEmailFields', theseFields);
+    //console.log('ReportsFields', theseFields);
     return theseFields;
 }
 
