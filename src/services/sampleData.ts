@@ -4,43 +4,73 @@ import { Web, } from '@pnp/sp/presets/all';
 import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/ErrorHandler';
 import { arraysEqual } from 'office-ui-fabric-react';
 
-export function createGridDates () {
+import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/listTypes';
 
-    let analyticsWeb = "https://mcclickster.sharepoint.com/sites/Templates/Brasov/";
-    let analyticsList = "CapexTasks";
-    let web = Web(analyticsWeb);
+import { IListLog } from './listServices/listServices';
 
-    let title = "Test data";
+//https://stackoverflow.com/a/1349426
+function makeid(length) {
+    var result           = '';
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+ }
 
-    let message1 = "Valentines";
-    let arr = ["3/15/2021","4/26/2021","5/10/2021","7/5/2021","7/12/2021","8/2/2021","8/16/2021","10/11/2021","10/18/2021","11/8/2021","12/6/2021","12/27/2021","1/10/2022","1/31/2022","2/21/2022","2/28/2022","3/7/2022","3/21/2022","3/28/2022","4/4/2022","4/18/2022","5/16/2022","6/13/2022","7/11/2022","8/22/2022","8/29/2022","9/26/2022","10/17/2022","11/14/2022","3/23/2021","4/20/2021","5/4/2021","5/18/2021","7/6/2021","7/20/2021","8/3/2021","8/10/2021","9/14/2021","10/12/2021","10/26/2021","11/9/2021","11/16/2021","11/30/2021","12/7/2021","12/28/2021","1/11/2022","1/25/2022","2/8/2022","2/22/2022","3/8/2022","3/22/2022","4/5/2022","4/26/2022","5/10/2022","6/14/2022","7/12/2022","8/23/2022","9/6/2022","9/20/2022","10/4/2022","10/25/2022","11/8/2022","2/24/2021","3/3/2021","3/10/2021","3/17/2021","3/24/2021","3/31/2021","4/21/2021","5/19/2021","7/7/2021","7/14/2021","8/4/2021","8/11/2021","9/8/2021","9/15/2021","9/22/2021","10/13/2021","10/20/2021","11/10/2021","11/24/2021","12/8/2021","12/29/2021","1/5/2022","1/12/2022","1/26/2022","2/2/2022","2/9/2022","2/23/2022","3/2/2022","3/9/2022","3/23/2022","3/30/2022","4/6/2022","5/4/2022","6/22/2022","7/6/2022","8/24/2022","9/7/2022","9/21/2022","9/28/2022","10/5/2022","11/2/2022","3/25/2021","4/29/2021","5/13/2021","7/8/2021","7/22/2021","8/5/2021","8/19/2021","9/16/2021","10/14/2021","10/28/2021","11/11/2021","12/9/2021","12/30/2021","1/13/2022","1/27/2022","2/10/2022","2/24/2022","3/24/2022","5/5/2022","6/23/2022","7/7/2022","8/25/2022","9/8/2022","9/22/2022","10/6/2022","11/3/2022","3/19/2021","5/7/2021","7/9/2021","7/16/2021","8/6/2021","8/27/2021","10/15/2021","10/22/2021","11/12/2021","12/10/2021","12/31/2021","1/14/2022","1/28/2022","2/11/2022","2/25/2022","3/25/2022","5/6/2022","7/1/2022","8/26/2022","9/2/2022","9/23/2022","10/7/2022","11/4/2022"];
 
-    let message2 = "Vacation";
-    let vaca = ["8/22/2021","9/19/2021","9/26/2021","11/28/2021","12/5/2021","12/19/2021","12/26/2021","2/22/2021","3/1/2021","3/22/2021","4/5/2021","5/31/2021","6/7/2021","6/28/2021","7/26/2021","8/23/2021","8/30/2021","9/27/2021","10/4/2021","11/22/2021","12/13/2021","1/3/2022","2/14/2022","3/14/2022","5/2/2022","5/16/2022","2/23/2021","3/9/2021","3/23/2021","3/30/2021","5/4/2021","6/1/2021","6/15/2021","6/29/2021","7/6/2021","7/20/2021","7/27/2021","8/24/2021","8/31/2021","9/7/2021","9/14/2021","9/21/2021","9/28/2021","10/5/2021","10/12/2021","10/19/2021","10/26/2021","12/14/2021","3/1/2022","4/26/2022","5/10/2022","5/24/2022","2/24/2021","3/3/2021","3/24/2021","3/31/2021","4/28/2021","5/5/2021","5/12/2021","6/2/2021","6/9/2021","6/30/2021","7/14/2021","7/28/2021","9/8/2021","9/15/2021","9/22/2021","9/29/2021","10/6/2021","10/13/2021","10/20/2021","10/27/2021","12/15/2021","2/9/2022","4/27/2022","5/25/2022","2/25/2021","3/11/2021","3/25/2021","4/8/2021","5/6/2021","6/3/2021","6/17/2021","7/1/2021","7/29/2021","9/30/2021","10/7/2021","12/9/2021","2/17/2022","2/24/2022","3/3/2022","3/10/2022","5/5/2022","5/19/2022","2/26/2021","3/5/2021","3/26/2021","4/16/2021","6/4/2021","6/11/2021","7/2/2021","7/30/2021","9/24/2021","10/1/2021","12/10/2021","5/13/2022","12/4/2021"] ;
+export async function createGridDates ( webUrl : string, listName : string, itemTitle : string, code: string, message1 : string, dates : string[], setProgress: any ): Promise<IListLog[]>{
 
+    let web = Web(webUrl);
+    let statusLog : IListLog[] = [];
 
-    vaca.map( (d, i) => {
+    let list = web.lists.getByTitle(listName);
+    const entityTypeFullName = await list.getListItemEntityTypeFullName();
 
-        let now = new Date(d);
-        web.lists.getByTitle(analyticsList).items.add({
-            'Title': title,
+    let i = 0;
+
+    //let createThisBatch : IAnyArray = [];
+    //https://www.sitepoint.com/community/t/for-loop-through-array-and-group-every-x-number-of-items/97966
+    let totalItems = dates.length;
+    for (let thisDate of dates) {
+        let newCode = makeid( 4 ) + code + makeid( 3 );
+        let now = new Date(thisDate);
+
+        let item = {    'Title': itemTitle,
             'TheDate': now,
-            'Message': message2,
-            }).then((response) => {
-                console.log('created ' + ( i + 1 ) + ' of ' + (arr.length + 1), response );
-                if ( d === arr[arr.length -1] ) { alert('Done!'); }
+            'Message': message1,
+            'Code': newCode,   };
 
-            }).catch((e) => {
-            //Throw Error
-                //alert(e);
-                console.log('e',getHelpfullError(e, true,true) );
-        });
+        try {
 
-        
-    });
+            await list.items.add( item , entityTypeFullName).then(b => {
+                statusLog = notify(statusLog, 'Created Item', 'No-batch', null, null, null, true );
+                setProgress(false, "I", i, totalItems , 'darkgreen', 'CheckMark',  item.Title, 'Items: ' + item.Code, 'Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 95');
+            });
 
-    
+        } catch (e) {
+            let errMessage = getHelpfullError(e, true, true);
 
+            let missingColumn = false;
+            let userFieldMissingID = false;
 
+            if ( errMessage.indexOf('missing a column') > -1 ) { missingColumn = true; }
+            if ( errMessage.indexOf('does not exist on list') > -1 ) { missingColumn = true; }
+            if ( errMessage.indexOf('does not exist on type') > -1 ) { missingColumn = true; }
+
+            if ( errMessage.indexOf("A 'PrimitiveValue' node with non-null value was found when trying to read the value of a navigation property") > -1 ) { userFieldMissingID = true; }
+
+            if ( missingColumn ) {
+                let err = errMessage;
+                statusLog = notify(statusLog, 'Problem processing item', err, null, null, null, null);
+                console.log('Issue trying to create this item:', item );
+                setProgress(false, "E", i, totalItems , 'darkred', 'ErrorBadge', item.Title, 'Items: ' + item.Code, 'Adding Item ' + i + ' of ' + totalItems + '  item', 'Add item ~ 142 + \n' + err);
+            }
+        }
+
+    }
+
+    return statusLog;
 }
 

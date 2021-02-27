@@ -30,6 +30,8 @@ import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/co
 import { defineTheList } from './ListProvisioning/Harmonie/defineHarmonie';
 import ProvisionLists from './ListProvisioning/component/provisionListComponent';
 import ProvisionFields from './ListProvisioning/component/provisionFieldComponent';
+import ProvisionItems from './ListProvisioning/component/provisionItemsComponent';
+
 
 import InspectContents from './Contents/contentsComponent';
 
@@ -51,10 +53,6 @@ import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
 import * as links from './HelpInfo/AllLinks';
 import  EarlyAccess from './HelpInfo/EarlyAccess';
-
-import { createIconButton } from './createButtons/IconButton';
-
-import { createGridDates } from '../../../services/sampleData';
 
 
 const emptyString = (value: string | Date) : string => { return "";};
@@ -517,6 +515,35 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         ></InspectContents>
       </div>;
 
+      const contentsItems = <div className= { defaultPageClass }>
+        <ProvisionItems
+
+          updateMakeThisList= { this.updateMakeThisList.bind(this) }
+          makeThisList={ this.state.makeThisList }
+
+          useListAnalytics= { this.props.useListAnalytics }
+          analyticsWeb= { this.props.analyticsWeb }
+          analyticsList= { this.props.analyticsList }
+          tenant= { this.props.tenant }
+          urlVars= { this.props.urlVars }
+
+          pickedWeb = { this.state.pickedWeb }
+          isCurrentWeb = { this.state.isCurrentWeb }
+
+          allowOtherSites={ allowOtherSites }
+          alwaysReadOnly = { false }
+          pageContext={ this.props.pageContext }
+          showPane={true}
+          allLoaded={false}
+          currentUser = {this.state.currentUser }
+          lists = { [] }
+
+          definedList = { '' }
+          provisionListTitles = { [] }
+
+        ></ProvisionItems>
+      </div>;
+
       const pivotGap: Partial<IStyleSet<ILabelStyles>> = {
         root: { marginTop: 10 },
       };
@@ -553,16 +580,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
           { this.props.urlVars['create'] ===  "true" ?
                 <PivotItem headerText="Create">
-                    { createIconButton('Cat', 'Create Items', createGridDates , 'CreateID', {
-                        root: {padding:'20px !important', height: 32},//color: 'green' works here
-                        icon: { 
-                          fontSize: 28,
-                          fontWeight: "normal",
-                          margin: '0px 2px',
-                          color: '#00457e', //This will set icon color
-                      },
-                      }) 
-                    }
+
+                    { contentsItems }  
                 </PivotItem>
           : null }
 
