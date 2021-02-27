@@ -882,7 +882,7 @@ public constructor(props:IProvisionItemsProps){
             try {
                 await list.items.add( item , entityTypeFullName).then(b => {
                     statusLog = notify(statusLog, 'Created Item', 'No-batch', null, null, null, true );
-                    this.setProgress(false, "I", i, totalItems , 'darkgreen', 'CheckMark',  item.Title, 'Items: ' + item.now, 'Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 95');
+                    this.setProgress(false, "I", i, totalItems , 'darkgreen', 'CheckMark',  item.Title, 'Items: ' + item.TheDate, 'Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 95');
                 });
 
             } catch (e) {
