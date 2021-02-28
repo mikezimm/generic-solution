@@ -17,8 +17,8 @@
   "preconfiguredEntries": [{
     "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
     "group": { "default": "Other" },
-    "title": { "default": "Easy Contents Webpart" },
-    "description": { "default": "For power users and site owners" },
+    "title": { "default": "FPS Easy Contents Webpart" },
+    "description": { "default": "For power users and site owners, by Fuzzy Paws Solutions" },
     "officeFabricIconFontName": "Page",
     "properties": {
       "description": "For power users and site owners",
