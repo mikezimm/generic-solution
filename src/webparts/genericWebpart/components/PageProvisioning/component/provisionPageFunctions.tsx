@@ -8,6 +8,10 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText, IClientsidePage } from "@pnp/sp/clientside-pages";
 
+import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL, makeid, randomizeCase, isGuid } from '@mikezimm/npmfunctions/dist/stringServices';
+
+import { getMaxPropOfKeyInObjectArray } from '@mikezimm/npmfunctions/dist/arrayServices';
+
 export interface IWebPartDef {
 
     Id?: string; //Need to have guid or name
@@ -48,21 +52,6 @@ export function createDrilldownDemoWebParts() {
     return webparts;
 }
 
-export function isGuid( testMe: string ) {
-    //Regex courtesy of:  https://stackoverflow.com/a/13653180/4210807
-    let validGuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    let result : boolean = false;
-
-    if ( testMe === undefined || testMe === null || testMe.length < 22 ) {
-        result = false;
-
-    } else {
-        result = validGuidRegex.exec(testMe) ? true : false;
-    }
-
-    return result;  
-
-}
 
 export function createThisWebPart( webparts: IWebPartDef[], newSection: boolean, newColumn: boolean, colWidth: 4 | 6 | 12, NameOrId , setProperties: any ) {
     
@@ -100,54 +89,4 @@ export function createThisWebPart( webparts: IWebPartDef[], newSection: boolean,
 
     return webpart;
     
-}
-
-//This function should eventually get into arrServices file:
-
-export function getMaxPropOfKeyInObjectArray( arr: any[], key: string, find: 'max' | 'min', filterKey?: string, filterTest?: 'eq' | 'neq' , filterVal? : any ) {
-
-    let bestValue = null;
-
-    if ( arr === undefined || arr === null ) { return bestValue ; }
-    if ( arr.length === 0 ) { return bestValue ; }
-
-    for (let i in arr){
-
-        let checkKeyVal = arr[i][key];
-        let filterKeyVal = arr[i][filterKey];
-        
-        let validTest = true;
-
-        if ( checkKeyVal === undefined || checkKeyVal === null) {
-            validTest = false;
-
-        } else if ( filterKey && filterTest && filterVal ) {
-            if ( filterTest === 'eq') {
-                if ( filterKeyVal == null || filterKeyVal == undefined || checkKeyVal !== filterKeyVal ) { validTest = false; }
-
-            } else if ( filterTest === 'neq') {
-                if ( filterKeyVal !== null && filterKeyVal !== undefined && checkKeyVal === filterKeyVal ) { validTest = false; }
-            }
-        }
-
-        if ( validTest === true ) {
-            if ( bestValue === null || bestValue === undefined ) {
-                bestValue = checkKeyVal;
-
-            } else if ( find === 'max' ) {
-                if ( checkKeyVal > bestValue ) {
-                    bestValue = checkKeyVal;
-                }
-
-            } else if ( find === 'min' ) {
-                if ( checkKeyVal < bestValue ) {
-                    bestValue = checkKeyVal;
-                }
-
-            } // END:  if ( bestValue === null ) {
-        } // END:  if ( checkKeyVal ) {
-    } // for (let i in arr){
-
-    return bestValue;
-
 }

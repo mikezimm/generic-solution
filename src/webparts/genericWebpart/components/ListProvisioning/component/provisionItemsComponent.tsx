@@ -1,3 +1,8 @@
+
+
+
+
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .d88b.  d88888b d88888b d888888b  .o88b. d888888b  .d8b.  db      
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      .8P  Y8. 88'     88'       `88'   d8P  Y8   `88'   d8' `8b 88      
@@ -8,20 +13,33 @@
  *                                                                                                                                  
  *                                                                                                                                  
  */
-
 import * as React from 'react';
 
 import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 
+
+import {
+    MessageBar,
+    MessageBarType,
+    SearchBox,
+    Icon,
+    Label,
+    Pivot,
+    PivotItem,
+    PivotLinkFormat,
+    PivotLinkSize,
+  } from "office-ui-fabric-react";
+
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import ReactJson from "react-json-view";
+  
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
-import { PageContext } from '@microsoft/sp-page-context';
 
+import { PageContext } from '@microsoft/sp-page-context';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
@@ -34,12 +52,13 @@ import { PageContext } from '@microsoft/sp-page-context';
  *                                                                                                                                                                              
  */
 
-
-import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IMyProgress, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
-import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
 
+import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/listTypes';
+
+import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL, makeid, randomizeCase, isGuid } from '@mikezimm/npmfunctions/dist/stringServices';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -52,8 +71,9 @@ import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from 
  *                                                                                                                                 
  */
 
-import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
-
+import { IListLog } from '../../../../../services/listServices/listServices';
+   
+import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -67,13 +87,15 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../se
  */
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
+
 import ButtonCompound from '../../createButtons/ICreateButtons';
 import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
-import * as links from '../../HelpInfo/AllLinks';
-import { IFieldDef } from '../../fields/fieldDefinitions';
-import { createBasicTextField, createMultiLineTextField } from  '../../fields/textFieldBuilder';
 
-/***
+import { createIconButton } from '../../createButtons/IconButton';
+
+import * as links from '../../HelpInfo/AllLinks';
+
+ /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
  *       88    88  88  88 88oodD' 88    88 88oobY'    88         8P      88    88 88  88  88 88oodD' 88    88 88V8o 88 88ooooo 88V8o 88    88    
@@ -84,6 +106,18 @@ import { createBasicTextField, createMultiLineTextField } from  '../../fields/te
  *                                                                                                                                               
  */
 
+import { provisionTheList, IValidTemplate } from './provisionWebPartList';
+
+import { IGenericWebpartProps } from '../../IGenericWebpartProps';
+import { IGenericWebpartState } from '../../IGenericWebpartState';
+
+import styles from './provisionList.module.scss';
+
+import { IPageProvisionPivots } from '../../PageProvisioning/component/provisionPatternsComponent';
+
+import MyLogList from './listView';
+
+import { IMakeThisList } from './provisionWebPartList';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -96,16 +130,12 @@ import { createBasicTextField, createMultiLineTextField } from  '../../fields/te
  *                                                                                                                                               
  */
 
-import { provisionTheList, IValidTemplate } from './provisionWebPartList';
+import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 
-import { IGenericWebpartProps } from '../../IGenericWebpartProps';
-import { IGenericWebpartState } from '../../IGenericWebpartState';
-import styles from './provisionList.module.scss';
+import { createGridDates } from '../../../../../services/sampleData';
 
-import MyLogList from './listView';
-
-import { IMakeThisList } from './provisionWebPartList';
-
+import { IFieldDef } from '../../fields/fieldDefinitions';
+import { createBasicTextField, createMultiLineTextField } from  '../../fields/textFieldBuilder';
 
 /**
  * Steps to add new list def:
@@ -135,7 +165,7 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayService
 
 import { IDefinedLists, availLists, definedLists, dropDownWidth } from './provisionListComponent';
 
-export interface IProvisionFieldsProps {
+export interface IProvisionItemsProps {
     // 0 - Context
 
     pageContext: PageContext;
@@ -178,7 +208,9 @@ export interface IMyHistory {
     items: IMyProgress[];
 }
 
-export interface IProvisionFieldsState {
+//export type IItemMode = 'Define' | 'Create' | 'Status' | 'History';
+
+export interface IProvisionItemsState {
 
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
 
@@ -188,16 +220,24 @@ export interface IProvisionFieldsState {
     history: IMyHistory;
 
     doMode: boolean;
-    doList: boolean;
-    doFields: boolean;
-    doViews: boolean;
     doItems: boolean;
     doEditMain: boolean;
-    doEditFields: boolean;
+    DoEditItems: boolean;
+    
+    mode: IItemMode;
 
     listNo: number;
 
     currentList: string;
+
+    itemTitle: string;
+    message1: string;
+    code: string;
+    datesJSON: string[];
+    datesString: string;
+
+    //createGridDates ( webUrl : string, listName : string, itemTitle : string, code: string, message1 : string, dates : string[] ) {
+
 
     // 2 - Source and destination list information
     definedList: IDefinedLists;
@@ -211,22 +251,18 @@ export interface IProvisionFieldsState {
 
 }
 
-export default class ProvisionFields extends React.Component<IProvisionFieldsProps, IProvisionFieldsState> {
+export type IItemMode = 'Define' | 'Create' | 'Status' | 'History';
 
-    private createTitleField( title ) {
-        let thisField : IFieldDef = {
-            name: title,
-            title: null,
-            column: title,
-            type: 'String', //Smart, Text, Number, etc...
-            required: true,
-            disabled: false,
-            hidden: false,
-            blinkOnProject: null,
-            value: title,
-        };
-        return thisField;
-    }
+export const pivCats = {
+    Define: {title: 'Define', desc: '', order: 1, count: null, icon: null },
+    Create: {title: 'Create', desc: '', order: 1, count: null, icon: null },
+    Status: {title: 'Status', desc: '', order: 100, count: null, icon: null },
+    History: {title: 'History', desc: '', order: 1, count: null, icon: null },
+
+};
+
+export default class ProvisionItems extends React.Component<IProvisionItemsProps, IProvisionItemsState> {
+
 
     private captureAnalytics(itemInfo2, result, ActionJSON ){
         let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
@@ -247,10 +283,68 @@ export default class ProvisionFields extends React.Component<IProvisionFieldsPro
         //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
         saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
-            'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
-            'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
+            'Provision Items', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
+            'Items', itemInfo2, result, //itemInfo1, itemInfo2, result, 
             ActionJSON ); //richText
 
+    }
+
+    
+
+    /***
+ *         d8888b. d888888b db    db  .d88b.  d888888b .d8888. 
+ *         88  `8D   `88'   88    88 .8P  Y8. `~~88~~' 88'  YP 
+ *         88oodD'    88    Y8    8P 88    88    88    `8bo.   
+ *         88~~~      88    `8b  d8' 88    88    88      `Y8b. 
+ *         88        .88.    `8bd8'  `8b  d8'    88    db   8D 
+ *         88      Y888888P    YP     `Y88P'     YP    `8888Y' 
+ *                                                             
+ *                                                             
+ */
+
+
+public createPivotObject(setPivot, display){
+
+    let theseStyles = null;
+
+    let pivotField = 
+        <Pivot 
+        style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
+        styles={ theseStyles }
+        linkSize= { pivotOptionsGroup.getPivSize('large') }
+        linkFormat= { pivotOptionsGroup.getPivFormat('links') }
+        onLinkClick= { this._onChangeMode.bind(this) }  //{this.specialClick.bind(this)}
+        selectedKey={ setPivot }
+        headersOnly={true}>
+            {this.getFieldPivots()}
+        </Pivot>;
+        return pivotField;
+    }
+
+    private getFieldPivots() {
+
+        //export type IItemMode = 'Define' | 'Create' | 'Status' | 'History';
+        let Define = this.buildFilterPivot( pivCats.Define );
+        let Create = this.buildFilterPivot( pivCats.Create );
+        let Status = this.buildFilterPivot(pivCats.Status);
+        let History = this.buildFilterPivot(pivCats.History);
+
+        let thesePivots = [Define, Create, History];
+
+        return thesePivots;
+    }
+
+    private buildFilterPivot(pivCat: IMyPivCat) {
+        let p = <PivotItem 
+            //itemCount={ pivCat.count }
+            //itemIcon={ '' }
+            headerText={ pivCat.title }
+            itemKey={ pivCat.title }
+            >
+            { pivCat.desc }
+        </PivotItem>;
+
+        return p;
     }
 
     private clearHistory() {
@@ -276,7 +370,7 @@ export default class ProvisionFields extends React.Component<IProvisionFieldsPro
  *
  */
 
-public constructor(props:IProvisionFieldsProps){
+public constructor(props:IProvisionItemsProps){
     super(props);
 
     let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
@@ -298,18 +392,15 @@ public constructor(props:IProvisionFieldsProps){
     this.state = {
 
         alwaysReadOnly: alwaysReadOnly,
-        currentList: 'Click Button to start',
+        currentList: '',
         allLoaded: this.props.allLoaded,
         progress: null,
         history: this.clearHistory(),
 
         doMode: false,
-        doList: doList,
-        doFields: true,
-        doViews: true,
         doItems: false,
         doEditMain: makeThisList ? false : true ,
-        doEditFields: false,
+        DoEditItems: true,
 
         listNo: makeThisList ? 0 : null,
 
@@ -332,6 +423,13 @@ public constructor(props:IProvisionFieldsProps){
         makeThisList: makeThisList,
 
         validUserIds: [],
+
+        mode: 'Define',
+        message1: '',
+        code: '',
+        datesJSON: [],
+        datesString: '',
+        itemTitle: '',
 
     };
 
@@ -379,7 +477,7 @@ public constructor(props:IProvisionFieldsProps){
  *
  */
 
-    public render(): React.ReactElement<IProvisionFieldsProps> {
+    public render(): React.ReactElement<IProvisionItemsProps> {
 
         if ( this.state.definedList === availLists[0] || ( this.state.lists && this.state.lists.length > 0 ) ) {
             //console.log('provisionList.tsx', this.props, this.state);
@@ -395,188 +493,97 @@ public constructor(props:IProvisionFieldsProps){
  *
  */
 
-
-            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } </div>;
+            let itemsPivots = <div style={{paddingBottom: '20px'}}> { this.createPivotObject(this.state.mode, '') } </div>;
 
             let thisPage = null;
             let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
 
-            let createButtonOnClicks = [
-                this.CreateList_0.bind(this),
-            ];
+            let pivotItem = null;
 
-            const buttons: ISingleButtonProps[] = this.state.lists.map (( thelist, index ) => {
-                let theLabel = null;
-                let isDisabled = !thelist.webExists;
+            if ( this.state.mode === 'Define' ) {
 
-                if ( thelist.webExists ) {
-                    if ( thelist.title === '' ) {
-                        theLabel = "Update Title";
-                        isDisabled = true;
+                let currentList = <TextField
+                    defaultValue={ this.state.currentList }   label={ 'currentList' }    autoComplete='off'    required={ true }   className={ '' }
+                    onChanged={ this.UpdateCurrentList.bind(this) }
+                />;
+                let message1 = <TextField
+                    defaultValue={ this.state.message1 }   label={ 'message1' }    autoComplete='off'    required={ true }   className={ '' }
+                    onChanged={ this.UpdateMessage1.bind(this) }
+                />;
+                let code = <TextField
+                    defaultValue={ this.state.code }   label={ 'code' }    autoComplete='off'    required={ true }   className={ '' }
+                    onChanged={ this.UpdateCode.bind(this) }
+                />;
 
-                    } else if ( this.isListReadOnly(thelist) === false ) {
+                let editToggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getEditToggles()) } </div>;
 
-                        if ( thelist.listExists === true ) {
-                            if ( thelist.sameTemplate === true ) {
-                                theLabel = "UPDATE to " + thelist.listDefinition;
-
-                            } else {
-                                theLabel = "Not a " + ( thelist.template === 100 ? "List" : "Library" );
-                                isDisabled = true;
-                            }
-
-                        } else {
-                            theLabel = "Create as " + thelist.listDefinition;
-                        }
-
-                    } else {
-                        if ( thelist.listExists === true ) {
-                            theLabel = "Verify as " + thelist.listDefinition;
-                            console.log('render theList:', thelist ) ;
-
-                        } else {
-                            theLabel = "Can't verify List";
-                            isDisabled = true;
-                        }
-                    }
-                } else {
-                    theLabel = thelist.title + ' web does not exist!';
-                }
-
-                return {     disabled: isDisabled,  checked: true, primary: false,
-                    label: theLabel, buttonOnClick: createButtonOnClicks[index], };
-            });
-
-        
-
-            //let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
-            let updateTitleFunctions = [this.UpdateTitle_0.bind(this)];
-            let provisionButtons = buttons.map ( ( theButton, index ) => {
-                let thisTitle = this.state.provisionListTitles[index];
-                let titleBox = createBasicTextField(this.createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], styles.listProvTextField1 );
-                return <div style={{ paddingTop: '20px' }}><div> { titleBox }</div><ButtonCompound buttons={[theButton]} horizontal={true} /></div>;
-            });
-
-
-            let listLinks = this.state.lists.map( mapThisList => (
-                mapThisList.listExists ? links.createLink( mapThisList.listURL, '_none',  'Go to: ' + mapThisList.title ) : null ));
-
-            const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
-
-            let provisionButtonRow = <Stack horizontal={true} wrap={true} horizontalAlign={"start"} verticalAlign= {"center"} tokens={stackProvisionTokens}>{/* Stack for Buttons and Fields */}
-                    { provisionButtons }
-                    { listLinks }
-                    {  }
+                const stackInputTokens: IStackTokens = { childrenGap: 70 };
+                let defineItem = <Stack horizontal={true} wrap={true} horizontalAlign={"start"} verticalAlign= {"center"} tokens={stackInputTokens}>{/* Stack for Buttons and Fields */}
+                    { editToggles }
+                    { currentList }
+                    { message1 }
+                    { code }
                 </Stack>;
 
-            let myProgress = this.state.progress == null ? null : <ProgressIndicator
-                label={this.state.progress.label}
-                description={this.state.progress.description}
-                percentComplete={this.state.progress.percentComplete}
-                progressHidden={this.state.progress.progressHidden}/>;
+                let listDefInputField = this.state.DoEditItems === true ? 
+                <div style={{ width: '90%' }}> { createMultiLineTextField( 'Paste List JSON', this.state.datesString, this.UpdateJSONItems.bind(this), styles.listProvTextField1 ) }</div> :
+                <div style={{ overflowY: 'auto' }}>
+                    <ReactJson src={ this.state.datesJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                </div>;
 
+                pivotItem = <Stack horizontal={false} wrap={true} horizontalAlign={"start"} verticalAlign= {"center"} tokens={stackInputTokens}>{/* Stack for Buttons and Fields */}
+                    { defineItem }
+                    { listDefInputField }
+                </Stack>;
 
-            let errorList = <MyLogList
-                title={ 'Error'}           items={ this.state.history.errors }
-                descending={false}          titles={null}            ></MyLogList>;
+            } else if ( this.state.mode === 'Create' ) {
+                let createGridDatesF = this.createGridDates.bind(this);
+                let catItems = createIconButton('Cat', 'Create Items', 
+                    createGridDatesF , 'CreateID',
+                     {      root: {padding:'20px !important', height: 32},//color: 'green' works here
+                            icon: { 
+                                fontSize: 28,
+                                fontWeight: "normal",
+                                margin: '0px 2px',
+                                color: '#00457e', //This will set icon color
+                            },
+                        });
 
-            let fieldList = <MyLogList
-                title={ 'Column'}           items={ this.state.history.columns }
-                descending={false}          titles={null}            ></MyLogList>;
+                let myProgress = this.state.progress == null ? null : <ProgressIndicator
+                    label={this.state.progress.label}
+                    description={this.state.progress.description}
+                    percentComplete={this.state.progress.percentComplete}
+                    progressHidden={this.state.progress.progressHidden}/>;
 
-            let viewList = <MyLogList
-                title={ 'View'}           items={ this.state.history.views }
-                descending={false}          titles={null}            ></MyLogList>;
+                let errorList = <MyLogList
+                    title={ 'Error'}           items={ this.state.history.errors }
+                    descending={false}          titles={null}            ></MyLogList>;
 
-            let itemList = <MyLogList
-                title={ 'Item'}           items={ this.state.history.items }
-                descending={false}          titles={null}            ></MyLogList>;
+                let itemList = <MyLogList
+                    title={ 'Item'}           items={ this.state.history.items }
+                    descending={false}          titles={null}            ></MyLogList>;
 
-            let disclaimers = <div>
-                <h2>Disclaimers.... still need to work on</h2>
-                <span style={{ fontSize : 'xx-large'}}><mark>THIS PAGE IS CAN BREAK LISTS</mark></span>
-                <p>Every click is tracked :)</p>
-                <p>When selecting list type, it should set default list titles per list type.</p>
-                <ul>
-                    <li>Set Title in onCreate</li>
-                    <li>Create columns fields and views for other common lists</li>
-                </ul>
-            </div>;
+                const stackListTokens: IStackTokens = { childrenGap: 10 };
+                pivotItem = <div>
+                    { catItems }
+                    { myProgress }
+                    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
+                        { errorList }
+                        { itemList }
+                    </Stack>
+                </div>;
 
+            } else if ( this.state.mode === 'History' ) { 
 
-            let listDetails = null;
-            let editToggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getEditToggles()) } </div>;
+            }
 
-            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true ) {
-                       
-                let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] ));
-                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
-                if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
-                if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
+            const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
+            let listLinksRow = links.createLink( this.props.pickedWeb.url + '/lists/' + this.state.currentList, '_none',  'Go to: ' + this.state.currentList ) ;
 
-                let JSONString = JSON.stringify(this.state.lists[0]);
-                let listDefInputField = this.state.doEditMain === true ? 
-                    createMultiLineTextField( 'Paste List JSON', JSONString, this.UpdateJSON.bind(this), styles.listProvTextField1 ) :
-                    <div style={{ overflowY: 'auto' }}>
-                        <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                    </div>;
-
-                listDetails = <div style={{display: '', marginBottom: '30px' }}>
-                        <div><h2>Details for list: <span style={{fontSize: 'small', paddingLeft: '50px'}}> { links.JSONEditorShort } </span></h2></div>
-                        { listDefInputField }
-                    </div>;
-
-            } 
-
-
-            let fieldDetails = null;
-
-            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true  ) {
- 
-                let tempJSON = this.state.lists[ this.state.listNo ].createTheseFields ? JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ].createTheseFields )) : [];
-                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
-    
-                let JSONString = JSON.stringify(this.state.lists[0].createTheseFields);
-                let fieldDefInputField = this.state.doEditFields === true ? 
-                        createMultiLineTextField( 'Paste fields JSON', JSONString, this.UpdateJSONFields.bind(this), styles.listProvTextField1 ) :
-                        <div style={{ overflowY: 'auto' }}>
-                            <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                        </div>;
-
-                fieldDetails = <div style={{display: '', marginBottom: '30px' }}>
-                        <div><h2>Details for fields:  <span style={{fontSize: 'small', paddingLeft: '50px'}}> { links.JSONEditorShort } </span></h2></div>
-                        { fieldDefInputField }
-                    </div>;
-
-            } 
-
-            const stackListTokens: IStackTokens = { childrenGap: 10 };
-
-            thisPage = <div><div>{ disclaimers }</div>
-
-                <div> { toggles } </div>
-                <div> { provisionButtonRow } </div>
-                <div style={{ height:30} }> {  } </div>
-
-                <div style={{display: this.state.doMode === true ? '': 'none' }}>
-                        <div> { myProgress } </div>
-                        <div> {  } </div>
-                        <div> <h2>{ this.state.currentList }</h2> </div>
-                        <div>
-                        <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
-                            { errorList }
-                            { fieldList }
-                            { viewList }
-                            { itemList }
-                        </Stack>
-                        </div>
-                </div>
-                <div style={{display: this.state.doMode === true ? 'none': '' }}>
-                    { editToggles }
-                    { fieldDetails }
-                    { listDetails }
-
-                </div>
+            thisPage = <div style={{ paddingLeft: '30px', paddingTop: '30px' }}><div>{  }</div>
+                <div> { listLinksRow } </div>
+                <div> { itemsPivots } </div>
+                <div> { pivotItem } </div>
             </div>;
 
 /***
@@ -617,59 +624,6 @@ public constructor(props:IProvisionFieldsProps){
    *
    */
 
-  private CreateList_0(oldVal: any): any {
-    let mapThisList: IMakeThisList = this.state.lists[0];
-    this.CreateThisList(mapThisList, 0 );
-  }
-
-  private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
-
-    this.setState({ currentList: mapThisList.listDefinition + ' list: ' + mapThisList.title, history: this.clearHistory(), listNo: listNo });
-
-    let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
-
-    let readOnly: boolean  = this.isListReadOnly(mapThisList);
-
-    if ( this.state.doMode === true ) {
-
-        this.captureAnalytics('Update List', 'Updating', mapThisList);
-
-        let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems, false );
-
-        let stateLists = this.state.lists;
-        stateLists[listNo].listExists = true;
-
-        let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
-
-        if ( listCreated ) {
-            this.setState({
-                currentList: workingMessage + listName,
-                lists: stateLists,
-            });
-        }
-    } else {
-        console.log( 'listNo, mapThisList', listNo, mapThisList );
-    }
-
-
-        
-    return "Finished";
-  }
-
-  private isListReadOnly (mapThisList) {
-
-    let readOnly = true;
-    if ( this.state.alwaysReadOnly === false ) {                //First test, only allow updates if the state is explicitly set so alwaysReadOnly === false
-        if (mapThisList.onCurrentSite === true ) {
-            readOnly = false;                                   //If list is on current site, then allow writing (readonly = false)
-        } else if ( this.props.isCurrentWeb === true || this.props.allowOtherSites === true ) {
-            readOnly = false;                                   //Else If you explicitly tell it to allowOtherSites, then allow writing (readonly = false)
-        }
-    }
-
-    return readOnly;
-
-  }
   private markComplete() {
 
     this.setState({
@@ -719,10 +673,6 @@ public constructor(props:IProvisionFieldsProps){
         history.count ++;
         if ( list === 'E') {
             history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
-        } else if ( list === 'C') {
-            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
-        } else if ( list === 'V') {
-            history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
         } else if ( list === 'I') {
             history.items = history.items.length === 0 ? [progress] : [progress].concat(history.items);
         }
@@ -735,7 +685,19 @@ public constructor(props:IProvisionFieldsProps){
 
   }
 
+    public _onChangeMode = (item): void => {
+        //This sends back the correct pivot category which matches the category on the tile.
+        let e: any = event;
+        console.log('searchForItems: e',e);
+        console.log('searchForItems: item', item);
+        console.log('searchForItems: this', this);
 
+        this.setState({
+            mode: item.props.itemKey,
+        });
+
+    }
+    
 /***
  *         db    db d8888b. d8888b.  .d8b.  d888888b d88888b      .d8888. d888888b  .d8b.  d888888b d88888b
  *         88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'
@@ -811,6 +773,18 @@ public constructor(props:IProvisionFieldsProps){
 
         });
     }
+
+    
+    private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ) {
+        let stateLists = this.state.lists;
+        if (stateLists === undefined ) { stateLists = this.props.lists ; }
+        stateLists[index] = testLists[index];
+        this.setState({
+            lists: stateLists,
+            definedList: definedList,
+        });
+    }
+
 /*
     private checkThisList(index: number, testLists : IMakeThisList[], thisWeb: any, definedList: IDefinedLists ){
         //const thisWeb = Web(testLists[index].webURL);
@@ -827,174 +801,22 @@ public constructor(props:IProvisionFieldsProps){
     }
 */
 
-    private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ) {
-        let stateLists = this.state.lists;
-        if (stateLists === undefined ) { stateLists = this.props.lists ; }
-        stateLists[index] = testLists[index];
-        this.setState({
-            lists: stateLists,
-            definedList: definedList,
-        });
+    //this.setState({ provisionListTitles: provisionListTitles, });
+    
+    
+    private UpdateCurrentList(oldVal: any): any {
+        this.setState({ currentList: oldVal, });
+    }
+    private UpdateMessage1(oldVal: any): any {
+        this.setState({ message1: oldVal, });
+    }
+    private UpdateCode(oldVal: any): any {
+        this.setState({ code: oldVal, });
     }
 
-    private getDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean ) {
-
-        let theLists : IMakeThisList[] = [];
-
-        let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
-
-        if ( justReturnLists === false ) { provisionListTitles = [] ; }
-
-        if ( defineThisList === availLists[0] ) {
-            //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            this.setState({
-                lists: theLists,
-                definedList: defineThisList,
-            });
-        } else if ( defineThisList === 'TrackMyTime' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Projects');  provisionListTitles.push('TrackMyTime');  }
-
-            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( parentList ) { theLists.push( parentList ); }
-            if ( childList ) { theLists.push( childList ); }
-
-        } else if ( defineThisList === 'Harmon.ie' ) {
-            
-            if ( justReturnLists === false ) {  provisionListTitles.push('BUEmails');  provisionListTitles.push('Emails');  }
-
-            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( buEmails ) { theLists.push( buEmails ); }
-            if ( justEmails ) { theLists.push( justEmails ); }
-
-        } else if ( defineThisList === 'Drilldown' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Drilldown');  provisionListTitles.push('Drilldown');  }
-
-            let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( buEmails ) { theLists.push( buEmails ); }
-            if ( justEmails ) { theLists.push( justEmails ); }
-
-        } else if ( defineThisList === 'Customer Requirements' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Program');  provisionListTitles.push('SORInfo');  }
-
-            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( progCustRequire ) { theLists.push( progCustRequire ); }
-            if ( sorCustRequire ) { theLists.push( sorCustRequire ); }
-
-        }
-
-        if ( justReturnLists === true ) {
-            return theLists;
-
-        } else {
-            for ( let i in theLists ) {
-                this.checkThisWeb(parseInt(i,10), theLists, defineThisList );
-            }
-        }
-        return theLists;
-    }
-
-    private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
-        const dropdownStyles: Partial<IDropdownStyles> = {
-            dropdown: { width: dropDownWidth }
-          };
-
-          let sOptions: IDropdownOption[] = choices == null ? null : 
-            choices.map(val => {
-                  return {
-                      //key: getChoiceKey(val),
-                      key: val,
-                      text: val,
-                  };
-              });
-
-          let keyVal = this.state.definedList;
-
-          let thisDropdown = sOptions == null ? null : <div
-              //style={{  paddingTop: 10  }}
-                ><Dropdown 
-                label={ label }
-                //selectedKey={ getChoiceKey(keyVal) }
-                selectedKey={ keyVal }
-                onChange={ _onChange }
-                options={ sOptions } 
-                styles={ dropdownStyles }
-              />
-            </div>;
-
-        return thisDropdown;
-
-    }
-
-    private _updateDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
-        console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
-
-        let thisValue : any = getChoiceText(item.text);
-
-        let theLists = this.getDefinedLists(thisValue, false);
-
-        let doList: boolean = theLists.length === 0 ? null : theLists[0].template === 100 ? true : theLists[0].template === 101 ? false : null;
-
-        this.setState({ lists: theLists, doList: doList });
-
-    }
-
-    private UpdateTitle_0(oldVal: any): any {
-        this.UpdateTitles(oldVal,0);
-      }
-
-      private UpdateJSON(oldVal: any): any {
-        let newMapThisList = null;
+      private UpdateJSONItems(oldVal: any): any {
 
         try {
-            let doFields = this.state.doFields;
-            let doViews = this.state.doViews;
-            let doItems = this.state.doItems;
-
-            //oldVal = oldVal.replace('doubleQuotes','\"');
-            newMapThisList = JSON.parse(oldVal);
-
-            if ( this.state.lists.length === 0 ) {
-                if (  newMapThisList.createTheseFields && newMapThisList.createTheseFields.length > 0 ) { } else { doFields = false ; }
-                if (  newMapThisList.createTheseViews && newMapThisList.createTheseViews.length > 0 ) { } else { doViews = false ; }
-                if (  newMapThisList.createTheseItems && newMapThisList.createTheseItems.length > 0 ) { } else { doItems = false ; }
-            }
-
-            let definedList = newMapThisList.definedList;
-
-            this.setState({ 
-                lists: [newMapThisList],
-                doFields: doFields,
-                doViews: doViews,
-                doItems: doItems,
-                definedList: definedList,
-                listNo: 0,
-            });
-
-        } catch (e) {
-            alert('Opps! Invalid List JSON!' + e );
-        }
-
-      }
-
-      private UpdateJSONFields(oldVal: any): any {
-        let newMapThisList : IMakeThisList = null;
-
-        try {
-            let doFields = this.state.doFields;
-
-            //oldVal = oldVal.replace('doubleQuotes','\"');
-            newMapThisList  = this.state.lists[0];
 
             let firstBrace =oldVal.indexOf('{');
             let closingBrace =  oldVal.lastIndexOf('}');
@@ -1002,21 +824,11 @@ public constructor(props:IProvisionFieldsProps){
                 oldVal= '[' + oldVal + ']';
             }
 
-            let newFields = JSON.parse(oldVal);
-
-            if ( this.state.lists.length === 0 ) {
-                if (  newMapThisList.createTheseFields && newMapThisList.createTheseFields.length > 0 ) { } else { doFields = false ; }
-            }
-
-            newMapThisList.createTheseFields = newFields;
-
-            let definedList = newMapThisList.definedList;
+            let datesJSON = JSON.parse(oldVal);
 
             this.setState({ 
-                lists: [newMapThisList],
-                doFields: doFields,
-                definedList: definedList,
-                listNo: 0,
+                datesJSON: datesJSON,
+                datesString: oldVal,
             });
 
         } catch (e) {
@@ -1060,31 +872,19 @@ public constructor(props:IProvisionFieldsProps){
          */
         private getEditToggles() {
 
-            let toggleLabelMain = <span style={{ color: '', fontWeight: 700, whiteSpace: 'nowrap'}}>Edit or View entire list</span>;
-            let togDoEditMain = {
-                label: toggleLabelMain,
-                key: 'togDoEdit',
-                _onChange: this.updateTogggleDoEditMain.bind(this),
-                checked: this.state.doEditMain,
-                onText: 'Edit',
-                offText: 'View',
-                className: '',
-                styles: '',
-            };
-
-            let toggleLabel = <span style={{ color: '', fontWeight: 700, whiteSpace: 'nowrap'}}>Edit or View columns</span>;
-            let togDoEditFields = {
+            let toggleLabel = <span style={{ color: '', fontWeight: 700, whiteSpace: 'nowrap'}}>Edit or View items</span>;
+            let togDoEditItems = {
                 label: toggleLabel,
                 key: 'togDoEdit',
-                _onChange: this.updateTogggleDoEditFields.bind(this),
-                checked: this.state.doEditFields,
+                _onChange: this.updateTogggleDoEditItems.bind(this),
+                checked: this.state.DoEditItems,
                 onText: 'Edit',
                 offText: 'View',
                 className: '',
                 styles: '',
             };
 
-            let theseToggles = [ togDoEditFields, togDoEditMain ];
+            let theseToggles = [ togDoEditItems ];
 
             let pageToggles : IContentsToggles = {
                 toggles: theseToggles,
@@ -1092,139 +892,82 @@ public constructor(props:IProvisionFieldsProps){
                 vertical: false,
                 hAlign: 'end',
                 vAlign: 'start',
-                rootStyle: { width: 200, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+                rootStyle: { width: 150, paddingTop: 0, paddingRight: '', }, //This defines the styles on each toggle
             };
 
             return pageToggles;
 
         }
-
-        private getPageToggles() {
-
-            let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Mode</span>;
-            let togDoMode = {
-                label: toggleLabel,
-                key: 'togDoMode',
-                _onChange: this.updateTogggleDoMode.bind(this),
-                checked: this.state.doMode,
-                onText: 'Build',
-                offText: 'Design',
-                className: '',
-                styles: '',
-            };
-
-            let togDoList = {
-                label: this.state.doList === true ? 'Make List' : 'Make Library',
-                key: 'togDoList',
-                _onChange: this.updateTogggleDoList.bind(this),
-                checked: this.state.doList,
-                onText: '-',
-                offText: '-',
-                className: '',
-                styles: '',
-            };
-
-            let listNo = this.state.listNo;
-
-            let togDoFields = {
-                label: 'Fields ' + ( this.state.lists.length > 0 && listNo !== null ? `(${this.state.lists[listNo].createTheseFields.length})` : '' ),
-                key: 'togDoFields',
-                _onChange: this.updateTogggleDoFields.bind(this),
-                checked: this.state.doFields,
-                onText: 'Include',
-                offText: 'Skip',
-                className: '',
-                styles: '',
-            };
-
-            let togDoViews = {
-                label: 'Views ' + ( this.state.lists.length > 0 && listNo !== null ? `(${this.state.lists[listNo].createTheseViews.length})` : '' ),
-                key: 'togDoViews',
-                _onChange: this.updateTogggleDoViews.bind(this),
-                checked: this.state.doViews,
-                onText: 'Include',
-                offText: 'Skip',
-                className: '',
-                styles: '',
-            };
-
-            
-            let togDoItems = {
-                label: 'Items ' + ( this.state.lists.length > 0 && listNo !== null ? `(${this.state.lists[listNo].createTheseItems.length})` : '' ),
-                key: 'togDoItems',
-                _onChange: this.updateTogggleDoItems.bind(this),
-                checked: this.state.doItems,
-                onText: 'Include',
-                offText: 'Skip',
-                className: '',
-                styles: '',
-            };
-
-            let theseToggles = [togDoMode, togDoList, togDoFields, togDoViews, togDoItems ];
-
-            let pageToggles : IContentsToggles = {
-                toggles: theseToggles,
-                childGap: 20,
-                vertical: false,
-                hAlign: 'end',
-                vAlign: 'start',
-                rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
-            };
-
-            return pageToggles;
-
-        }
-
-        private updateTogggleDoEditMain = (item): void => {
+        private updateTogggleDoEditItems = (item): void => {
             this.setState({
-                doEditMain: !this.state.doEditMain,
-            });
-        }
-
-        private updateTogggleDoEditFields = (item): void => {
-            this.setState({
-                doEditFields: !this.state.doEditFields,
-            });
-        }
-
-        private updateTogggleDoMode = (item): void => {
-            this.setState({
-                doMode: !this.state.doMode,
-            });
-        }
-
-        private updateTogggleDoList = (item): void => {
-            //Similar to CreateThisList... just update existing list though
-            let stateLists = this.state.lists;
-
-            let newSetting = !this.state.doList;
-
-            stateLists.map( theList => {  // listURL, template
-                theList.template = newSetting === true ? 100 : 101;
-                theList.listURL = theList.webURL + ( newSetting === true ? 'lists/' : '' ) + theList.name;
-            });
-
-            this.setState({ doList: !this.state.doList, lists: stateLists });
-
-        }
-
-        private updateTogggleDoFields = (item): void => {
-            this.setState({
-                doFields: !this.state.doFields,
-            });
-        }
-
-        private updateTogggleDoViews = (item): void => {
-            this.setState({
-                doViews: !this.state.doViews,
+                DoEditItems: !this.state.DoEditItems,
             });
         }
 
 
-        private updateTogggleDoItems = (item): void => {
-            this.setState({
-                doItems: !this.state.doItems,
-            });
-        }
+
+    private async createGridDates (  ): Promise<IListLog[]>{
+
+        //this.props.pickedWeb.url, this.state.currentList, this.state.itemTitle, this.state.code, this.state.message1, this.state.datesJSON, this.setProgress.bind(this)
+
+        let webUrl : string = this.props.pickedWeb.url;
+        let currentList : string = this.state.currentList;
+        let itemTitle : string = this.state.itemTitle;
+        let code : string = this.state.code;
+        let message1 : string = this.state.message1;
+        let dates : string[] = this.state.datesJSON;
+
+        let web = Web(webUrl);
+        let statusLog : IListLog[] = [];
+
+        let list = web.lists.getByTitle(currentList);
+        const entityTypeFullName = await list.getListItemEntityTypeFullName();
+
+        let i = 0;
+
+        //let createThisBatch : IAnyArray = [];
+        //https://www.sitepoint.com/community/t/for-loop-through-array-and-group-every-x-number-of-items/97966
+        let totalItems = dates.length;
+        for (let thisDate of dates) {
+            i ++;
+            let newCode = makeid( 4 ) + randomizeCase( code ) + makeid( 3 );
+            let now = new Date(thisDate);
+
+            let item = {    'Title': itemTitle,
+                'TheDate': now,
+                'Message': message1,
+                'Code': newCode,   };
+
+            try {
+                await list.items.add( item , entityTypeFullName).then(b => {
+                    statusLog = notify(statusLog, 'Created Item', 'No-batch', null, null, null, true );
+                    this.setProgress(false, "I", i, totalItems , 'darkgreen', 'CheckMark',  item.Title, 'Items: ' + item.TheDate, 'Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 95');
+                });
+
+            } catch (e) {
+                let errMessage = getHelpfullError(e, true, true);
+
+                let missingColumn = false;
+                let userFieldMissingID = false;
+
+                if ( errMessage.indexOf('missing a column') > -1 ) { missingColumn = true; }
+                if ( errMessage.indexOf('does not exist on list') > -1 ) { missingColumn = true; }
+                if ( errMessage.indexOf('does not exist on type') > -1 ) { missingColumn = true; }
+
+                if ( errMessage.indexOf("A 'PrimitiveValue' node with non-null value was found when trying to read the value of a navigation property") > -1 ) { userFieldMissingID = true; }
+
+                if ( missingColumn ) {
+                    let err = errMessage;
+                    statusLog = notify(statusLog, 'Problem processing item', err, null, null, null, null);
+                    console.log('Issue trying to create this item:', item );
+                    this.setProgress(false, "E", i, totalItems , 'darkred', 'ErrorBadge', item.Title, 'Items: ' + item.Code, 'Adding Item ' + i + ' of ' + totalItems + '  item', 'Add item ~ 142 + \n' + err);
+                }
+            }
+
+    }
+
+    return statusLog;
+}
+
 
 }

@@ -141,7 +141,7 @@ public constructor(props:IFuturePlansProps){
  */
 
             return (
-                <div className={ styles.infoPane }>
+                <div className={ styles.infoPane } style={{ paddingBottom: '30px'}}>
                     { thisPage }
                 </div>
             );

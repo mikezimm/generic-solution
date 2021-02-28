@@ -117,30 +117,11 @@ public constructor(props:IGettingStartedProps){
 
             <h3>Please submit any issues or suggestions on github (requires free account)</h3>
             <WebPartLinks
-                    parentListURL={ this.props.parentState.parentListURL }
-                    parentListName={ this.props.parentState.parentListTitle }
-                    childListURL={ this.props.parentState.childListURL }
-                    childListName={ this.props.parentState.childListTitle }
+                    parentListURL={ null }
+                    parentListName={ null }
+                    childListURL={ null }
+                    childListName={ null }
             ></WebPartLinks>
-
-            <h2>First:  Create a Parent List and Child List in your site</h2>
-                <ol>
-                    <li>Go to <b>WebPart Properties</b> - Edit Page, Edit Webpart.</li>
-                    <li>Expand <b>Create-Verify Lists</b> section.</li>
-                    <li>Press <b>Create-Verify Projects List</b> button.</li>
-                    <li>Press <b>Create-Verify Child List</b> button.</li>
-                    <li>Exit <b>WebPart Properties</b></li>
-                    <li><b>Save</b> this page.</li>
-                    <li><b>Refresh</b> this page.</li>
-                </ol>
-
-            <h2>Second:  Create some Parents in the Parents list</h2>
-                <ol>
-                    <li>Go to <b>Parent List</b> section in this guide and review what the columns do.</li>
-                    <li>Go to your <Link href={this.props.parentState.parentListURL} target='_blank'>{ this.props.parentProps.parentListTitle }
-                        </Link> and create some new Parents.
-                    </li>
-                </ol>
 
           </div>;
 
@@ -157,7 +138,7 @@ public constructor(props:IGettingStartedProps){
  */
 
             return (
-                <div className={ styles.infoPane }>
+                <div className={ styles.infoPane } style={{ paddingBottom: '30px'}}>
                     { thisPage }
                 </div>
             );

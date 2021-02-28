@@ -1,3 +1,15 @@
+/***
+ *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .d88b.  d88888b d88888b d888888b  .o88b. d888888b  .d8b.  db      
+ *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      .8P  Y8. 88'     88'       `88'   d8P  Y8   `88'   d8' `8b 88      
+ *       88    88  88  88 88oodD' 88    88 88oobY'    88         88    88 88ooo   88ooo      88    8P         88    88ooo88 88      
+ *       88    88  88  88 88~~~   88    88 88`8b      88         88    88 88~~~   88~~~      88    8b         88    88~~~88 88      
+ *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         `8b  d8' 88      88        .88.   Y8b  d8   .88.   88   88 88booo. 
+ *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP          `Y88P'  YP      YP      Y888888P  `Y88P' Y888888P YP   YP Y88888P 
+ *                                                                                                                                  
+ *                                                                                                                                  
+ */
+
+
 import * as React from 'react';
 
 import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
@@ -8,37 +20,98 @@ import { sp } from "@pnp/sp";
 import { Web, Lists, List } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import ReactJson from "react-json-view";
+import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
+
+import { PageContext } from '@microsoft/sp-page-context';
+
+
+/***
+ *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
+ *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      888o  88 88  `8D 88'YbdP`88      88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP 
+ *       88    88  88  88 88oodD' 88    88 88oobY'    88         88V8o 88 88oodD' 88  88  88      88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.   
+ *       88    88  88  88 88~~~   88    88 88`8b      88         88 V8o88 88~~~   88  88  88      88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b. 
+ *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         88  V888 88      88  88  88      88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D 
+ *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP         VP   V8P 88      YP  YP  YP      YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y' 
+ *                                                                                                                                                                              
+ *                                                                                                                                                                              
+ */
+
+
+import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
+
+
+/***
+ *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
+ *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
+ *       88    88  88  88 88oodD' 88    88 88oobY'    88         `8bo.   88ooooo 88oobY' Y8    8P    88    8P      88ooooo `8bo.   
+ *       88    88  88  88 88~~~   88    88 88`8b      88           `Y8b. 88~~~~~ 88`8b   `8b  d8'    88    8b      88~~~~~   `Y8b. 
+ *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         db   8D 88.     88 `88.  `8bd8'    .88.   Y8b  d8 88.     db   8D 
+ *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP         `8888Y' Y88888P 88   YD    YP    Y888888P  `Y88P' Y88888P `8888Y' 
+ *                                                                                                                                 
+ *                                                                                                                                 
+ */
+import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
+
+ /***
+ *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
+ *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88   88 88'     88      88  `8D 88'     88  `8D 88'  YP 
+ *       88    88  88  88 88oodD' 88    88 88oobY'    88         88ooo88 88ooooo 88      88oodD' 88ooooo 88oobY' `8bo.   
+ *       88    88  88  88 88~~~   88    88 88`8b      88         88~~~88 88~~~~~ 88      88~~~   88~~~~~ 88`8b     `Y8b. 
+ *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         88   88 88.     88booo. 88      88.     88 `88. db   8D 
+ *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP         YP   YP Y88888P Y88888P 88      Y88888P 88   YD `8888Y' 
+ *                                                                                                                       
+ *                                                                                                                       
+ */
+
+import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
+import ButtonCompound from '../../createButtons/ICreateButtons';
+import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
+
+import { IFieldDef } from '../../fields/fieldDefinitions';
+import { createBasicTextField } from  '../../fields/textFieldBuilder';
+
+import * as links from '../../HelpInfo/AllLinks';
+
+ /***
+ *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
+ *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
+ *       88    88  88  88 88oodD' 88    88 88oobY'    88         8P      88    88 88  88  88 88oodD' 88    88 88V8o 88 88ooooo 88V8o 88    88    
+ *       88    88  88  88 88~~~   88    88 88`8b      88         8b      88    88 88  88  88 88~~~   88    88 88 V8o88 88~~~~~ 88 V8o88    88    
+ *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         Y8b  d8 `8b  d8' 88  88  88 88      `8b  d8' 88  V888 88.     88  V888    88    
+ *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP          `Y88P'  `Y88P'  YP  YP  YP 88       `Y88P'  VP   V8P Y88888P VP   V8P    YP    
+ *                                                                                                                                               
+ *                                                                                                                                               
+ */
+
 
 import { provisionTheList, IValidTemplate } from './provisionWebPartList';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionList.module.scss';
-import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
-
-import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
-
-import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
-
-import ButtonCompound from '../../createButtons/ICreateButtons';
-import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
-
-
-import { PageContext } from '@microsoft/sp-page-context';
 
 import MyLogList from './listView';
 
-import * as links from '../../HelpInfo/AllLinks';
 
 import { IMakeThisList } from './provisionWebPartList';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
-import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
 
-import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 
-import { IFieldDef } from '../../fields/fieldDefinitions';
-import { createBasicTextField } from  '../../fields/textFieldBuilder';
+/***
+ *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
+ *    88'     `8b  d8' 88  `8D .8P  Y8. 88  `8D `~~88~~'        `88'   888o  88 `~~88~~' 88'     88  `8D 88'     d8' `8b d8P  Y8 88'     88'  YP 
+ *    88ooooo  `8bd8'  88oodD' 88    88 88oobY'    88            88    88V8o 88    88    88ooooo 88oobY' 88ooo   88ooo88 8P      88ooooo `8bo.   
+ *    88~~~~~  .dPYb.  88~~~   88    88 88`8b      88            88    88 V8o88    88    88~~~~~ 88`8b   88~~~   88~~~88 8b      88~~~~~   `Y8b. 
+ *    88.     .8P  Y8. 88      `8b  d8' 88 `88.    88           .88.   88  V888    88    88.     88 `88. 88      88   88 Y8b  d8 88.     db   8D 
+ *    Y88888P YP    YP 88       `Y88P'  88   YD    YP         Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P `8888Y' 
+ *                                                                                                                                               
+ *                                                                                                                                               
+ */
+
 
 /**
  * Steps to add new list def:
@@ -59,7 +132,7 @@ import * as dReps from '../ListsReports/defineReports';
 //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
 import * as dPivT from '../PivotTiles/definePivotTiles';
 
-import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
+
 
 /**
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
@@ -99,7 +172,9 @@ export interface IProvisionListsProps {
 
     // 2 - Source and destination list information
     definedList: IDefinedLists; 
-    provisionWebs: string[];
+    pickedWeb : IPickedWebBasic;
+    isCurrentWeb: boolean;
+
     provisionListTitles: string[];
 
     // 2 - Source and destination list information
@@ -121,7 +196,6 @@ export interface IMyHistory {
 
 export interface IProvisionListsState {
 
-    allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning lists on other sites.
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
 
     allLoaded: boolean;
@@ -141,7 +215,6 @@ export interface IProvisionListsState {
 
     // 2 - Source and destination list information
     definedList: IDefinedLists;
-    provisionWebs: string[];
     provisionListTitles: string[];
 
     // 2 - Source and destination list information
@@ -228,10 +301,6 @@ public constructor(props:IProvisionListsProps){
     let alwaysReadOnly = this.props.alwaysReadOnly === true ? true : false;
 
     let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
-    if ( currentSiteURL.toLowerCase().indexOf( '/sites/Templates/'.toLowerCase() ) === 0  || currentSiteURL.toLowerCase().indexOf( '/sites/PreConfigProps/'.toLowerCase() ) === 0 ) {
-        allowOtherSites = true;
-        alwaysReadOnly = false;
-    }
 
     this.captureAnalytics('Constructor', 'Loading', null);
 
@@ -239,7 +308,6 @@ public constructor(props:IProvisionListsProps){
 
     this.state = {
 
-        allowOtherSites: allowOtherSites,
         alwaysReadOnly: alwaysReadOnly,
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
@@ -257,7 +325,6 @@ public constructor(props:IProvisionListsProps){
         // 2 - Source and destination list information
 
         definedList: definedList,
-        provisionWebs: this.props.provisionWebs.map( web => { return cleanURL(web) ; } ),
         provisionListTitles: this.props.provisionListTitles,
 
         //parentListURL: parentWeb + 'lists/' + this.props.parentListTitle, //Get from list item
@@ -595,7 +662,7 @@ public constructor(props:IProvisionListsProps){
     if ( this.state.alwaysReadOnly === false ) {                //First test, only allow updates if the state is explicitly set so alwaysReadOnly === false
         if (mapThisList.onCurrentSite === true ) {
             readOnly = false;                                   //If list is on current site, then allow writing (readonly = false)
-        } else if ( this.state.allowOtherSites === true ) {
+        } else if ( this.props.isCurrentWeb === true || this.props.allowOtherSites === true ) {
             readOnly = false;                                   //Else If you explicitly tell it to allowOtherSites, then allow writing (readonly = false)
         }
     }
@@ -693,7 +760,7 @@ public constructor(props:IProvisionListsProps){
         }
 
         if ( this.state.validUserIds.length === 0 ) {
-            const thisWeb = Web( this.props.provisionWebs[0] );
+            const thisWeb = Web( this.props.pickedWeb.url );
             thisWeb.siteUsers.get().then((responseUsers) => {
                 let validUserIds : any[] = [];
                 responseUsers.map ( u => {
@@ -774,13 +841,12 @@ public constructor(props:IProvisionListsProps){
 
         let theLists : IMakeThisList[] = [];
 
-        let provisionWebs =  this.state ? this.state.provisionWebs : this.props.provisionWebs;
         let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
 
         if ( justReturnLists === false ) { provisionListTitles = [] ; }
 
         if ( defineThisList === availLists[0] ) {
-            //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.props.currentUser, this.props.pageContext.web.absoluteUrl );
             this.setState({
                 lists: theLists,
                 definedList: defineThisList,
@@ -789,8 +855,8 @@ public constructor(props:IProvisionListsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Projects');  provisionListTitles.push('TrackMyTime');  }
 
-            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( parentList ) { theLists.push( parentList ); }
             if ( childList ) { theLists.push( childList ); }
@@ -799,8 +865,8 @@ public constructor(props:IProvisionListsProps){
             
             if ( justReturnLists === false ) {  provisionListTitles.push('BUEmails');  provisionListTitles.push('Emails');  }
 
-            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( buEmails ) { theLists.push( buEmails ); }
             if ( justEmails ) { theLists.push( justEmails ); }
@@ -809,8 +875,8 @@ public constructor(props:IProvisionListsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Drilldown');  provisionListTitles.push('Drilldown');  }
 
-            let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( buEmails ) { theLists.push( buEmails ); }
             if ( justEmails ) { theLists.push( justEmails ); }
@@ -819,8 +885,8 @@ public constructor(props:IProvisionListsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Program');  provisionListTitles.push('SORInfo');  }
 
-            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( progCustRequire ) { theLists.push( progCustRequire ); }
             if ( sorCustRequire ) { theLists.push( sorCustRequire ); }
@@ -829,8 +895,8 @@ public constructor(props:IProvisionListsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('PivotTiles');  provisionListTitles.push('OurTiles');  }
 
-            let pivotTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[0], 'PivotTiles' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let ourTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[1], 'OurTiles' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let pivotTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[0], 'PivotTiles' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let ourTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[1], 'OurTiles' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( pivotTiles ) { theLists.push( pivotTiles ); }
             if ( ourTiles ) { theLists.push( ourTiles ); }
@@ -839,8 +905,8 @@ public constructor(props:IProvisionListsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Reports1');  provisionListTitles.push('Reports2');  }
 
-            let reports1 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[0], 'Reports1' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let reports2 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[1], 'Reports2' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let reports1 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[0], 'Reports1' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let reports2 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[1], 'Reports2' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( reports1 ) { theLists.push( reports1 ); }
             if ( reports2 ) { theLists.push( reports2 ); }
@@ -849,8 +915,8 @@ public constructor(props:IProvisionListsProps){
 
             if ( justReturnLists === false ) {  provisionListTitles.push('Finance Tasks');  provisionListTitles.push('OurTasks');  }
 
-            let finTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[0], 'Finance Tasks' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let ourTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[1], 'OurTasks' , provisionWebs[0], this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let finTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[0], 'Finance Tasks' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let ourTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[1], 'OurTasks' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( finTasks ) { theLists.push( finTasks ); }
             if ( ourTasks ) { theLists.push( ourTasks ); }
@@ -942,10 +1008,9 @@ public constructor(props:IProvisionListsProps){
         reDefinedLists[index].name = listName;
         reDefinedLists[index].title = oldVal;
         reDefinedLists[index].desc = oldVal + ' list for this Webpart';
-        let provisionWebs = this.state.provisionWebs[index] ? this.state.provisionWebs[index] : this.state.provisionWebs[0] ;
         reDefinedLists.map( theList => {
             theList.template = this.state.doList === true ? 100 : 101 ;
-            theList.listURL =  ( provisionWebs ) + ( theList.template === 100 ? 'lists/' : '') + listName;
+            theList.listURL =  ( this.props.pickedWeb.url ) + '/' + ( theList.template === 100 ? 'lists/' : '') + listName;
         });
 
         this.checkThisWeb(index, reDefinedLists, definedList);
@@ -1078,5 +1143,7 @@ public constructor(props:IProvisionListsProps){
                 doItems: !this.state.doItems,
             });
         }
+
+        
 
 }

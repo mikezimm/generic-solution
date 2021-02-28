@@ -112,7 +112,7 @@ public constructor(props:IInfoDevelopersProps){
 
             thisPage = <div>
                 <h2></h2>
-                <table className={styles.infoTable}>
+                <table className={styles.infoTable} style={{ paddingBottom: '30px'}}>
                     <tr><th>MS Dev Docs</th><th>Github</th><th>Description</th></tr>
                     <tr><td>{links.devDocsWeb}</td><td>{links.gitRepoSPFxContReact}</td><td>MSFT Dev Docs for Fabric React UI Components</td></tr>
 

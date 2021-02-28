@@ -115,39 +115,41 @@ public constructor(props:IInfoAboutMeProps){
             const stackTokensBody: IStackTokens = { childrenGap: 20 };
 
             let thisPage = null;
-
+            let nowWrap : any = { whiteSpace: 'nowrap' };
             thisPage = <div>
                 <WebPartLinks
-                    parentListURL={ this.props.parentState.parentListURL }
-                    parentListName={ this.props.parentState.parentListTitle }
-                    childListURL={ this.props.parentState.childListURL }
-                    childListName={ this.props.parentState.childListTitle }
+                    parentListURL={ null }
+                    parentListName={ null }
+                    childListURL={ null }
+                    childListName={ null }
                 ></WebPartLinks>
 
                 <h2>Version History</h2>
                 {/* 3 files to update version number:  package-solution.json, package-lock.json, package.json*/}
                 <table className={styles.infoTable}>
                     <tr><th>Date</th><th>Version</th><th>Focus</th><th>Notes</th></tr>
-                    <tr><td>2021-02-19</td><td>{'1.1.12.4'}</td><td>Fix Current list display</td></tr>
-                    <tr><td>2021-02-19</td><td>{'1.1.12.3'}</td><td>Fix allIndex on showItems bug</td></tr>
-                    <tr><td>2021-02-19</td><td>{'1.1.12.2'}</td><td>Fix when Patterns sitepages has Templates folder (null items error)</td></tr>
-                    <tr><td>2021-02-18</td><td>{'1.1.12.1'}</td><td>Add <b>Pattern provisioning</b></td></tr>
-                    <tr><td>2021-02-08</td><td>{'1.1.11.1'}</td><td>Add <b>Field Provisioning</b> and <b>Improvements, fixes</b></td><td>BK's-BD &gt;w&lt;</td></tr>
-                    <tr><td>2020-10-22</td><td>{'1.1.9.1'}</td><td>Add <b>View Details</b> and improve <b>XML Formatting</b></td><td></td></tr>
-                    <tr><td>2020-10-12</td><td>{'1.1.8.3'}</td><td>Add <b>Early Access bar</b></td><td></td></tr>
-                    <tr><td>2020-10-10</td><td>{'1.1.8.2'}</td><td>List Contents railsOff Link updates</td><td></td></tr>
-                    <tr><td>2020-10-10</td><td>{'1.1.8.1'}</td><td>Start railsOff Mode for normal use</td><td></td></tr>
-                    <tr><td>2020-09-10</td><td>{'1.1.7.1'}</td><td>Add List Views</td><td></td></tr>
-                    <tr><td>2020-09-10</td><td>{'1.1.6.1'}</td><td>Add experimental DrillDown</td><td>With basic Pivot and Command bar options</td></tr>
-                    <tr><td>2020-08-31</td><td>{'1.1.5.1'}</td><td>Add Groups and Users tab</td><td>Also refactor HoverCard code and others</td></tr>
-                    <tr><td>2020-08-31</td><td>{'1.1.4.1'}</td><td>Add Features Tab</td><td>Improved WebParts tab as well</td></tr>
-                    <tr><td>2020-08-14</td><td>{'1.1.3.1'}</td><td>Add Groups Tab</td><td>Includes getting Users based on groups</td></tr>
-                    <tr><td>2020-08-14</td><td>{'1.1.2.2'}</td><td>Add Webs and ThisSite</td><td>2.2 fixed WebParts error</td></tr>
-                    <tr><td>2020-08-14</td><td>{'1.1.1.1'}</td><td>Columns almost done</td><td>Also moved WebParts under Contents pivot</td></tr>
-                    <tr><td>2020-08-09</td><td>{'1.1.1.0'}</td><td>List Contents Updated, almost done</td><td>Set as default component, added Advanced and Rails Off mode</td></tr>
-                    <tr><td>2020-08-09</td><td>{'1.1.0.0'}</td><td>Contents added</td><td>Nothing special</td></tr>
-                    <tr><td>2020-08-07</td><td>{'1.0.0.0'}</td><td>Web Parts and Pages start</td><td>Nothing special</td></tr>
-                    <tr><td>2020-07-27</td><td>{'1.0.0.0'}</td><td>Intial Build</td><td>Nothing special</td></tr>
+                    <tr><td style={ nowWrap }>2021-02-24</td><td>{'1.1.12.6'}</td><td>Add create items tab</td><td></td></tr>
+                    <tr><td style={ nowWrap }>2021-02-24</td><td>{'1.1.12.5'}</td><td>Fix Group Settings link, Pattern Provisioning analytics, Help styling</td><td>Improve prevention locks</td></tr>
+                    <tr><td style={ nowWrap }>2021-02-19</td><td>{'1.1.12.4'}</td><td>Fix Current list display</td></tr>
+                    <tr><td style={ nowWrap }>2021-02-19</td><td>{'1.1.12.3'}</td><td>Fix allIndex on showItems bug</td></tr>
+                    <tr><td style={ nowWrap }>2021-02-19</td><td>{'1.1.12.2'}</td><td>Fix when Patterns sitepages has Templates folder (null items error)</td></tr>
+                    <tr><td style={ nowWrap }>2021-02-18</td><td>{'1.1.12.1'}</td><td>Add <b>Pattern provisioning</b></td></tr>
+                    <tr><td style={ nowWrap }>2021-02-08</td><td>{'1.1.11.1'}</td><td>Add <b>Field Provisioning</b> and <b>Improvements, fixes</b></td><td>BK's-BD &gt;w&lt;</td></tr>
+                    <tr><td style={ nowWrap }>2020-10-22</td><td>{'1.1.9.1'}</td><td>Add <b>View Details</b> and improve <b>XML Formatting</b></td><td></td></tr>
+                    <tr><td style={ nowWrap }>2020-10-12</td><td>{'1.1.8.3'}</td><td>Add <b>Early Access bar</b></td><td></td></tr>
+                    <tr><td style={ nowWrap }>2020-10-10</td><td>{'1.1.8.2'}</td><td>List Contents railsOff Link updates</td><td></td></tr>
+                    <tr><td style={ nowWrap }>2020-10-10</td><td>{'1.1.8.1'}</td><td>Start railsOff Mode for normal use</td><td></td></tr>
+                    <tr><td style={ nowWrap }>2020-09-10</td><td>{'1.1.7.1'}</td><td>Add List Views</td><td></td></tr>
+                    <tr><td style={ nowWrap }>2020-09-10</td><td>{'1.1.6.1'}</td><td>Add experimental DrillDown</td><td>With basic Pivot and Command bar options</td></tr>
+                    <tr><td style={ nowWrap }>2020-08-31</td><td>{'1.1.5.1'}</td><td>Add Groups and Users tab</td><td>Also refactor HoverCard code and others</td></tr>
+                    <tr><td style={ nowWrap }>2020-08-31</td><td>{'1.1.4.1'}</td><td>Add Features Tab</td><td>Improved WebParts tab as well</td></tr>
+                    <tr><td style={ nowWrap }>2020-08-14</td><td>{'1.1.3.1'}</td><td>Add Groups Tab</td><td>Includes getting Users based on groups</td></tr>
+                    <tr><td style={ nowWrap }>2020-08-14</td><td>{'1.1.2.2'}</td><td>Add Webs and ThisSite</td><td>2.2 fixed WebParts error</td></tr>
+                    <tr><td style={ nowWrap }>2020-08-14</td><td>{'1.1.1.1'}</td><td>Columns almost done</td><td>Also moved WebParts under Contents pivot</td></tr>
+                    <tr><td style={ nowWrap }>2020-08-09</td><td>{'1.1.1.0'}</td><td>List Contents Updated, almost done</td><td>Set as default component, added Advanced and Rails Off mode</td></tr>
+                    <tr><td style={ nowWrap }>2020-08-09</td><td>{'1.1.0.0'}</td><td>Contents added</td><td>Nothing special</td></tr>
+                    <tr><td style={ nowWrap }>2020-08-07</td><td>{'1.0.0.0'}</td><td>Web Parts and Pages start</td><td>Nothing special</td></tr>
+                    <tr><td style={ nowWrap }>2020-07-27</td><td>{'1.0.0.0'}</td><td>Intial Build</td><td>Nothing special</td></tr>
                 </table>
             </div>;
 
@@ -163,7 +165,7 @@ public constructor(props:IInfoAboutMeProps){
  */
 
             return (
-                <div className={ styles.infoPane }>
+                <div className={ styles.infoPane } style={{ paddingBottom: '30px'}}>
                     { thisPage }
                 </div>
             ); 

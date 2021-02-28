@@ -683,7 +683,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
         let saveHistoryObject = {
             progress: this.state.progress,
             history: this.state.history,
-        }
+        };
         let hadErrors = this.state.history.errors.length > 0 ? true : false;
         let saveHistoryStringified = JSON.stringify(saveHistoryObject);
         let ServerRelativeUrl = this.props.pageContext.web.serverRelativeUrl;
