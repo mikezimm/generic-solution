@@ -37,7 +37,7 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
 import stylesL from '../listView.module.scss';
 
-import { getPrincipalTypeString } from '../Groups/groupsFunctions';
+import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/userServices';
 
 export const systemGroups = ["Approvers","Designers" ,"Excel Services Viewers" ,"External Editors" ,
 "External Readers" ,"Hierarchy Managers", "Quick Deploy Users", "Restricted Readers"];

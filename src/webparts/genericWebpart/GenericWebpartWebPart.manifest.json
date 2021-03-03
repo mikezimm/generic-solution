@@ -19,11 +19,9 @@
     "group": { "default": "Other" },
     "title": { "default": "FPS Easy Contents Webpart" },
     "description": { "default": "For power users and site owners, by Fuzzy Paws Solutions" },
-    "officeFabricIconFontName": "Page",
+    "officeFabricIconFontName": "AllApps",
     "properties": {
       "description": "For power users and site owners",
-      "parentListTitle": "ParentListTitle",
-      "childListTitle": "ChildListTitle",
       "allowRailsOff": false
     }
   }]

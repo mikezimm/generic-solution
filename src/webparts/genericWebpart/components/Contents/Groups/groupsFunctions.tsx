@@ -25,6 +25,8 @@ import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezim
 
 import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 
+import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/userServices';
+
 import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
 import { IAnyArray } from  '../../../../../services/listServices/listServices';
@@ -39,15 +41,6 @@ export type IValidWebTemplate2 = 64 | 68 ; //64 = Team; 68 = Communication
 export const systemGroups = ["Approvers","Designers" ,"Excel Services Viewers" ,"External Editors" ,
 "External Readers" ,"Hierarchy Managers", "Quick Deploy Users", "Restricted Readers"];
 
-
-export function getPrincipalTypeString( type: PrincipalType ) {
-    if ( type === 0 ) { return 'None'; }
-    if ( type === 1 ) { return 'User'; }
-    if ( type === 2 ) { return 'Distribution'; }
-    if ( type === 4 ) { return 'Security'; }
-    if ( type === 8 ) { return 'SharePoint'; }
-    if ( type === 15 ) { return 'All'; }
-}
 
 //export async function provisionTestPage( makeThisPage:  IContentsGroupInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allAvailableGroups( webURL: string, showUsers: boolean, groupBuckets: IGroupBucketInfo[], addTheseGroupsToState: any, setProgress: any, markComplete: any ): Promise<IContentsGroupInfo[]>{
@@ -87,19 +80,6 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
         let thisGroup = allGroups[i];
         if ( showUsers === true ) {
             const users = await thisWebInstance.siteGroups.getById(allGroups[i].Id).users();
-
-        /**
-            * 
-            * @param progressHidden 
-            * @param page : page you want to add this to 'E' | 'C' | 'V' | 'I'
-            * @param current : current index of progress
-            * @param ofThese : total count of items in progress
-            * @param color : color of label like red, yellow, green, null
-            * @param icon : Fabric Icon name if desired
-            * @param logLabel : short label of item used for displaying in page
-            * @param label : longer label used in Progress Indicator and hover card
-            * @param description 
-            */
 
           //setProgress(false, "C", i, n , 'darkgray', 'CalculatorSubtract', f.name, 'Adding fields to list (' + step +'): ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name , step + ' fieldsToDo ~ 102' );
             let label = (i + ' of ' + n + ' - Getting users for ' + allGroups[i].Title).substring( 0, 40 );
@@ -233,15 +213,6 @@ function buildSearchStringFromGroup (newGroup : IContentsGroupInfo) {
     return result;
 
 }
-/**
- * 
- * The purpose of this function is to find an appropriate value on the entry if it's not directly available.
- * For example, if the manifest does not have a value, then look at preConfiguredEntries
- * 
- * @param key 
- * @param thisEntry 
- * @param thisManifest 
- * @param allPreConfigPropsLength 
- */
+
 
 

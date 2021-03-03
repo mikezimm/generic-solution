@@ -18,7 +18,7 @@ import styles from '../contents.module.scss';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import {  } from '../contentsComponent';
 
@@ -43,12 +43,6 @@ import MyLogProps from './thisSiteListView';
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { resultContent } from 'office-ui-fabric-react/lib/components/ExtendedPicker/PeoplePicker/ExtendedPeoplePicker.scss';
-
-export interface IMyPivCat {
-    title: string;
-    desc: string;
-    order: number;
-}
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},

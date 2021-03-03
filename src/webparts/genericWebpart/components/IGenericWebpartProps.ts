@@ -54,9 +54,5 @@ export interface IGenericWebpartProps {
   pivotOptions: string;
   pivotTab: string;  //May not be needed because we have projectMasterPriority
 
-  /**
-   * 2020-09-08:  Add for dynamic data refiners.   onRefiner0Selected  -- callback to update main web part dynamic data props.
-   */
-  onRefiner0Selected?: any;
 
 }

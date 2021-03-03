@@ -2,22 +2,13 @@ import { sp } from '@pnp/sp';
 import { Web, } from '@pnp/sp/presets/all';
 
 import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { makeid } from  '@mikezimm/npmfunctions/dist/stringServices';
+
 import { arraysEqual } from 'office-ui-fabric-react';
 
 import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/listTypes';
 
 import { IListLog } from './listServices/listServices';
-
-//https://stackoverflow.com/a/1349426
-function makeid(length) {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-       result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
- }
 
 
 export async function createGridDates ( webUrl : string, listName : string, itemTitle : string, code: string, message1 : string, dates : string[], setProgress: any ): Promise<IListLog[]>{
