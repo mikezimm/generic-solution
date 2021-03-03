@@ -4,7 +4,7 @@ define([], function() {
     "PropertyPaneDescription": "Description",
     "BasicGroupName": "Group Name",
     "DescriptionFieldLabel": "Description Field",
-    "PropertyPaneAbout": "Info-iis WebPart information",
+    "PropertyPaneAbout": "Easy Contents WebPart information",
 
     // 1 - Analytics options
     "FieldLabel_AnalyticsWeb": "Site where analytics are maintained",

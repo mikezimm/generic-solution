@@ -27,7 +27,7 @@ import {  } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
-import { IMyProgress, IUser, IPickedWebBasic } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IMyProgress, IUser, IPickedWebBasic, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -51,11 +51,6 @@ import * as links from '../../HelpInfo/AllLinks';
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
-export interface IMyPivCat {
-    title: string;
-    desc: string;
-    order: number;
-}
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},

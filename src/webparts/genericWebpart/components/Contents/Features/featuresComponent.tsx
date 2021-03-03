@@ -43,7 +43,7 @@ import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
-import { IMyPivots, IPivot,  } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IMyPivots, IPivot, IMyPivCat  } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogFeature from './featuresListView';
@@ -53,11 +53,6 @@ import * as links from '../../HelpInfo/AllLinks';
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
-export interface IMyPivCat {
-    title: string;
-    desc: string;
-    order: number;
-}
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},
