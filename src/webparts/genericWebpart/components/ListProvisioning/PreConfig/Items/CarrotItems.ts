@@ -1,16 +1,16 @@
 
 
 export const CarrotItems = [
-    {   //TMT
-        //listDefinition: '',
-        //webPartScenario: { results: ['Dev','Team','Corp']},
-        Title: "CarrotSearch",
+    {   Title: "TrackMyTime Story>Chart - Foamchart",
+        webPartScenario: { results: ['Dev','Team','Corp']},
         showEarlyAccess:true,
         parentListTitle: 'TrackMyTime',
         parentListWeb: '/sites/Templates/Tmt/',
 
         carrotCats: 'Story,Chapter',
-
+        carrotProps:'',
+        carrotStyles:'',
+        
         dateColumn:'StartTime',
         dropDownColumns:'+Story,+>Chapter,+User/Title',
         searchColumns:'',
@@ -19,10 +19,56 @@ export const CarrotItems = [
         valueOperator:'Sum',
         valueType:'Number',
 
-        carrotProps:'',
-        carrotStyles:'',
         enableSearch:true,
         fetchCount:2000,
+        fetchCountMobile:2000,
+        minDataDownload:true,
+        restFilter:'',
+    },
+    {   Title: "Documents - Foamchart",
+        webPartScenario: { results: ['Dev','Team','Corp']},
+        showEarlyAccess:true,
+        parentListTitle: 'Documents',
+        parentListWeb: '',
+
+        carrotCats: 'Editor/Title,Modified',
+        carrotProps:'',
+        carrotStyles:'',
+
+        dateColumn:'Modified',
+        dropDownColumns:'+Author/Title,+Editor/Title',
+        searchColumns:'',
+        metaColumns: '',
+        valueColumn:'Id',
+        valueOperator:'Count',
+        valueType:'Number',
+
+        enableSearch:true,
+        fetchCount:2000,
+        fetchCountMobile:2000,
+        minDataDownload:true,
+        restFilter:'',
+    },
+    {   Title: "Turnover - Foamchart",
+        webPartScenario: { results: ['Dev','Team','Corp']},
+        showEarlyAccess:true,
+        parentListTitle: 'ACH Turnover',
+        parentListWeb: '/sites/WebpartDev',
+
+        carrotCats: 'Cell/Shift',
+        carrotProps:'',
+        carrotStyles:'',
+
+        dateColumn:'zzzDate1',
+        dropDownColumns:'+zzzChoice1,+zzzItemCategory',
+        searchColumns:'',
+        metaColumns: '',
+        valueColumn:'zzzNumber05',
+        valueOperator:'Sum',
+        valueType:'Number',
+
+        enableSearch:true,
+        fetchCount:5000,
         fetchCountMobile:2000,
         minDataDownload:true,
         restFilter:'',

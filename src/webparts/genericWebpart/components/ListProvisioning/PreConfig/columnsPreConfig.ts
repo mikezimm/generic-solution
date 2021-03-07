@@ -237,16 +237,16 @@ export const mapCarrotChartsProps: string[] = [
     'parentListWeb','parentListTitle', //Common
 
     'fetchCount', 'fetchCountMobile', 'restFilter','minDataDownload', //Common
-    'enableSearch','','','','','','','', //Common 
+    'enableSearch',//Common '','','','','','','',  
 
-    'showEarlyAccess','','','','','','','', //Common
+    'showEarlyAccess',//Common '','','','','','','', //Common
 
-    'valueColumn','valueType','valueOperator','','','','', //Common between Grid & Carrot
-    'dropDownColumns','searchColumns','metaColumns','','','','','', //Common between Grid & Carrot
+    'valueColumn','valueType','valueOperator',//Common '','','','', //Common between Grid & Carrot
+    'dropDownColumns','searchColumns','metaColumns',//Common '','','','','', //Common between Grid & Carrot
 
     'carrotCats', 'carrotProps', 'carrotStyles', //Specific to GridCharts
 
-    '','','','','','','', //Specific to CarrotCharts
+    //Common '','','','','','','', //Specific to CarrotCharts
 
 ];
 
@@ -255,18 +255,18 @@ export const mapGridChartsProps: string[] = [
     'parentListWeb','parentListTitle', //Common
 
     'fetchCount', 'fetchCountMobile', 'restFilter','minDataDownload', //Common
-    'enableSearch','','','','','','','', //Common 
+    'enableSearch',//Common '','','','','','','', //Common 
 
-    'showEarlyAccess','','','','','','','', //Common
+    'showEarlyAccess',//Common '','','','','','','', //Common
 
-    'valueColumn','valueType','valueOperator','','','','', //Common between Grid & Carrot
-    'dropDownColumns','searchColumns','metaColumns','','','','','', //Common between Grid & Carrot
+    'valueColumn','valueType','valueOperator',//Common '','','','', //Common between Grid & Carrot
+    'dropDownColumns','searchColumns','metaColumns',//Common '','','','','', //Common between Grid & Carrot
 
     'dateColumn', //Specific to GridCharts
 
-    'cellColor','yearStyles','monthStyles','dayStyles','cellStyles','','', //Specific to GridCharts
-    'cellhoverInfoColor','scaleMethod','','','','','', //Specific to CarrotCharts
-    'squareCustom','squareColor','emptyColor','backGroundColor','','','', //Specific to CarrotCharts
+    'cellColor','yearStyles','monthStyles','dayStyles','cellStyles',//Common '','', //Specific to GridCharts
+    'cellhoverInfoColor','scaleMethod',//Common '','','','','', //Specific to CarrotCharts
+    'squareCustom','squareColor','emptyColor','backGroundColor',//Common '','','', //Specific to CarrotCharts
 
 ];
 
@@ -301,7 +301,7 @@ function PreConfiguredFields(listName, mapTheseProps: string[], theseChoices: st
 
     let theseFields: IMyFieldTypes[] = [];
     theseFields.push(  TemplateChoice( theseChoices ) );
-    theseFields.push(  ScenarioChoice( ['DEV','TEAM','CORP'] ) );
+    theseFields.push(  ScenarioChoice( ['Dev','Team','Corp'] ) );
     if ( listName === 'Drilldown' ) {
         mapTheseProps.map( p => {
             theseFields.push(  createMultiLineField( p ) );
@@ -312,8 +312,8 @@ function PreConfiguredFields(listName, mapTheseProps: string[], theseChoices: st
         let textFields = ['parentListWeb','parentListTitle',
             'restFilter',
             'dateColumn',
-            'valueColumn','valueType','valueOperator','','','', //Common between Grid & Carrot
-            'dropDownColumns','searchColumns','metaColumns','','','','','', //Common between Grid & Carrot
+            'valueColumn','valueType','valueOperator',//Common '','','', //Common between Grid & Carrot
+            'dropDownColumns','searchColumns','metaColumns',//Common '','','','','', //Common between Grid & Carrot
             'carrotCats',
         ];
 

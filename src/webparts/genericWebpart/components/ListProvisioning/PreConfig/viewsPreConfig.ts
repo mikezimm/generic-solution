@@ -71,7 +71,7 @@ export const GeneralSettingsFieldsView : IMyView = {
 
 export const PerformanceFieldsView : IMyView = {
     Title: 'Performance Settings',
-    iFields: 	[...stdViewFields , 'fetchCount', 'fetchCountMobile', 'restFilter', 'updateRefinersOnTextSearch'  ],
+    iFields: 	[...stdViewFields , 'fetchCount', 'fetchCountMobile', 'restFilter'  ],
     orders: [ {field: ootbTitle, asc: false} ],
 };
 
@@ -238,7 +238,7 @@ export const CarrotChartSearchFieldsView : IMyView = {
 };
 
 export const CarrotChartStylesView : IMyView = {
-    Title: 'List Search Columns',
+    Title: 'CarrotSearch Styles',
     iFields: 	[...stdViewFields , 'carrotStyles' ],
     orders: [ {field: ootbTitle, asc: false} ],
 };
