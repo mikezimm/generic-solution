@@ -15,6 +15,8 @@ import { cleanURL, camelize, cleanSPListURL } from '@mikezimm/npmfunctions/dist/
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 
+import { CarrotItems } from './Items/CarrotItems';
+
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'Drilldown' | 'CarrotCharts' | 'GridCharts', webURL: string, currentUser:  number[], pageURL: string ) {
 
@@ -30,7 +32,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     } else if ( listDefinition === 'CarrotCharts' ) {
         makeThisList.createTheseFields = PreConfiguredListTemplates('CarrotCharts');
         makeThisList.createTheseViews = PreConfigCarrotChartsViews;
-        makeThisList.createTheseItems = [] ;// =  TMTTestTimeItems(currentUser);
+        makeThisList.createTheseItems = CarrotItems ;// =  TMTTestTimeItems(currentUser);
         makeThisList.autoItemCreate = false;
 //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
 

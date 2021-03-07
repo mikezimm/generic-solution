@@ -84,6 +84,7 @@ export function createMultiLineField( name: string ) {
     let field : IMultiLineTextField = {
         fieldType: cMText,
         name: name,
+        title: name,
         //title: string,
         numberOfLines: 6,
         richText: false,
@@ -100,6 +101,53 @@ export function createMultiLineField( name: string ) {
     return field;
 
 }
+
+export function createTextField( name: string ) {
+
+    let field : IMultiLineTextField = {
+        fieldType: cText,
+        name: name,
+        title: name,
+        //title: string,
+        onCreateProps: {
+            Group: thisColumnGroup,
+            Description: thisColumnDesc,
+    //        Hidden: true,
+        }
+    };
+    
+    return field;
+}
+
+export function createNumberField( name: string ) {
+    let field  : INumberField = {
+        fieldType: cNumb,
+        name: name,
+        title: name,
+        minValue: 0,
+        maxValue: 1000000,
+        onCreateProps: {
+            Group: thisColumnGroup,
+            Description: thisColumnDesc,
+        }
+    };
+    return field;
+}
+
+
+export function createBooleanField( name: string ) {
+    let field  : IBooleanField = {
+        fieldType: cBool,
+        name: name,
+        title: name,
+        onCreateProps: {
+            Group: thisColumnGroup,
+            Description: thisColumnDesc,
+        }
+    };
+    return field;
+}
+
 export const ConversationIndexHarm : ITextField = {
     fieldType: cText,
     name: 'Conversation%5Fx002d%5FIndex',
@@ -200,7 +248,6 @@ export const mapCarrotChartsProps: string[] = [
 
     '','','','','','','', //Specific to CarrotCharts
 
-    'showEarlyAccess','','','','','','','',
 ];
 
 let templateGridCharts = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Turnover","Standards","Policies","Other"];
@@ -233,13 +280,13 @@ export function PreConfiguredListTemplates(listName: 'Drilldown' | 'CarrotCharts
     //return null;
     let theseFields: IMyFieldTypes[] = [];
     if ( listName === 'Drilldown' ) {
-        theseFields = PreConfiguredFields(mapDrillDownProps, templatesDrillDown);
+        theseFields = PreConfiguredFields(listName, mapDrillDownProps, templatesDrillDown);
 
     } else if ( listName === 'CarrotCharts' ) {
-        theseFields = PreConfiguredFields(mapCarrotChartsProps, templatesCarrotCharts);
+        theseFields = PreConfiguredFields(listName, mapCarrotChartsProps, templatesCarrotCharts);
 
     } else if ( listName === 'GridCharts' ) {
-        theseFields = PreConfiguredFields(mapGridChartsProps, templateGridCharts);
+        theseFields = PreConfiguredFields(listName, mapGridChartsProps, templateGridCharts);
 
     } else {
 
@@ -250,16 +297,41 @@ export function PreConfiguredListTemplates(listName: 'Drilldown' | 'CarrotCharts
 }
 
 
-function PreConfiguredFields(mapTheseProps: string[], theseChoices: string[] ) {
+function PreConfiguredFields(listName, mapTheseProps: string[], theseChoices: string[] ) {
 
     let theseFields: IMyFieldTypes[] = [];
     theseFields.push(  TemplateChoice( theseChoices ) );
     theseFields.push(  ScenarioChoice( ['DEV','TEAM','CORP'] ) );
-    
-    mapTheseProps.map( p => {
-        theseFields.push(  createMultiLineField( p ) );
-    });
-    
+    if ( listName === 'Drilldown' ) {
+        mapTheseProps.map( p => {
+            theseFields.push(  createMultiLineField( p ) );
+        });
+
+    } else if ( listName === 'CarrotCharts' ) {
+        let mTextFields = ['carrotProps', 'carrotStyles' ];
+        let textFields = ['parentListWeb','parentListTitle',
+            'restFilter',
+            'dateColumn',
+            'valueColumn','valueType','valueOperator','','','', //Common between Grid & Carrot
+            'dropDownColumns','searchColumns','metaColumns','','','','','', //Common between Grid & Carrot
+            'carrotCats',
+        ];
+
+        let numberFields = ['fetchCount','fetchCountMobile',];
+        let booleanFields = ['minDataDownload','enableSearch','showEarlyAccess',];
+
+        textFields.map( p => { if ( p !== '') { theseFields.push(  createTextField( p ) ); } });
+        mTextFields.map( p => { if ( p !== '') { theseFields.push(   createMultiLineField( p ) ); }  }) ;
+        numberFields.map( p => { if ( p !== '') { theseFields.push(  createNumberField( p ) ); }  }) ;
+        booleanFields.map( p => { if ( p !== '') { theseFields.push(  createBooleanField( p ) ); }  }) ;
+
+    } else if ( listName === 'GridCharts' ) {
+        mapTheseProps.map( p => {
+            theseFields.push(  createTextField( p ) );
+        });
+    }
+
+
     return theseFields;
 
 }

@@ -56,21 +56,6 @@ export const PreConfigRecentAllDrillDownItemsView : IMyView = {
     orders: [ {field: ootbModified, asc: false} ],
 };
 
-export const PreConfigRecentAllCarrotChartsItemsView : IMyView = {
-    Title: 'All listDefinitions', //'All Items',  --- All Documents is default view for a library
-    iFields: 	stdPreConfigViewCarrotChartsFields,
-    wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
-            ],
-    orders: [ {field: ootbModified, asc: false} ],
-};
-
-export const PreConfigRecentAllGridChartsItemsView : IMyView = {
-    Title: 'All listDefinitions', //'All Items',  --- All Documents is default view for a library
-    iFields: 	stdPreConfigViewGridChartsFields,
-    wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
-            ],
-    orders: [ {field: ootbModified, asc: false} ],
-};
 /**
  *     'parentListWeb','parentListTitle',
     'updateRefinersOnTextSearch',
@@ -170,6 +155,14 @@ export const PreConfigDrillDownViews : IMyView[] = [
  * GridChartListFieldsView, GridChartSearchFieldsView, GridChartSquareStylesView, GridChartOtherStylesView
  */  
 
+export const PreConfigRecentAllGridChartsItemsView : IMyView = {
+    Title: 'All listDefinitions', //'All Items',  --- All Documents is default view for a library
+    iFields: 	stdPreConfigViewGridChartsFields,
+    wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
+            ],
+    orders: [ {field: ootbModified, asc: false} ],
+};
+
 export const AllGridChartsFieldsView : IMyView = {
     Title: 'zTest - All GridCharts Fields',
     iFields: 	stdPreConfigViewGridChartsFields,
@@ -218,6 +211,13 @@ export const PreConfigGridChartsViews : IMyView[] = [
  * CarrotCharts
  * CarrotChartListFieldsView, CarrotChartSearchFieldsView, CarrotChartCarrotSearchPropsView, 
  */
+ export const PreConfigRecentAllCarrotChartsItemsView : IMyView = {
+    Title: 'All listDefinitions', //'All Items',  --- All Documents is default view for a library
+    iFields: 	stdPreConfigViewCarrotChartsFields,
+    wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
+            ],
+    orders: [ {field: ootbModified, asc: false} ],
+};
 
  export const AllCarrotChartsFieldsView : IMyView = {
     Title: 'zTest - All CarrotCharts Fields',
@@ -245,8 +245,8 @@ export const CarrotChartStylesView : IMyView = {
 
 export const CarrotChartCarrotSearchPropsView : IMyView = {
     Title: 'CarrotSearch Props',
-    iFields: 	[...stdViewFields , '' , '',  ],
-    orders: [ {field: ootbTitle, asc: false} ],
+    iFields: 	[...stdViewFields , 'carrotProps' ,  ],
+    orders: [ {field: ootbTitle, asc: false} ], //Specific to GridCharts
 };
 
 export const PreConfigCarrotChartsViews : IMyView[] = [

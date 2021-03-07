@@ -877,7 +877,7 @@ public constructor(props:IProvisionListsProps){
 
             let drillDown : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
             let carrotCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'CarrotCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let gridCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'GridCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let gridCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[2], 'GridCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
             if ( drillDown ) { theLists.push( drillDown ); }
             if ( carrotCharts ) { theLists.push( carrotCharts ); }
