@@ -32,24 +32,45 @@ import { testAlertsView, createRecentUpdatesView } from '../../../../../services
 import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/columnsOOTB';
 
 //Harmonie columns
-import { mapDrillDownProps
+import { mapDrillDownProps, mapCarrotChartsProps, mapGridChartsProps
 
 } from './columnsPreConfig';
 //let checks = StepChecks(0,5);  // Email
 
 export const stdViewFields = [ootbID, ootbTitle, 'webPartScenario', 'listDefinition' ];
 
-export const stdPreConfigViewFields = ['Edit', ootbID,ootbTitle, 'webPartScenario', 'listDefinition' ].concat( mapDrillDownProps );
-export const  PreConfigRecentUpdateFields = spliceCopyArray ( stdPreConfigViewFields, null, null, 2, [ootbModified, ootbEditor ] );
+export const stdPreConfigViewDrillDownFields = ['Edit', ootbID,ootbTitle, 'webPartScenario', 'listDefinition' ].concat( mapDrillDownProps );
+export const  PreConfigRecentUpdateDrillDownFields = spliceCopyArray ( stdPreConfigViewDrillDownFields, null, null, 2, [ootbModified, ootbEditor ] );
 
-export const PreConfigRecentAllItemsView : IMyView = {
+export const stdPreConfigViewCarrotChartsFields = ['Edit', ootbID,ootbTitle, 'webPartScenario', 'listDefinition' ].concat( mapCarrotChartsProps );
+export const  PreConfigRecentUpdateCarrotChartsFields = spliceCopyArray ( stdPreConfigViewCarrotChartsFields, null, null, 2, [ootbModified, ootbEditor ] );
+
+export const stdPreConfigViewGridChartsFields = ['Edit', ootbID,ootbTitle, 'webPartScenario', 'listDefinition' ].concat( mapDrillDownProps );
+export const  PreConfigRecentUpdateGridChartsFields = spliceCopyArray ( stdPreConfigViewGridChartsFields, null, null, 2, [ootbModified, ootbEditor ] );
+
+export const PreConfigRecentAllDrillDownItemsView : IMyView = {
     Title: 'All listDefinitions', //'All Items',  --- All Documents is default view for a library
-    iFields: 	stdPreConfigViewFields,
+    iFields: 	stdPreConfigViewDrillDownFields,
     wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
             ],
     orders: [ {field: ootbModified, asc: false} ],
 };
 
+export const PreConfigRecentAllCarrotChartsItemsView : IMyView = {
+    Title: 'All listDefinitions', //'All Items',  --- All Documents is default view for a library
+    iFields: 	stdPreConfigViewCarrotChartsFields,
+    wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
+            ],
+    orders: [ {field: ootbModified, asc: false} ],
+};
+
+export const PreConfigRecentAllGridChartsItemsView : IMyView = {
+    Title: 'All listDefinitions', //'All Items',  --- All Documents is default view for a library
+    iFields: 	stdPreConfigViewGridChartsFields,
+    wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
+            ],
+    orders: [ {field: ootbModified, asc: false} ],
+};
 /**
  *     'parentListWeb','parentListTitle',
     'updateRefinersOnTextSearch',
@@ -93,8 +114,6 @@ export const Refiner2FieldsView : IMyView = {
     orders: [ {field: ootbTitle, asc: false} ],
 };
 
- 
-
 export const QuickCmdFieldsView : IMyView = {
     Title: 'Quick Command Settings',
     iFields: 	[...stdViewFields , 'quickCommands',  ],
@@ -107,16 +126,9 @@ export const StatsFieldsView : IMyView = {
     orders: [ {field: ootbTitle, asc: false} ],
 };
 
-export const AllFieldsView : IMyView = {
-    Title: 'zTest - All Fields',
-    iFields: 	stdPreConfigViewFields,
-    orders: [ {field: ootbTitle, asc: false} ],
-};
-
-
 export const GroupByTemplateView : IMyView = {
     Title: 'GroupByTemplate',
-    iFields: 	stdPreConfigViewFields,
+    iFields: 	stdPreConfigViewDrillDownFields,
     orders: [ {field: ootbTitle, asc: false} ],
     groups: { collapse: true, limit: 30,
 		fields: [
@@ -125,15 +137,130 @@ export const GroupByTemplateView : IMyView = {
 	},
 };
 
-export const PreConfigViews : IMyView[] = [
-    PreConfigRecentAllItemsView, createRecentUpdatesView( PreConfigRecentUpdateFields),
-    AllFieldsView, GroupByTemplateView, GeneralSettingsFieldsView, ViewSettingsFieldsView,
+/**
+ * These are the "All Fields views"
+ */
+export const AllDrillDownFieldsView : IMyView = {
+    Title: 'zTest - All Drilldown Fields',
+    iFields: 	stdPreConfigViewDrillDownFields,
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+
+export const PreConfigDrillDownViews : IMyView[] = [
+    //Common for most webparts
+    PreConfigRecentAllDrillDownItemsView, createRecentUpdatesView( PreConfigRecentUpdateDrillDownFields),
+    PerformanceFieldsView,
+    AllDrillDownFieldsView,
+    GroupByTemplateView, 
+
+    //Specific to Drilldown
+    GeneralSettingsFieldsView, ViewSettingsFieldsView,
     Refiner0FieldsView,
     Refiner1FieldsView,
     Refiner2FieldsView,
     StatsFieldsView,
-    PerformanceFieldsView,
+
     QuickCmdFieldsView,
+] ;
+
+
+/**
+ * GridCharts
+ * GridChartListFieldsView, GridChartSearchFieldsView, GridChartSquareStylesView, GridChartOtherStylesView
+ */  
+
+export const AllGridChartsFieldsView : IMyView = {
+    Title: 'zTest - All GridCharts Fields',
+    iFields: 	stdPreConfigViewGridChartsFields,
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const GridChartListFieldsView : IMyView = {
+    Title: 'List Columns',
+    iFields: 	[...stdViewFields , 'dateColumn', 'valueColumn' , 'valueType', 'valueOperator', 'dropDownColumns','searchColumns','metaColumns' ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const GridChartSearchFieldsView : IMyView = {
+    Title: 'List Search Columns',
+    iFields: 	[...stdViewFields , 'scaleMethod' , 'dropDownColumns','searchColumns','metaColumns'  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const GridChartSquareStylesView : IMyView = {
+    Title: 'Styles - Square',
+    iFields: 	[...stdViewFields , 'squareCustom' , 'squareColor', 'emptyColor' , 'backGroundColor'   ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const GridChartOtherStylesView : IMyView = {
+    Title: 'Styles - Other',
+    iFields: 	[...stdViewFields , 'cellColor' , 'yearStyles', 'monthStyles' , 'dayStyles', 'cellStyles' , 'cellhoverInfoColor'  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const PreConfigGridChartsViews : IMyView[] = [
+    //Common for most webparts
+    PreConfigRecentAllGridChartsItemsView, createRecentUpdatesView( PreConfigRecentUpdateGridChartsFields),
+    PerformanceFieldsView,
+    AllGridChartsFieldsView,
+    
+    //Common to Carrot & Grid Charts
+    GridChartListFieldsView, GridChartSearchFieldsView,
+
+    //Specific to CarrotCharts
+    GridChartSquareStylesView, GridChartOtherStylesView
+
+] ;
+
+/**
+ * CarrotCharts
+ * CarrotChartListFieldsView, CarrotChartSearchFieldsView, CarrotChartCarrotSearchPropsView, 
+ */
+
+ export const AllCarrotChartsFieldsView : IMyView = {
+    Title: 'zTest - All CarrotCharts Fields',
+    iFields: 	stdPreConfigViewCarrotChartsFields,
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+ export const CarrotChartListFieldsView : IMyView = {
+    Title: 'List Columns',
+    iFields: 	[...stdViewFields , 'carrotCats', 'valueColumn' , 'valueType', 'valueOperator', 'dropDownColumns','searchColumns','metaColumns'  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const CarrotChartSearchFieldsView : IMyView = {
+    Title: 'List Search Columns',
+    iFields: 	[...stdViewFields , 'dropDownColumns','searchColumns','metaColumns'  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const CarrotChartStylesView : IMyView = {
+    Title: 'List Search Columns',
+    iFields: 	[...stdViewFields , 'carrotStyles' ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const CarrotChartCarrotSearchPropsView : IMyView = {
+    Title: 'CarrotSearch Props',
+    iFields: 	[...stdViewFields , '' , '',  ],
+    orders: [ {field: ootbTitle, asc: false} ],
+};
+
+export const PreConfigCarrotChartsViews : IMyView[] = [
+    //Common for most webparts
+    PreConfigRecentAllCarrotChartsItemsView, createRecentUpdatesView( PreConfigRecentUpdateCarrotChartsFields),
+    PerformanceFieldsView,
+    AllCarrotChartsFieldsView,
+    
+    //Common to Carrot & Grid Charts
+    CarrotChartListFieldsView, CarrotChartSearchFieldsView,
+
+    //Specific to CarrotCharts
+    CarrotChartCarrotSearchPropsView, CarrotChartStylesView
+
 ] ;
 
 

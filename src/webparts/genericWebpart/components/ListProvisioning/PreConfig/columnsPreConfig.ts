@@ -168,7 +168,7 @@ export function ScenarioChoice ( theseChoices: string[] ) {
  *
  */
 
-let templatesDrillDown = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Infoiis","Standards","Policies","Other"];
+let templatesDrillDown = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Turnover","Standards","Policies","Other"];
 export const mapDrillDownProps: string[] = [
     'parentListWeb','parentListTitle',
     'refiner0','refiner1','refiner2',
@@ -183,23 +183,69 @@ export const mapDrillDownProps: string[] = [
     'fetchCount', 'fetchCountMobile', 'restFilter', 'quickCommands', 'includeListLink',
 ];
 
+
+let templatesCarrotCharts = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Turnover","Standards","Policies","Other"];
+export const mapCarrotChartsProps: string[] = [
+    'parentListWeb','parentListTitle', //Common
+
+    'fetchCount', 'fetchCountMobile', 'restFilter','minDataDownload', //Common
+    'enableSearch','','','','','','','', //Common 
+
+    'showEarlyAccess','','','','','','','', //Common
+
+    'valueColumn','valueType','valueOperator','','','','', //Common between Grid & Carrot
+    'dropDownColumns','searchColumns','metaColumns','','','','','', //Common between Grid & Carrot
+
+    'carrotCats', 'carrotProps', 'carrotStyles', //Specific to GridCharts
+
+    '','','','','','','', //Specific to CarrotCharts
+
+    'showEarlyAccess','','','','','','','',
+];
+
+let templateGridCharts = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Turnover","Standards","Policies","Other"];
+export const mapGridChartsProps: string[] = [
+    'parentListWeb','parentListTitle', //Common
+
+    'fetchCount', 'fetchCountMobile', 'restFilter','minDataDownload', //Common
+    'enableSearch','','','','','','','', //Common 
+
+    'showEarlyAccess','','','','','','','', //Common
+
+    'valueColumn','valueType','valueOperator','','','','', //Common between Grid & Carrot
+    'dropDownColumns','searchColumns','metaColumns','','','','','', //Common between Grid & Carrot
+
+    'dateColumn', //Specific to GridCharts
+
+    'cellColor','yearStyles','monthStyles','dayStyles','cellStyles','','', //Specific to GridCharts
+    'cellhoverInfoColor','scaleMethod','','','','','', //Specific to CarrotCharts
+    'squareCustom','squareColor','emptyColor','backGroundColor','','','', //Specific to CarrotCharts
+
+];
+
+
 /**
  * This just creates an array of fields for the build/test sequence
  * Each list would have an array of field objects like this.
  */
 
-export function PreConfiguredListTemplates(listName: 'Drilldown' | 'Drilldown') {
+export function PreConfiguredListTemplates(listName: 'Drilldown' | 'CarrotCharts' | 'GridCharts') {
     //return null;
     let theseFields: IMyFieldTypes[] = [];
     if ( listName === 'Drilldown' ) {
         theseFields = PreConfiguredFields(mapDrillDownProps, templatesDrillDown);
-    } else if ( listName === 'Drilldown' ) {
+
+    } else if ( listName === 'CarrotCharts' ) {
+        theseFields = PreConfiguredFields(mapCarrotChartsProps, templatesCarrotCharts);
+
+    } else if ( listName === 'GridCharts' ) {
+        theseFields = PreConfiguredFields(mapGridChartsProps, templateGridCharts);
 
     } else {
 
     }
 
-    console.log('Drilldown', theseFields);
+    console.log(listName, theseFields);
     return theseFields;
 }
 

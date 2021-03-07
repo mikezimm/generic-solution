@@ -142,9 +142,9 @@ import * as dPivT from '../PivotTiles/definePivotTiles';
 export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | '';
 
 //Add here to make available in dropdown (but does not work unless they are in the definedLists array )
-export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' ,  'OurGroups' ,  'Socialiis' , 'PivotTiles' , 'Drilldown'];
+export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' ,  'OurGroups' ,  'Socialiis' , 'PivotTiles' , 'PreConfig'];
 
-export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles', 'Drilldown' ];
+export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles', 'PreConfig' ];
 
 export const dropDownWidth = 200;
 
@@ -871,15 +871,17 @@ public constructor(props:IProvisionListsProps){
             if ( buEmails ) { theLists.push( buEmails ); }
             if ( justEmails ) { theLists.push( justEmails ); }
 
-        } else if ( defineThisList === 'Drilldown' ) {
+        } else if ( defineThisList === 'PreConfig' ) {
 
-            if ( justReturnLists === false ) {  provisionListTitles.push('Drilldown');  provisionListTitles.push('Drilldown');  }
+            if ( justReturnLists === false ) {  provisionListTitles.push('Drilldown');  provisionListTitles.push('CarrotCharts');  provisionListTitles.push('GridCharts');}
 
-            let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let drillDown : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let carrotCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'CarrotCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let gridCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'GridCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
         
-            if ( buEmails ) { theLists.push( buEmails ); }
-            if ( justEmails ) { theLists.push( justEmails ); }
+            if ( drillDown ) { theLists.push( drillDown ); }
+            if ( carrotCharts ) { theLists.push( carrotCharts ); }
+            if ( gridCharts ) { theLists.push( gridCharts ); }
 
         } else if ( defineThisList === 'Customer Requirements' ) {
 
