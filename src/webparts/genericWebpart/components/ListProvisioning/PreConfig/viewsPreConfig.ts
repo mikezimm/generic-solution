@@ -45,7 +45,7 @@ export const  PreConfigRecentUpdateDrillDownFields = spliceCopyArray ( stdPreCon
 export const stdPreConfigViewCarrotChartsFields = ['Edit', ootbID,ootbTitle, 'webPartScenario', 'listDefinition' ].concat( mapCarrotChartsProps );
 export const  PreConfigRecentUpdateCarrotChartsFields = spliceCopyArray ( stdPreConfigViewCarrotChartsFields, null, null, 2, [ootbModified, ootbEditor ] );
 
-export const stdPreConfigViewGridChartsFields = ['Edit', ootbID,ootbTitle, 'webPartScenario', 'listDefinition' ].concat( mapDrillDownProps );
+export const stdPreConfigViewGridChartsFields = ['Edit', ootbID,ootbTitle, 'webPartScenario', 'listDefinition' ].concat( mapGridChartsProps );
 export const  PreConfigRecentUpdateGridChartsFields = spliceCopyArray ( stdPreConfigViewGridChartsFields, null, null, 2, [ootbModified, ootbEditor ] );
 
 export const PreConfigRecentAllDrillDownItemsView : IMyView = {
@@ -183,13 +183,13 @@ export const GridChartSearchFieldsView : IMyView = {
 
 export const GridChartSquareStylesView : IMyView = {
     Title: 'Styles - Square',
-    iFields: 	[...stdViewFields , 'squareCustom' , 'squareColor', 'emptyColor' , 'backGroundColor'   ],
+    iFields: 	[...stdViewFields , 'monthGap', 'squareCustom' , 'squareColor', 'emptyColor' , 'backGroundColor'   ],
     orders: [ {field: ootbTitle, asc: false} ],
 };
 
 export const GridChartOtherStylesView : IMyView = {
     Title: 'Styles - Other',
-    iFields: 	[...stdViewFields , 'cellColor' , 'yearStyles', 'monthStyles' , 'dayStyles', 'cellStyles' , 'cellhoverInfoColor'  ],
+    iFields: 	[...stdViewFields , 'cellColor' , 'yearStyles', 'monthStyles' , 'dayStyles', 'cellStyles' , 'cellhoverInfoColor', 'otherStyles'  ],
     orders: [ {field: ootbTitle, asc: false} ],
 };
 

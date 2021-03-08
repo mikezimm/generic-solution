@@ -326,9 +326,24 @@ function PreConfiguredFields(listName, mapTheseProps: string[], theseChoices: st
         booleanFields.map( p => { if ( p !== '') { theseFields.push(  createBooleanField( p ) ); }  }) ;
 
     } else if ( listName === 'GridCharts' ) {
-        mapTheseProps.map( p => {
-            theseFields.push(  createTextField( p ) );
-        });
+        let mTextFields = ['', '' ];
+        let textFields = ['parentListWeb','parentListTitle',
+            'restFilter',
+            'dateColumn',
+            'valueColumn','valueType','valueOperator',//Common '','','', //Common between Grid & Carrot
+            'dropDownColumns','searchColumns','metaColumns',//Common '','','','','', //Common between Grid & Carrot
+            'monthGap','cellColor','yearStyles','monthStyles','dayStyles','cellStyles','cellhoverInfoColor','otherStyles',
+            'squareCustom','squareColor','emptyColor','backGroundColor',
+            'scaleMethod',
+        ];
+
+        let numberFields = ['fetchCount','fetchCountMobile',];
+        let booleanFields = ['minDataDownload','enableSearch','showEarlyAccess',];
+
+        textFields.map( p => { if ( p !== '') { theseFields.push(  createTextField( p ) ); } });
+        //mTextFields.map( p => { if ( p !== '') { theseFields.push(   createMultiLineField( p ) ); }  }) ;
+        numberFields.map( p => { if ( p !== '') { theseFields.push(  createNumberField( p ) ); }  }) ;
+        booleanFields.map( p => { if ( p !== '') { theseFields.push(  createBooleanField( p ) ); }  }) ;
     }
 
 

@@ -17,6 +17,8 @@ import { defineTheListMaster } from '../component/provisionWebPartList';
 
 import { CarrotItems } from './Items/CarrotItems';
 
+import { GridItems } from './Items/GridItems';
+
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'Drilldown' | 'CarrotCharts' | 'GridCharts', webURL: string, currentUser:  number[], pageURL: string ) {
 
@@ -39,7 +41,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     } else if ( listDefinition === 'GridCharts' ) {
         makeThisList.createTheseFields = PreConfiguredListTemplates('GridCharts');
         makeThisList.createTheseViews = PreConfigGridChartsViews;
-        makeThisList.createTheseItems = [] ;// =  TMTTestTimeItems(currentUser);
+        makeThisList.createTheseItems = GridItems ;// =  TMTTestTimeItems(currentUser);
         makeThisList.autoItemCreate = false;
 //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
 }
