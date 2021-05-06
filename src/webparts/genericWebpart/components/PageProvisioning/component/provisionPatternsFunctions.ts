@@ -7,11 +7,11 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText, IClientsidePage, ClientsidePageFromFile  } from "@pnp/sp/clientside-pages";
 
-import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
+import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
 
 import { getHelpfullError,  } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler'; //Import view arrays for Time list
 
-import { notify } from '@mikezimm/npmfunctions/dist/listTypes';
+import { notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { IPatternItemInfo } from  './GetPatternPages';
 

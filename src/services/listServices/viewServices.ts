@@ -11,7 +11,7 @@ import { MyFieldDef, changes, cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, c
 
 import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, MyOperator, BeginsWith } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
 
-import { IListInfo, IMyListInfo, IServiceLog, notify,  } from '@mikezimm/npmfunctions/dist/listTypes';
+import { IListInfo, IMyListInfo, IServiceLog, notify,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { getXMLObjectFromString } from '../XMLServices';

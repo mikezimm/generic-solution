@@ -12,7 +12,7 @@ import "@pnp/sp/webs";
 import { IValidTemplate, allAvailableLists } from './listsFunction';
 import {  } from './listsFunction';
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
+import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
 
 import styles from '../contents.module.scss';
 

@@ -9,25 +9,6 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
-
-import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/Lists/columnTypes'; //Import view arrays for Time list
-
-import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Import view arrays for Time list
-
-import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
-
-import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '@mikezimm/npmfunctions/dist/dateServices';
-
-import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
-
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-
-import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
-
-import { IAnyArray } from  '../../../../../services/listServices/listServices';
-import { mergeAriaAttributeValues } from "office-ui-fabric-react";
-
 import { IPickedSite } from './thisSiteComponent';
 import { JSXElementConstructor } from "react";
 

@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '@mikezimm/npmfunctions/dist/listTypes';
+import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 

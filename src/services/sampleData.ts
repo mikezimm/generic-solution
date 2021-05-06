@@ -6,7 +6,7 @@ import { makeid } from  '@mikezimm/npmfunctions/dist/Services/Strings/stringServ
 
 import { arraysEqual } from 'office-ui-fabric-react';
 
-import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/listTypes';
+import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { IListLog } from './listServices/listServices';
 
