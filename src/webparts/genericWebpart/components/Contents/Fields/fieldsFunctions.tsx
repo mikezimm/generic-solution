@@ -7,35 +7,19 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
-
 import { IContentsFieldInfo, IFieldBucketInfo } from  './fieldsComponent';
 
-import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/columnTypes'; //Import view arrays for Time list
+import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
-import { IMyView,  } from '@mikezimm/npmfunctions/dist/viewTypes'; //Import view arrays for Time list
-
-import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
-
-import { makeSmallTimeObject, ITheTime} from '@mikezimm/npmfunctions/dist/dateServices';
-
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
-
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
-
-import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
-
-import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
-
-import { IAnyArray } from  '../../../../../services/listServices/listServices';
-import { mergeAriaAttributeValues } from "office-ui-fabric-react";
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { pivCats } from './fieldsComponent';
 
 export type IValidTemplate = 100 | 101;
 
 import { MyFieldDef, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
-    cMText, cText, cNumb, cURL, cUser, cMUser, myFieldDefs } from '@mikezimm/npmfunctions/dist/columnTypes';
+    cMText, cText, cNumb, cURL, cUser, cMUser, myFieldDefs } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 
 
 let SystemFields = [ 'AccessPolicy', '_ModerationStatus', '_ModerationComments', 'SyncClientId', '_CommentCount', '_CommentFlags', 'ContentTypeId', 'ContentVersion',

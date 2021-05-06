@@ -17,8 +17,9 @@ import { IGenericWebpartState } from './IGenericWebpartState';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IRefinerRules, RefineRuleValues } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
-import { IPickedList, IPickedWebBasic,  } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyPivots,  } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 import InfoPage from './HelpInfo/infoPages';
@@ -48,8 +49,8 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
 
 import { analyticsList } from 'GenericWebpartWebPartStrings';
 
-import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import * as links from './HelpInfo/AllLinks';
 import  EarlyAccess from './HelpInfo/EarlyAccess';

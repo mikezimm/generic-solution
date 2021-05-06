@@ -18,19 +18,22 @@ import styles from '../contents.module.scss';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedWebBasic } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
+
 
 import {  } from '../contentsComponent';
 
 //import { analyticsList } from 'InspectThisSiteWebPartStrings';
 
-import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '@mikezimm/npmfunctions/dist/dateServices';
-
-import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
+import { cleanURL, } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
  
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
 import {  } from '../Fields/fieldsFunctions';
 

@@ -1,14 +1,12 @@
 
 
-import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
 import { IMakeThisPage, provisionThePage  } from '../component/provisionWebPartPages';
 
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType } from "@pnp/sp/clientside-pages";
 
 export type IValidTemplate = 100 | 101;
-
-import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
 
 //export async function provisionThePageLoader( template: IValidTemplate , pageName : string, pageDefinition: 'ParentPageTitle' | 'ChildPageTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineThePage ( template: IValidTemplate , pageName : string, pageDefinition: 'SitePages' | 'Pages' | 'News' , webURL: string, currentUser: IUser, pageURL: string ) {

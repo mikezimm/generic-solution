@@ -7,21 +7,15 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
-
 import { IContentsWebInfo, IWebBucketInfo } from  './websComponent';
 
-import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/columnTypes'; //Import view arrays for Time list
+import { makeSmallTimeObject, } from '@mikezimm/npmfunctions/dist/Services/Time/smallTimeObject';
+import {  getBestTimeDelta, }  from '@mikezimm/npmfunctions/dist/Services/Time/deltas';
 
-import { IMyView,  } from '@mikezimm/npmfunctions/dist/viewTypes'; //Import view arrays for Time list
+import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
-import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
-
-import { makeSmallTimeObject, ITheTime, getAge, getBestTimeDelta} from '@mikezimm/npmfunctions/dist/dateServices';
-
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
-
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 

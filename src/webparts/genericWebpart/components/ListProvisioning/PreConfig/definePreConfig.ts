@@ -3,15 +3,13 @@ import { PreConfiguredListTemplates } from './columnsPreConfig'; //Import column
 
 import { PreConfigCarrotChartsViews, PreConfigDrillDownViews, PreConfigGridChartsViews } from './viewsPreConfig';  //Import view arrays for Project list
 
-import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
 import { IDefinedLists } from '../component/provisionListComponent';
 // definedList: 'PreConfig',
 export type IValidTemplate = 100 | 101;
-
-import { cleanURL, camelize, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 

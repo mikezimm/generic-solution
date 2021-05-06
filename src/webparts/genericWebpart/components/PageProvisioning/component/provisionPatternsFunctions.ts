@@ -9,23 +9,7 @@ import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, Clientsi
 
 import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 
-import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/columnTypes'; //Import view arrays for Time list
-
-import { IMyView,  } from '@mikezimm/npmfunctions/dist/viewTypes'; //Import view arrays for Time list
-
-import { getHelpfullError,  } from '@mikezimm/npmfunctions/dist/ErrorHandler'; //Import view arrays for Time list
-
-import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
-
-import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
-
-import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
-
-import { IAnyArray } from  '../../../../../services/listServices/listServices';
-
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
-
-import { createDrilldownDemoWebParts, IWebPartDef } from './provisionPageFunctions';
+import { getHelpfullError,  } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler'; //Import view arrays for Time list
 
 import { notify } from '@mikezimm/npmfunctions/dist/listTypes';
 

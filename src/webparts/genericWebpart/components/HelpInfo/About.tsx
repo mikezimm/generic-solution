@@ -128,6 +128,7 @@ public constructor(props:IInfoAboutMeProps){
                 {/* 3 files to update version number:  package-solution.json, package-lock.json, package.json*/}
                 <table className={styles.infoTable}>
                     <tr><th>Date</th><th>Version</th><th>Focus</th><th>Notes</th></tr>
+                    <tr><td style={ nowWrap }>2021-03-07</td><td>{'1.1.12.8'}</td><td>Carrot Charts Pre-Config List updates</td><td></td></tr>
                     <tr><td style={ nowWrap }>2021-03-03</td><td>{'1.1.12.7'}</td><td>General Improvements, FPS Prop Pane</td><td></td></tr>
                     <tr><td style={ nowWrap }>2021-02-24</td><td>{'1.1.12.6'}</td><td>Add create items tab</td><td></td></tr>
                     <tr><td style={ nowWrap }>2021-02-24</td><td>{'1.1.12.5'}</td><td>Fix Group Settings link, Pattern Provisioning analytics, Help styling</td><td>Improve prevention locks</td></tr>

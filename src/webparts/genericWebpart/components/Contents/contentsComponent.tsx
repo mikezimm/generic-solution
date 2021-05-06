@@ -15,7 +15,11 @@ import styles from './contents.module.scss';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { IMyPivCat, IMyPivots,IPivot, ILink } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
+import { IMyIcons, IMyFonts } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IChartSeries, ICharNote, } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCharts';
 
 import InfoPage from '../HelpInfo/infoPages';
 
@@ -39,13 +43,9 @@ import InspectThisSite from './ThisSite/thisSiteComponent';
 
 import { Web } from "@pnp/sp/presets/all";
 
-//import { analyticsList } from 'InspectContentsWebPartStrings';
-
-import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
-
 import { pivotOptionsGroup, } from '../../../../services/propPane';
  
-import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../services/createAnalytics';
 

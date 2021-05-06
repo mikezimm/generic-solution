@@ -26,22 +26,19 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState } from "@pnp/sp/clientside-pages";
 
-import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/getFunctions';
+import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
 
-import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedList, IPickedWebBasic, } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
-import { spliceCopyArray } from '@mikezimm/npmfunctions/dist/arrayServices';
-
-import { provisionThePage, IValidTemplate, provisionTestPage, provisionDrilldownPage } from './provisionWebPartPages';
-import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
-import { defineDrilldownPage } from '../DrilldownPages/defineThisPage';
+import {  IMyPivots, IPivot,  ILink,  IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
+import {  IUser,  } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionPage.module.scss';
 import stylesC from '../../Contents/contents.module.scss';
 
-import { IMyProgress, } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IMyProgress, } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -56,7 +53,7 @@ import * as links from '../../HelpInfo/AllLinks';
 
 import { copyPatterns } from './provisionPatternsFunctions';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 

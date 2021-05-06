@@ -1,14 +1,12 @@
 
 
-import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
 import { IMakeThisPage, provisionThePage  } from '../component/provisionWebPartPages';
 
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType } from "@pnp/sp/clientside-pages";
 
 export type IValidTemplate = 100 | 101;
-
-import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
 
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 

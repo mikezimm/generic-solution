@@ -8,11 +8,13 @@ import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import { IValidTemplate, allAvailableWebParts } from './partsFunction';
-import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 
 import styles from '../contents.module.scss';
 
-import { IMyProgress, IUser, IPickedWebBasic, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { IMyPivots, IPivot, IMyPivCat  } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -31,9 +33,9 @@ import * as links from '../../HelpInfo/AllLinks';
 
 import { IWPart,  } from './partsFunction';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import { addItemToArrayIfItDoesNotExist, } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { addItemToArrayIfItDoesNotExist, } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 

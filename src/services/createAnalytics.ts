@@ -1,7 +1,7 @@
 import { sp } from '@pnp/sp';
 import { Web, } from '@pnp/sp/presets/all';
 
-import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 export function getBrowser(validTypes,changeSiteIcon){
 

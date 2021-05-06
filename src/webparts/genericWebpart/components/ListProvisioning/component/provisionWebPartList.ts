@@ -24,11 +24,9 @@ import { Web } from "@pnp/sp/presets/all";
 
 import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
 
-import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/columnTypes'; //Import view arrays for Time list
+import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/Lists/columnTypes'; //Import view arrays for Time list
 
-import { IMyView,  } from '@mikezimm/npmfunctions/dist/viewTypes'; //Import view arrays for Time list
-
-import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Import view arrays for Time list
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -359,7 +357,8 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
 }
 
-import { cleanURL, camelize, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
+import { cleanURL,  cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { camelize, } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
 
 export function defineTheListMaster ( template: IValidTemplate , listTitle : string, listDefinition: string , webURL: string, pageURL: string, definedList: IDefinedLists ) {
 

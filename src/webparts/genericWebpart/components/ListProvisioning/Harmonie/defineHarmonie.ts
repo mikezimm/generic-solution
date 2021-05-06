@@ -3,16 +3,12 @@ import { HarmonieEmailFields } from './columnsHarmonie'; //Import column arrays 
 
 import { HarmonieViews, BUHarmonieViews } from './viewsHarmonie';  //Import view arrays for Project list
 
-import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
-
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
 import { IDefinedLists } from '../component/provisionListComponent';
 // definedList: 'PreConfig',
 
 export type IValidTemplate = 100 | 101;
-
-import { cleanURL, camelize, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 

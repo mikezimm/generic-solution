@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '@mikezimm/npmfunctions/dist/listTypes';
 
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
@@ -18,6 +17,10 @@ import { IListBucketInfo } from './listsComponent';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
+
+const iconStyles: React.CSSProperties = { background: 'white', color: 'black', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
+const redIconStyles: React.CSSProperties = { background: 'white', color: 'red', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
+export const UniquePerms = <Icon iconName="Shield" title="Unique Permissions" style={ iconStyles }></Icon>;
 
 export interface IMyLogListProps {
     title: string;
@@ -120,6 +123,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
+        let styleRailsRev = this.props.railsOff ? styles.hideMe : null;
         let styleDesc = this.props.showDesc ? styles.showMe : styles.hideMe;
 
         let itemRows = logItems.length === 0 ? null : logItems.map( Lst => { 
@@ -169,7 +173,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           let listTitleRUL : any = Lst.Title;
           let listSettingsURL : any = Lst.EntityTypeName;
           let listVersionURL : any = versionNumbers ;
-          let listPermissionURL : any = '-';
+          let listPermissionURL : any = Lst.HasUniqueRoleAssignments === true ? UniquePerms : '-';
           let listAdvancedURL : any = '-';
           let listAdvancedCT : any = '-';
           
@@ -231,15 +235,15 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             <td className={ styleDesc }> { Lst.Description.length > this.state.maxChars ? Lst.Description.slice(0,this.state.maxChars) + '...' : Lst.Description } </td>
             <td> { Lst.ItemCount } </td>
 
-            <td className={ styles.nowWrapping }> { Lst.Created } </td>
-            <td> { Lst.LastItemModifiedDate } </td>
+            <td className={ [styles.nowWrapping, styleRailsRev].join(' ') }> { Lst.Created } </td>
+            <td className={ styleRailsRev }> { Lst.LastItemModifiedDate } </td>
             <td> { listVersionURL } </td>
             <td> { listPermissionURL } </td>
-            <td> { Lst.NoCrawl } </td>
-            <td> { listAdvancedCT } </td>
-            <td> { listAdvancedURL } </td>
-            <td> { Lst.BaseTemplate } </td>
-            <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }> { other } </td>
+            <td className={ styleRailsRev }> { Lst.NoCrawl } </td>
+            <td className={ styleRailsRev }> { listAdvancedCT } </td>
+            <td className={ styleRailsRev }> { listAdvancedURL } </td>
+            <td className={ styleRailsRev }> { Lst.BaseTemplate } </td>
+            <td style={{ backgroundColor: 'white' }} className={ [styles.listButtons, styleRailsRev].join(' ') }> { other } </td>
             <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 
           </tr>;
@@ -264,15 +268,15 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               <th>Name</th>
               <th className={ styleDesc }>Description</th>
               <th>Items</th>
-              <th>Created</th>
-              <th>Updated</th>
+              <th className={ [styles.nowWrapping, styleRailsRev].join(' ') }>Created</th>
+              <th className={ styleRailsRev }>Updated</th>
               <th>Vers</th>
               <th>Perms</th>
-              <th>Search</th>
-              <th>CT</th>  
-              <th>Exceptions</th>
-              <th>Base</th>
-              <th>Other</th>
+              <th className={ styleRailsRev }>Search</th>
+              <th className={ styleRailsRev }>CT</th>  
+              <th className={ styleRailsRev }>Exceptions</th>
+              <th className={ styleRailsRev }>Base</th>
+              <th className={ styleRailsRev }>Other</th>
               <th>More</th>
 
             </tr>

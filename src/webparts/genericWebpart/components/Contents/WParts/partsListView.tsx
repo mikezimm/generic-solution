@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IMyProgress, } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IWPart } from './partsFunction';
 import { IPartsBucketInfo } from './partsComponent';
 

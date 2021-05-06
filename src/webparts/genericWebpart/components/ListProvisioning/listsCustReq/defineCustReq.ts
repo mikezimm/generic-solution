@@ -3,8 +3,6 @@ import { CustReqFields, ICustReqDefs } from './columnsCustReq'; //Import column 
 
 import { CustReqViews,  } from './viewsCustReq';  //Import view arrays for Project list
 
-import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
-
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
 import { IDefinedLists } from '../component/provisionListComponent';
@@ -13,8 +11,6 @@ import { IDefinedLists } from '../component/provisionListComponent';
 import { defineTheListMaster } from '../component/provisionWebPartList';
 
 export type IValidTemplate = 100 | 101;
-
-import { cleanURL, camelize, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: ICustReqDefs , webURL: string, currentUser:  number[], pageURL: string ) {
