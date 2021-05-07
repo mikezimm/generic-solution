@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
@@ -20,9 +19,11 @@ import { IListBucketInfo } from './listsComponent';
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
-const iconStyles: React.CSSProperties = { background: 'white', color: 'black', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
-const redIconStyles: React.CSSProperties = { background: 'white', color: 'red', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
-export const UniquePerms = <Icon iconName="Shield" title="Unique Permissions" style={ iconStyles }></Icon>;
+import * as fpsAppIcons from '@mikezimm/npmfunctions/dist/Icons/standardEasyContents';
+
+// const iconStyles: React.CSSProperties = { background: 'white', color: 'black', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
+// const redIconStyles: React.CSSProperties = { background: 'white', color: 'red', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
+// export const UniquePerms = <Icon iconName="Shield" title="Unique Permissions" style={ iconStyles }></Icon>;
 
 export interface IMyLogListProps {
     title: string;
@@ -36,20 +37,12 @@ export interface IMyLogListProps {
     maxChars?: number;
     showDesc?: boolean;
     pickThisList: any;
+    _openRailsOffPanel: any;
 
 }
 
 export interface IMyLogListState {
   maxChars?: number;
-  showPanel: boolean;
-  panel: IRailsOffPanel;
-  railFunction: 'ListPermissions' | '';
-}
-
-export interface IRailsOffPanel {
-  // groups: IMyGroupsProps;
-  type: PanelType;
-  width?: number;
 }
 
 const stackFormRowTokens: IStackTokens = { childrenGap: 10 };
@@ -73,16 +66,6 @@ const iconClassInfo = mergeStyles({
 
 export default class MyLogList extends React.Component<IMyLogListProps, IMyLogListState> {
 
-  private createStateRailsOffPanel( groupNames: string[], visible: boolean ) {
-
-    let panel : IRailsOffPanel= {
-      type: PanelType.medium,
-      // width: number,
-    };
-  
-    return panel;
-  
-  }
 
     /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -99,9 +82,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
         super(props);
         this.state = {
           maxChars: this.props.maxChars ? this.props.maxChars : 50,
-          showPanel: false,
-          panel: this.createStateRailsOffPanel( [''], false ),
-          railFunction: '',
+
         };
     }
         
@@ -150,7 +131,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
         let styleRailsRev = this.props.railsOff ? styles.hideMe : null;
         let styleDesc = this.props.showDesc ? styles.showMe : styles.hideMe;
 
-        let itemRows = logItems.length === 0 ? null : logItems.map( Lst => { 
+        let itemRows = logItems.length === 0 ? null : logItems.map( ( Lst, index)  => { 
 
           let defButtonStyles = {
             root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
@@ -194,10 +175,12 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             }
           }
 
+          const UniquePermIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.UniquePerms } </div>;
+
           let listTitleRUL : any = Lst.Title;
           let listSettingsURL : any = Lst.EntityTypeName;
           let listVersionURL : any = versionNumbers ;
-          let listPermissionURL : any = Lst.HasUniqueRoleAssignments === true ? UniquePerms : '-';
+          let listPermissionURL : any = Lst.HasUniqueRoleAssignments === true ? UniquePermIcon : '-';
           let listAdvancedURL : any = '-';
           let listAdvancedCT : any = '-';
           
@@ -251,26 +234,6 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           if ( showAdvanced === true ) { listAdvancedCT = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'CT'); }
 
           let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes }  </div>;
-
-          let railsPanel = null;
-          
-          
-          if ( this.state.showPanel !== true ) {
-            let panelContent = 'Content Goes Here';
-            if ( this.state.railFunction === 'ListPermissions' ) { }
-
-            railsPanel = <div><Panel
-                isOpen={ this.state.showPanel }
-                // this prop makes the panel non-modal
-                isBlocking={true}
-                onDismiss={ this._closePanel.bind(this) }
-                closeButtonAriaLabel="Close"
-                type = { this.state.panel.type }
-                isLightDismiss = { true }
-              >
-              { panelContent }
-            </Panel></div>;
-          } 
 
           return <tr>
             <td className={ styles.nowWrapping }> { listTitleRUL } </td>
@@ -350,27 +313,5 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
         } 
 
     } 
-
-    private openRailsOffPanel( e: any ) {
-      //This element syntax works when you have <span><strong>text</strong></span>
-      let testElement = e.nativeEvent.target;
-      let id = '';
-      // if ( testElement.id.indexOf( this.groupTitlePrefix) === 0 ) {
-      //   id = testElement.id.replace( this.groupTitlePrefix ,'' );
-      // } else if ( testElement.parentElement.id.indexOf( this.groupTitlePrefix) === 0 ) {
-      //   id = testElement.parentElement.id.replace( this.groupTitlePrefix ,'' );
-      // }
-      let panel = this.createStateRailsOffPanel( [id], false );
-  
-      this.setState({
-        panel: panel,
-        showPanel: true,
-      });
-  
-    }
-
-    private _closePanel ( )  {
-      this.setState({ showPanel: false,});
-    }
 
 }
