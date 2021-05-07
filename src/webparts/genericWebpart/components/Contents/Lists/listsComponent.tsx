@@ -45,8 +45,8 @@ import * as links from '../../HelpInfo/AllLinks';
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
-import { IListRailFunction } from './listRailsComponent';
-import ListRailFunction from './listRailsComponent';
+import { IListRailFunction } from './railsCreateListPermsComponent';
+import ListRailFunction from './railsCreateListPermsComponent';
 
 export const pivCats = {
     visible: {title: 'Visible', desc: '', order: 1},

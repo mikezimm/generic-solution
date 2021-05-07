@@ -6,6 +6,13 @@ import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mi
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
+import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
+import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
+import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
+import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
+
+
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
@@ -51,6 +58,12 @@ export interface IMyCreateListPermissionsState {
     contribName: string;
 
 }
+
+const pivotStyles = {
+    root: {
+      whiteSpace: "normal",
+    //   textAlign: "center"
+    }};
 
 const toggleStyles = { root: { width: 160, } };
 
@@ -126,40 +139,51 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             if ( this.props.railFunction === 'ListPermissions' ) {
 
                 panelContent = <div>
+                    <Pivot
+                        styles={ pivotStyles }
+                        linkFormat={PivotLinkFormat.links}
+                        linkSize={PivotLinkSize.normal}
+                    >
+                        <PivotItem headerText="Create Permissions" ariaLabel="Create Permissions" title="Create" key="Create">
+                            <h3> { this.props.theList.Title }</h3>
+                            <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
+                                { this.makeToggle( 'Create Contributors', this.state.includeContrib, this.updateTogggleContrib.bind(this) ) }
+                                { this.makeToggle( 'Read site', this.state.contribSiteRead, this.updateTogggleContribSiteRead.bind(this) ) }
+                            </div>
 
-                    <h3> { this.props.theList.Title }</h3>
-                    <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
-                        { this.makeToggle( 'Create Contributors', this.state.includeContrib, this.updateTogggleContrib.bind(this) ) }
-                        { this.makeToggle( 'Read site', this.state.contribSiteRead, this.updateTogggleContribSiteRead.bind(this) ) }
-                    </div>
+                            { this.makeGroupName( this.state.contribName , this._updateContribGroup.bind(this) , !this.state.includeContrib )}
 
-                    { this.makeGroupName( this.state.contribName , this._updateContribGroup.bind(this) , !this.state.includeContrib )}
+                            <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
+                                { this.makeToggle( 'Create Readers', this.state.includeViewers, this.updateTogggleViewers.bind(this) ) }
+                                { this.makeToggle( 'Read site', this.state.viewersSiteRead, this.updateTogggleViewersSiteRead.bind(this) ) }
+                            </div>
 
-                    <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
-                        { this.makeToggle( 'Create Readers', this.state.includeViewers, this.updateTogggleViewers.bind(this) ) }
-                        { this.makeToggle( 'Read site', this.state.viewersSiteRead, this.updateTogggleViewersSiteRead.bind(this) ) }
-                    </div>
+                            { this.makeGroupName( this.state.viewersName , this._updateVisitorGroup.bind(this) , !this.state.includeViewers )}
 
-                    { this.makeGroupName( this.state.viewersName , this._updateVisitorGroup.bind(this) , !this.state.includeViewers )}
+                            <div style={{ marginTop: '50px', width: panelWidth, boxSizing: 'border-box' }}>
+                                <DefaultButton
+                                        onClick = { () => alert("Hi!") }
+                                        title="ClickMe"
+                                        style={{ marginRight: '0px', padding: '20px' }}
+                                    >
+                                    Cancel
+                                </DefaultButton>
+                                <PrimaryButton
+                                    onClick = { () => alert("Hi!") }
+                                    title="ClickMe"
+                                    style={{ padding: '20px', float: 'right' }}
+                                >
+                                    Add Groups and Permissions
+                                </PrimaryButton>
+                            </div>
+                        </PivotItem>
+                        <PivotItem headerText="Current" ariaLabel="Current" title="Current" itemKey="Current">
+                            <div style={{marginTop: '20px'}}>
+                                Fetch groups here.  Copy code from PivotTiles
+                            </div>
+                        </PivotItem>
 
-                    <div style={{ marginTop: '50px', width: panelWidth, boxSizing: 'border-box' }}>
-                        <DefaultButton
-                                onClick = { () => alert("Hi!") }
-                                title="ClickMe"
-                                style={{ marginRight: '20px', padding: '20px' }}
-                            >
-                            Cancel
-                        </DefaultButton>
-                        <PrimaryButton
-                            onClick = { () => alert("Hi!") }
-                            title="ClickMe"
-                            style={{ padding: '20px', float: 'right' }}
-                        >
-                            Add Groups and Permissions
-                        </PrimaryButton>
-                    </div>
-
-
+                    </Pivot>
                 </div>;
             }
 
@@ -188,8 +212,19 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
       // <div className={ styles.container }></div>
       return (
         <div className={ '' }>
-                { this.props.user.Title }
-                { this.props.theList.Title }
+            <Panel
+                isOpen={ this.props.showPanel }
+                // this prop makes the panel non-modal
+                isBlocking={true}
+                onDismiss={ this.props._closePanel }
+                closeButtonAriaLabel="Close"
+                type = { this.props.type }
+                isLightDismiss = { true }
+                headerText = { 'Ooops!' }
+                >
+                    { 'OOPS!  We don\'t have a list to show you right now :(' }
+
+                </Panel>
         </div>
           );
         } 
