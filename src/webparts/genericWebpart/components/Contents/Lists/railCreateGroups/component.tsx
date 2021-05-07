@@ -17,26 +17,28 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
+import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
 
-import { createIconButton } from '../../createButtons/IconButton';
+import { createIconButton } from '../../../createButtons/IconButton';
 
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 
 import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
 
-import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
+import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
 
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 import { DefaultButton, PrimaryButton, CompoundButton, elementContains } from 'office-ui-fabric-react';
 
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
+import { IListRailFunction } from '../listsComponent';
+import { createProcessSteps, IProcessSteps } from './setup';
+
 // const iconStyles: React.CSSProperties = { background: 'white', color: 'black', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
 // const redIconStyles: React.CSSProperties = { background: 'white', color: 'red', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
 // export const UniquePerms = <Icon iconName="Shield" title="Unique Permissions" style={ iconStyles }></Icon>;
 
-export type IListRailFunction = 'ListPermissions' | '';
 
 export interface IMyCreateListPermissionsProps {
     theList: IContentsListInfo;
@@ -45,8 +47,7 @@ export interface IMyCreateListPermissionsProps {
     showPanel: boolean;
     _closePanel: any;
     type: PanelType;
-}
-
+  }
 
 export interface IMyCreateListPermissionsState {
 
@@ -56,6 +57,8 @@ export interface IMyCreateListPermissionsState {
     contribSiteRead: boolean;
     viewersName: string;
     contribName: string;
+
+    steps: IProcessSteps;
 
 }
 
@@ -69,7 +72,7 @@ const toggleStyles = { root: { width: 160, } };
 
 const panelWidth = '80%';
 
-const fieldTopPadding = '20px';
+const fieldBottomPadding = '20px';
 
 export default class MyCreateListPermissions extends React.Component<IMyCreateListPermissionsProps, IMyCreateListPermissionsState> {
 
@@ -96,6 +99,8 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
             viewersName: this.props.theList.Title + ' Readers',
             contribName: this.props.theList.Title + ' Contributors',
+
+            steps: createProcessSteps(),
         };
     }
         
@@ -134,7 +139,9 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
     public render(): React.ReactElement<IMyCreateListPermissionsProps> {
 
         if ( this.props.theList ) {
-            
+          
+            let listOrLib = this.props.theList.BaseType === 0 ? 'List' : 'Library' ;
+
             let panelContent = null;
             if ( this.props.railFunction === 'ListPermissions' ) {
 
@@ -145,7 +152,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                         linkSize={PivotLinkSize.normal}
                     >
                         <PivotItem headerText="Create Permissions" ariaLabel="Create Permissions" title="Create" key="Create">
-                            <h3> { this.props.theList.Title }</h3>
+                            <h3> { listOrLib + ': ' + this.props.theList.Title }</h3>
                             <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
                                 { this.makeToggle( 'Create Contributors', this.state.includeContrib, this.updateTogggleContrib.bind(this) ) }
                                 { this.makeToggle( 'Read site', this.state.contribSiteRead, this.updateTogggleContribSiteRead.bind(this) ) }
@@ -187,7 +194,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                 </div>;
             }
 
-        let panelHeader = 'Create Permissions for ' + ( this.props.theList.BaseType === 0 ? 'List' : 'Library' );
+        let panelHeader = 'Create Permissions for ' + listOrLib ;
         return (
             <div><Panel
                     isOpen={ this.props.showPanel }
@@ -264,7 +271,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
     //            let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
     private makeToggle( label: string, checked: boolean, _onChange: any ) {
-        return <div style={{ width: panelWidth, paddingTop: fieldTopPadding }}>
+        return <div style={{ width: panelWidth, paddingBottom: fieldBottomPadding }}>
             <h3>{ label } </h3>
             <Toggle 
             onText={ 'Include' } 

@@ -45,8 +45,7 @@ import * as links from '../../HelpInfo/AllLinks';
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
-import { IListRailFunction } from './railsCreateListPermsComponent';
-import ListRailFunction from './railsCreateListPermsComponent';
+import CreateListPermissions from './railCreateGroups/component';
 
 export const pivCats = {
     visible: {title: 'Visible', desc: '', order: 1},
@@ -63,6 +62,8 @@ export const pivCats = {
     lists:  {title: 'Lists' , desc: '', order: 1},
     libraries:  {title: 'Libraries' , desc: '', order: 1},
 };
+
+export type IListRailFunction = 'ListPermissions' | '';
 
 export interface IInspectListsProps {
     // 0 - Context
@@ -316,7 +317,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                 if ( this.state.railFunction === 'ListPermissions' ) { }
 
                 railsPanel = 
-                    <ListRailFunction 
+                    <CreateListPermissions 
                         railFunction={ this.state.railFunction }
                         theList={ this.state.selectedEntity }
                         user={ this.props.currentUser }
@@ -324,7 +325,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         // this prop makes the panel non-modal
                         _closePanel={ this._closePanel.bind(this) }
                         type = { this.state.panel.type }
-                    ></ListRailFunction>;
+                    ></CreateListPermissions>;
 
             } 
 

@@ -55,15 +55,6 @@ import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/
  *                                                                                                                                 
  */
 
-import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
-
-
-import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
-
-import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
-
-import { IAnyArray } from  '../../../../../services/listServices/listServices';
-
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -87,7 +78,7 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
  *                                                                                                                                               
  */
 
-import { pivCats, IListBucketInfo } from './listsComponent';
+import { pivCats, IListBucketInfo } from '../listsComponent';
 
 
 /***
@@ -102,7 +93,129 @@ import { pivCats, IListBucketInfo } from './listsComponent';
  */
 
 
-export async function createLibraryGroups( thisLibrary: any, groups: any ) {
+export const StatusIcons: IStatusIcons = { plan: 'Edit', process: 'Gear', complete: 'Checkmark', error: 'Warning' };
+export type IStepPC = 'Plan' | 'Process' | 'Complete' | '' | '';
+export type IStepKey = 'plan' | 'process' | 'complete' | 'error' | '';
 
-    
+export interface IStatusIcons {
+  plan: string;
+  process: string;
+  complete: string;
+  error: string;
 }
+
+export interface IProcessStatus {
+  // label: IStepPC;
+  key: IStepKey; //should be lower case label IStep
+  info: any;
+  order?: number;
+  result: string;
+  success: boolean;
+}
+
+export interface IProcessStep {
+  label: string;
+  required: boolean;
+  stepNo: number;
+  plan?: IProcessStatus;
+  process?: IProcessStatus;
+  complete?: IProcessStatus;
+  error?: IProcessStatus;
+
+}
+
+export interface IProcessSteps {
+  checkListPerms: IProcessStep;
+  breakListPerms: IProcessStep;
+
+  checkContribGroup: IProcessStep;
+  createContribGroup: IProcessStep;
+  assignContribListRole: IProcessStep;
+  assignContribSiteRole: IProcessStep;
+
+  checkReaderGroup: IProcessStep;
+  createReaderGroup: IProcessStep;
+  assignReaderListRole: IProcessStep;
+  assignReaderSiteRole: IProcessStep;
+}
+
+export function createStep( label: string, planInfo: string , processInfo: string , completeInfo: string , errorInfo: string, required: boolean, stepNo: number ) {
+
+  const Step : IProcessStep = {
+    label: label,
+    required: required,
+    stepNo: stepNo,
+    plan:  {
+      key: 'plan',
+      info: planInfo,
+      order: 0, result: '', success: false,
+    },
+    process:  {
+      key: 'process',
+      info: processInfo,
+      order: 1, result: '', success: false,
+    },
+    complete:  {
+      key: 'complete',
+      info: completeInfo,
+      order: 2, result: '', success: false,
+    },
+    error:  {
+      key: 'error',
+      info: errorInfo,
+      order: 3, result: '', success: false,
+    },
+  };
+  return Step;
+
+} 
+
+function checkGroup( name: string, required: boolean, stepNo: number ) {
+  return createStep( 'Check Group ' + name, 'Check for existing group', 'Checking for existing group', 'Checked for existing group', 'Was not able to check for group', required, stepNo  );
+}
+
+function createGroup( name: string, required: boolean, stepNo: number ) {
+  return createStep( 'Create Group ' + name, 'Create for existing group', 'Creating group', 'Created group', 'Was not able to Create group', required, stepNo  );
+}
+
+function assignToList( name: string, required: boolean, stepNo: number ) {
+  return createStep( 'Assign Group ' + name, 'Assign group to list', 'Assigning group to list', 'Assigned group to list', 'Was not able to Assign group to list', required, stepNo  );
+}
+
+function assignToSite( name: string, required: boolean, stepNo: number ) {
+  return createStep( 'Check Group ' + name,  'Assign group to Site', 'Assigning group to Site', 'Assigned group to Site', 'Was not able to Assign group to Site', required, stepNo  );
+}
+
+export const CheckListPermissions = createStep( 'Check List Permissions', 'Check existing list permissions', 'Fetching existing permissions', 'Checked existing permissions', 'Was not able to check list permissions', true, 0  );
+export const BreakListPermissions = createStep( 'Break List Permissions', 'Break list permissions', 'Breaking list permissions', 'Broke list permissions', 'Was not able to Break list permissions', false, 1  );
+
+export const CheckContribGroup = checkGroup('Contributors', false, 2);
+export const CreateContribGroup = createGroup('Contributors', false, 3);
+export const AssignContribToList = assignToList('Contributors', false, 4);
+export const AssignContribToSite = assignToSite('Contributors', false, 5);
+
+export const CheckReaderGroup = checkGroup('Readers', false, 6);
+export const CreateReaderGroup = createGroup('Readers', false, 7);
+export const AssignReaderToList = assignToList('Readers', false, 8);
+export const AssignReaderToSite = assignToSite('Readers', false, 9);
+
+export function createProcessSteps(){
+
+  const Steps: IProcessSteps = {
+    checkListPerms: CheckListPermissions,
+    breakListPerms: BreakListPermissions,
+
+    checkContribGroup: CheckContribGroup,
+    createContribGroup:  CreateContribGroup,
+    assignContribListRole:  AssignContribToList,
+    assignContribSiteRole:  AssignContribToSite,
+
+    checkReaderGroup:  CheckReaderGroup,
+    createReaderGroup:  CreateReaderGroup,
+    assignReaderListRole:  AssignReaderToList,
+    assignReaderSiteRole:  AssignReaderToSite,
+
+  }
+
+  return Steps;
+};
