@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
+import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
+
 import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
@@ -39,6 +41,15 @@ export interface IMyLogListProps {
 
 export interface IMyLogListState {
   maxChars?: number;
+  showPanel: boolean;
+  panel: IRailsOffPanel;
+  railFunction: 'ListPermissions' | '';
+}
+
+export interface IRailsOffPanel {
+  // groups: IMyGroupsProps;
+  type: PanelType;
+  width?: number;
 }
 
 const stackFormRowTokens: IStackTokens = { childrenGap: 10 };
@@ -62,6 +73,16 @@ const iconClassInfo = mergeStyles({
 
 export default class MyLogList extends React.Component<IMyLogListProps, IMyLogListState> {
 
+  private createStateRailsOffPanel( groupNames: string[], visible: boolean ) {
+
+    let panel : IRailsOffPanel= {
+      type: PanelType.medium,
+      // width: number,
+    };
+  
+    return panel;
+  
+  }
 
     /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -78,6 +99,9 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
         super(props);
         this.state = {
           maxChars: this.props.maxChars ? this.props.maxChars : 50,
+          showPanel: false,
+          panel: this.createStateRailsOffPanel( [''], false ),
+          railFunction: '',
         };
     }
         
@@ -177,7 +201,6 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           let listAdvancedURL : any = '-';
           let listAdvancedCT : any = '-';
           
-
           let showList = false;
           let showSettings = false;
           let showVersion = false;
@@ -228,6 +251,26 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           if ( showAdvanced === true ) { listAdvancedCT = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'CT'); }
 
           let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes }  </div>;
+
+          let railsPanel = null;
+          
+          
+          if ( this.state.showPanel !== true ) {
+            let panelContent = 'Content Goes Here';
+            if ( this.state.railFunction === 'ListPermissions' ) { }
+
+            railsPanel = <div><Panel
+                isOpen={ this.state.showPanel }
+                // this prop makes the panel non-modal
+                isBlocking={true}
+                onDismiss={ this._closePanel.bind(this) }
+                closeButtonAriaLabel="Close"
+                type = { this.state.panel.type }
+                isLightDismiss = { true }
+              >
+              { panelContent }
+            </Panel></div>;
+          } 
 
           return <tr>
             <td className={ styles.nowWrapping }> { listTitleRUL } </td>
@@ -307,5 +350,27 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
         } 
 
     } 
+
+    private openRailsOffPanel( e: any ) {
+      //This element syntax works when you have <span><strong>text</strong></span>
+      let testElement = e.nativeEvent.target;
+      let id = '';
+      // if ( testElement.id.indexOf( this.groupTitlePrefix) === 0 ) {
+      //   id = testElement.id.replace( this.groupTitlePrefix ,'' );
+      // } else if ( testElement.parentElement.id.indexOf( this.groupTitlePrefix) === 0 ) {
+      //   id = testElement.parentElement.id.replace( this.groupTitlePrefix ,'' );
+      // }
+      let panel = this.createStateRailsOffPanel( [id], false );
+  
+      this.setState({
+        panel: panel,
+        showPanel: true,
+      });
+  
+    }
+
+    private _closePanel ( )  {
+      this.setState({ showPanel: false,});
+    }
 
 }
