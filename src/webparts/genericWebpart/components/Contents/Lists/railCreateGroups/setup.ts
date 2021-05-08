@@ -117,10 +117,12 @@ export interface IProcessStep {
   label: string;
   required: boolean;
   stepNo: number;
+  value?: string | boolean;
   plan?: IProcessStatus;
   process?: IProcessStatus;
   complete?: IProcessStatus;
   error?: IProcessStatus;
+  current: IProcessStatus;
 
 }
 
@@ -139,12 +141,13 @@ export interface IProcessSteps {
   assignReaderSiteRole: IProcessStep;
 }
 
-export function createStep( label: string, planInfo: string , processInfo: string , completeInfo: string , errorInfo: string, required: boolean, stepNo: number ) {
+export function createStep( label: string, planInfo: string , processInfo: string , completeInfo: string , errorInfo: string, required: boolean, stepNo: number, value?: string | boolean ) {
 
   const Step : IProcessStep = {
     label: label,
     required: required,
     stepNo: stepNo,
+    value: value,
     plan:  {
       key: 'plan',
       info: planInfo,
@@ -165,6 +168,11 @@ export function createStep( label: string, planInfo: string , processInfo: strin
       info: errorInfo,
       order: 3, result: '', success: false,
     },
+    current:  {
+      key: 'plan',
+      info: planInfo,
+      order: 0, result: '', success: false,
+    },
   };
   return Step;
 
@@ -183,21 +191,21 @@ function assignToList( name: string, required: boolean, stepNo: number ) {
 }
 
 function assignToSite( name: string, required: boolean, stepNo: number ) {
-  return createStep( 'Check Group ' + name,  'Assign group to Site', 'Assigning group to Site', 'Assigned group to Site', 'Was not able to Assign group to Site', required, stepNo  );
+  return createStep( 'Assign Group ' + name,  'Assign group to Site', 'Assigning group to Site', 'Assigned group to Site', 'Was not able to Assign group to Site', required, stepNo  );
 }
 
 export const CheckListPermissions = createStep( 'Check List Permissions', 'Check existing list permissions', 'Fetching existing permissions', 'Checked existing permissions', 'Was not able to check list permissions', true, 0  );
-export const BreakListPermissions = createStep( 'Break List Permissions', 'Break list permissions', 'Breaking list permissions', 'Broke list permissions', 'Was not able to Break list permissions', false, 1  );
+export const BreakListPermissions = createStep( 'Break List Permissions', 'Break list permissions', 'Breaking list permissions', 'Broke list permissions', 'Was not able to Break list permissions', true, 1  );
 
-export const CheckContribGroup = checkGroup('Contributors', false, 2);
-export const CreateContribGroup = createGroup('Contributors', false, 3);
-export const AssignContribToList = assignToList('Contributors', false, 4);
-export const AssignContribToSite = assignToSite('Contributors', false, 5);
+export const CheckContribGroup = checkGroup('Contributors', true, 2);
+export const CreateContribGroup = createGroup('Contributors', true, 3);
+export const AssignContribToList = assignToList('Contributors', true, 4);
+export const AssignContribToSite = assignToSite('Contributors', true, 5);
 
-export const CheckReaderGroup = checkGroup('Readers', false, 6);
-export const CreateReaderGroup = createGroup('Readers', false, 7);
-export const AssignReaderToList = assignToList('Readers', false, 8);
-export const AssignReaderToSite = assignToSite('Readers', false, 9);
+export const CheckReaderGroup = checkGroup('Readers', true, 6);
+export const CreateReaderGroup = createGroup('Readers', true, 7);
+export const AssignReaderToList = assignToList('Readers', true, 8);
+export const AssignReaderToSite = assignToSite('Readers', true, 9);
 
 export function createProcessSteps(){
 
@@ -215,7 +223,7 @@ export function createProcessSteps(){
     assignReaderListRole:  AssignReaderToList,
     assignReaderSiteRole:  AssignReaderToSite,
 
-  }
+  };
 
   return Steps;
-};
+}

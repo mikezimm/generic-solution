@@ -33,7 +33,7 @@ import { DefaultButton, PrimaryButton, CompoundButton, elementContains } from 'o
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
 import { IListRailFunction } from '../listsComponent';
-import { createProcessSteps, IProcessSteps } from './setup';
+import { createProcessSteps, IProcessSteps, IProcessStep } from './setup';
 
 // const iconStyles: React.CSSProperties = { background: 'white', color: 'black', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
 // const redIconStyles: React.CSSProperties = { background: 'white', color: 'red', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
@@ -57,6 +57,7 @@ export interface IMyCreateListPermissionsState {
     contribSiteRead: boolean;
     viewersName: string;
     contribName: string;
+    disableDo: boolean;
 
     steps: IProcessSteps;
 
@@ -72,7 +73,8 @@ const toggleStyles = { root: { width: 160, } };
 
 const panelWidth = '80%';
 
-const fieldBottomPadding = '20px';
+const groupBottomPadding = '25px';
+const toggleBottomPadding = '5px';
 
 export default class MyCreateListPermissions extends React.Component<IMyCreateListPermissionsProps, IMyCreateListPermissionsState> {
 
@@ -91,6 +93,8 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
     constructor(props: IMyCreateListPermissionsProps) {
         super(props);
         this.state = {
+            disableDo: false,
+
             includeViewers: true,
             includeContrib: true,
 
@@ -143,105 +147,136 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             let listOrLib = this.props.theList.BaseType === 0 ? 'List' : 'Library' ;
 
             let panelContent = null;
-            if ( this.props.railFunction === 'ListPermissions' ) {
 
-                panelContent = <div>
-                    <Pivot
-                        styles={ pivotStyles }
-                        linkFormat={PivotLinkFormat.links}
-                        linkSize={PivotLinkSize.normal}
-                    >
-                        <PivotItem headerText="Create Permissions" ariaLabel="Create Permissions" title="Create" key="Create">
-                            <h3> { listOrLib + ': ' + this.props.theList.Title }</h3>
-                            <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
-                                { this.makeToggle( 'Create Contributors', this.state.includeContrib, this.updateTogggleContrib.bind(this) ) }
-                                { this.makeToggle( 'Read site', this.state.contribSiteRead, this.updateTogggleContribSiteRead.bind(this) ) }
-                            </div>
-
-                            { this.makeGroupName( this.state.contribName , this._updateContribGroup.bind(this) , !this.state.includeContrib )}
-
-                            <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
-                                { this.makeToggle( 'Create Readers', this.state.includeViewers, this.updateTogggleViewers.bind(this) ) }
-                                { this.makeToggle( 'Read site', this.state.viewersSiteRead, this.updateTogggleViewersSiteRead.bind(this) ) }
-                            </div>
-
-                            { this.makeGroupName( this.state.viewersName , this._updateVisitorGroup.bind(this) , !this.state.includeViewers )}
-
-                            <div style={{ marginTop: '50px', width: panelWidth, boxSizing: 'border-box' }}>
-                                <DefaultButton
-                                        onClick = { () => alert("Hi!") }
-                                        title="ClickMe"
-                                        style={{ marginRight: '0px', padding: '20px' }}
-                                    >
-                                    Cancel
-                                </DefaultButton>
-                                <PrimaryButton
-                                    onClick = { () => alert("Hi!") }
-                                    title="ClickMe"
-                                    style={{ padding: '20px', float: 'right' }}
-                                >
-                                    Add Groups and Permissions
-                                </PrimaryButton>
-                            </div>
-                        </PivotItem>
-                        <PivotItem headerText="Current" ariaLabel="Current" title="Current" itemKey="Current">
-                            <div style={{marginTop: '20px'}}>
-                                Fetch groups here.  Copy code from PivotTiles
-                            </div>
-                        </PivotItem>
-
-                    </Pivot>
-                </div>;
+            let selectedSteps = [];
+            if ( this.state.steps.checkListPerms.required === true ) { selectedSteps.push( this.buildSelectedStep( this.state.steps.checkListPerms ) ) ; }
+            if ( this.state.steps.breakListPerms.required === true ) { selectedSteps.push( this.buildSelectedStep( this.state.steps.breakListPerms ) ) ; }
+            if ( this.state.includeContrib === true ) { 
+                selectedSteps.push( this.buildSelectedStep( this.state.steps.checkContribGroup ) ) ;
+                selectedSteps.push( this.buildSelectedStep( this.state.steps.createContribGroup ) ) ;
+                selectedSteps.push( this.buildSelectedStep( this.state.steps.assignContribListRole ) ) ;
+                if ( this.state.contribSiteRead === true ) {
+                    selectedSteps.push( this.buildSelectedStep( this.state.steps.assignContribSiteRole ) ) ;
+                }
             }
 
-        let panelHeader = 'Create Permissions for ' + listOrLib ;
-        return (
-            <div><Panel
-                    isOpen={ this.props.showPanel }
-                    // this prop makes the panel non-modal
-                    isBlocking={true}
-                    onDismiss={ this.props._closePanel }
-                    closeButtonAriaLabel="Close"
-                    type = { this.props.type }
-                    isLightDismiss = { true }
-                    headerText = { panelHeader }
-                    >
-                    { panelContent }
+            if ( this.state.includeViewers === true ) { 
+                selectedSteps.push( this.buildSelectedStep( this.state.steps.checkReaderGroup ) ) ;
+                selectedSteps.push( this.buildSelectedStep( this.state.steps.createReaderGroup ) ) ;
+                selectedSteps.push( this.buildSelectedStep( this.state.steps.assignReaderListRole ) ) ;
+                if ( this.state.viewersSiteRead === true ) {
+                    selectedSteps.push( this.buildSelectedStep( this.state.steps.assignReaderSiteRole ) ) ;
+                }
+            }
+            
+            let selectedTable = <table style={{marginTop: '30px' }}>
+                <tr><th>Step</th><th>Status</th><th>Info</th><th>Details</th></tr>
+                { selectedSteps }
+            </table>;
 
-                </Panel>
-            </div>
-
-          );
-
-    } else {
-
-
-      // <div className={ styles.container }></div>
-      return (
-        <div className={ '' }>
-            <Panel
-                isOpen={ this.props.showPanel }
-                // this prop makes the panel non-modal
-                isBlocking={true}
-                onDismiss={ this.props._closePanel }
-                closeButtonAriaLabel="Close"
-                type = { this.props.type }
-                isLightDismiss = { true }
-                headerText = { 'Ooops!' }
+            panelContent = <div>
+                <Pivot
+                    styles={ pivotStyles }
+                    linkFormat={PivotLinkFormat.links}
+                    linkSize={PivotLinkSize.normal}
                 >
-                    { 'OOPS!  We don\'t have a list to show you right now :(' }
+                    <PivotItem headerText="Create Permissions" ariaLabel="Create Permissions" title="Create" key="Create">
+                        <h3> { listOrLib + ': ' + this.props.theList.Title }</h3>
+                        <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
+                            { this.makeToggle( 'Create Contributors', this.state.includeContrib, false, this.updateTogggleContrib.bind(this) ) }
+                            { this.makeToggle( 'Read site', this.state.contribSiteRead, !this.state.includeContrib, this.updateTogggleContribSiteRead.bind(this) ) }
+                        </div>
 
-                </Panel>
-        </div>
-          );
+                        { this.makeGroupName( this.state.contribName , this._updateContribGroup.bind(this) , !this.state.includeContrib, '0px 0px ' + groupBottomPadding + '0px' )}
+
+                        <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
+                            { this.makeToggle( 'Create Readers', this.state.includeViewers, false, this.updateTogggleReaders.bind(this) ) }
+                            { this.makeToggle( 'Read site', this.state.viewersSiteRead, !this.state.includeViewers, this.updateTogggleReadersSiteRead.bind(this) ) }
+                        </div>
+
+                        { this.makeGroupName( this.state.viewersName , this._updateVisitorGroup.bind(this) , !this.state.includeViewers, '0px 0px ' + groupBottomPadding + '0px' )}
+
+                        <div style={{ marginTop: '50px', width: panelWidth, boxSizing: 'border-box' }}>
+                            <DefaultButton
+                                    onClick = { () => alert("Hi!") }
+                                    title="ClickMe"
+                                    style={{ marginRight: '0px', padding: '20px' }}
+                                >
+                                Cancel
+                            </DefaultButton>
+                            <PrimaryButton
+                                onClick = { () => alert("Hi!") }
+                                title="ClickMe"
+                                style={{ padding: '20px', float: 'right' }}
+                                disabled={ this.state.disableDo }
+                            >
+                                Add Groups and Permissions
+                            </PrimaryButton>
+                        </div>
+                    </PivotItem>
+                    <PivotItem headerText="Current" ariaLabel="Current" title="Current" itemKey="Current">
+                        <div style={{marginTop: '20px'}}>
+                            Fetch groups here.  Copy code from PivotTiles
+                        </div>
+                    </PivotItem>
+
+                </Pivot>
+            </div>;
+
+            let panelHeader = 'Create Permissions for ' + listOrLib ;
+            return (
+                <div><Panel
+                        isOpen={ this.props.showPanel }
+                        // this prop makes the panel non-modal
+                        isBlocking={true}
+                        onDismiss={ this.props._closePanel }
+                        closeButtonAriaLabel="Close"
+                        type = { this.props.type }
+                        isLightDismiss = { true }
+                        headerText = { panelHeader }
+                        >
+                        { panelContent }
+
+                        { selectedTable }
+
+                    </Panel>
+                </div>
+
+            );
+
+        } else { //No list was detected
+
+            // <div className={ styles.container }></div>
+            return ( <div className={ '' }>
+                    <Panel
+                        isOpen={ this.props.showPanel }
+                        // this prop makes the panel non-modal
+                        isBlocking={true}
+                        onDismiss={ this.props._closePanel }
+                        closeButtonAriaLabel="Close"
+                        type = { this.props.type }
+                        isLightDismiss = { true }
+                        headerText = { 'Ooops!' }
+                        >
+                            { 'OOPS!  We don\'t have a list to show you right now :(' }
+
+                        </Panel>
+                </div> );
         } 
 
     } 
 
+    private buildSelectedStep( step: IProcessStep ) {
+        return <tr>
+            <td>{ step.label } </td>
+            <td>{ step.current.success } </td>
+            <td>{ step.current.info } </td>
+            <td>{ step.current.result } </td>
+        </tr>;
+    }
 
-
-    private makeGroupName( def: string, onChanged: any, disabled: boolean ) {
-           return <div style={{ width: panelWidth }}>
+    private makeGroupName( def: string, onChanged: any, disabled: boolean, margin: any ) {
+           return <div style={{ width: panelWidth, margin: margin }}>
                 <TextField
                     defaultValue={ def }
                     placeholder={ 'Enter Group Name' }
@@ -270,24 +305,86 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
      */
     //            let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
-    private makeToggle( label: string, checked: boolean, _onChange: any ) {
-        return <div style={{ width: panelWidth, paddingBottom: fieldBottomPadding }}>
+    private makeToggle( label: string, checked: boolean, disabled: boolean, _onChange: any ) {
+        return <div style={{ width: panelWidth, paddingBottom: toggleBottomPadding }}>
             <h3>{ label } </h3>
             <Toggle 
             onText={ 'Include' } 
             offText={ 'Skip' } 
             onChange={ _onChange } 
             checked={ checked }
+            disabled= { disabled }
             styles={ toggleStyles }
             />
         </div>;
 
     }
     
-    private updateTogggleViewers() {  this.setState({  includeViewers: !this.state.includeViewers,  });  }
-    private updateTogggleContrib() {  this.setState({  includeContrib: !this.state.includeContrib,  });  }
+    private updateSteps( step: any, key: string, newValue: any ) {
+        if ( step[ key ] === undefined ) {
+            alert( 'Unable to update step key: ' + key );
+            return step;
+        } else {
+            step[ key ] = newValue;
+            return step;
+        }
+    }
 
-    private updateTogggleViewersSiteRead() {  this.setState({  viewersSiteRead: !this.state.viewersSiteRead,  });  }
-    private updateTogggleContribSiteRead() {  this.setState({  contribSiteRead: !this.state.contribSiteRead,  });  }
+    private updateCommonSteps( newSteps : IProcessSteps ) {
+        let updateList = newSteps.assignContribListRole.required === true || newSteps.assignReaderListRole.required === true ? true : false ;
+        newSteps.checkListPerms.required = updateList;
+        newSteps.breakListPerms.required = updateList;
+        return newSteps;
+    }
+
+    private updateTogggleReaders() {  
+        let newValue = !this.state.includeViewers;
+        let newSteps : IProcessSteps = JSON.parse(JSON.stringify( this.state.steps ));
+        newSteps.checkReaderGroup = this.updateSteps( newSteps.checkReaderGroup, 'required', newValue );
+        newSteps.assignReaderListRole = this.updateSteps( newSteps.assignReaderListRole, 'required', newValue );
+        newSteps = this.updateCommonSteps( newSteps );
+
+        this.setState({  
+            includeViewers: newValue, 
+            steps: newSteps,
+            disableDo: this.state.includeContrib === true || newValue === true ? false : true,
+         }); 
+    }
+
+    private updateTogggleContrib() {
+        let newValue = !this.state.includeContrib;
+        let newSteps : IProcessSteps = JSON.parse(JSON.stringify( this.state.steps ));
+        newSteps.checkContribGroup = this.updateSteps( newSteps.checkContribGroup, 'required', newValue );
+        newSteps.assignContribListRole = this.updateSteps( newSteps.assignContribListRole, 'required', newValue );
+        newSteps = this.updateCommonSteps( newSteps );
+
+        this.setState({  
+            includeContrib: newValue,  
+            steps: newSteps,
+            disableDo: this.state.includeViewers === true || newValue === true ? false : true,
+        });  
+    }
+
+    private updateTogggleReadersSiteRead() {  
+        let newValue = !this.state.viewersSiteRead;
+        let newSteps : IProcessSteps = JSON.parse(JSON.stringify( this.state.steps ));
+        newSteps.assignReaderSiteRole = this.updateSteps( newSteps.assignReaderSiteRole, 'required', newValue );
+
+        this.setState({  
+            viewersSiteRead: newValue,  
+            steps: newSteps,
+        });  
+    }
+
+    private updateTogggleContribSiteRead() {  
+        let newValue = !this.state.contribSiteRead;
+        let newSteps : IProcessSteps = JSON.parse(JSON.stringify( this.state.steps ));
+        newSteps.assignContribSiteRole = this.updateSteps( newSteps.assignContribSiteRole, 'required', newValue );
+
+        this.setState({  
+            contribSiteRead: newValue,  
+            steps: newSteps,
+        });  
+    }
 
 }
