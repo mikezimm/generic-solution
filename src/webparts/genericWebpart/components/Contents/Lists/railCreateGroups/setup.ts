@@ -31,18 +31,6 @@ import { mergeAriaAttributeValues } from "office-ui-fabric-react";
  *                                                                                                                                                                              
  */
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
-
-import { makeSmallTimeObject,} from '@mikezimm/npmfunctions/dist/Services/Time/smallTimeObject';
-
-import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
-import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
-
-import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
-
-import { encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -79,7 +67,6 @@ import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/
  */
 
 import { pivCats, IListBucketInfo } from '../listsComponent';
-
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
