@@ -9,13 +9,11 @@
  *                                                                                                                                  
  *                                                                                                                                  
  */
-
-import { Web, IList } from "@pnp/sp/presets/all";
-
-import { sp } from "@pnp/sp";
-
 import "@pnp/sp/webs";
 import "@pnp/sp/clientside-pages/web";
+
+import { Web, IList, sp, SiteGroups, SiteGroup, ISiteGroupInfo } from "@pnp/sp/presets/all";
+
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
 import { mergeAriaAttributeValues } from "office-ui-fabric-react";
@@ -41,6 +39,7 @@ import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames }
 import { encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -81,6 +80,8 @@ import { pivCats, IListBucketInfo } from '../listsComponent';
 
 import { IProcessStep, IProcessSteps, IProcessStatus, IStepPC } from './setup';
 
+import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsComponent';
+
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
  *    88'     `8b  d8' 88  `8D .8P  Y8. 88  `8D `~~88~~'        `88'   888o  88 `~~88~~' 88'     88  `8D 88'     d8' `8b d8P  Y8 88'     88'  YP 
@@ -91,3 +92,157 @@ import { IProcessStep, IProcessSteps, IProcessStatus, IStepPC } from './setup';
  *                                                                                                                                               
  *                                                                                                                                               
  */
+
+ export async function doThisRailFunction( steps: IProcessSteps, theList: IContentsListInfo, updateState: any ) {
+
+  let newSteps : IProcessSteps = JSON.parse(JSON.stringify( steps ));
+  let currentStep = null;
+  let listOrLib = theList.BaseType === 0 ? 'List' : 'Library' ;
+  let thisWebInstance = null;
+  let listInstance = null;
+  let webUrl: string = theList['odata.id'];
+  webUrl = webUrl.substr( 0, webUrl.indexOf('_api'));
+  let errMessage = '';
+  try {
+      thisWebInstance = Web( webUrl );
+  } catch (e) {
+      errMessage = getHelpfullError(e, true, true);
+  }
+
+
+  /**
+   * Get Site Owner Group
+   * 
+   */
+  let ownerGroup : ISiteGroupInfo = null;
+  try {
+    // Gets the associated owners group of a web
+    ownerGroup = await thisWebInstance.associatedOwnerGroup();
+  } catch (e) {
+    errMessage = getHelpfullError(e, true, true);
+  }
+
+  
+  if ( newSteps.checkListPerms.required === true ) {
+
+  }
+
+  listInstance = await thisWebInstance.lists.getById( theList.Id );
+
+  if ( newSteps.breakListPerms.required === true ) {
+    currentStep = newSteps.breakListPerms;
+    try {
+      // Gets the associated owners group of a web
+      await listInstance.breakRoleInheritance(true, true);
+      currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
+
+    } catch (e) {
+      errMessage = getHelpfullError(e, true, true);
+      currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
+    }
+    updateState(newSteps);
+
+  }
+
+
+
+  /**
+   * Create Contribute Group
+   */
+  let principalId = null;
+  if ( newSteps.checkContribGroup.required === true ) {
+
+    currentStep = newSteps.createContribGroup;
+    if ( currentStep.required === true ) {
+      let GroupTitle = theList.Title + ' Contributors';
+      let GroupDesc = `Can UPDATE content in the ${ listOrLib } - ${ theList.Title }`;
+      currentStep = await createThisGroup( thisWebInstance, GroupTitle, GroupDesc, currentStep );
+      errMessage =  currentStep.current.error;
+      principalId = currentStep.current.result;
+      updateState(newSteps);
+    }
+
+    // Get role definition Id
+    currentStep = newSteps.assignContribListRole;
+    if ( currentStep.required === true ) {
+      try {
+        // Gets the associated owners group of a web
+        const { Id: roleDefId } = await thisWebInstance.roleDefinitions.getByName('Contribute').get();
+        await listInstance.roleAssignments.add(principalId, roleDefId);
+        currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
+  
+      } catch (e) {
+        errMessage = getHelpfullError(e, true, true);
+        currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
+      }
+      updateState(newSteps);
+    }
+
+  }
+
+  /**
+   * Create Reader Group
+   */
+  if ( newSteps.checkReaderGroup.required === true ) {
+    currentStep = newSteps.createReaderGroup;
+    if ( currentStep.required === true ) {
+      let GroupTitle = theList.Title + ' Readers';
+      let GroupDesc = `Can READ content in the ${ listOrLib }: ${ theList.Title }`;
+      currentStep = await createThisGroup( thisWebInstance, GroupTitle, GroupDesc, currentStep );
+      errMessage =  currentStep.current.error;
+      principalId = currentStep.current.result;
+      updateState(newSteps);
+    }
+
+    // Get role definition Id
+    currentStep = newSteps.assignReaderListRole;
+    if ( currentStep.required === true ) {
+      try {
+        // Gets the associated owners group of a web
+        const { Id: roleDefId } = await thisWebInstance.roleDefinitions.getByName('Read').get();
+        await listInstance.roleAssignments.add(principalId, roleDefId);
+        currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
+  
+      } catch (e) {
+        errMessage = getHelpfullError(e, true, true);
+        currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
+      }
+      updateState(newSteps);
+    }
+
+  }
+
+  updateState(newSteps);
+
+ }
+
+ async function createThisGroup( thisWebInstance: any, title: string, description: string, currentStep: IProcessStep ) {
+  let errMessage = '';
+  try {
+    // Creates a new site group with the specified title
+    currentStep.current = JSON.parse(JSON.stringify( currentStep.process ));
+
+    const contributeGroup = await thisWebInstance.siteGroups.add({
+      "Title": title,
+      "Description": description,
+      // "OwnerTitle": ownerGroup.Title,
+      "OnlyAllowMembersViewMembership": false,
+    });
+
+    currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
+    currentStep.current.result = contributeGroup.data.Id;
+
+  } catch(e) {
+    errMessage = getHelpfullError(e, true, true);
+    currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
+    if ( 'The specified name is already in use' ) {
+      currentStep.current.error = 'Group already exists!';
+    } else {
+      currentStep.current.error = errMessage;
+    }
+    
+  }
+
+  return currentStep;
+
+ }

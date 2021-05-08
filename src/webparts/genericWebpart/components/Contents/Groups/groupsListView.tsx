@@ -169,11 +169,12 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
             //columnsToVisible
             return <tr>
                 <td className={ '' }> { '' }</td> 
+                <td className={ '' }> { Grp.Id }</td> 
                 <td className={ styleTitle }> {  groupTitle }</td>
 
                 <td className= { styleAdvanced }> { groupLink }</td>
-                <td className={ '' }> { Grp.Id }</td> 
 
+                <td className={ '' }> { Grp.OwnerTitle }</td> 
                 <td className={ styleDesc }> { Grp.Description != null ? Grp.Description.slice(0,this.state.maxChars) + '...' : Grp.Description } </td>
 
                 <td className={ styleSpecial }> { /*this.getWebSpecialValue( F ) */ '' } </td>
@@ -202,9 +203,10 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
         let webTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
                 <th></th>
+                <th className={ '' }>Id</th>
                 <th className={ styleTitle }>Title</th>
                 <th className={ styleAdvanced }>Link to Group</th>
-                <th className={ '' }>Id</th>
+                <th className={ '' }>Owner</th>
                 <th className={ styleDesc }>Description</th>
 
                 { /* <th className={ columnsToVisible }>Group</th> */ }

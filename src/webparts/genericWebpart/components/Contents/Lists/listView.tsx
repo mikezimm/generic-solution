@@ -175,7 +175,9 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             }
           }
 
-          const UniquePermIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.UniquePerms } </div>;
+          const UniquePermIcon: JSX.Element = <div id={ index.toString() } > { fpsAppIcons.UniquePerms } </div>;
+
+          const CreateGroupsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.CreateGroups } </div>;
 
           let listTitleRUL : any = Lst.Title;
           let listSettingsURL : any = Lst.EntityTypeName;
@@ -229,7 +231,15 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           if ( showList === true ) { listTitleRUL = createLink( Lst.listURL, '_blank', Lst.Title); }
           if ( showSettings === true ) { listSettingsURL = createLink(this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + Lst.Id + ")", '_blank', Lst.EntityTypeName); }
           if ( showVersion === true ) { listVersionURL = createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + Lst.Id + ")", '_blank', versionNumbers ); }
-          if ( showPermission === true ) { listPermissionURL = createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', 'Perms'); }
+          if ( showPermission === true ) { 
+            if ( Lst.HasUniqueRoleAssignments === true ) {
+              listPermissionURL = UniquePermIcon;
+            } else {
+              listPermissionURL = createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', '---' ); 
+            }
+          }
+
+         
           if ( showAdvanced === true ) { listAdvancedURL = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'Adv'); }
           if ( showAdvanced === true ) { listAdvancedCT = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'CT'); }
 
@@ -249,6 +259,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             <td className={ styleRailsRev }> { listAdvancedCT } </td>
             <td className={ styleRailsRev }> { listAdvancedURL } </td>
             <td className={ styleRailsRev }> { Lst.BaseTemplate } </td>
+            <td className={ styleRails }> {[ CreateGroupsIcon ] }</td>
             <td style={{ backgroundColor: 'white' }} className={ [styles.listButtons, styleRailsRev].join(' ') }> { other } </td>
             <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 
@@ -282,6 +293,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               <th className={ styleRailsRev }>CT</th>  
               <th className={ styleRailsRev }>Exceptions</th>
               <th className={ styleRailsRev }>Base</th>
+              <th className={ styleRails }>RailsOff</th>
               <th className={ styleRailsRev }>Other</th>
               <th>More</th>
 

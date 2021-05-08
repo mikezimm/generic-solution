@@ -33,7 +33,8 @@ import { DefaultButton, PrimaryButton, CompoundButton, elementContains } from 'o
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
 import { IListRailFunction } from '../listsComponent';
-import { createProcessSteps, IProcessSteps, IProcessStep } from './setup';
+import { createProcessSteps, IProcessSteps, IProcessStep, StatusIcons, StatusColors } from './setup';
+import { doThisRailFunction } from './functions';
 
 // const iconStyles: React.CSSProperties = { background: 'white', color: 'black', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
 // const redIconStyles: React.CSSProperties = { background: 'white', color: 'red', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
@@ -198,14 +199,14 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
                         <div style={{ marginTop: '50px', width: panelWidth, boxSizing: 'border-box' }}>
                             <DefaultButton
-                                    onClick = { () => alert("Hi!") }
-                                    title="ClickMe"
+                                    onClick = { this.props._closePanel }
+                                    title="Cancel"
                                     style={{ marginRight: '0px', padding: '20px' }}
                                 >
                                 Cancel
                             </DefaultButton>
                             <PrimaryButton
-                                onClick = { () => alert("Hi!") }
+                                onClick = { this.startThisRailFunction.bind(this) }
                                 title="ClickMe"
                                 style={{ padding: '20px', float: 'right' }}
                                 disabled={ this.state.disableDo }
@@ -266,11 +267,26 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
     } 
 
+    private startThisRailFunction() {
+        doThisRailFunction( this.state.steps, this.props.theList , this.updateStateStatus.bind(this) );
+    }
+
+    private updateStateStatus( steps: IProcessSteps ) {
+        this.setState({ 
+            steps: steps,
+         }); 
+    }
+
+
+
     private buildSelectedStep( step: IProcessStep ) {
-        return <tr>
+        let info = step.current.error !== '' ? step.current.error : step.current.info; 
+        let key = step.current.key;
+        let color = StatusColors[ key ];
+        return <tr  title={ step.current.info }>
             <td>{ step.label } </td>
-            <td>{ step.current.success } </td>
-            <td>{ step.current.info } </td>
+            <td style={{ textAlign: 'center' }} ><Icon iconName= { StatusIcons[ key ]} style={{ color: color }}></Icon></td>
+            <td style={{ color: color }}>{ info } </td>
             <td>{ step.current.result } </td>
         </tr>;
     }

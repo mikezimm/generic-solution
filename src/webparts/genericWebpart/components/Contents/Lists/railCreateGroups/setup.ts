@@ -94,6 +94,8 @@ import { pivCats, IListBucketInfo } from '../listsComponent';
 
 
 export const StatusIcons: IStatusIcons = { plan: 'Edit', process: 'Gear', complete: 'Checkmark', error: 'Warning' };
+export const StatusColors: IStatusIcons = { plan: 'black', process: 'blue', complete: 'green', error: 'red' };
+export type IStatusIcon = 'Edit'| 'Gear'| 'Checkmark'| 'Warning';
 export type IStepPC = 'Plan' | 'Process' | 'Complete' | '' | '';
 export type IStepKey = 'plan' | 'process' | 'complete' | 'error' | '';
 
@@ -111,6 +113,7 @@ export interface IProcessStatus {
   order?: number;
   result: string;
   success: boolean;
+  error?: string;
 }
 
 export interface IProcessStep {
@@ -151,27 +154,27 @@ export function createStep( label: string, planInfo: string , processInfo: strin
     plan:  {
       key: 'plan',
       info: planInfo,
-      order: 0, result: '', success: false,
+      order: 0, result: '', success: false, error: '',
     },
     process:  {
       key: 'process',
       info: processInfo,
-      order: 1, result: '', success: false,
+      order: 1, result: '', success: false, error: '',
     },
     complete:  {
       key: 'complete',
       info: completeInfo,
-      order: 2, result: '', success: false,
+      order: 2, result: '', success: false, error: '',
     },
     error:  {
       key: 'error',
       info: errorInfo,
-      order: 3, result: '', success: false,
+      order: 3, result: '', success: false, error: '',
     },
     current:  {
       key: 'plan',
       info: planInfo,
-      order: 0, result: '', success: false,
+      order: 0, result: '', success: false, error: '',
     },
   };
   return Step;
