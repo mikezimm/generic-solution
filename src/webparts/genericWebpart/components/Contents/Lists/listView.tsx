@@ -178,7 +178,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           const UniquePermIcon: JSX.Element = <div id={ index.toString() } > { fpsAppIcons.UniquePerms } </div>;
 
           const CreateGroupsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.CreateGroups } </div>;
-
+          
           let listTitleRUL : any = Lst.Title;
           let listSettingsURL : any = Lst.EntityTypeName;
           let listVersionURL : any = versionNumbers ;
@@ -233,7 +233,12 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           if ( showVersion === true ) { listVersionURL = createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + Lst.Id + ")", '_blank', versionNumbers ); }
           if ( showPermission === true ) { 
             if ( Lst.HasUniqueRoleAssignments === true ) {
-              listPermissionURL = UniquePermIcon;
+              if ( showSettings === true ) {
+                listPermissionURL = createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', 'Perms' ); 
+              } else {
+                listPermissionURL = UniquePermIcon;
+              }
+              
             } else {
               listPermissionURL = createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', '---' ); 
             }

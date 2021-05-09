@@ -93,6 +93,9 @@ import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsCompon
  *                                                                                                                                               
  */
 
+ 
+export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
+
  export async function doThisRailFunction( steps: IProcessSteps, theList: IContentsListInfo, updateState: any ) {
 
   let newSteps : IProcessSteps = JSON.parse(JSON.stringify( steps ));
@@ -144,8 +147,6 @@ import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsCompon
 
   }
 
-
-
   /**
    * Create Contribute Group
    */
@@ -162,21 +163,10 @@ import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsCompon
       updateState(newSteps);
     }
 
-    // Get role definition Id
-    currentStep = newSteps.assignContribListRole;
-    if ( currentStep.required === true ) {
-      try {
-        // Gets the associated owners group of a web
-        const { Id: roleDefId } = await thisWebInstance.roleDefinitions.getByName('Contribute').get();
-        await listInstance.roleAssignments.add(principalId, roleDefId);
-        currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
-  
-      } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
-        currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
-      }
-      updateState(newSteps);
-    }
+    // currentStep = newSteps.assignReaderListRole;
+    newSteps = await giveGroupPermissions( newSteps, 'assignContribListRole', listInstance, thisWebInstance, principalId , 'Contribute', updateState, 'list' ) ;
+    // currentStep = newSteps.assignReaderSiteRole;
+    newSteps = await giveGroupPermissions( newSteps, 'assignContribSiteRole', listInstance, thisWebInstance, principalId , 'Read', updateState, 'web' ) ;
 
   }
 
@@ -195,20 +185,10 @@ import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsCompon
     }
 
     // Get role definition Id
-    currentStep = newSteps.assignReaderListRole;
-    if ( currentStep.required === true ) {
-      try {
-        // Gets the associated owners group of a web
-        const { Id: roleDefId } = await thisWebInstance.roleDefinitions.getByName('Read').get();
-        await listInstance.roleAssignments.add(principalId, roleDefId);
-        currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
-  
-      } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
-        currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
-      }
-      updateState(newSteps);
-    }
+    // currentStep = newSteps.assignReaderListRole;
+    newSteps = await giveGroupPermissions( newSteps, 'assignReaderListRole', listInstance, thisWebInstance, principalId , 'Contribute', updateState, 'list' ) ;
+    // currentStep = newSteps.assignReaderSiteRole;
+    newSteps = await giveGroupPermissions( newSteps, 'assignReaderSiteRole', listInstance, thisWebInstance, principalId , 'Read', updateState, 'web' ) ;
 
   }
 
@@ -216,7 +196,45 @@ import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsCompon
 
  }
 
- async function createThisGroup( thisWebInstance: any, title: string, description: string, currentStep: IProcessStep ) {
+
+ export async function giveGroupPermissions (newSteps: IProcessSteps, currentStepStr: string, listInstance, thisWebInstance, principalId: number, role: string, updateState: any, listOrWeb: 'list' | 'web' ){
+
+  let currentStep: IProcessStep = JSON.parse( JSON.stringify( newSteps[currentStepStr] )) ;
+
+  if ( currentStep.required === true ) {
+
+    let errMessage = '';
+    try {
+      // Gets the associated owners group of a web
+      const { Id: roleDefId } = await thisWebInstance.roleDefinitions.getByName(role).get();
+
+      if ( listOrWeb === 'list' ) {
+        await listInstance.roleAssignments.add(principalId, roleDefId);
+        currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
+
+      } else if ( listOrWeb === 'web' ) {
+        await thisWebInstance.roleAssignments.add(principalId, roleDefId);
+        currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
+
+      }
+
+    } catch (e) {
+      errMessage = getHelpfullError(e, true, true);
+      currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
+
+    }
+
+    newSteps[currentStepStr] = currentStep;
+    updateState(newSteps);
+  }
+
+  return newSteps;
+
+ }
+
+
+
+ export async function createThisGroup( thisWebInstance: any, title: string, description: string, currentStep: IProcessStep ) {
   let errMessage = '';
   try {
     // Creates a new site group with the specified title
