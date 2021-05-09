@@ -113,19 +113,6 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   }
 
 
-  /**
-   * Get Site Owner Group
-   * 
-   */
-  let ownerGroup : ISiteGroupInfo = null;
-  try {
-    // Gets the associated owners group of a web
-    ownerGroup = await thisWebInstance.associatedOwnerGroup();
-  } catch (e) {
-    errMessage = getHelpfullError(e, true, true);
-  }
-
-  
   if ( newSteps.checkListPerms.required === true ) {
 
   }
@@ -136,7 +123,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
     currentStep = newSteps.breakListPerms;
     try {
       // Gets the associated owners group of a web
-      await listInstance.breakRoleInheritance(true, true);
+      await listInstance.breakRoleInheritance();
       currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
 
     } catch (e) {
@@ -145,6 +132,49 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
     }
     updateState(newSteps);
 
+  }
+
+    /**
+   * Get Site Owner Group
+   * 
+   */
+  let ownerGroup : ISiteGroupInfo = null;
+  let memberGroup : ISiteGroupInfo = null;
+  let visitorGroup : ISiteGroupInfo = null;
+
+  const { Id: fullRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Full Control').get();
+  const { Id: contRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Contribute').get();
+  const { Id: readRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Read').get();
+
+  let parentPerms = "FCR";
+
+  let ownLevel = parentPerms.substr(0,1);
+  ownLevel = ownLevel === "F" ? fullRoleDefId : ownLevel === "C" ? contRoleDefId : ownLevel === "R" ? readRoleDefId : null;
+ 
+  let memLevel = parentPerms.substr(1,1);
+  memLevel = memLevel === "F" ? fullRoleDefId : memLevel === "C" ? contRoleDefId : memLevel === "R" ? readRoleDefId : null;
+
+  let visLevel = parentPerms.substr(2,1);
+  visLevel = visLevel === "F" ? fullRoleDefId : visLevel === "C" ? contRoleDefId : visLevel === "R" ? readRoleDefId : null;
+
+  if ( ownLevel !== null ) {
+    try { // Gets the associated owners group of a web
+      ownerGroup = await thisWebInstance.associatedOwnerGroup();
+      const r = await listInstance.roleAssignments.add(ownerGroup.Id, ownLevel);
+    } catch (e) { errMessage = getHelpfullError(e, true, true); }
+  }
+
+  if ( memLevel !== null ) {
+    try { // Gets the associated members group of a web
+      memberGroup = await thisWebInstance.associatedMemberGroup();
+      const r = await listInstance.roleAssignments.add(memberGroup.Id, memLevel);
+    } catch (e) { errMessage = getHelpfullError(e, true, true); }
+  }
+  if ( visLevel !== null ) {
+    try { // Gets the associated visitors group of a web
+      visitorGroup = await thisWebInstance.associatedVisitorGroup();
+      const r = await listInstance.roleAssignments.add(visitorGroup.Id, visLevel);
+    } catch (e) { errMessage = getHelpfullError(e, true, true); }
   }
 
   /**
@@ -164,9 +194,9 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
     }
 
     // currentStep = newSteps.assignReaderListRole;
-    newSteps = await giveGroupPermissions( newSteps, 'assignContribListRole', listInstance, thisWebInstance, principalId , 'Contribute', updateState, 'list' ) ;
+    newSteps = await giveGroupPermissions( newSteps, 'assignContribListRole', listInstance, thisWebInstance, principalId , contRoleDefId, updateState, 'list' ) ;
     // currentStep = newSteps.assignReaderSiteRole;
-    newSteps = await giveGroupPermissions( newSteps, 'assignContribSiteRole', listInstance, thisWebInstance, principalId , 'Read', updateState, 'web' ) ;
+    newSteps = await giveGroupPermissions( newSteps, 'assignContribSiteRole', listInstance, thisWebInstance, principalId , readRoleDefId, updateState, 'web' ) ;
 
   }
 
@@ -186,9 +216,9 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
     // Get role definition Id
     // currentStep = newSteps.assignReaderListRole;
-    newSteps = await giveGroupPermissions( newSteps, 'assignReaderListRole', listInstance, thisWebInstance, principalId , 'Contribute', updateState, 'list' ) ;
+    newSteps = await giveGroupPermissions( newSteps, 'assignReaderListRole', listInstance, thisWebInstance, principalId , readRoleDefId, updateState, 'list' ) ;
     // currentStep = newSteps.assignReaderSiteRole;
-    newSteps = await giveGroupPermissions( newSteps, 'assignReaderSiteRole', listInstance, thisWebInstance, principalId , 'Read', updateState, 'web' ) ;
+    newSteps = await giveGroupPermissions( newSteps, 'assignReaderSiteRole', listInstance, thisWebInstance, principalId , readRoleDefId, updateState, 'web' ) ;
 
   }
 
@@ -197,7 +227,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
  }
 
 
- export async function giveGroupPermissions (newSteps: IProcessSteps, currentStepStr: string, listInstance, thisWebInstance, principalId: number, role: string, updateState: any, listOrWeb: 'list' | 'web' ){
+ export async function giveGroupPermissions (newSteps: IProcessSteps, currentStepStr: string, listInstance, thisWebInstance, principalId: number, roleDefId: number, updateState: any, listOrWeb: 'list' | 'web' ){
 
   let currentStep: IProcessStep = JSON.parse( JSON.stringify( newSteps[currentStepStr] )) ;
 
@@ -205,8 +235,6 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
     let errMessage = '';
     try {
-      // Gets the associated owners group of a web
-      const { Id: roleDefId } = await thisWebInstance.roleDefinitions.getByName(role).get();
 
       if ( listOrWeb === 'list' ) {
         await listInstance.roleAssignments.add(principalId, roleDefId);
