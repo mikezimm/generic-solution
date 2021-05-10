@@ -249,6 +249,8 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allowSettings = { this.state.allowSettings }
                 allowCrazyLink = { this.props.allowCrazyLink }
                 pickedWeb = { this.props.pickedWeb }
+                analyticsWeb= { this.props.analyticsWeb }
+                analyticsList= { this.props.analyticsList }
             ></InspectLists>
         </div>;
 

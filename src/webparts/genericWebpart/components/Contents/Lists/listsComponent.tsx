@@ -77,6 +77,8 @@ export interface IInspectListsProps {
     allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
 
     pickedWeb : IPickedWebBasic;
+    analyticsWeb: string;
+    analyticsList: string;
 
     allLoaded: boolean;
 
@@ -327,6 +329,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         // this prop makes the panel non-modal
                         _closePanel={ this._closePanel.bind(this) }
                         type = { this.state.panel.type }
+                        analyticsWeb= { this.props.analyticsWeb }
+                        analyticsList= { this.props.analyticsList }
                     ></CreateListPermissions>;
 
             } 

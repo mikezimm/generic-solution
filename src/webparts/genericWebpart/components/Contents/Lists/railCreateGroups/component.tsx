@@ -118,6 +118,8 @@ export interface IMyCreateListPermissionsProps {
     currentPage: string; //this.context.pageContext.web.absoluteUrl;
     pickedWeb : IPickedWebBasic;
 
+    analyticsWeb: string;
+    analyticsList: string;
     //currentUser: IUser;
 
   }
@@ -352,11 +354,11 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         let ServerRelativeUrl = this.props.currentPage;
         let pickedWeb = this.props.pickedWeb ? this.props.pickedWeb.ServerRelativeUrl : ServerRelativeUrl;
 
-        saveAnalytics( strings.analyticsWeb, strings.analyticsListRails, //analyticsWeb, analyticsList,
+        saveAnalytics( this.props.analyticsWeb, strings.analyticsListRails , //analyticsWeb, analyticsList,
             ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
-            'EasyContents', pickedWeb, null, //saveTitle, TargetSite, TargetList
-            'Contents', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
-            '' ); //richText
+            'EasyContents', pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+            'Contents', '', 'Loading', //itemInfo1, itemInfo2, result, 
+            JSON.stringify(currentStep) ); //richText
         
     }
 
