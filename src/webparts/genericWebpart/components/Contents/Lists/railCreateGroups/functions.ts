@@ -146,36 +146,43 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   const { Id: contRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Contribute').get();
   const { Id: readRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Read').get();
 
-  let parentPerms = "FCR";
+  function convertLetterToRole( role: string ) {
+    if ( role === 'Full Control') { return fullRoleDefId ; }
+    if ( role === 'Contribute') { return contRoleDefId ; }
+    if ( role === 'Read') { return readRoleDefId ; }
 
-  let ownLevel = parentPerms.substr(0,1);
-  ownLevel = ownLevel === "F" ? fullRoleDefId : ownLevel === "C" ? contRoleDefId : ownLevel === "R" ? readRoleDefId : null;
- 
-  let memLevel = parentPerms.substr(1,1);
-  memLevel = memLevel === "F" ? fullRoleDefId : memLevel === "C" ? contRoleDefId : memLevel === "R" ? readRoleDefId : null;
-
-  let visLevel = parentPerms.substr(2,1);
-  visLevel = visLevel === "F" ? fullRoleDefId : visLevel === "C" ? contRoleDefId : visLevel === "R" ? readRoleDefId : null;
-
-  if ( ownLevel !== null ) {
-    try { // Gets the associated owners group of a web
-      ownerGroup = await thisWebInstance.associatedOwnerGroup();
-      const r = await listInstance.roleAssignments.add(ownerGroup.Id, ownLevel);
-    } catch (e) { errMessage = getHelpfullError(e, true, true); }
+    else { return null ; }
   }
+
+  
+  let ownLevel = convertLetterToRole( steps.assignParentOwnerToList.value2 );
+  let memLevel = convertLetterToRole( steps.assignParentMemberToList.value2 );
+  let visLevel = convertLetterToRole( steps.assignParentVisitorToList.value2 );
+
+
+  try { // Gets the associated owners group of a web
+    ownerGroup = await thisWebInstance.associatedOwnerGroup();
+    newSteps = await giveGroupPermissions( newSteps, 'assignParentOwnerToList', listInstance, thisWebInstance, ownerGroup.Id , ownLevel, updateState, 'list' ) ;
+    // updateState(newSteps, newSteps.assignParentOwnerToList );
+  } catch (e) { errMessage = getHelpfullError(e, true, true); }
+
 
   if ( memLevel !== null ) {
     try { // Gets the associated members group of a web
       memberGroup = await thisWebInstance.associatedMemberGroup();
-      const r = await listInstance.roleAssignments.add(memberGroup.Id, memLevel);
+      newSteps = await giveGroupPermissions( newSteps, 'assignParentMemberToList', listInstance, thisWebInstance, memberGroup.Id , memLevel, updateState, 'list' ) ;
+      // updateState(newSteps, newSteps.assignParentMemberToList );
     } catch (e) { errMessage = getHelpfullError(e, true, true); }
   }
+  
   if ( visLevel !== null ) {
     try { // Gets the associated visitors group of a web
       visitorGroup = await thisWebInstance.associatedVisitorGroup();
-      const r = await listInstance.roleAssignments.add(visitorGroup.Id, visLevel);
+      newSteps = await giveGroupPermissions( newSteps, 'assignParentVisitorToList', listInstance, thisWebInstance, visitorGroup.Id , visLevel, updateState, 'list' ) ;
+      // updateState(newSteps, newSteps.assignParentVisitorToList );
     } catch (e) { errMessage = getHelpfullError(e, true, true); }
   }
+
 
   /**
    * Create Contribute Group
@@ -187,12 +194,9 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
     if ( currentStep.required === true ) {
       let GroupTitle = theList.Title + ' Contributors';
       let GroupDesc = `Can UPDATE content in the ${ listOrLib } - ${ theList.Title }`;
-      currentStep = await createThisGroup( thisWebInstance, GroupTitle, GroupDesc, currentStep );
-      errMessage =  currentStep.current.error;
-      principalId = currentStep.current.result;
-      updateState(newSteps, currentStep);
+      newSteps = await createThisGroup( newSteps, thisWebInstance, GroupTitle, GroupDesc, currentStep, ownerGroup.Id, updateState );
     }
-
+    principalId = currentStep.current.result;
     // currentStep = newSteps.assignReaderListRole;
     newSteps = await giveGroupPermissions( newSteps, 'assignContribListRole', listInstance, thisWebInstance, principalId , contRoleDefId, updateState, 'list' ) ;
     // currentStep = newSteps.assignReaderSiteRole;
@@ -208,13 +212,9 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
     if ( currentStep.required === true ) {
       let GroupTitle = theList.Title + ' Readers';
       let GroupDesc = `Can READ content in the ${ listOrLib }: ${ theList.Title }`;
-      currentStep = await createThisGroup( thisWebInstance, GroupTitle, GroupDesc, currentStep );
-      errMessage =  currentStep.current.error;
-      principalId = currentStep.current.result;
-      updateState(newSteps, currentStep);
+      newSteps = await createThisGroup( newSteps, thisWebInstance, GroupTitle, GroupDesc, currentStep, ownerGroup.Id, updateState );
     }
-
-    // Get role definition Id
+    principalId = currentStep.current.result;
     // currentStep = newSteps.assignReaderListRole;
     newSteps = await giveGroupPermissions( newSteps, 'assignReaderListRole', listInstance, thisWebInstance, principalId , readRoleDefId, updateState, 'list' ) ;
     // currentStep = newSteps.assignReaderSiteRole;
@@ -222,16 +222,18 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
   }
 
-  updateState(newSteps, currentStep);
+
+  // updateState(newSteps, currentStep);
 
  }
 
 
  export async function giveGroupPermissions (newSteps: IProcessSteps, currentStepStr: string, listInstance, thisWebInstance, principalId: number, roleDefId: number, updateState: any, listOrWeb: 'list' | 'web' ){
 
-  let currentStep: IProcessStep = JSON.parse( JSON.stringify( newSteps[currentStepStr] )) ;
 
-  if ( currentStep.required === true ) {
+  let currentStep: IProcessStep = JSON.parse( JSON.stringify( newSteps[currentStepStr] )) ;
+  
+  if ( currentStep.required === true && roleDefId !== null ) {
 
     let errMessage = '';
     try {
@@ -247,10 +249,13 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       }
 
     } catch (e) {
-      errMessage = getHelpfullError(e, true, true);
+      errMessage = getHelpfullError(e, false, true);
       currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
 
     }
+    
+    currentStep.value3 = principalId;
+    currentStep.value4 = roleDefId;
 
     newSteps[currentStepStr] = currentStep;
     updateState(newSteps, currentStep);
@@ -262,7 +267,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
 
 
- export async function createThisGroup( thisWebInstance: any, title: string, description: string, currentStep: IProcessStep ) {
+ export async function createThisGroup( newSteps: IProcessSteps,  thisWebInstance: any, title: string, description: string, currentStep: IProcessStep, ownerGroupId: number, updateState ) {
   let errMessage = '';
   try {
     // Creates a new site group with the specified title
@@ -277,18 +282,25 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
     currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
     currentStep.current.result = contributeGroup.data.Id;
+    currentStep.value3 = contributeGroup.data.Id;
+    currentStep.value4 = ownerGroupId;
 
   } catch(e) {
-    errMessage = getHelpfullError(e, true, true);
+    errMessage = getHelpfullError(e, false, true);
     currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
     if ( 'The specified name is already in use' ) {
       currentStep.current.error = 'Group already exists!';
     } else {
       currentStep.current.error = errMessage;
     }
-    
+    currentStep.value3 = null;
+    currentStep.value4 = ownerGroupId;
+
   }
 
-  return currentStep;
+  errMessage =  currentStep.current.error;
+  updateState(newSteps, currentStep);
+
+  return newSteps;
 
  }

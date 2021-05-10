@@ -2,6 +2,9 @@ import { sp } from '@pnp/sp';
 import { Web, } from '@pnp/sp/presets/all';
 
 import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { DefaultChildListTitle } from 'GenericWebpartWebPartStrings';
+
+import * as strings from 'GenericWebpartWebPartStrings';
 
 export function getBrowser(validTypes,changeSiteIcon){
 
@@ -36,8 +39,62 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
     if (!analyticsList) { return ; }
     if (!analyticsWeb) { return ; }
 
-    //console.log('saveAnalytics: ', theProps, theState);
     let startTime = getTheCurrentTime();
+    let listTitle = null;
+    let zzzText1 = startTime.now;
+    let zzzText2 = startTime.theTime;
+    let zzzText3 = null;
+    let zzzText4 = null;
+    let zzzText5 = null;
+    let zzzNumber4 = null;
+    let zzzNumber5 = null;
+    let siteGuid = '';
+    let zzzText6 = '';
+    let zzzText7 = '';
+
+    let zzzRichText1 = ActionJSON ? JSON.stringify(ActionJSON) : null;
+
+    if ( analyticsList === strings.analyticsListRails ) { //Rails Off
+        listTitle = itemInfo1;
+        let infos2 = itemInfo2.split('|');
+
+        // value1: value1 ? value1 : '', //List Title
+        // value2: value2 ? value2 : '', //Group Title
+        // value3: value3 ? value3 : '', //Group ID
+        // value4: '', //ParentGroupID
+
+        // currentStep.value2, 
+        // currentStep.current.order,
+        // currentStep.value3, 
+        // currentStep.value4, 
+        // this.state.makeid, 
+
+        zzzText3 = infos2[0];
+
+        zzzText7 = infos2[1] ? parseInt(infos2[1]) < 10 ? '0' + infos2[1] : infos2[1] : null ; //stepOrder
+
+        zzzNumber4 = infos2[2] ? parseInt( infos2[2] ) : null ;
+        zzzNumber5 = infos2[3] ? parseInt( infos2[3] ) : null ;
+
+        zzzText1 = infos2[4] ? infos2[4] : null ; //makeId
+
+
+        zzzText4 = null;
+        let tempSite = TargetSite.split('|');
+        TargetSite = tempSite[0];
+        siteGuid = tempSite[1] ? tempSite[1] : null;
+
+        let tempTitle = saveTitle.split('|');
+        zzzText6 = tempTitle[1] ? tempTitle[1] : null;//Get scope - site or list
+
+    } else {
+        zzzText3 = itemInfo1;
+        zzzText4 = itemInfo2;
+
+    }
+
+    //console.log('saveAnalytics: ', theProps, theState);
+
     let web = Web(analyticsWeb);
     //alert(delta);
     //alert(getBrowser("Chrome",false));
@@ -47,7 +104,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
     if ( !SiteLink || SiteLink === '' ) {
         SiteLink = window.location.origin + window.location.pathname ;
-        if ( SiteLink.toLowerCase().indexOf('/sitePages/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/sitePages/')  );  }
+        if ( SiteLink.toLowerCase().indexOf('/sitepages/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/sitepages/')  );  }
         if ( SiteLink.toLowerCase().indexOf('/documents/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/documents/')  );  }
         if ( SiteLink.toLowerCase().indexOf('/siteassets/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/siteassets/')  );  }
         if ( SiteLink.toLowerCase().indexOf('/lists/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/lists/')  );  }  
@@ -64,7 +121,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
     };
     
     let targetSite = !TargetSite ? null : {
-        'Url': TargetSite.indexOf('http') === 0 ? TargetSite : window.location.origin + TargetSite,
+        'Url': TargetSite.indexOf('http') === 0 ? TargetSite : window.location.origin + TargetSite ,
         'Description': TargetSite.replace(window.location.origin,'') ,
     };
 
@@ -75,10 +132,10 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
     
     let PageURL = window.location.href;
     let PageTitle = PageURL;
-    if ( PageTitle.indexOf('?') > 0 ) { PageTitle = PageTitle.substring(0, PageTitle.indexOf('?') -1 ) ; }
+    if ( PageTitle.indexOf('?') > 0 ) { PageTitle = PageTitle.substring(0, PageTitle.indexOf('?') ) ; }  //2021-05-10:  Removed -1 because page title was missing last character.
     let PageLink = {
         'Url': PageURL,
-        'Description': PageTitle.substring(PageTitle.lastIndexOf("/") + 1),
+        'Description': PageTitle.substring(PageTitle.lastIndexOf("/") + 1) ,
     };
     
 /*
@@ -89,19 +146,26 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 */
 
     web.lists.getByTitle(analyticsList).items.add({
-        'Title': saveTitle,
-        'PageLink': PageLink,
-        'zzzText1': startTime.now,      
-        'zzzText2': startTime.theTime,
-        'zzzText3': itemInfo1,
-        'zzzText4': itemInfo2,
-        'SiteLink': siteLink,
-        'SiteTitle': webTitle,
-        'TargetSite': targetSite,
-        'Result': result,
-        'TargetList': targetList,
-        'zzzRichText1': ActionJSON ? JSON.stringify(ActionJSON) : null ,
-        'getParams': getUrlVars().join(' & '),
+            'Title': saveTitle,
+            'PageLink': PageLink,
+            'zzzText1': zzzText1,      
+            'zzzText2': zzzText2,
+            'zzzText3': zzzText3,
+            'zzzText4': zzzText4,
+            'zzzText5': siteGuid,
+            'zzzText6': zzzText6,
+            'zzzText7': zzzText7,
+            'SiteLink': siteLink,
+            'SiteTitle': webTitle,
+            'TargetSite': targetSite,
+            'Result': result,
+            'TargetList': targetList,
+            'ListTitle': listTitle,
+            'zzzRichText1': zzzRichText1 ,
+            'zzzNumber4': zzzNumber4,
+            'zzzNumber5': zzzNumber5,
+            'getParams': getUrlVars().join(' & '),
+
         }).then((response) => {
         //Reload the page
             //location.reload();

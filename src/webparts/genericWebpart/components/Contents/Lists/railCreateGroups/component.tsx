@@ -44,6 +44,7 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
  import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
  import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+ import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
  
 
 /***
@@ -130,11 +131,16 @@ export interface IMyCreateListPermissionsState {
     includeContrib: boolean;
     viewersSiteRead: boolean;
     contribSiteRead: boolean;
+    parentGroupPerms: string;
+    parentGroupValid: boolean;
+
     viewersName: string;
     contribName: string;
     disableDo: boolean;
 
     steps: IProcessSteps;
+
+    makeid: string;
 
 }
 
@@ -167,6 +173,14 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
     constructor(props: IMyCreateListPermissionsProps) {
         super(props);
+        let listTitle = this.props.theList.Title;
+        let contribName= this.props.theList.Title + ' Contributors';
+        let viewersName = this.props.theList.Title + ' Readers';
+
+        let parentGroupPerms = "FCR";
+        let steps : IProcessSteps = createProcessSteps( listTitle , contribName, viewersName );
+        steps = this._updateParentGroupSteps( parentGroupPerms, steps );
+
         this.state = {
             disableDo: false,
 
@@ -176,10 +190,15 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             viewersSiteRead: true,
             contribSiteRead: true,
 
-            viewersName: this.props.theList.Title + ' Readers',
-            contribName: this.props.theList.Title + ' Contributors',
+            parentGroupPerms: parentGroupPerms,
+            parentGroupValid: true,
 
-            steps: createProcessSteps(),
+            viewersName: viewersName,
+            contribName: contribName,
+
+            steps: steps,
+
+            makeid: makeid( 5 ),
         };
     }
         
@@ -200,6 +219,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
  */
 
     public componentDidUpdate(prevProps: IMyCreateListPermissionsProps): void {
+        // this.setState({ makeid: makeid(5) })
     //this._updateWebPart(prevProps);
     }
 
@@ -244,10 +264,15 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                 }
             }
             
+            selectedSteps.push( this.buildSelectedStep( this.state.steps.assignParentOwnerToList ) ) ;
+            selectedSteps.push( this.buildSelectedStep( this.state.steps.assignParentMemberToList ) ) ;
+            selectedSteps.push( this.buildSelectedStep( this.state.steps.assignParentVisitorToList ) ) ;
+
             let selectedTable = <table style={{marginTop: '30px' }}>
                 <tr><th>Step</th><th>Status</th><th>Info</th><th>Details</th></tr>
                 { selectedSteps }
             </table>;
+
 
             panelContent = <div>
                 <Pivot
@@ -257,19 +282,26 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                 >
                     <PivotItem headerText="Create Permissions" ariaLabel="Create Permissions" title="Create" key="Create">
                         <h3> { listOrLib + ': ' + this.props.theList.Title }</h3>
+                        { <div style={{display: this.state.parentGroupValid === true ? 'none' : null, width: panelWidth }}>
+                            <MessageBar messageBarType={MessageBarType.severeWarning}>
+                                You need 3 characters made up of F-C-R-x
+                            </MessageBar>
+                        </div> }
+                        { this.makeGroupName( 'Parent Group Roles - FCx', this.state.parentGroupPerms , this._updateParentGroups.bind(this) , !this.state.includeViewers, '0px 0px ' + groupBottomPadding + '0px' )}
+
                         <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
                             { this.makeToggle( 'Create Contributors', this.state.includeContrib, false, this.updateTogggleContrib.bind(this) ) }
                             { this.makeToggle( 'Read site', this.state.contribSiteRead, !this.state.includeContrib, this.updateTogggleContribSiteRead.bind(this) ) }
                         </div>
 
-                        { this.makeGroupName( this.state.contribName , this._updateContribGroup.bind(this) , !this.state.includeContrib, '0px 0px ' + groupBottomPadding + '0px' )}
+                        { this.makeGroupName( 'Enter Group Name', this.state.contribName , this._updateContribGroup.bind(this) , !this.state.includeContrib, '0px 0px ' + groupBottomPadding + '0px' )}
 
                         <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
                             { this.makeToggle( 'Create Readers', this.state.includeViewers, false, this.updateTogggleReaders.bind(this) ) }
                             { this.makeToggle( 'Read site', this.state.viewersSiteRead, !this.state.includeViewers, this.updateTogggleReadersSiteRead.bind(this) ) }
                         </div>
 
-                        { this.makeGroupName( this.state.viewersName , this._updateVisitorGroup.bind(this) , !this.state.includeViewers, '0px 0px ' + groupBottomPadding + '0px' )}
+                        { this.makeGroupName( 'Enter Group Name', this.state.viewersName , this._updateVisitorGroup.bind(this) , !this.state.includeViewers, '0px 0px ' + groupBottomPadding + '0px' )}
 
                         <div style={{ marginTop: '50px', width: panelWidth, boxSizing: 'border-box' }}>
                             <DefaultButton
@@ -352,35 +384,48 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         });
         
         let ServerRelativeUrl = this.props.currentPage;
-        let pickedWeb = this.props.pickedWeb ? this.props.pickedWeb.ServerRelativeUrl : ServerRelativeUrl;
+        let pickedWeb = this.props.pickedWeb ? this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid : ServerRelativeUrl;
+        
+        // value1: value1 ? value1 : '', //List Title
+        // value2: value2 ? value2 : '', //Group Title
+        // value3: value3 ? value3 : '', //Group ID
+        // value4: '', //ParentGroupID
+
+        let value2 = [ 
+            currentStep.value2, 
+            currentStep.stepNo,
+            currentStep.value3, 
+            currentStep.value4, 
+            this.state.makeid, 
+        ].join('|');
 
         saveAnalytics( this.props.analyticsWeb, strings.analyticsListRails , //analyticsWeb, analyticsList,
             ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
-            'EasyContents', pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
-            'Contents', '', 'Loading', //itemInfo1, itemInfo2, result, 
+            currentStep.label, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+            currentStep.value1, value2, currentStep.current.key, //itemInfo1, itemInfo2, result, 
             JSON.stringify(currentStep) ); //richText
         
     }
 
-
-
     private buildSelectedStep( step: IProcessStep ) {
+        if ( step.required !== true ) { return null; }
         let info = step.current.error !== '' ? step.current.error : step.current.info; 
         let key = step.current.key;
         let color = StatusColors[ key ];
+
         return <tr  title={ step.current.info }>
-            <td>{ step.label } </td>
+            <td>{ step.label.split('|')[0] } </td>
             <td style={{ textAlign: 'center' }} ><Icon iconName= { StatusIcons[ key ]} style={{ color: color }}></Icon></td>
             <td style={{ color: color }}>{ info } </td>
             <td>{ step.current.result } </td>
         </tr>;
     }
 
-    private makeGroupName( def: string, onChanged: any, disabled: boolean, margin: any ) {
+    private makeGroupName( placeholder: string, def: string, onChanged: any, disabled: boolean, margin: any ) {
            return <div style={{ width: panelWidth, margin: margin }}>
                 <TextField
                     defaultValue={ def }
-                    placeholder={ 'Enter Group Name' }
+                    placeholder={ placeholder }
                     autoComplete='off'
                     onChanged={ onChanged }
                     required={ true }
@@ -390,9 +435,59 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             </div>;
     }
 
-    private _updateVisitorGroup(oldVal: any): any {  this.setState({  viewersName: oldVal,  });  }
-    private _updateContribGroup(oldVal: any): any {  this.setState({  contribName: oldVal,  });  }
+    private _updateVisitorGroup(oldVal: any): any {  
+        let steps = JSON.parse(JSON.stringify( this.state.steps ));
+        [ 'checkReaderGroup', 'createReaderGroup', 'assignReaderListRole', 'assignReaderSiteRole' ].map( step => {
+            steps[step].value2 = oldVal;
+        });
+    
+        this.setState({  viewersName: oldVal, steps: steps });  
+    }
+    private _updateContribGroup(oldVal: any): any {  
+        let steps = JSON.parse(JSON.stringify( this.state.steps ));
+        [ 'checkContribGroup', 'createContribGroup', 'assignContribListRole', 'assignContribSiteRole' ].map( step => {
+            steps[step].value2 = oldVal;
+        });
+        this.setState({  contribName: oldVal, steps: steps  });  
+    }
 
+    private convertLetterToRole( letter: string ) {
+        if (letter.toUpperCase() === 'F') { return "Full Control" ; }
+        else if (letter.toUpperCase() === 'C') { return "Contribute" ; }
+        else if (letter.toUpperCase() === 'R') { return "Read" ; }
+        // else if (letter.toUpperCase() === 'D') { return "Design" ; }
+        // else if (letter.toUpperCase() === 'E') { return "Edit" ; }
+        // else if (letter.toUpperCase() === 'A') { return "Approve" ; }
+        else if (letter.toUpperCase() === 'X') { return "skip" ; }
+        else { return null ; }
+    }
+
+    private setParentPerms( step: IProcessStep, oldVal: string ) {
+        step.value2 = this.convertLetterToRole(oldVal) ;
+        if ( step.value2 === null || step.value2 === 'skip' ) { step.required = false; } else { step.required = true; }
+        return step;
+    }
+
+    private _updateParentGroupSteps( oldVal: string , origSteps: IProcessSteps ) {
+        let steps : IProcessSteps = JSON.parse(JSON.stringify( origSteps ));
+        steps.assignParentOwnerToList = this.setParentPerms( steps.assignParentOwnerToList, oldVal.substr(0,1) ) ;
+        steps.assignParentMemberToList = this.setParentPerms( steps.assignParentMemberToList, oldVal.substr(1,1) ) ;
+        steps.assignParentVisitorToList = this.setParentPerms( steps.assignParentVisitorToList, oldVal.substr(2,1) ) ;
+
+        return steps;
+    }
+
+    private _updateParentGroups(oldVal: string): any {
+        let steps : IProcessSteps = this._updateParentGroupSteps( oldVal, this.state.steps );
+
+        let parentGroupValid = true;
+        ['assignParentOwnerToList','assignParentMemberToList','assignParentVisitorToList'].map( key=> {
+            if ( steps[key]. value2 === null ) { parentGroupValid = false; }
+        });
+
+        this.setState({ parentGroupValid: parentGroupValid, parentGroupPerms: oldVal, steps: steps  });  
+        
+    }
 
     /***
      *         d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
@@ -472,7 +567,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         newSteps.assignReaderSiteRole = this.updateSteps( newSteps.assignReaderSiteRole, 'required', newValue );
 
         this.setState({  
-            viewersSiteRead: newValue,  
+            viewersSiteRead: newValue,
             steps: newSteps,
         });  
     }
