@@ -13,6 +13,7 @@ declare interface IGenericWebpartWebPartStrings {
   // 1 - Analytics options
   analyticsWeb: string;
   analyticsList: string;
+  analyticsListRails: string;
   patternsWeb: string;
   minClickWeb: string;
 

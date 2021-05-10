@@ -11,6 +11,7 @@ define([], function() {
     "FieldLabel_AnalyticsList": "List Title where analytics are maintained",
 
     "analyticsList": "EasyContentsLog",
+    "analyticsListRails": "EasyContentsRails",
     "analyticsWeb": "/sites/Templates/Analytics/",
     "patternsWeb": "/sites/Patterns/",
     "minClickWeb": "",

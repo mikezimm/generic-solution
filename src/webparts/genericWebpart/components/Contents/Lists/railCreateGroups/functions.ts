@@ -130,7 +130,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       errMessage = getHelpfullError(e, true, true);
       currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
     }
-    updateState(newSteps);
+    updateState(newSteps, currentStep);
 
   }
 
@@ -190,7 +190,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       currentStep = await createThisGroup( thisWebInstance, GroupTitle, GroupDesc, currentStep );
       errMessage =  currentStep.current.error;
       principalId = currentStep.current.result;
-      updateState(newSteps);
+      updateState(newSteps, currentStep);
     }
 
     // currentStep = newSteps.assignReaderListRole;
@@ -211,7 +211,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       currentStep = await createThisGroup( thisWebInstance, GroupTitle, GroupDesc, currentStep );
       errMessage =  currentStep.current.error;
       principalId = currentStep.current.result;
-      updateState(newSteps);
+      updateState(newSteps, currentStep);
     }
 
     // Get role definition Id
@@ -222,7 +222,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
   }
 
-  updateState(newSteps);
+  updateState(newSteps, currentStep);
 
  }
 
@@ -253,7 +253,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
     }
 
     newSteps[currentStepStr] = currentStep;
-    updateState(newSteps);
+    updateState(newSteps, currentStep);
   }
 
   return newSteps;

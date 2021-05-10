@@ -89,11 +89,11 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-
+import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../../services/createAnalytics';
 import { IListRailFunction } from '../listsComponent';
 import { createProcessSteps, IProcessSteps, IProcessStep, StatusIcons, StatusColors } from './setup';
 import { doThisRailFunction } from './functions';
-
+import * as strings from 'GenericWebpartWebPartStrings';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -114,6 +114,12 @@ export interface IMyCreateListPermissionsProps {
     showPanel: boolean;
     _closePanel: any;
     type: PanelType;
+
+    currentPage: string; //this.context.pageContext.web.absoluteUrl;
+    pickedWeb : IPickedWebBasic;
+
+    //currentUser: IUser;
+
   }
 
 export interface IMyCreateListPermissionsState {
@@ -337,10 +343,21 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         doThisRailFunction( this.state.steps, this.props.theList , this.updateStateStatus.bind(this) );
     }
 
-    private updateStateStatus( steps: IProcessSteps ) {
+    private updateStateStatus( steps: IProcessSteps, currentStep: IProcessStep ) {
+
         this.setState({ 
             steps: steps,
-         }); 
+        });
+        
+        let ServerRelativeUrl = this.props.currentPage;
+        let pickedWeb = this.props.pickedWeb ? this.props.pickedWeb.ServerRelativeUrl : ServerRelativeUrl;
+
+        saveAnalytics( strings.analyticsWeb, strings.analyticsListRails, //analyticsWeb, analyticsList,
+            ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+            'EasyContents', pickedWeb, null, //saveTitle, TargetSite, TargetList
+            'Contents', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
+            '' ); //richText
+        
     }
 
 

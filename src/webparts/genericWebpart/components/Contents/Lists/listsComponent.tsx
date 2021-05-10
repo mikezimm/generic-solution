@@ -320,6 +320,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                     <CreateListPermissions 
                         railFunction={ this.state.railFunction }
                         theList={ this.state.selectedEntity }
+                        currentPage= { this.props.pageContext.web.absoluteUrl }
+                        pickedWeb= { this.props.pickedWeb }
                         user={ this.props.currentUser }
                         showPanel={ this.state.showPanel }
                         // this prop makes the panel non-modal
