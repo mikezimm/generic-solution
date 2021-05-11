@@ -138,6 +138,8 @@ export interface IProcessSteps {
   assignParentMemberToList: IProcessStep;
   assignParentVisitorToList: IProcessStep;
 
+  complete: IProcessStep;
+
 }
 
 export function createStep( label: string, planInfo: string , processInfo: string , completeInfo: string , errorInfo: string, required: boolean, stepNo: number, value1: any, value2: any, value3: any, value?: string | boolean ) {
@@ -227,6 +229,9 @@ export function createProcessSteps( listTitle , contribGroup, readerGroup ){
     assignParentOwnerToList: assignParentToList('SiteOwnerGroup', true, listTitle, 'SiteOwnerGroup', 96 ),
     assignParentMemberToList: assignParentToList('SiteMemberGroup', true, listTitle, 'SiteMemberGroup', 97 ),
     assignParentVisitorToList: assignParentToList('SiteVisitorGroup', true, listTitle, 'SiteVisitorGroup', 98 ),
+
+    complete: createStep( 'Complete', 'Complete', 'Completed all tasks', 'Completed permissions', 'Had a problem Completing Permissions', true, 0, listTitle, '', ''  ),
+
 
   };
 

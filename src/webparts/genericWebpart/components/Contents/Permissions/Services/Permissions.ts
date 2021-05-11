@@ -117,7 +117,7 @@ export function getFullURLFromRelative( relUrl : string ) {
 
         let webOrList = listTitle && listTitle.length > 0 && listTitle.toLowerCase() !== 'web' ? 'list' : 'web';
         let thisWebInstance = null;
-
+      
         // RoleAssignments are all the users/groups/entities who have permissions on the list
         let allRoleAssignments: IRoleAssignment[] = [];
 
@@ -181,7 +181,7 @@ export function getFullURLFromRelative( relUrl : string ) {
              */
             try {
                 let userFilter = 'Id eq ' + idsToGet.join(' or Id eq ');
-                theseUsers = await sp.web.siteGroups.filter( userFilter ).select("Id,Title,Description,PrincipalType,IsSiteAdmin,UserPrincipalName").get();  
+                theseUsers = await thisWebInstance.siteGroups.filter( userFilter ).select("Id,Title,Description,PrincipalType,IsSiteAdmin,UserPrincipalName").get();  
                 myPermissions.theseUsers = theseUsers;
             } catch (e) {
                 errMessage = getHelpfullError(e, false, true);
@@ -192,7 +192,7 @@ export function getFullURLFromRelative( relUrl : string ) {
             if ( theseUsers.length < idsToGet.length ) {
                 try {
                     let userFilter = 'Id eq ' + idsToGet.join(' or Id eq ');
-                    theseUsers = theseUsers.concat(await sp.web.siteUsers.filter( userFilter ).select("Id,Title,Description,PrincipalType,IsSiteAdmin,UserPrincipalName").get());  
+                    theseUsers = theseUsers.concat(await thisWebInstance.siteUsers.filter( userFilter ).select("Id,Title,Description,PrincipalType,IsSiteAdmin,UserPrincipalName").get());  
                     myPermissions.theseUsers = theseUsers;
                 } catch (e) {
                     errMessage = getHelpfullError(e, false, true);
@@ -219,10 +219,10 @@ export function getFullURLFromRelative( relUrl : string ) {
                 try {
                     if ( webOrList === 'list' ) {
                         setProgress( i, idsToGet.length , 'Checking Id: ( ' + thisUser + ' ) - ' + i + ' of ' + idsToGet.length  );
-                        userPermissions = await sp.web.lists.getByTitle( listTitle ).roleAssignments.getById( thisUser ).bindings.select("Name,Description").get();
+                        userPermissions = await thisWebInstance.lists.getByTitle( listTitle ).roleAssignments.getById( thisUser ).bindings.select("Name,Description").get();
                     } else {
                         setProgress( i, idsToGet.length , 'Checking Id: ( ' + thisUser + ' ) - ' + i + ' of ' + idsToGet.length  );
-                        userPermissions = await sp.web.roleAssignments.getById( thisUser ).bindings.select("Name,Description").get(); 
+                        userPermissions = await thisWebInstance.roleAssignments.getById( thisUser ).bindings.select("Name,Description").get(); 
                     }
                 } catch (e) {
                     errMessage = getHelpfullError(e, false, true);
@@ -491,9 +491,17 @@ export function getFullURLFromRelative( relUrl : string ) {
     export async function allWebLists( webURL: string, startPermissions: IPermissionLists, addTheseListsToState: any, setProgress: any, ) {
 
         webURL = getFullURLFromRelative( webURL );
+        let thisWebInstance = null;
+        let errMessage = '';
+
+        try {
+            thisWebInstance = Web( webURL );
+        } catch (e) {
+            errMessage = getHelpfullError(e, true, true);
+        }
 
         let permissions : IPermissionLists = JSON.parse(JSON.stringify( startPermissions ));
-        let thisWebInstance = null;
+
         if ( permissions.restFilter === null || permissions.restFilter === '') {
             permissions.restFilter = 'HasUniqueRoleAssignments eq true and Hidden eq false';
         }
@@ -503,12 +511,12 @@ export function getFullURLFromRelative( relUrl : string ) {
         // RoleAssignments are all the users/groups/entities who have permissions on the list
         let allLists : IPermissionList[] = [];
 
-        let errMessage = '';
+
         /**
          * get Group information based on Titles
          */
         try {
-            allLists = await sp.web.lists.filter(permissions.restFilter).select(permissions.selectString).get();
+            allLists = await thisWebInstance.lists.filter(permissions.restFilter).select(permissions.selectString).get();
         } catch (e) {
             errMessage = getHelpfullError(e, false, true);
         }

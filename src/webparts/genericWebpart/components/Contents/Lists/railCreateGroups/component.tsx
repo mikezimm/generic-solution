@@ -156,6 +156,8 @@ export interface IMyCreateListPermissionsState {
     HasUniqueRoleAssignments: boolean;
     errorWeb: string;
 
+    finished: boolean;
+
 }
 
 const pivotStyles = {
@@ -225,6 +227,8 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
             HasUniqueRoleAssignments: null,
             errorWeb: '',
+
+            finished: false,
 
         };
     }
@@ -350,6 +354,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
             let disableContribGroupSite = this.state.HasUniqueRoleAssignments === true && this.state.includeContrib === true ? false : true;
             let disableViewerGroupSite = this.state.HasUniqueRoleAssignments === true && this.state.includeViewers === true ? false : true;
+            let finished = this.state.finished;
 
             panelContent = <div>
                 <Pivot
@@ -391,10 +396,10 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                         <div style={{ marginTop: '50px', width: panelWidth, boxSizing: 'border-box' }}>
                             <DefaultButton
                                     onClick = { this.props._closePanel }
-                                    title="Cancel"
+                                    title= { finished === true ? "Finished" : "Cancel" }
                                     style={{ marginRight: '0px', padding: '20px' }}
                                 >
-                                Cancel
+                                { finished === true ? "Finished" : "Cancel" }
                             </DefaultButton>
                             <PrimaryButton
                                 onClick = { this.startThisRailFunction.bind(this) }
@@ -406,7 +411,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                             </PrimaryButton>
                         </div>
 
-                        { <div style={{display: this.state.HasUniqueRoleAssignments === true ? 'none' : null, width: panelWidth, margin: '20px' }}>
+                        { <div style={{display: this.state.HasUniqueRoleAssignments === true ? 'none' : null, width: panelWidth, margin: '20px 0px' }}>
                             <MessageBar messageBarType={MessageBarType.warning}>
                                 This site doesn't have Unqiue Permissions.  Will not break site permissions or assign groups to parent :(
                             </MessageBar>
@@ -472,8 +477,11 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
     private updateStateStatus( steps: IProcessSteps, currentStep: IProcessStep ) {
 
+        let finished = currentStep.label.toLowerCase() === 'complete' ? true : false;
         this.setState({ 
             steps: steps,
+            finished: finished,
+            disableDo: finished === true ? true : this.state.disableDo,
         });
         
         let ServerRelativeUrl = this.props.currentPage;

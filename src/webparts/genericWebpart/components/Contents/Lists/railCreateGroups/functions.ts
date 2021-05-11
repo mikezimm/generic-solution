@@ -221,6 +221,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
   }
 
+  updateState( newSteps, newSteps.complete );
 
   // updateState(newSteps, currentStep);
 
