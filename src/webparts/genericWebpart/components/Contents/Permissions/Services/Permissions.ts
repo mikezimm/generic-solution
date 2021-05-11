@@ -95,8 +95,25 @@ import { getSharedFiles } from './Sharing';
  export const ListSystemGroup = 'Limited Access System Group For List';
  export const WebSystemGroup = 'Limited Access System Group For Web';
 
+export function getFullURLFromRelative( relUrl : string ) {
+    let newURL = relUrl;
+
+    if ( relUrl.indexOf('/sites/') === 0 ) {
+        let domain = window.location.href.substr( 0, window.location.href.indexOf('/sites/') );
+        newURL = domain + relUrl;
+        console.log( 'updated Url to: ', newURL ) ;
+
+    } 
+
+    return newURL;
+
+}
+
+
 //export async function provisionTestPage( makeThisPage:  IContentsGroupInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
     export async function allAvailableRoleAssignments( webURL: string, listTitle: string, myPermissions: IMyPermissions, addThesePermissionsToState: any, setProgress: any, ) {
+
+        webURL = getFullURLFromRelative( webURL );
 
         let webOrList = listTitle && listTitle.length > 0 && listTitle.toLowerCase() !== 'web' ? 'list' : 'web';
         let thisWebInstance = null;
@@ -472,6 +489,9 @@ import { getSharedFiles } from './Sharing';
     }
 
     export async function allWebLists( webURL: string, startPermissions: IPermissionLists, addTheseListsToState: any, setProgress: any, ) {
+
+        webURL = getFullURLFromRelative( webURL );
+
         let permissions : IPermissionLists = JSON.parse(JSON.stringify( startPermissions ));
         let thisWebInstance = null;
         if ( permissions.restFilter === null || permissions.restFilter === '') {

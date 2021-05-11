@@ -490,6 +490,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       const contentsPage = <div className= { defaultPageClass }>
         <InspectContents
 
+          wpContext={  this.props.wpContext }
           useListAnalytics= { this.props.useListAnalytics }
           analyticsWeb= { this.props.analyticsWeb }
           analyticsList= { this.props.analyticsList }

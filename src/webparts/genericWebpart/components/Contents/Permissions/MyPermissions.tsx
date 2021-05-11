@@ -106,7 +106,13 @@ private setMyPermissions() {
 private createStateGroupsPanel( groupNames: string[], visible: boolean ) {
 
   /** return null when not using groups vvvvvv */
-  return null;
+  let panel : IPermissionsPanel= {
+    type: PanelType.medium,
+    groups: [],
+    groupsProps: [],
+  };
+
+  return panel;
 
 }
 public constructor(props:IMyPermissionsProps){

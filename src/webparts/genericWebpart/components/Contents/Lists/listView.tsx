@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
@@ -28,6 +29,7 @@ import * as fpsAppIcons from '@mikezimm/npmfunctions/dist/Icons/standardEasyCont
 export interface IMyLogListProps {
     title: string;
     titles: [];
+    // context: WebPartContext;
     webURL: string;
     items: IListBucketInfo;
     showSettings: boolean;

@@ -17,6 +17,8 @@ import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mi
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
+import { WebPartContext } from '@microsoft/sp-webpart-base';
+
 import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
 import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
@@ -96,6 +98,10 @@ import { createProcessSteps, IProcessSteps, IProcessStep, StatusIcons, StatusCol
 import { doThisRailFunction } from './functions';
 import * as strings from 'GenericWebpartWebPartStrings';
 
+import MyPermissions from '../../Permissions/MyPermissions';
+
+import { IFetchInfoSettingsMin } from '../../Permissions/IWebPermissionsProps';
+
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
  *    88'     `8b  d8' 88  `8D .8P  Y8. 88  `8D `~~88~~'        `88'   888o  88 `~~88~~' 88'     88  `8D 88'     d8' `8b d8P  Y8 88'     88'  YP 
@@ -111,6 +117,7 @@ import * as strings from 'GenericWebpartWebPartStrings';
 export interface IMyCreateListPermissionsProps {
     theList: IContentsListInfo;
     user: IUser;
+    wpContext: WebPartContext;
     railFunction: IListRailFunction;
     showPanel: boolean;
     _closePanel: any;
@@ -140,7 +147,9 @@ export interface IMyCreateListPermissionsState {
 
     steps: IProcessSteps;
 
-    makeid: string;
+    refreshId: string;
+
+    fetchInfoMin: IFetchInfoSettingsMin;
 
 }
 
@@ -198,7 +207,15 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
             steps: steps,
 
-            makeid: makeid( 5 ),
+            refreshId: makeid( 5 ),
+
+            fetchInfoMin: {
+                permissionsHiddenExclude: true,
+                permissionsListsInclude: true,
+                groupsShowAdmins: true,
+                groupsShowGuests: true,
+            }
+
         };
     }
         
@@ -219,7 +236,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
  */
 
     public componentDidUpdate(prevProps: IMyCreateListPermissionsProps): void {
-        // this.setState({ makeid: makeid(5) })
+        // this.setState({ refreshId: makeid(5) })
     //this._updateWebPart(prevProps);
     }
 
@@ -273,6 +290,37 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                 { selectedSteps }
             </table>;
 
+            let theListAny : any = this.props.theList; //Added because one property is required in MyPermissions but optional in this type.
+            let permissions = <MyPermissions
+                groupsShowAdmins= { this.state.fetchInfoMin.groupsShowAdmins }
+                groupsShowGuests= { this.state.fetchInfoMin.groupsShowGuests }
+                isSiteAdmin={ this.props.user.isSiteAdmin }
+                userId= { this.props.user.Id }
+                title={  ' Permissions for ' + this.props.theList.Title }
+                width= { 400 }
+                maxWidth={ 400 }
+                setPivSize = { PivotLinkSize.normal }
+                setPivFormat = { PivotLinkFormat.tabs }
+                listTitles={ [ this.props.theList.Title ] }
+
+                theList = { theListAny }
+                webPermissions = { null }
+                _updateWebPermissions= {  null }
+
+                webURL={ this.props.theList.ParentWebUrl }
+                context={ this.props.wpContext }
+                searchFirstName={ true }
+                displayMode={ 1 }
+                updateProperty={
+                    (value: string) => {
+                        // this.properties.title = value; //This is for updating Title Props from webpart
+                    }
+                }
+                searchProps={ 'Mike' }
+                clearTextSearchProps={ ''}
+                pageSize={ 5 }
+                refreshId= { this.state.refreshId }
+            ></MyPermissions>;
 
             panelContent = <div>
                 <Pivot
@@ -320,10 +368,14 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                                 Add Groups and Permissions
                             </PrimaryButton>
                         </div>
+
+                        { selectedTable }
+
                     </PivotItem>
                     <PivotItem headerText="Current" ariaLabel="Current" title="Current" itemKey="Current">
                         <div style={{marginTop: '20px'}}>
                             Fetch groups here.  Copy code from PivotTiles
+                            { permissions }
                         </div>
                     </PivotItem>
 
@@ -343,8 +395,6 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                         headerText = { panelHeader }
                         >
                         { panelContent }
-
-                        { selectedTable }
 
                     </Panel>
                 </div>
@@ -396,7 +446,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             currentStep.stepNo,
             currentStep.value3, 
             currentStep.value4, 
-            this.state.makeid, 
+            this.state.refreshId, 
         ].join('|');
 
         saveAnalytics( this.props.analyticsWeb, strings.analyticsListRails , //analyticsWeb, analyticsList,

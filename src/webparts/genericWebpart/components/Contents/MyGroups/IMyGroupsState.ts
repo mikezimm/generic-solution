@@ -12,7 +12,6 @@
  */
 
 import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, IPrincipalInfo, PrincipalType, PrincipalSource } from "@pnp/sp/presets/all";
-import { PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
@@ -39,9 +38,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
  *                                                                                                                                 
  */
 
- import { IMyPermissions, IPermissionLists, IPermissionList, IThisPermissionDelta } from './Services/Permissions';
- import { IMySharingInfo, } from './Services/Sharing';
- 
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88   88 88'     88      88  `8D 88'     88  `8D 88'  YP 
@@ -52,8 +49,6 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
  *                                                                                                                       
  *                                                                                                                       
  */
-
- import { IMyGroupsProps, IGroupsProps } from '../MyGroups/IMyGroupsProps';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -66,6 +61,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
  *                                                                                                                                               
  */
 
+import { IGroupsProps } from './IMyGroupsProps';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -78,118 +74,62 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
  *                                                                                                                                               
  */
 
+
 export const SiteAdminGroupName = 'SiteAdmins';
 export const SiteAdminIconName = 'HeadsetSolid';
 
 export const GuestsGroupName = 'Guests';
 export const GuestsIconName = 'UserWarning';
-export type IShowPermissionTab = 'Permissions' | 'Limited Access' | 'Shared History' | 'Shared Details' | 'Delta' | 'Same' | string ;
 
-export interface IShowPermissionPage {
-  tab8: IShowPermissionTab;
-  tab6: IShowPermissionTab;
-  tab0: IShowPermissionTab;
-  desc: string;
-  listLevel: any;
-  webLevel: any;
-  icon: string;
+// IMyGroups, ISingleGroup, IMyGroupsState
+export interface ISingleGroup extends ISiteGroupInfo {
+
+  users: IUser[];
+  isLoading: boolean;
+  uCount: number;
+  AllowMembersEditMembership: boolean;
+  IsHiddenInUI: boolean;
+  RequestToJoinLeaveEmailSetting: string;
+  AutoAcceptRequestToJoinLeave: boolean;
+  Description: string;
+  hasCurrentUser: boolean;
+  groupProps: IGroupsProps;
+
 }
 
-export const currentPermissions : IShowPermissionPage = {
-  tab8: "Permissions" ,
-  tab6: "Perms",
-  tab0: "",
-  desc: 'These are the permissions you can see for this item.',
-  listLevel: 'These have rights on the Library',
-  webLevel: 'These have rights on the Web/Site',
-  icon: 'Permissions',
+export interface IMyGroups {
 
-} ;
-export const  sharedLimited : IShowPermissionPage = {
-  tab8: "Limited Access" ,
-  tab6: "Limited",
-  tab0: "",
-  desc: 'These are people who do not have full access to the selected item',
-  listLevel: 'These have access to specific items/files, NOT neccessarily the list or site.',
-  webLevel: 'These have access to specific libraries/items/files, NOT the site.',
-  icon: 'UserWarning',
-} ;
-export const  sharedHistory : IShowPermissionPage = {
-  tab8: "Shared History" ,
-  tab6: "History",
-  tab0: "",
-  desc: 'These are the times various items were shared, most recent on top.',
-  listLevel: '',
-  webLevel: '',
-  icon: 'FullHistory',
-} ;
-export const  sharedDetails : IShowPermissionPage = {
-  tab8: "Shared Details" ,
-  tab6: "Details",
-  tab0: "",
-  desc: 'These are more details about the sharing.',
-  listLevel: '',
-  webLevel: '',
-  icon: 'ContactInfo',
-} ;
+  currentUserEmail: string;
+  groups:  ISingleGroup[];
+  sortedGroups:  ISingleGroup[];
+  sortedIds: number[];
+  titles: string[];
+  propTitles: string[];
+  propProps: IGroupsProps[];
+  Ids: number[];
+  isLoading: boolean;
+  isSiteAdmin: boolean;
+  counts: number[];
+  userId: number;
+  allUsers: IUser[];
+  guestUsers: IUser[];
+  groupsShowAdmins: boolean ;
+  groupsShowGuests: boolean ;
 
-export const  deltaPerms : IShowPermissionPage = {
-  tab8: "Delta" ,
-  tab6: "",
-  tab0: "",
-  desc: 'These have DIFFERENT permissions than the parent',
-  listLevel: '',
-  webLevel: '',
-  icon: 'TriangleUp12',
-} ;
+}
 
-export const  samePerms : IShowPermissionPage = {
-  tab8: "Same" ,
-  tab6: "",
-  tab0: "",
-  desc: 'These have the SAME permissions as the parent',
-  listLevel: '',
-  webLevel: '',
-  icon: 'CalculatorEqualTo',
-} ;
 
-export interface IMyPermissionsState {
+export interface IMyGroupsState {
+  isSiteAdmin: boolean;
+  currentUserEmail: string;
   isLoading: boolean;
   errorMessage: string;
   hasError: boolean;
   indexSelectedKey: string;
-  selectedUserId: number;
-  selectedUser: IUser;
+  selectedGroupId: number;
+  selectedGroup: ISingleGroup;
   searchString: string;
   searchText: string;
-  myPermissions: IMyPermissions;
-  
-  webPermissionAllDetla: IThisPermissionDelta[];
-  webPermissionMinDetla: IThisPermissionDelta[];
-  webPermissionEquals: IThisPermissionDelta[];
+  myGroups: IMyGroups;
 
-  deltaElements: any[];
-  equalElements: any[];
-
-  limtedPermissions: boolean;
-  deltaPermissions: boolean;
-  showThis: IShowPermissionPage;
-  mySharing: IMySharingInfo;
-  panel: IPermissionsPanel;
-  showPanel: boolean;
-
-  fetchTotal: number;
-  fetchCount: number;
-  showProgress: boolean;
-  fetchPerComp: number;
-  fetchLabel: string;
-
-}
-
-export interface IPermissionsPanel {
-  // groups: IMyGroupsProps;
-  groups: string[];
-  groupsProps: IGroupsProps[] ;
-  type: PanelType;
-  width?: number;
 }

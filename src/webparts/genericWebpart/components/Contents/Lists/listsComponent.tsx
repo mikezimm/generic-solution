@@ -7,6 +7,8 @@ import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Piv
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
+import { WebPartContext } from '@microsoft/sp-webpart-base';
+
 import "@pnp/sp/webs";
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
@@ -67,7 +69,7 @@ export type IListRailFunction = 'ListPermissions' | '';
 
 export interface IInspectListsProps {
     // 0 - Context
-    
+    wpContext: WebPartContext;
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
@@ -320,6 +322,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
                 railsPanel = 
                     <CreateListPermissions 
+                        wpContext={  this.props.wpContext }
                         railFunction={ this.state.railFunction }
                         theList={ this.state.selectedEntity }
                         currentPage= { this.props.pageContext.web.absoluteUrl }

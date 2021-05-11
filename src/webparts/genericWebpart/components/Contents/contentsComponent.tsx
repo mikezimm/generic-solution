@@ -9,6 +9,8 @@ import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
 
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
+import { WebPartContext } from '@microsoft/sp-webpart-base';
+
 import { PageContext } from '@microsoft/sp-page-context';
 
 import styles from './contents.module.scss';
@@ -58,6 +60,7 @@ export interface IInspectContentsProps {
     parentProps?: IGenericWebpartProps;
     parentState?: IGenericWebpartState;
 
+    wpContext: WebPartContext;
     pageContext: PageContext;
 
       // 1 - Analytics options
@@ -239,6 +242,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
         const listPage = validWeb !== true || this.state.tab !== 'Lists' ? null : <div>
             <InspectLists 
+                wpContext={  this.props.wpContext }
                 pageContext = { this.props.pageContext }
                 currentUser = { this.props.currentUser }
                 allowOtherSites = { true }

@@ -40,7 +40,6 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
  */
 
  import { IMyPermissions, IPermissionLists, IPermissionList, IThisPermissionDelta } from './Services/Permissions';
- import { IMySharingInfo, } from './Services/Sharing';
  
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -52,8 +51,6 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
  *                                                                                                                       
  *                                                                                                                       
  */
-
- import { IMyGroupsProps, IGroupsProps } from '../Groups/IMyGroupsProps';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
