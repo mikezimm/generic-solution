@@ -747,6 +747,10 @@ public constructor(props:IMyPermissionsProps){
         showThis: currentPermissions,
       });
 
+      if (ev.ctrlKey) {
+        window.open( this.props.webURL + "/_layouts/15/user.aspx?obj={" + this.props.theList.Id + "},doclib&List={" + this.props.theList.Id + "}", '_blank' );
+      }
+
     } else if ( itemKey === deltaPerms.tab8 ) {
       this.setState({ 
         showThis: deltaPerms,

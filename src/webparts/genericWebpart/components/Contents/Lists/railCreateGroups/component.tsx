@@ -166,6 +166,8 @@ const panelWidth = '90%';
 const groupBottomPadding = '25px';
 const toggleBottomPadding = '5px';
 
+const currentPivotHeaderText = 'Current';
+
 export default class MyCreateListPermissions extends React.Component<IMyCreateListPermissionsProps, IMyCreateListPermissionsState> {
 
 
@@ -327,6 +329,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                     styles={ pivotStyles }
                     linkFormat={PivotLinkFormat.links}
                     linkSize={PivotLinkSize.normal}
+                    onLinkClick={this._selectedIndex.bind(this)}
                 >
                     <PivotItem headerText="Create Permissions" ariaLabel="Create Permissions" title="Create" key="Create">
                         <h3> { listOrLib + ': ' + this.props.theList.Title }</h3>
@@ -372,7 +375,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                         { selectedTable }
 
                     </PivotItem>
-                    <PivotItem headerText="Current" ariaLabel="Current" title="Current" itemKey="Current">
+                    <PivotItem headerText={currentPivotHeaderText} ariaLabel={currentPivotHeaderText} title={currentPivotHeaderText} itemKey={currentPivotHeaderText}>
                         <div style={{marginTop: '20px'}}>
                             Fetch groups here.  Copy code from PivotTiles
                             { permissions }
@@ -632,5 +635,15 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             steps: newSteps,
         });  
     }
+
+    private _selectedIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
+        //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));
+        let itemKey = item.props.itemKey;
+        if ( itemKey === currentPivotHeaderText ) {
+            if (ev.ctrlKey) {
+                window.open( this.props.theList.ParentWebUrl + "/_layouts/15/user.aspx?obj={" + this.props.theList.Id + "},doclib&List={" + this.props.theList.Id + "}", '_blank' );
+            }
+        }
+      }
 
 }
