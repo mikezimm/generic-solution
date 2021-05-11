@@ -15,7 +15,7 @@ import {
   Icon,
 } from 'office-ui-fabric-react';
 
-import { SiteAdminGroupName, GuestsGroupName, GuestsIconName, SiteAdminIconName, } from '../../Groups/IMyGroupsState';
+import { SiteAdminGroupName, GuestsGroupName, GuestsIconName, SiteAdminIconName, } from '../IMyGroupsState';
 
 import { getAdminIcon, getGuestIcon } from './PersonaIcons';
 

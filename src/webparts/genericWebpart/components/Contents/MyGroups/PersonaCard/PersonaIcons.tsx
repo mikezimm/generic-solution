@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Icon, } from 'office-ui-fabric-react';
 
-import { GuestsIconName, SiteAdminIconName, } from '../../Groups/IMyGroupsState';
+import { GuestsIconName, SiteAdminIconName, } from '../IMyGroupsState';
 
 export function getAdminIcon( iconSize, iconLeftPad, iconTextSize ) {
     let AdminIcon = <div style={{ fontSize: iconSize , color: 'darkgreen' , paddingLeft: iconLeftPad, paddingRight: 10, whiteSpace: 'nowrap' }} >

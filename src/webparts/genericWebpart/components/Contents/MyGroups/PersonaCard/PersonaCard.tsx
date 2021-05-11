@@ -15,7 +15,7 @@ import {
   Icon,
 } from 'office-ui-fabric-react';
 
-import { SiteAdminGroupName, GuestsGroupName, GuestsIconName, SiteAdminIconName, } from '../../Groups/IMyGroupsState';
+import { SiteAdminGroupName, GuestsGroupName, GuestsIconName, SiteAdminIconName, } from '../IMyGroupsState';
 
 const EXP_SOURCE: string = 'SPFxDirectory';
 const LIVE_PERSONA_COMPONENT_ID: string =

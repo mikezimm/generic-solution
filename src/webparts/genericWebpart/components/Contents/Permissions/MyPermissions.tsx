@@ -37,6 +37,9 @@ import { currentPermissions, sharedHistory, sharedDetails, IPermissionsPanel } f
 import { IMyPermissionsProps } from './IMyPermissionsProps';
 
 /** Remove these when not using groups vvvvvv */
+import MyGroups from '../MyGroups/MyGroups';
+import { buildGroupProps } from '../MyGroups/GroupFunctions';
+import { IMyGroupsProps, IGroupsProps } from '../MyGroups/IMyGroupsProps';
 /** Remove these when not using groups ^^^^^ */
 
 import { allAvailableRoleAssignments, IMyPermissions, allWebLists, PermPriorityStyles, comparePermissions } from './Services/Permissions';
@@ -106,10 +109,20 @@ private setMyPermissions() {
 private createStateGroupsPanel( groupNames: string[], visible: boolean ) {
 
   /** return null when not using groups vvvvvv */
+  // set groups and groupsProps to empty arrays;
+
+  let groups0:  IGroupsProps = {  // groupsProps: IGroupsProps[] ;
+    title: groupNames[0],// string;
+    description: '',// string;
+    styles: '',// string;
+    icon: '',// string;
+    options: [],// string[];
+  };
+
   let panel : IPermissionsPanel= {
     type: PanelType.medium,
-    groups: [],
-    groupsProps: [],
+    groups: [groupNames[0], SiteAdminGroupName],
+    groupsProps: [groups0, buildGroupProps(SiteAdminGroupName)],
   };
 
   return panel;
@@ -484,7 +497,33 @@ public constructor(props:IMyPermissionsProps){
             let userId = this.props.context.pageContext.legacyPageContext.userId;
 
             /** set myGroups null when not using groups vvvvvv */
-            myGroups = null;
+            myGroups = <MyGroups
+              groupsShowAdmins= { true }
+              groupsShowGuests= { true }
+              isSiteAdmin={ this.props.isSiteAdmin }
+              minAdminGuestIcons = { true }
+              userId= { userId }
+              personaSize={ PersonaSize.size16 }
+              title={ 'showGroupTitle'}
+              width= { 425}
+              maxWidth={ 425 }
+              setPivSize = { this.props.setPivSize }
+              setPivFormat = { PivotLinkFormat.tabs }
+              groups={ this.state.panel.groups } //["PivotTiles Owners", "PivotTiles Members", "PivotTiles Visitors"]
+              groupsProps={ this.state.panel.groupsProps } //["PivotTiles Owners", "PivotTiles Members", "PivotTiles Visitors"]
+              webURL={ this.props.context.pageContext.web.absoluteUrl }
+              context={ this.props.context }
+              searchFirstName={ true }
+              displayMode={ 0 }
+              updateProperty={
+                (value: string) => {
+                  // this.properties.title = value; //This is for updating Title Props from webpart
+              }
+              }
+              searchProps={ 'Mike' }
+              clearTextSearchProps={ ''}
+              pageSize={ 5 }
+            ></MyGroups>;
         }
 
         myGroupsPanel = <div><Panel

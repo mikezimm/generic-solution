@@ -7,8 +7,8 @@ import styles from "./MyGroups.module.scss";
 
 
 import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons, IStackProps, PersonaSize, GroupedList } from 'office-ui-fabric-react';
-import { PersonaCard } from "../Directory/PersonaCard/PersonaCard";
-import { PersonaRow } from "../Directory/PersonaCard/PersonaRow";
+import { PersonaCard } from "./PersonaCard/PersonaCard";
+import { PersonaRow } from "./PersonaCard/PersonaRow";
 
 import {
   Spinner,
@@ -30,7 +30,7 @@ import {
 import { WebPartTitle } from "@pnp/spfx-controls-react/lib/WebPartTitle";
 
 /** Need this folder these when not using groups vvvvvv */
-import { ISPServices } from "../../../../../SPServices/ISPServices";
+import { ISPServices } from "@mikezimm/npmfunctions/dist/Services/SPServices/ISPServices";
 
 import { IMyGroupsState, IMyGroups, SiteAdminGroupName, SiteAdminIconName, GuestsGroupName, GuestsIconName } from './IMyGroupsState';
 import { IMyGroupsProps } from './IMyGroupsProps';
