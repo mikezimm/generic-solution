@@ -141,7 +141,7 @@ export async function getAllItems( sitePages: ISitePagesList, addTheseItemsToSta
     try {
         sourceUserInfo = await ensureUserInfo( sitePages.webURL, sitePages.contextUserInfo.email );
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+        errMessage = getHelpfullError(e, false, true);
     }
 
 

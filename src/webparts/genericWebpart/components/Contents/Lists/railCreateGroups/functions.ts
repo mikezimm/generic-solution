@@ -36,10 +36,10 @@ import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Ser
 
 import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
 
-import { encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { encodeDecodeString, getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -158,7 +158,6 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   let ownLevel = convertLetterToRole( steps.assignParentOwnerToList.value2 );
   let memLevel = convertLetterToRole( steps.assignParentMemberToList.value2 );
   let visLevel = convertLetterToRole( steps.assignParentVisitorToList.value2 );
-
 
   try { // Gets the associated owners group of a web
     ownerGroup = await thisWebInstance.associatedOwnerGroup();
@@ -304,3 +303,52 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   return newSteps;
 
  }
+
+ export async function getSiteInfoIncludingUnique( webURL : string , minOrAllProps: 'min' | 'all', alertErrors: boolean ) {
+
+  webURL = getFullUrlFromSlashSitesUrl( webURL );
+  let errMessage = '';
+
+  const thisWebObject = Web( webURL );
+  let getMinProps = 'Title,Id,Url,ServerRelativeUrl,SiteLogoUrl,Description,HasUniqueRoleAssignments';
+  if ( minOrAllProps === 'all' ) { getMinProps = '*,' + getMinProps ; }
+  let pickedWeb = null;
+
+  try {
+    const webbie = await thisWebObject.select(getMinProps).get();
+
+    if ( minOrAllProps === 'min' ) {
+      let pickedWebMin : IPickedWebBasic = {
+        ServerRelativeUrl: 'Site ServerRelativeUrl',
+        guid: 'Site Guid',
+        title: 'Site Title',
+        url: 'siteURL',
+        siteIcon: 'Site Icon',
+        error: '',
+        HasUniqueRoleAssignments: null,
+      };
+  
+      pickedWebMin = {
+          ServerRelativeUrl: webbie.ServerRelativeUrl,
+          guid: webbie.Id,
+          title: webbie.Title,
+          url: webbie.Url,
+          siteIcon: webbie.SiteLogoUrl,
+          error: '',
+          HasUniqueRoleAssignments: webbie['HasUniqueRoleAssignments'],
+      };
+
+      pickedWeb = pickedWebMin;
+
+    } else { pickedWeb = webbie; }
+
+  } catch (e) {
+    errMessage = getHelpfullError(e, alertErrors, true );
+    pickedWeb.error = errMessage;
+ 
+  }
+
+  return pickedWeb;
+
+ }
+ 

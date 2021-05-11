@@ -73,6 +73,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                       
  */
 
+ import { getSiteInfoIncludingUnique } from './functions';
+
   import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
 
   import { createIconButton } from '../../../createButtons/IconButton';
@@ -151,6 +153,9 @@ export interface IMyCreateListPermissionsState {
 
     fetchInfoMin: IFetchInfoSettingsMin;
 
+    HasUniqueRoleAssignments: boolean;
+    errorWeb: string;
+
 }
 
 const pivotStyles = {
@@ -166,7 +171,7 @@ const panelWidth = '90%';
 const groupBottomPadding = '25px';
 const toggleBottomPadding = '5px';
 
-const currentPivotHeaderText = 'Current';
+const currentPivotHeaderText = 'Current';  //Templates
 
 export default class MyCreateListPermissions extends React.Component<IMyCreateListPermissionsProps, IMyCreateListPermissionsState> {
 
@@ -216,15 +221,34 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                 permissionsListsInclude: true,
                 groupsShowAdmins: true,
                 groupsShowGuests: true,
-            }
+            },
+
+            HasUniqueRoleAssignments: null,
+            errorWeb: '',
 
         };
     }
         
     public componentDidMount() {
+        this._checkWebPerms();
         //this._getListItems();
     }
 
+    private async _checkWebPerms() {
+        let currentWeb : any = await getSiteInfoIncludingUnique( this.props.theList.ParentWebUrl, 'min', true );
+        let HasUniqueRoleAssignments = currentWeb.error === '' ? currentWeb.HasUniqueRoleAssignments : null ;
+
+        this.setState({
+            HasUniqueRoleAssignments: HasUniqueRoleAssignments,
+            errorWeb: currentWeb.error,
+            disableDo: currentWeb.error !== '' ? true : false ,
+            viewersSiteRead: HasUniqueRoleAssignments === true ? true : false ,
+            contribSiteRead: HasUniqueRoleAssignments === true ? true : false ,
+
+        });
+    }
+
+    
 
 /***
  *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
@@ -324,6 +348,9 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                 refreshId= { this.state.refreshId }
             ></MyPermissions>;
 
+            let disableContribGroupSite = this.state.HasUniqueRoleAssignments === true && this.state.includeContrib === true ? false : true;
+            let disableViewerGroupSite = this.state.HasUniqueRoleAssignments === true && this.state.includeViewers === true ? false : true;
+
             panelContent = <div>
                 <Pivot
                     styles={ pivotStyles }
@@ -333,23 +360,30 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                 >
                     <PivotItem headerText="Create Permissions" ariaLabel="Create Permissions" title="Create" key="Create">
                         <h3> { listOrLib + ': ' + this.props.theList.Title }</h3>
+
+                        { <div style={{display: this.state.errorWeb === '' ? 'none' : null, width: panelWidth }}>
+                            <MessageBar messageBarType={MessageBarType.severeWarning}>
+                                Error fetching current web info:
+                                { this.state.errorWeb }
+                            </MessageBar>
+                        </div> }
                         { <div style={{display: this.state.parentGroupValid === true ? 'none' : null, width: panelWidth }}>
                             <MessageBar messageBarType={MessageBarType.severeWarning}>
                                 You need 3 characters made up of F-C-R-x
                             </MessageBar>
                         </div> }
-                        { this.makeGroupName( 'Parent Group Roles - FCx', this.state.parentGroupPerms , this._updateParentGroups.bind(this) , !this.state.includeViewers, '0px 0px ' + groupBottomPadding + '0px' )}
+                        { this.makeGroupName( 'Parent Group Roles - FCx', this.state.parentGroupPerms , this._updateParentGroups.bind(this) , false , '0px 0px ' + groupBottomPadding + '0px' )}
 
                         <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
                             { this.makeToggle( 'Create Contributors', this.state.includeContrib, false, this.updateTogggleContrib.bind(this) ) }
-                            { this.makeToggle( 'Read site', this.state.contribSiteRead, !this.state.includeContrib, this.updateTogggleContribSiteRead.bind(this) ) }
+                            { this.makeToggle( 'Read site', this.state.contribSiteRead, disableContribGroupSite, this.updateTogggleContribSiteRead.bind(this) ) }
                         </div>
 
                         { this.makeGroupName( 'Enter Group Name', this.state.contribName , this._updateContribGroup.bind(this) , !this.state.includeContrib, '0px 0px ' + groupBottomPadding + '0px' )}
 
                         <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
                             { this.makeToggle( 'Create Readers', this.state.includeViewers, false, this.updateTogggleReaders.bind(this) ) }
-                            { this.makeToggle( 'Read site', this.state.viewersSiteRead, !this.state.includeViewers, this.updateTogggleReadersSiteRead.bind(this) ) }
+                            { this.makeToggle( 'Read site', this.state.viewersSiteRead, disableViewerGroupSite, this.updateTogggleReadersSiteRead.bind(this) ) }
                         </div>
 
                         { this.makeGroupName( 'Enter Group Name', this.state.viewersName , this._updateVisitorGroup.bind(this) , !this.state.includeViewers, '0px 0px ' + groupBottomPadding + '0px' )}
@@ -371,6 +405,12 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                                 Add Groups and Permissions
                             </PrimaryButton>
                         </div>
+
+                        { <div style={{display: this.state.HasUniqueRoleAssignments === true ? 'none' : null, width: panelWidth, margin: '20px' }}>
+                            <MessageBar messageBarType={MessageBarType.warning}>
+                                This site doesn't have Unqiue Permissions.  Will not break site permissions or assign groups to parent :(
+                            </MessageBar>
+                        </div> }
 
                         { selectedTable }
 

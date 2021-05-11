@@ -218,10 +218,10 @@ export function getFullURLFromRelative( relUrl : string ) {
 
                 try {
                     if ( webOrList === 'list' ) {
-                        setProgress( currentIdx, idsToGet.length , 'Checking Id: ( ' + thisUser + ' ) - ' + i + ' of ' + idsToGet.length  );
+                        setProgress( i, idsToGet.length , 'Checking Id: ( ' + thisUser + ' ) - ' + i + ' of ' + idsToGet.length  );
                         userPermissions = await sp.web.lists.getByTitle( listTitle ).roleAssignments.getById( thisUser ).bindings.select("Name,Description").get();
                     } else {
-                        setProgress( currentIdx, idsToGet.length , 'Checking Id: ( ' + thisUser + ' ) - ' + i + ' of ' + idsToGet.length  );
+                        setProgress( i, idsToGet.length , 'Checking Id: ( ' + thisUser + ' ) - ' + i + ' of ' + idsToGet.length  );
                         userPermissions = await sp.web.roleAssignments.getById( thisUser ).bindings.select("Name,Description").get(); 
                     }
                 } catch (e) {
