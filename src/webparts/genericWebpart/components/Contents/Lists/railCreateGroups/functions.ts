@@ -220,7 +220,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
     newSteps = await giveGroupPermissions( newSteps, 'assignReaderSiteRole', listInstance, thisWebInstance, principalId , readRoleDefId, updateState, 'web' ) ;
 
   }
-
+  newSteps.complete.current = newSteps.complete.complete;
   updateState( newSteps, newSteps.complete );
 
   // updateState(newSteps, currentStep);

@@ -215,6 +215,10 @@ export function createProcessSteps( listTitle , contribGroup, readerGroup ){
     checkListPerms: CheckListPermissions( listTitle ),
     breakListPerms: BreakListPermissions( listTitle ),
 
+    assignParentOwnerToList: assignParentToList('SiteOwnerGroup', true, listTitle, 'SiteOwnerGroup', 10 ),
+    assignParentMemberToList: assignParentToList('SiteMemberGroup', true, listTitle, 'SiteMemberGroup', 11 ),
+    assignParentVisitorToList: assignParentToList('SiteVisitorGroup', true, listTitle, 'SiteVisitorGroup', 12 ),
+
     checkContribGroup: checkGroup('Contributors', true, listTitle, contribGroup, 20 ),
     createContribGroup:  createGroup('Contributors', true, listTitle, contribGroup, 30 ),
 
@@ -226,12 +230,7 @@ export function createProcessSteps( listTitle , contribGroup, readerGroup ){
     assignReaderListRole:  assignToList('Readers', true, listTitle, readerGroup, 80 ),
     assignReaderSiteRole:  assignToSite('Readers', true, listTitle, readerGroup, 90 ),
 
-    assignParentOwnerToList: assignParentToList('SiteOwnerGroup', true, listTitle, 'SiteOwnerGroup', 96 ),
-    assignParentMemberToList: assignParentToList('SiteMemberGroup', true, listTitle, 'SiteMemberGroup', 97 ),
-    assignParentVisitorToList: assignParentToList('SiteVisitorGroup', true, listTitle, 'SiteVisitorGroup', 98 ),
-
-    complete: createStep( 'Complete', 'Complete', 'Completed all tasks', 'Completed permissions', 'Had a problem Completing Permissions', true, 0, listTitle, '', ''  ),
-
+    complete: createStep( 'Complete', 'Complete', 'Completed all tasks', 'Completed permissions', 'Had a problem Completing Permissions', true, 99, listTitle, '', ''  ),
 
   };
 

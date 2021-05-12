@@ -94,7 +94,7 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics } from '../../../../../../services/createAnalytics';
 import { IListRailFunction } from '../listsComponent';
 import { createProcessSteps, IProcessSteps, IProcessStep, StatusIcons, StatusColors } from './setup';
 import { doThisRailFunction } from './functions';
@@ -174,6 +174,8 @@ const groupBottomPadding = '25px';
 const toggleBottomPadding = '5px';
 
 const currentPivotHeaderText = 'Current';  //Templates
+const historyPivotHeaderText = 'History';  //Templates
+
 
 export default class MyCreateListPermissions extends React.Component<IMyCreateListPermissionsProps, IMyCreateListPermissionsState> {
 
@@ -422,7 +424,11 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                     </PivotItem>
                     <PivotItem headerText={currentPivotHeaderText} ariaLabel={currentPivotHeaderText} title={currentPivotHeaderText} itemKey={currentPivotHeaderText}>
                         <div style={{marginTop: '20px'}}>
-                            Fetch groups here.  Copy code from PivotTiles
+                            { permissions }
+                        </div>
+                    </PivotItem>
+                    <PivotItem headerText={historyPivotHeaderText} ariaLabel={historyPivotHeaderText} title={historyPivotHeaderText} itemKey={historyPivotHeaderText} itemIcon={ 'History '}>
+                        <div style={{marginTop: '20px'}}>
                             { permissions }
                         </div>
                     </PivotItem>
@@ -684,14 +690,21 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         });  
     }
 
-    private _selectedIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
+    private async _selectedIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
         //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));
         let itemKey = item.props.itemKey;
         if ( itemKey === currentPivotHeaderText ) {
             if (ev.ctrlKey) {
                 window.open( this.props.theList.ParentWebUrl + "/_layouts/15/user.aspx?obj={" + this.props.theList.Id + "},doclib&List={" + this.props.theList.Id + "}", '_blank' );
             }
+
+        } else if ( itemKey === historyPivotHeaderText ) {
+            let items = await fetchAnalytics( this.props.analyticsWeb, strings.analyticsListRails , this.props.pickedWeb.guid );
+            console.log('HISTORY:' , items );
         }
+
+
+        
       }
 
 }

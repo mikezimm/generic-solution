@@ -1,7 +1,9 @@
 import { sp } from '@pnp/sp';
-import { Web, } from '@pnp/sp/presets/all';
+import { Web, Items, } from '@pnp/sp/presets/all';
 
 import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
+
 import { DefaultChildListTitle } from 'GenericWebpartWebPartStrings';
 
 import * as strings from 'GenericWebpartWebPartStrings';
@@ -174,6 +176,43 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
             //alert(e);
             console.log('e',getHelpfullError(e, true,true) );
     });
+
+}
+
+
+export async function fetchAnalytics( analyticsWeb: string, analyticsList: string, siteGuid: string ) {
+    //Do nothing if either of these strings is blank
+    if (!analyticsList) { return ; }
+    if (!analyticsWeb) { return ; }
+    let items: any[] = [];
+    let allColumns : any = [ 'Created','Modified','Author/Title','Id',
+        'Title', 'zzzRichText1', 'zzzRichText2', 'getParams',
+        'zzzNumber1', 'zzzNumber2', 'zzzNumber3', 'zzzNumber4', 'zzzNumber5',
+        'zzzText1', 'zzzText2', 'zzzText3', 'zzzText4', 'zzzText5', 'zzzText6', 'zzzText7',
+        'PageLink', 'SiteLink', 'SiteTitle', 'TargetSite', 'Result',
+        'TargetList', 'ListTitle',
+    ];
+
+    let expColumns : any = getExpandColumns(allColumns);
+    // let selColumns = getSelectColumns(allColumns);
+
+    // let selectCols: string = "*";
+    // let expandThese = "";
+
+    // selColumns.length > 0 ? selectCols += "," + selColumns.join(",") : selectCols = selectCols;
+    // if (expColumns.length > 0) { expandThese = expColumns.join(","); }
+
+
+    try {
+        let web = Web(analyticsWeb);
+        let restFilter = "zzzText5 eq '" + siteGuid + "'";
+        items = await web.lists.getByTitle(analyticsList).items.select(allColumns).expand(expColumns).filter( restFilter ).top(5000).orderBy('Id',false).get();
+
+    } catch (e) {
+        console.log('e',getHelpfullError(e, true,true) );
+
+    }
+    return items ;
 
 }
 
