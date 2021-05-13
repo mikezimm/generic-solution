@@ -26,7 +26,6 @@ import {
   IDropdownOption
 } from "office-ui-fabric-react";
 
-
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 import { WebPartTitle } from "@pnp/spfx-controls-react/lib/WebPartTitle";
@@ -38,7 +37,7 @@ import { IMyPermissionsProps } from './IMyPermissionsProps';
 
 /** Remove these when not using groups vvvvvv */
 import MyGroups from '../MyGroups/MyGroups';
-import { buildGroupProps } from '../MyGroups/GroupFunctions';
+import { buildGroupProps, createStateGroupsPanel } from '../MyGroups/GroupFunctions';
 import { IMyGroupsProps, IGroupsProps } from '../MyGroups/IMyGroupsProps';
 /** Remove these when not using groups ^^^^^ */
 
@@ -106,28 +105,7 @@ private setMyPermissions() {
     return myPermissions;
 }
 
-private createStateGroupsPanel( groupNames: string[], visible: boolean ) {
 
-  /** return null when not using groups vvvvvv */
-  // set groups and groupsProps to empty arrays;
-
-  let groups0:  IGroupsProps = {  // groupsProps: IGroupsProps[] ;
-    title: groupNames[0],// string;
-    description: '',// string;
-    styles: '',// string;
-    icon: '',// string;
-    options: [],// string[];
-  };
-
-  let panel : IPermissionsPanel= {
-    type: PanelType.medium,
-    groups: [groupNames[0], SiteAdminGroupName],
-    groupsProps: [groups0, buildGroupProps(SiteAdminGroupName)],
-  };
-
-  return panel;
-
-}
 public constructor(props:IMyPermissionsProps){
     super(props);
     console.log('THE WEBPART WIDTH === ', this.props.width );
@@ -144,7 +122,7 @@ public constructor(props:IMyPermissionsProps){
         limtedPermissions: false,
 
         showThis: currentPermissions,
-        panel: this.createStateGroupsPanel( [''], false ),
+        panel: createStateGroupsPanel( [''], false ),
         showPanel: false,
 
         deltaPermissions: false,
@@ -817,7 +795,7 @@ public constructor(props:IMyPermissionsProps){
     } else if ( testElement.parentElement.id.indexOf( this.groupTitlePrefix) === 0 ) {
       id = testElement.parentElement.id.replace( this.groupTitlePrefix ,'' );
     }
-    let panel = this.createStateGroupsPanel( [id], false );
+    let panel = createStateGroupsPanel( [id], false );
 
     this.setState({
       panel: panel,

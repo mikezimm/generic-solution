@@ -1,11 +1,4 @@
-import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, IPrincipalInfo, PrincipalType, PrincipalSource } from "@pnp/sp/presets/all";
 
-import { sp } from "@pnp/sp";
-import "@pnp/sp/webs";
-import "@pnp/sp/site-groups/web";
-import { WebPartContext } from "@microsoft/sp-webpart-base";
-import { PageContext } from '@microsoft/sp-page-context';
-import { mergeAriaAttributeValues, IconNames } from "office-ui-fabric-react";
 
 
 /***
@@ -18,7 +11,16 @@ import { mergeAriaAttributeValues, IconNames } from "office-ui-fabric-react";
  *                                                                                                                                  
  *                                                                                                                                  
  */
+import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, IPrincipalInfo, PrincipalType, PrincipalSource } from "@pnp/sp/presets/all";
 
+import { sp } from "@pnp/sp";
+import "@pnp/sp/webs";
+import "@pnp/sp/site-groups/web";
+import { WebPartContext } from "@microsoft/sp-webpart-base";
+import { PageContext } from '@microsoft/sp-page-context';
+import { mergeAriaAttributeValues, IconNames } from "office-ui-fabric-react";
+
+import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
@@ -69,9 +71,10 @@ import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Use
  *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         Y8b  d8 `8b  d8' 88  88  88 88      `8b  d8' 88  V888 88.     88  V888    88    
  *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP          `Y88P'  `Y88P'  YP  YP  YP 88       `Y88P'  VP   V8P Y88888P VP   V8P    YP    
  *                                                                                                                                               
- *                                                                                                                                               
+ *                                                                             
+ *                                                                   
  */
-
+import { currentPermissions, sharedHistory, sharedDetails, IPermissionsPanel } from '../Permissions/IMyPermissionsState';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -88,7 +91,28 @@ import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Use
 import { IGroupsProps } from './IMyGroupsProps';
 import { IMyGroups, ISingleGroup, IMyGroupsState, SiteAdminGroupName, GuestsGroupName, GuestsIconName, SiteAdminIconName, } from './IMyGroupsState';
 
+export function createStateGroupsPanel( groupNames: string[], visible: boolean ) {
 
+    /** return null when not using groups vvvvvv */
+    // set groups and groupsProps to empty arrays;
+  
+    let groups0:  IGroupsProps = {  // groupsProps: IGroupsProps[] ;
+      title: groupNames[0],// string;
+      description: '',// string;
+      styles: '',// string;
+      icon: '',// string;
+      options: [],// string[];
+    };
+  
+    let panel : IPermissionsPanel= {
+      type: PanelType.medium,
+      groups: [groupNames[0], SiteAdminGroupName],
+      groupsProps: [groups0, buildGroupProps(SiteAdminGroupName)],
+    };
+  
+    return panel;
+  
+  }
 
 export function buildGroupProps( gName : string, description = '', styles = '', options = '' ) {
     let optionsArray : string[] = options !== '' ? JSON.parse(options) : null;
