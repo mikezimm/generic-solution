@@ -191,7 +191,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
     currentStep = newSteps.createContribGroup;
     if ( currentStep.required === true ) {
-      let GroupTitle = theList.Title + ' Contributors';
+      let GroupTitle = currentStep.value2; //theList.Title + ' Contributors';
       let GroupDesc = `Can UPDATE content in the ${ listOrLib } - ${ theList.Title }`;
       newSteps = await createThisGroup( newSteps, thisWebInstance, GroupTitle, GroupDesc, currentStep, ownerGroup.Id, updateState );
     }
@@ -209,7 +209,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   if ( newSteps.checkReaderGroup.required === true ) {
     currentStep = newSteps.createReaderGroup;
     if ( currentStep.required === true ) {
-      let GroupTitle = theList.Title + ' Readers';
+      let GroupTitle = currentStep.value2; //theList.Title + ' Readers';
       let GroupDesc = `Can READ content in the ${ listOrLib }: ${ theList.Title }`;
       newSteps = await createThisGroup( newSteps, thisWebInstance, GroupTitle, GroupDesc, currentStep, ownerGroup.Id, updateState );
     }
@@ -288,7 +288,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   } catch(e) {
     errMessage = getHelpfullError(e, false, true);
     currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
-    if ( 'The specified name is already in use' ) {
+    if ( errMessage.indexOf( 'The specified name is already in use' ) > -1 ) {
       currentStep.current.error = 'Group already exists!';
     } else {
       currentStep.current.error = errMessage;

@@ -94,7 +94,7 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, IArraySummary, IRailAnalytics, groupArrayItemsByField } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '../../../../../../services/createAnalytics';
 import { IListRailFunction } from '../listsComponent';
 import { createProcessSteps, IProcessSteps, IProcessStep, StatusIcons, StatusColors } from './setup';
 import { doThisRailFunction } from './functions';
@@ -203,8 +203,9 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         let steps : IProcessSteps = createProcessSteps( listTitle , contribName, viewersName );
         steps = this._updateParentGroupSteps( parentGroupPerms, steps );
 
-        let startTime = getTheCurrentTime();
-        let refreshId = startTime.now;
+        // let startTime = getTheCurrentTime();
+        let startTime = new Date();
+        let refreshId = startTime.toISOString().replace('T', ' T') + ' ~ ' + startTime.toLocaleTimeString();
 
         this.state = {
             disableDo: false,
@@ -366,12 +367,28 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             let finished = this.state.finished;
             
             let history = null;
+
             if ( this.state.history !== null ) {
                 history = <div>
-                    <div>Found { this.state.history.filteredKeys.length } tasks from this list.</div>
-                    { this.state.history.filteredKeys.map( key=> <div> { key } </div> ) }
-                </div>
-
+                    <div>Found { this.state.history.filteredKeys.length } tasks from this list: { this.props.theList.Title } </div>
+                    {/* { this.state.history.filteredKeys.map( key=> <div> { key } </div> ) } */}
+                    { this.state.history.filteredGroups.map( group=> 
+                        <div><div style={{ fontSize: 'x-large', fontWeight: 600, background: 'lightgray', padding: '5px 15px', marginTop: '15px', borderRadius: '5px' }}>
+                             { group.key.split('~')[0] } 
+                             <span style={{ paddingLeft: '10px', fontSize: 'small' }}> { 
+                                group.key.split('~')[1]
+                                // new Date( group.key.split('~')[0] ).toLocaleString() //This does not work... gives "Invalid Date"
+                              } </span>
+                        </div>
+                        <table>
+                            <tr><th> Step </th><th> Result </th><th> Info </th></tr>
+                            { group.items.map( item => {
+                                return this.buildHistoryStep( item );
+                            })
+                            }
+                        </table></div>
+                    ) }
+                </div>;
             }
             panelContent = <div>
                 <Pivot
@@ -389,12 +406,14 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                                 { this.state.errorWeb }
                             </MessageBar>
                         </div> }
+
+                        { this.makeGroupName( 'Parent Group Roles - FCx', this.state.parentGroupPerms , this._updateParentGroups.bind(this) , false , '0px 0px ' + groupBottomPadding + '0px' )}
+                        
                         { <div style={{display: this.state.parentGroupValid === true ? 'none' : null, width: panelWidth }}>
                             <MessageBar messageBarType={MessageBarType.severeWarning}>
                                 You need 3 characters made up of F-C-R-x
                             </MessageBar>
                         </div> }
-                        { this.makeGroupName( 'Parent Group Roles - FCx', this.state.parentGroupPerms , this._updateParentGroups.bind(this) , false , '0px 0px ' + groupBottomPadding + '0px' )}
 
                         <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
                             { this.makeToggle( 'Create Contributors', this.state.includeContrib, false, this.updateTogggleContrib.bind(this) ) }
@@ -513,12 +532,15 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         // value3: value3 ? value3 : '', //Group ID
         // value4: '', //ParentGroupID
 
+        let extraInfo = currentStep.current.key === 'error' ? currentStep.current.info + ' - ' + currentStep.current.error : '' ;
+
         let value2 = [ 
             currentStep.value2, 
             currentStep.stepNo,
             currentStep.value3, 
             currentStep.value4, 
             this.state.refreshId, 
+            extraInfo,
         ].join('|');
 
         saveAnalytics( this.props.analyticsWeb, strings.analyticsListRails , //analyticsWeb, analyticsList,
@@ -540,6 +562,22 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             <td style={{ textAlign: 'center' }} ><Icon iconName= { StatusIcons[ key ]} style={{ color: color }}></Icon></td>
             <td style={{ color: color }}>{ info } </td>
             <td>{ step.current.result } </td>
+        </tr>;
+    }
+
+    private buildHistoryStep( step: IRailAnalytics ) {
+        // if ( step.required !== true ) { return null; }
+        // let info = step.current.error !== '' ? step.current.error : step.current.info; 
+        let key = step.Result;
+        let color = StatusColors[ key ];
+
+        return <tr  title={ step.Result + ' ' + step.Title }>
+            <td>{ step.zzzText7 } </td>
+            <td style={{ textAlign: 'center' }} ><div style={{ fontSize: 'larger', margin: '5px 0px' }}><Icon iconName= { StatusIcons[ key ]} style={{ color: color }}></Icon></div></td>
+            <td>{ step.Title } 
+                <span style={{fontWeight: 700 }}>{ ( step.zzzText3 ? ' - ' + step.zzzText3 : '' ) } </span>
+                {  step.zzzText4 ? <div style={{color: 'red', fontSize: 'x-small', paddingBottom: '7px' }}>{ ( step.zzzText4 ? ' ' + step.zzzText4 : '' ) } </div> : null  }
+            </td>
         </tr>;
     }
 
@@ -604,8 +642,10 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
         let parentGroupValid = true;
         ['assignParentOwnerToList','assignParentMemberToList','assignParentVisitorToList'].map( key=> {
-            if ( steps[key]. value2 === null ) { parentGroupValid = false; }
+            if ( steps[key].value2 === null ) { parentGroupValid = false; }
         });
+
+        if ( oldVal && oldVal.length !== 3 ) { parentGroupValid = false ; }
 
         this.setState({ parentGroupValid: parentGroupValid, parentGroupPerms: oldVal, steps: steps  });  
         

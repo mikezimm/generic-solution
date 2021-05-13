@@ -82,7 +82,8 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
         zzzText1 = infos2[4] ? infos2[4] : null ; //makeId
 
-        zzzText4 = null;
+        zzzText4 = infos2[5];
+        
         let tempSite = TargetSite.split('|');
         TargetSite = tempSite[0];
         siteGuid = tempSite[1] ? tempSite[1] : null;
@@ -249,13 +250,13 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
 
 export interface IArraySummaryGroup {
     key: string;
-    items: any[];
+    items: IRailAnalytics[];
     groupFilter: any;
 }
 
 export interface IArraySummary {
     keys: string[]; //Keys is just string array of all the group.key which can be used to build easy list of the keys.
-    items: any[];
+    items: IRailAnalytics[];
     groups: IArraySummaryGroup[];
     filteredGroups: IArraySummaryGroup[];
     filteredKeys: string[]; //Keys is just string array of all the group.key which can be used to build easy list of the keys.
