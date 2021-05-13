@@ -1,4 +1,4 @@
-import { WebPartContext } from "@microsoft/sp-webpart-base";
+import { WebPartContext } from "@microsoft/sp-webpart-base";  //  context: WebPartContext;
 import { DisplayMode } from "@microsoft/sp-core-library";
 import { PivotLinkSize, PivotLinkFormat } from 'office-ui-fabric-react/lib/Pivot';
 import { IMyPermissions, IPermissionLists, IPermissionList, IThisPermissionDelta } from './Services/Permissions';

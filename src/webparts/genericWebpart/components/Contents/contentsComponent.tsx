@@ -303,6 +303,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
         const groupsPage = validWeb !== true ? null : <div>
             <InspectGroups
+                wpContext={  this.props.wpContext }
                 allowOtherSites={ false }
                 pageContext={ this.props.pageContext }
                 pickedWeb = { this.props.pickedWeb }

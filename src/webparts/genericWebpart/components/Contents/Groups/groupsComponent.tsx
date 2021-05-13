@@ -14,6 +14,8 @@ import { IWebAddResult, IWebInfo, IWeb, } from "@pnp/sp/webs/types";
 
 import "@pnp/sp/webs";
 
+import { WebPartContext } from "@microsoft/sp-webpart-base";  //  wpContext: WebPartContext;
+
 import { IValidTemplate, allAvailableGroups } from './groupsFunctions';
 
 import { ITheTime } from '@mikezimm/npmfunctions/dist/Services/Time/Interfaces';
@@ -47,7 +49,6 @@ import * as links from '../../HelpInfo/AllLinks';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
-
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},
@@ -91,6 +92,7 @@ export interface IContentsGroupInfo extends Partial<ISiteGroupInfo>{
 export interface IInspectGroupsProps {
     // 0 - Context
     
+    wpContext: WebPartContext;
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
@@ -317,7 +319,9 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         webURL = { this.props.pickedWeb.url } descending={false} titles={null}
-                        ></MyLogGroup>;
+                        wpContext = { this.props.wpContext }
+                        currentUser = { this.props.currentUser }
+                    ></MyLogGroup>;
                 })
 
             }
