@@ -4,6 +4,9 @@ import { Web, Items, } from '@pnp/sp/presets/all';
 import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
 import { sortObjectArrayByStringKey } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
+import { IRailAnalytics } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
+
+
 
 import { DefaultChildListTitle } from 'GenericWebpartWebPartStrings';
 
@@ -183,34 +186,6 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
 }
 
-interface SimpleLink {
-    Url: string;
-    Description: string;
-    target?: string;
-}
-
-export interface IRailAnalytics {
-    'Title': string;            // What was done:  ie:
-    'PageLink': SimpleLink;     // Link to page
-    'zzzText1': string;         // Set ID
-    'zzzText2': string;         // Time Key
-    'zzzText3': string;         // Value1:  Group Name
-    'zzzText4': string;         // 
-    'zzzText5': string;         // siteGuid
-    'zzzText6': string;         // List or Site for assigning permissions
-    'zzzText7': string;         // Sort Order
-    'SiteLink': SimpleLink;     // 
-    'SiteTitle': string;        // 
-    'TargetSite': SimpleLink;   //
-    'Result': string;           // Was success or error
-    'TargetList': SimpleLink;   // 
-    'ListTitle': string;        // 
-    'zzzRichText1': string;     // Action JSON 
-    'zzzNumber4': number;       // Group ID
-    'zzzNumber5': number;       // Either RoleID for item or Parent Group ID
-    'getParams': string;        // 
-    'Setting': string;          // This would be the rail function called
-}
 
 export async function fetchAnalytics( analyticsWeb: string, analyticsList: string, siteGuid: string ) {
     //Do nothing if either of these strings is blank
@@ -236,7 +211,6 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
     // selColumns.length > 0 ? selectCols += "," + selColumns.join(",") : selectCols = selectCols;
     // if (expColumns.length > 0) { expandThese = expColumns.join(","); }
 
-
     try {
         let web = Web(analyticsWeb);
         let restFilter = "zzzText5 eq '" + siteGuid + "'";
@@ -248,85 +222,6 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
     }
 
     return items ;
-
-}
-
-export interface IArraySummaryGroup {
-    key: string;
-    items: IRailAnalytics[];
-    groupFilter: any;
-    localTime: string;
-}
-
-export interface IArraySummary {
-    keys: string[]; //Keys is just string array of all the group.key which can be used to build easy list of the keys.
-    items: IRailAnalytics[];
-    groups: IArraySummaryGroup[];
-    filteredGroups: IArraySummaryGroup[];
-    filteredKeys: string[]; //Keys is just string array of all the group.key which can be used to build easy list of the keys.
-}
-
-export function groupArrayItemsByField( items: IRailAnalytics[], keys: string[], keyDelim: string, groupFilterKey: string, groupItemOrderKey: string, sort: 'asc' | 'dec', ) {
-
-    let summary: IArraySummary = {
-        keys: [],
-        items: [],
-        groups: [],
-        filteredGroups: [],
-        filteredKeys: [],
-    };
-
-    items.map( item=> {
-        let thisKey = keys.map( key => { return item[key]; }).join( keyDelim );
-        let thisKey2 = item[keys[0]];
-        thisKey2 += keyDelim + item[keys[1]];
-
-        let keyIndex = summary.keys.indexOf( thisKey );
-
-        if ( keyIndex < 0 ) {
-            summary.keys.push( thisKey );
-            keyIndex = summary.keys.length -1 ;
-
-            let thisKeyBasic = thisKey.split('~');
-            let localTime : any = new Date(thisKeyBasic[0].replace(' ','').trim());
-            localTime = localTime.toLocaleString();
-            summary.groups.push( { key: thisKey, items: [], groupFilter: null, localTime: localTime } ) ;
-
-            //Set the groupFilter which is intended to be an easy way to filter this group... 
-            //For instance, the All items are pre-filtered by the site the item pertains to.
-            //The groupFilter could be the list in that site which the items in the group have in common
-
-            let filterKeys = groupFilterKey.split('.');
-            if ( filterKeys.length === 1 ) { summary.groups[keyIndex].groupFilter = item[groupFilterKey]; }
-            else { summary.groups[keyIndex].groupFilter = item[filterKeys[0]][filterKeys[1]]; }
-        }
-        
-        summary.groups[keyIndex].items.push( item );
-
-    });
-
-    if ( groupItemOrderKey !== null && groupItemOrderKey !== undefined && groupItemOrderKey !== '' ) {
-        summary.groups.map( group => {
-            let okToSort = true;
-            group.items.map( item => {
-                if ( item[groupItemOrderKey] === null ) { okToSort = false; }
-                else if ( item[groupItemOrderKey] === undefined ) { okToSort = false; }
-            });
-            if ( okToSort === true ) {
-                let newItems = sortObjectArrayByStringKey( group.items, sort, groupItemOrderKey );
-                group.items = newItems;
-            } else {
-                console.log( 'Unable to sort this group of items... one of the keyValues was not valid.', group );
-            }
-
-        });
-    }
-
-    summary.filteredGroups = summary.groups;
-    summary.filteredKeys = summary.keys;
-    // console.log( 'History summary: ', summary );
-
-    return summary;
 
 }
 

@@ -47,8 +47,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
  import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
  import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+ import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
  
-
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -94,7 +94,9 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, } from '../../../../../../services/createAnalytics';
+
+
 import { IListRailFunction } from '../listsComponent';
 import { createProcessSteps, IProcessSteps, IProcessStep, StatusIcons, StatusColors } from './setup';
 import { doThisRailFunction } from './functions';
