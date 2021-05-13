@@ -94,7 +94,7 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, IArraySummary, IRailAnalytics, groupArrayItemsByField } from '../../../../../../services/createAnalytics';
 import { IListRailFunction } from '../listsComponent';
 import { createProcessSteps, IProcessSteps, IProcessStep, StatusIcons, StatusColors } from './setup';
 import { doThisRailFunction } from './functions';
@@ -158,6 +158,8 @@ export interface IMyCreateListPermissionsState {
 
     finished: boolean;
 
+    history: IArraySummary;
+
 }
 
 const pivotStyles = {
@@ -201,6 +203,9 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         let steps : IProcessSteps = createProcessSteps( listTitle , contribName, viewersName );
         steps = this._updateParentGroupSteps( parentGroupPerms, steps );
 
+        let startTime = getTheCurrentTime();
+        let refreshId = startTime.now;
+
         this.state = {
             disableDo: false,
 
@@ -218,7 +223,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
             steps: steps,
 
-            refreshId: makeid( 5 ),
+            refreshId: refreshId,
 
             fetchInfoMin: {
                 permissionsHiddenExclude: true,
@@ -231,6 +236,8 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             errorWeb: '',
 
             finished: false,
+
+            history: null,
 
         };
     }
@@ -357,7 +364,15 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             let disableContribGroupSite = this.state.HasUniqueRoleAssignments === true && this.state.includeContrib === true ? false : true;
             let disableViewerGroupSite = this.state.HasUniqueRoleAssignments === true && this.state.includeViewers === true ? false : true;
             let finished = this.state.finished;
+            
+            let history = null;
+            if ( this.state.history !== null ) {
+                history = <div>
+                    <div>Found { this.state.history.filteredKeys.length } tasks from this list.</div>
+                    { this.state.history.filteredKeys.map( key=> <div> { key } </div> ) }
+                </div>
 
+            }
             panelContent = <div>
                 <Pivot
                     styles={ pivotStyles }
@@ -429,7 +444,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                     </PivotItem>
                     <PivotItem headerText={historyPivotHeaderText} ariaLabel={historyPivotHeaderText} title={historyPivotHeaderText} itemKey={historyPivotHeaderText} itemIcon={ 'History '}>
                         <div style={{marginTop: '20px'}}>
-                            { permissions }
+                            { history }
                         </div>
                     </PivotItem>
 
@@ -699,12 +714,23 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             }
 
         } else if ( itemKey === historyPivotHeaderText ) {
-            let items = await fetchAnalytics( this.props.analyticsWeb, strings.analyticsListRails , this.props.pickedWeb.guid );
-            console.log('HISTORY:' , items );
+            let items: IRailAnalytics[] = await fetchAnalytics( this.props.analyticsWeb, strings.analyticsListRails , this.props.pickedWeb.guid );
+
+            let history: IArraySummary = groupArrayItemsByField( items, ['zzzText1'], ' - ', 'TargetList.Url', 'zzzText7','asc' );
+            let filterBy = this.props.theList.listURL.indexOf('http') === 0 ? this.props.theList.listURL : window.location.origin + this.props.theList.listURL;
+            history.filteredGroups = [];
+            history.filteredKeys = [];
+            history.groups.map( group => {
+                if ( group.groupFilter === filterBy ) { 
+                    history.filteredGroups.push( group ) ;
+                    history.filteredKeys.push( group.key ) ;
+                }
+            });
+
+            this.setState({ history: history });
+            console.log('HISTORY:' , history );
         }
 
-
-        
       }
 
 }
