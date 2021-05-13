@@ -769,7 +769,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             });
 
             this.setState({ history: history });
-            console.log('HISTORY:' , history );
+            // console.log('HISTORY:' , history );
         }
 
       }

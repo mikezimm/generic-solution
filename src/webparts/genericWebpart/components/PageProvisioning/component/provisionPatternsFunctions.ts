@@ -11,6 +11,8 @@ import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist
 
 import { getHelpfullError,  } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler'; //Import view arrays for Time list
 
+import * as strings from 'GenericWebpartWebPartStrings';
+
 import { notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { IPatternItemInfo } from  './GetPatternPages';
@@ -33,7 +35,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
 
     // use the web factory to target a specific web  https://autoliv.sharepoint.com/sites/webpartdev/SitePages/Home(1).aspx
     try {
-        const page2 = await Web("https://autoliv.sharepoint.com/sites/Patterns/").loadClientsidePage("/sites/Patterns/SitePages/" + sourcePageName + ".aspx");
+        const page2 = await Web( window.location.origin + strings.patternsWeb ).loadClientsidePage( strings.patternsWeb + "SitePages/" + sourcePageName + ".aspx");
             //    let page2X = JSON.stringify(page2);
     //    let page2Y = JSON.parse(page2X);
 
@@ -51,7 +53,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
 
         } catch (e){
             console.log( 'Failed pasting page ' + sourcePageName  );
-            let errMessage = getHelpfullError(e, true, true);
+            let errMessage = getHelpfullError(e, false, true);
             if (errMessage.indexOf('missing a column') > -1) {
                 statusLog = notify(statusLog, 'Checked Field', 'err', 'step', 'f', null);
             }

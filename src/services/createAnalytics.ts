@@ -324,7 +324,7 @@ export function groupArrayItemsByField( items: IRailAnalytics[], keys: string[],
 
     summary.filteredGroups = summary.groups;
     summary.filteredKeys = summary.keys;
-    console.log( 'History summary: ', summary );
+    // console.log( 'History summary: ', summary );
 
     return summary;
 

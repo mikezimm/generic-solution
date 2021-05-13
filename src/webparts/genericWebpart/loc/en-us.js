@@ -13,7 +13,7 @@ define([], function() {
     "analyticsList": "EasyContentsLog",
     "analyticsListRails": "EasyContentsRails",
     "analyticsWeb": "/sites/Templates/Analytics/",
-    "patternsWeb": "/sites/Patterns/",
+    "patternsWeb": "/sites/Patterns/", //Must end in slash :)
     "minClickWeb": "",
     
     // 2 - Source and destination list information

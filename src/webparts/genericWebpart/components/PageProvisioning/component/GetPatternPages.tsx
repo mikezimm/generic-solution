@@ -169,8 +169,9 @@ export async function getAllItems( sitePages: ISitePagesList, addTheseItemsToSta
             allItems = await thisListObject.items.select(selectCols).expand(expandThese).orderBy('ID',false).top(fetchCount).get();
         }
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
-
+        if ( e.message.indexOf( '[404]') > -1 ) {
+            errMessage = getHelpfullError(e, false, true);
+        } else { errMessage = getHelpfullError(e, true, true); }
     }
 
     /**
