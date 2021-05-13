@@ -297,7 +297,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle, PageURL,
             'Provision Patterns', TargetSite, null, //saveTitle, TargetSite, TargetList
             'Pages', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
-            '' ); //richText
+            '', 'ProvisionPattern' ); //richText
 
         this.state = { 
 
@@ -674,7 +674,6 @@ private buildFilterPivot(pivCat: IMyPivCat) {
         let currentInfo : IFetchListInfo = this.buildFetchList('current');
         getAllItems( currentInfo.fetchList, this.addTheseItemsToState, this.setProgress, this.markComplete );
 
-
         let TargetSite = this.props.webURL && this.props.webURL.length > 0 ? this.props.webURL : '';
 
         let saveHistoryObject = {
@@ -689,7 +688,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle, PageURL,
             'Provision Patterns', TargetSite, null, //saveTitle, TargetSite, TargetList
             'Pages', 'Copied Pages', 'Complete' + ( hadErrors ? ' with some issues' : ' no issues!'), //itemInfo1, itemInfo2, result, 
-            saveHistoryStringified ); //richText
+            saveHistoryStringified, 'GetCurrentPatterns' ); //richText
 
     }
   

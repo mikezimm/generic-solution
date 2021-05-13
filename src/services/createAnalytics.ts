@@ -37,7 +37,7 @@ function getUrlVars() {
  * @param theProps 
  * @param theState 
  */
-export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, ActionJSON ) {
+export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, ActionJSON, Setting ) {
 
     //Do nothing if either of these strings is blank
     if (!analyticsList) { return ; }
@@ -170,6 +170,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
             'zzzNumber4': zzzNumber4,
             'zzzNumber5': zzzNumber5,
             'getParams': getUrlVars().join(' & '),
+            'Setting': Setting,
 
         }).then((response) => {
         //Reload the page
@@ -208,6 +209,7 @@ export interface IRailAnalytics {
     'zzzNumber4': number;       // Group ID
     'zzzNumber5': number;       // Either RoleID for item or Parent Group ID
     'getParams': string;        // 
+    'Setting': string;          // This would be the rail function called
 }
 
 export async function fetchAnalytics( analyticsWeb: string, analyticsList: string, siteGuid: string ) {
@@ -222,7 +224,7 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
         'zzzNumber1', 'zzzNumber2', 'zzzNumber3', 'zzzNumber4', 'zzzNumber5',
         'zzzText1', 'zzzText2', 'zzzText3', 'zzzText4', 'zzzText5', 'zzzText6', 'zzzText7',
         'PageLink', 'SiteLink', 'SiteTitle', 'TargetSite', 'Result',
-        'TargetList', 'ListTitle',
+        'TargetList', 'ListTitle', 'Setting',
     ];
 
     let expColumns : any = getExpandColumns(allColumns);

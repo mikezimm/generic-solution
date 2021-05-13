@@ -189,7 +189,7 @@ public constructor(props:IProvisionPagesProps){
         '', '',//serverRelativeUrl, webTitle, PageURL,
         'Provision Pages', TargetSite, null, //saveTitle, TargetSite, TargetList
         'Pages', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
-        '' ); //richText
+        '', 'ProvisionPage' ); //richText
 
     this.state = { 
 
