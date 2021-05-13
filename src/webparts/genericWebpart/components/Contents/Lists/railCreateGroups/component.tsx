@@ -205,7 +205,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
         // let startTime = getTheCurrentTime();
         let startTime = new Date();
-        let refreshId = startTime.toISOString().replace('T', ' T') + ' ~ ' + startTime.toLocaleTimeString();
+        let refreshId = startTime.toISOString().replace('T', ' T'); // + ' ~ ' + startTime.toLocaleTimeString();
 
         this.state = {
             disableDo: false,
@@ -376,7 +376,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                         <div><div style={{ fontSize: 'x-large', fontWeight: 600, background: 'lightgray', padding: '5px 15px', marginTop: '15px', borderRadius: '5px' }}>
                              { group.key.split('~')[0] } 
                              <span style={{ paddingLeft: '10px', fontSize: 'small' }}> { 
-                                group.key.split('~')[1]
+                                group.localTime
                                 // new Date( group.key.split('~')[0] ).toLocaleString() //This does not work... gives "Invalid Date"
                               } </span>
                         </div>
@@ -408,7 +408,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                         </div> }
 
                         { this.makeGroupName( 'Parent Group Roles - FCx', this.state.parentGroupPerms , this._updateParentGroups.bind(this) , false , '0px 0px ' + groupBottomPadding + '0px' )}
-                        
+
                         { <div style={{display: this.state.parentGroupValid === true ? 'none' : null, width: panelWidth }}>
                             <MessageBar messageBarType={MessageBarType.severeWarning}>
                                 You need 3 characters made up of F-C-R-x
@@ -570,10 +570,11 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         // let info = step.current.error !== '' ? step.current.error : step.current.info; 
         let key = step.Result;
         let color = StatusColors[ key ];
+        let itemPadding = step.zzzText4 ? '7px 0px 3px 0px' : '0px';
 
         return <tr  title={ step.Result + ' ' + step.Title }>
             <td>{ step.zzzText7 } </td>
-            <td style={{ textAlign: 'center' }} ><div style={{ fontSize: 'larger', margin: '5px 0px' }}><Icon iconName= { StatusIcons[ key ]} style={{ color: color }}></Icon></div></td>
+            <td style={{ textAlign: 'center' }} ><div style={{ fontSize: 'larger', margin: itemPadding }}><Icon iconName= { StatusIcons[ key ]} style={{ color: color }}></Icon></div></td>
             <td>{ step.Title } 
                 <span style={{fontWeight: 700 }}>{ ( step.zzzText3 ? ' - ' + step.zzzText3 : '' ) } </span>
                 {  step.zzzText4 ? <div style={{color: 'red', fontSize: 'x-small', paddingBottom: '7px' }}>{ ( step.zzzText4 ? ' ' + step.zzzText4 : '' ) } </div> : null  }

@@ -71,7 +71,8 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
         // currentStep.current.order,
         // currentStep.value3, 
         // currentStep.value4, 
-        // this.state.makeid, 
+        // this.state.makeid,
+        // error message
 
         zzzText3 = infos2[0];
 
@@ -82,8 +83,8 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
         zzzText1 = infos2[4] ? infos2[4] : null ; //makeId
 
-        zzzText4 = infos2[5];
-        
+        zzzText4 = infos2[5] ? infos2[5] : null;
+
         let tempSite = TargetSite.split('|');
         TargetSite = tempSite[0];
         siteGuid = tempSite[1] ? tempSite[1] : null;
@@ -252,6 +253,7 @@ export interface IArraySummaryGroup {
     key: string;
     items: IRailAnalytics[];
     groupFilter: any;
+    localTime: string;
 }
 
 export interface IArraySummary {
@@ -282,7 +284,11 @@ export function groupArrayItemsByField( items: IRailAnalytics[], keys: string[],
         if ( keyIndex < 0 ) {
             summary.keys.push( thisKey );
             keyIndex = summary.keys.length -1 ;
-            summary.groups.push( { key: thisKey, items: [], groupFilter: null } ) ;
+
+            let thisKeyBasic = thisKey.split('~');
+            let localTime : any = new Date(thisKeyBasic[0].replace(' ','').trim());
+            localTime = localTime.toLocaleString();
+            summary.groups.push( { key: thisKey, items: [], groupFilter: null, localTime: localTime } ) ;
 
             //Set the groupFilter which is intended to be an easy way to filter this group... 
             //For instance, the All items are pre-filtered by the site the item pertains to.
