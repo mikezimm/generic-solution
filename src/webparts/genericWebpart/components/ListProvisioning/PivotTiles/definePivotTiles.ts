@@ -3,14 +3,9 @@ import { PivotTilesFields } from './columnsPivotTiles'; //Import column arrays (
 
 import { pivotViews} from './viewsPivotTiles';  //Import view arrays for Project list
 
-import { IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
-
 import { IMakeThisList, provisionTheList,  } from '../component/provisionWebPartList';
 
 export type IValidTemplate = 100 | 101;
-
-import { cleanURL, camelize, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
-
 import { IDefinedLists } from '../component/provisionListComponent';
 
 import { defineTheListMaster } from '../component/provisionWebPartList';

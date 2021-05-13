@@ -14,23 +14,19 @@ import { IWebAddResult, IWebInfo, IWeb, } from "@pnp/sp/webs/types";
 
 import "@pnp/sp/webs";
 
+import { WebPartContext } from "@microsoft/sp-webpart-base";  //  wpContext: WebPartContext;
+
 import { IValidTemplate, allAvailableGroups } from './groupsFunctions';
-import {  } from './groupsFunctions';
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
-
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
-
-import { ITheTime } from '@mikezimm/npmfunctions/dist/dateServices';
+import { ITheTime } from '@mikezimm/npmfunctions/dist/Services/Time/Interfaces';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
-import { IGenericWebpartState } from '../../IGenericWebpartState';
-
-import {  } from '../contentsComponent';
 
 import styles from '../contents.module.scss';
 
-import { IPickedWebBasic, IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedWebBasic } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -44,16 +40,15 @@ import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
-import { IMyPivots, IPivot, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IMyPivots, IPivot, IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogGroup from './groupsListView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
-
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},
@@ -97,6 +92,7 @@ export interface IContentsGroupInfo extends Partial<ISiteGroupInfo>{
 export interface IInspectGroupsProps {
     // 0 - Context
     
+    wpContext: WebPartContext;
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
@@ -323,7 +319,9 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
                         items={ bucket }    specialAlt= { this.state.specialAlt }
                         searchMeta= { this.state.searchMeta } showDesc = { this.state.showDesc } showRailsOff= { this.state.showDesc } 
                         webURL = { this.props.pickedWeb.url } descending={false} titles={null}
-                        ></MyLogGroup>;
+                        wpContext = { this.props.wpContext }
+                        currentUser = { this.props.currentUser }
+                    ></MyLogGroup>;
                 })
 
             }

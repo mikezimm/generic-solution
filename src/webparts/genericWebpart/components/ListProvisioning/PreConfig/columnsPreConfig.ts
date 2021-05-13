@@ -7,15 +7,15 @@ import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField ,
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField ,
-    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '@mikezimm/npmfunctions/dist/columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 
 import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
-    cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity,  cSLook, cComputed,  } from '@mikezimm/npmfunctions/dist/columnTypes';
+    cMText, cText, cNumb, cURL, cUser, cMUser, MyFieldDef, minInfinity, maxInfinity,  cSLook, cComputed,  } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 
 //import { statusChoices, defStatus }  from '../../webparts/genericWebpart/components/GenericWebpart';
 
 //Imported but not used so that intellisense can prevent duplicate named columns.
-import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/columnsOOTB';
+import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
 /***
  *     .d8b.  d8888b. d8888b.       d888b  d8888b.  .d88b.  db    db d8888b.      d8b   db  .d8b.  .88b  d88. d88888b
@@ -84,6 +84,7 @@ export function createMultiLineField( name: string ) {
     let field : IMultiLineTextField = {
         fieldType: cMText,
         name: name,
+        title: name,
         //title: string,
         numberOfLines: 6,
         richText: false,
@@ -100,6 +101,53 @@ export function createMultiLineField( name: string ) {
     return field;
 
 }
+
+export function createTextField( name: string ) {
+
+    let field : IMultiLineTextField = {
+        fieldType: cText,
+        name: name,
+        title: name,
+        //title: string,
+        onCreateProps: {
+            Group: thisColumnGroup,
+            Description: thisColumnDesc,
+    //        Hidden: true,
+        }
+    };
+    
+    return field;
+}
+
+export function createNumberField( name: string ) {
+    let field  : INumberField = {
+        fieldType: cNumb,
+        name: name,
+        title: name,
+        minValue: 0,
+        maxValue: 1000000,
+        onCreateProps: {
+            Group: thisColumnGroup,
+            Description: thisColumnDesc,
+        }
+    };
+    return field;
+}
+
+
+export function createBooleanField( name: string ) {
+    let field  : IBooleanField = {
+        fieldType: cBool,
+        name: name,
+        title: name,
+        onCreateProps: {
+            Group: thisColumnGroup,
+            Description: thisColumnDesc,
+        }
+    };
+    return field;
+}
+
 export const ConversationIndexHarm : ITextField = {
     fieldType: cText,
     name: 'Conversation%5Fx002d%5FIndex',
@@ -168,7 +216,7 @@ export function ScenarioChoice ( theseChoices: string[] ) {
  *
  */
 
-let templatesDrillDown = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Infoiis","Standards","Policies","Other"];
+let templatesDrillDown = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Turnover","Standards","Policies","Other"];
 export const mapDrillDownProps: string[] = [
     'parentListWeb','parentListTitle',
     'refiner0','refiner1','refiner2',
@@ -183,37 +231,122 @@ export const mapDrillDownProps: string[] = [
     'fetchCount', 'fetchCountMobile', 'restFilter', 'quickCommands', 'includeListLink',
 ];
 
+
+let templatesCarrotCharts = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Turnover","Standards","Policies","Other"];
+export const mapCarrotChartsProps: string[] = [
+    'parentListWeb','parentListTitle', //Common
+
+    'fetchCount', 'fetchCountMobile', 'restFilter','minDataDownload', //Common
+    'enableSearch',//Common '','','','','','','',  
+
+    'showEarlyAccess',//Common '','','','','','','', //Common
+
+    'valueColumn','valueType','valueOperator',//Common '','','','', //Common between Grid & Carrot
+    'dropDownColumns','searchColumns','metaColumns',//Common '','','','','', //Common between Grid & Carrot
+
+    'carrotCats', 'carrotProps', 'carrotStyles', //Specific to GridCharts
+
+    //Common '','','','','','','', //Specific to CarrotCharts
+
+];
+
+let templateGridCharts = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Turnover","Standards","Policies","Other"];
+export const mapGridChartsProps: string[] = [
+    'parentListWeb','parentListTitle', //Common
+
+    'fetchCount', 'fetchCountMobile', 'restFilter','minDataDownload', //Common
+    'enableSearch',//Common '','','','','','','', //Common 
+
+    'showEarlyAccess',//Common '','','','','','','', //Common
+
+    'valueColumn','valueType','valueOperator',//Common '','','','', //Common between Grid & Carrot
+    'dropDownColumns','searchColumns','metaColumns',//Common '','','','','', //Common between Grid & Carrot
+
+    'dateColumn', //Specific to GridCharts
+
+    'cellColor','yearStyles','monthStyles','dayStyles','cellStyles',//Common '','', //Specific to GridCharts
+    'cellhoverInfoColor','scaleMethod',//Common '','','','','', //Specific to CarrotCharts
+    'squareCustom','squareColor','emptyColor','backGroundColor',//Common '','','', //Specific to CarrotCharts
+
+];
+
+
 /**
  * This just creates an array of fields for the build/test sequence
  * Each list would have an array of field objects like this.
  */
 
-export function PreConfiguredListTemplates(listName: 'Drilldown' | 'Drilldown') {
+export function PreConfiguredListTemplates(listName: 'Drilldown' | 'CarrotCharts' | 'GridCharts') {
     //return null;
     let theseFields: IMyFieldTypes[] = [];
     if ( listName === 'Drilldown' ) {
-        theseFields = PreConfiguredFields(mapDrillDownProps, templatesDrillDown);
-    } else if ( listName === 'Drilldown' ) {
+        theseFields = PreConfiguredFields(listName, mapDrillDownProps, templatesDrillDown);
+
+    } else if ( listName === 'CarrotCharts' ) {
+        theseFields = PreConfiguredFields(listName, mapCarrotChartsProps, templatesCarrotCharts);
+
+    } else if ( listName === 'GridCharts' ) {
+        theseFields = PreConfiguredFields(listName, mapGridChartsProps, templateGridCharts);
 
     } else {
 
     }
 
-    console.log('Drilldown', theseFields);
+    console.log(listName, theseFields);
     return theseFields;
 }
 
 
-function PreConfiguredFields(mapTheseProps: string[], theseChoices: string[] ) {
+function PreConfiguredFields(listName, mapTheseProps: string[], theseChoices: string[] ) {
 
     let theseFields: IMyFieldTypes[] = [];
     theseFields.push(  TemplateChoice( theseChoices ) );
-    theseFields.push(  ScenarioChoice( ['DEV','TEAM','CORP'] ) );
-    
-    mapTheseProps.map( p => {
-        theseFields.push(  createMultiLineField( p ) );
-    });
-    
+    theseFields.push(  ScenarioChoice( ['Dev','Team','Corp'] ) );
+    if ( listName === 'Drilldown' ) {
+        mapTheseProps.map( p => {
+            theseFields.push(  createMultiLineField( p ) );
+        });
+
+    } else if ( listName === 'CarrotCharts' ) {
+        let mTextFields = ['carrotProps', 'carrotStyles' ];
+        let textFields = ['parentListWeb','parentListTitle',
+            'restFilter',
+            'dateColumn',
+            'valueColumn','valueType','valueOperator',//Common '','','', //Common between Grid & Carrot
+            'dropDownColumns','searchColumns','metaColumns',//Common '','','','','', //Common between Grid & Carrot
+            'carrotCats',
+        ];
+
+        let numberFields = ['fetchCount','fetchCountMobile',];
+        let booleanFields = ['minDataDownload','enableSearch','showEarlyAccess',];
+
+        textFields.map( p => { if ( p !== '') { theseFields.push(  createTextField( p ) ); } });
+        mTextFields.map( p => { if ( p !== '') { theseFields.push(   createMultiLineField( p ) ); }  }) ;
+        numberFields.map( p => { if ( p !== '') { theseFields.push(  createNumberField( p ) ); }  }) ;
+        booleanFields.map( p => { if ( p !== '') { theseFields.push(  createBooleanField( p ) ); }  }) ;
+
+    } else if ( listName === 'GridCharts' ) {
+        let mTextFields = ['', '' ];
+        let textFields = ['parentListWeb','parentListTitle',
+            'restFilter',
+            'dateColumn',
+            'valueColumn','valueType','valueOperator',//Common '','','', //Common between Grid & Carrot
+            'dropDownColumns','searchColumns','metaColumns',//Common '','','','','', //Common between Grid & Carrot
+            'monthGap','cellColor','yearStyles','monthStyles','dayStyles','cellStyles','cellhoverInfoColor','otherStyles',
+            'squareCustom','squareColor','emptyColor','backGroundColor',
+            'scaleMethod',
+        ];
+
+        let numberFields = ['fetchCount','fetchCountMobile',];
+        let booleanFields = ['minDataDownload','enableSearch','showEarlyAccess',];
+
+        textFields.map( p => { if ( p !== '') { theseFields.push(  createTextField( p ) ); } });
+        //mTextFields.map( p => { if ( p !== '') { theseFields.push(   createMultiLineField( p ) ); }  }) ;
+        numberFields.map( p => { if ( p !== '') { theseFields.push(  createNumberField( p ) ); }  }) ;
+        booleanFields.map( p => { if ( p !== '') { theseFields.push(  createBooleanField( p ) ); }  }) ;
+    }
+
+
     return theseFields;
 
 }

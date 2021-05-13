@@ -7,27 +7,13 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText, IClientsidePage, ClientsidePageFromFile  } from "@pnp/sp/clientside-pages";
 
-import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
+import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
 
-import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/columnTypes'; //Import view arrays for Time list
+import { getHelpfullError,  } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler'; //Import view arrays for Time list
 
-import { IMyView,  } from '@mikezimm/npmfunctions/dist/viewTypes'; //Import view arrays for Time list
+import * as strings from 'GenericWebpartWebPartStrings';
 
-import { getHelpfullError,  } from '@mikezimm/npmfunctions/dist/ErrorHandler'; //Import view arrays for Time list
-
-import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
-
-import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
-
-import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
-
-import { IAnyArray } from  '../../../../../services/listServices/listServices';
-
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
-
-import { createDrilldownDemoWebParts, IWebPartDef } from './provisionPageFunctions';
-
-import { notify } from '@mikezimm/npmfunctions/dist/listTypes';
+import { notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { IPatternItemInfo } from  './GetPatternPages';
 
@@ -49,7 +35,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
 
     // use the web factory to target a specific web  https://autoliv.sharepoint.com/sites/webpartdev/SitePages/Home(1).aspx
     try {
-        const page2 = await Web("https://autoliv.sharepoint.com/sites/Patterns/").loadClientsidePage("/sites/Patterns/SitePages/" + sourcePageName + ".aspx");
+        const page2 = await Web( window.location.origin + strings.patternsWeb ).loadClientsidePage( strings.patternsWeb + "SitePages/" + sourcePageName + ".aspx");
             //    let page2X = JSON.stringify(page2);
     //    let page2Y = JSON.parse(page2X);
 
@@ -67,7 +53,7 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
 
         } catch (e){
             console.log( 'Failed pasting page ' + sourcePageName  );
-            let errMessage = getHelpfullError(e, true, true);
+            let errMessage = getHelpfullError(e, false, true);
             if (errMessage.indexOf('missing a column') > -1) {
                 statusLog = notify(statusLog, 'Checked Field', 'err', 'step', 'f', null);
             }

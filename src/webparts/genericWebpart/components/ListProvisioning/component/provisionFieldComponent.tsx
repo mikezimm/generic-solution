@@ -34,11 +34,15 @@ import { PageContext } from '@microsoft/sp-page-context';
  *                                                                                                                                                                              
  */
 
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
-import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL } from '@mikezimm/npmfunctions/dist/stringServices';
+import { cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
+import { camelize } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
 
 
 /***
@@ -119,7 +123,7 @@ import * as dTMT from '../ListsTMT/defineThisList';
 import * as dCust from '../ListsCustReq/defineCustReq';
 import * as dPCP from '../PreConfig/definePreConfig';
 
-import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 //import * as dFinT from '../ListsFinTasks/defineFinTasks';
 //import * as dReps from '../ListsReports/defineReports';
 //import * as dTurn from '../ListsTurnover/defineTurnover';
@@ -249,7 +253,7 @@ export default class ProvisionFields extends React.Component<IProvisionFieldsPro
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON ); //richText
+            ActionJSON, 'ProvisionField' ); //richText
 
     }
 

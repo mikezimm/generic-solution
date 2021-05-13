@@ -1,12 +1,12 @@
 import { sp } from '@pnp/sp';
 import { Web, } from '@pnp/sp/presets/all';
 
-import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/ErrorHandler';
-import { makeid } from  '@mikezimm/npmfunctions/dist/stringServices';
+import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { makeid } from  '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 
 import { arraysEqual } from 'office-ui-fabric-react';
 
-import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/listTypes';
+import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { IListLog } from './listServices/listServices';
 

@@ -28,18 +28,25 @@ import "@pnp/sp/site-users/web";
  *                                                                                                                                                                              
  */
 
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist, sortKeysByOtherKey } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
-import { makeTheTimeObject,  } from '@mikezimm/npmfunctions/dist/dateServices';
+import { makeTheTimeObject,  } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyProgress, IMyIcons, IMyFonts, IChartSeries, 
-    ICharNote, IRefinerRules, RefineRuleValues, ICustViewDef, IRefinerStat, ICSSChartTypes, QuickCommandsTMT, IZBasicItemInfo } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedWebBasic, IPickedList, IZBasicItemInfo,}  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { IMyPivCat, IMyPivots,IPivot, ILink } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
+import { IMyIcons, IMyFonts, IMyProgress } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IChartSeries, ICharNote, } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCharts';
+import { ICSSChartTypes } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCharts';
+import { RefineRuleValues, IRefinerRules, IRefinerStatType, IRefinerStat } from '@mikezimm/npmfunctions/dist/Refiners/IRefiners';
+import { ICustViewDef, } from '@mikezimm/npmfunctions/dist/Views/IDrillViews';
+import { QuickCommandsTMT, } from '@mikezimm/npmfunctions/dist/QuickCommands/IQuickCommands';
 
-import { ensureUserInfo } from '@mikezimm/npmfunctions/dist/userServices';
+import { ensureUserInfo } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 
-import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/getFunctions';
+import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
 
 
 /***
@@ -134,7 +141,7 @@ export async function getAllItems( sitePages: ISitePagesList, addTheseItemsToSta
     try {
         sourceUserInfo = await ensureUserInfo( sitePages.webURL, sitePages.contextUserInfo.email );
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+        errMessage = getHelpfullError(e, false, true);
     }
 
 
@@ -162,8 +169,9 @@ export async function getAllItems( sitePages: ISitePagesList, addTheseItemsToSta
             allItems = await thisListObject.items.select(selectCols).expand(expandThese).orderBy('ID',false).top(fetchCount).get();
         }
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
-
+        if ( e.message.indexOf( '[404]') > -1 ) {
+            errMessage = getHelpfullError(e, false, true);
+        } else { errMessage = getHelpfullError(e, true, true); }
     }
 
     /**

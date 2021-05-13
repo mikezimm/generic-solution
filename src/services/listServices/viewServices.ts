@@ -4,21 +4,19 @@ import { sp, Views, IViews } from "@pnp/sp/presets/all";
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField , 
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField , 
-    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '@mikezimm/npmfunctions/dist/columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField, IURLField } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 
 import { MyFieldDef, changes, cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook, 
-	cMText, cText, cNumb, cURL, cUser, cMUser, minInfinity, maxInfinity } from '@mikezimm/npmfunctions/dist/columnTypes';
+	cMText, cText, cNumb, cURL, cUser, cMUser, minInfinity, maxInfinity } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 
-import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, MyOperator, BeginsWith } from '@mikezimm/npmfunctions/dist/viewTypes';
+import { IMyView, IViewField, Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, MyOperator, BeginsWith } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
 
-import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IListInfo, IMyListInfo, IServiceLog, notify,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
-import { IListInfo, IMyListInfo, IServiceLog, notify,  } from '@mikezimm/npmfunctions/dist/listTypes';
-
-import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { getXMLObjectFromString } from '../XMLServices';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";

@@ -13,39 +13,26 @@ import "@pnp/sp/webs";
 
 import { IValidTemplate, allAvailableViews } from './viewsFunctions';
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
-
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
-
-import { IGenericWebpartProps } from '../../IGenericWebpartProps';
-import { IGenericWebpartState } from '../../IGenericWebpartState';
-
-import {  } from '../contentsComponent';
-
 import styles from '../contents.module.scss';
-
-import { IPickedList, IMyProgress, IUser } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
-
-import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
-
-import ButtonCompound from '../../createButtons/ICreateButtons';
-import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
-
-import { createAdvancedContentChoices } from '../../fields/choiceFieldBuilder';
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
-import { IMyPivots, IPivot, IPickedWebBasic, IMyPivCat  } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IMyPivots, IPivot, IMyPivCat  } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
+
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogView from './viewsListView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 

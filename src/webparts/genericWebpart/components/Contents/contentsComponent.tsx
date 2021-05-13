@@ -9,13 +9,19 @@ import { IStyleSet } from 'office-ui-fabric-react/lib/Styling';
 
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
+import { WebPartContext } from '@microsoft/sp-webpart-base';
+
 import { PageContext } from '@microsoft/sp-page-context';
 
 import styles from './contents.module.scss';
 
 import { escape } from '@microsoft/sp-lodash-subset';
 
-import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { IMyPivCat, IMyPivots,IPivot, ILink } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
+import { IMyIcons, IMyFonts } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IChartSeries, ICharNote, } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCharts';
 
 import InfoPage from '../HelpInfo/infoPages';
 
@@ -39,13 +45,9 @@ import InspectThisSite from './ThisSite/thisSiteComponent';
 
 import { Web } from "@pnp/sp/presets/all";
 
-//import { analyticsList } from 'InspectContentsWebPartStrings';
-
-import { cleanURL, camelize } from '@mikezimm/npmfunctions/dist/stringServices';
-
 import { pivotOptionsGroup, } from '../../../../services/propPane';
  
-import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../services/createAnalytics';
 
@@ -58,6 +60,7 @@ export interface IInspectContentsProps {
     parentProps?: IGenericWebpartProps;
     parentState?: IGenericWebpartState;
 
+    wpContext: WebPartContext;
     pageContext: PageContext;
 
       // 1 - Analytics options
@@ -138,7 +141,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
         'EasyContents', pickedWeb, null, //saveTitle, TargetSite, TargetList
         'Contents', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
-        '' ); //richText
+        '','Contents' ); //richText
 
     let railsMode = this.props.allowRailsOff && this.props.showRailsOff ? true : false ;
     this.state = {
@@ -239,6 +242,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
         const listPage = validWeb !== true || this.state.tab !== 'Lists' ? null : <div>
             <InspectLists 
+                wpContext={  this.props.wpContext }
                 pageContext = { this.props.pageContext }
                 currentUser = { this.props.currentUser }
                 allowOtherSites = { true }
@@ -249,6 +253,8 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allowSettings = { this.state.allowSettings }
                 allowCrazyLink = { this.props.allowCrazyLink }
                 pickedWeb = { this.props.pickedWeb }
+                analyticsWeb= { this.props.analyticsWeb }
+                analyticsList= { this.props.analyticsList }
             ></InspectLists>
         </div>;
 
@@ -297,6 +303,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
         const groupsPage = validWeb !== true ? null : <div>
             <InspectGroups
+                wpContext={  this.props.wpContext }
                 allowOtherSites={ false }
                 pageContext={ this.props.pageContext }
                 pickedWeb = { this.props.pickedWeb }

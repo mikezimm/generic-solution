@@ -8,9 +8,9 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText, IClientsidePage } from "@pnp/sp/clientside-pages";
 
-import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL, makeid, randomizeCase, isGuid } from '@mikezimm/npmfunctions/dist/stringServices';
+import { isGuid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 
-import { getMaxPropOfKeyInObjectArray } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { getMaxPropOfKeyInObjectArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/services';
 
 export interface IWebPartDef {
 

@@ -23,7 +23,7 @@ import * as links from '../../webparts/genericWebpart/components/HelpInfo/AllLin
 
 import { IGenericWebpartWebPartProps } from '../../webparts/genericWebpart/GenericWebpartWebPart';
 
-import { fpsLogo326 } from '@mikezimm/npmfunctions/dist/Icons';
+import { fpsLogo326 } from '@mikezimm/npmfunctions/dist/SVGIcons/fpsLogo326';
 
 export class IntroPage {
   public getPropertyPanePage(webPartProps: IGenericWebpartWebPartProps, _onClickUpdateTitles ): IPropertyPanePage {

@@ -11,16 +11,17 @@ import { IItemAddResult } from "@pnp/sp/items";
 
 import { IMyFieldTypes, IBaseField , ITextField , IMultiLineTextField , INumberField , IXMLField ,
     IBooleanField , ICalculatedField , IDateTimeField , ICurrencyField , IUserField , ILookupField , IChoiceField ,
-    IMultiChoiceField , IDepLookupField , ILocationField } from '@mikezimm/npmfunctions/dist/columnTypes';
+    IMultiChoiceField , IDepLookupField , ILocationField } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 
 import { MyFieldDef, changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
-    cMText, cText, cNumb, cURL, cUser, cMUser } from '@mikezimm/npmfunctions/dist/columnTypes';
+    cMText, cText, cNumb, cURL, cUser, cMUser } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 
-import { doesObjectExistInArray, compareArrays, ICompareResult, stringifyKeyValue } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { doesObjectExistInArray, compareArrays, ICompareResult } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import { stringifyKeyValue } from '@mikezimm/npmfunctions/dist/Services/Arrays/services';
 
-import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/listTypes';
+import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";

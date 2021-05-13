@@ -1,6 +1,8 @@
 
 import * as React from 'react';
 
+import { WebPartContext } from "@microsoft/sp-webpart-base";  //  wpContext: WebPartContext;
+
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
 import { convertTextToListItems } from '../../../../../services/basicElements';
@@ -10,10 +12,26 @@ import { IContentsGroupInfo, IGroupBucketInfo} from './groupsComponent';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
+import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize} from 'office-ui-fabric-react/lib/Pivot';
+import { Panel } from 'office-ui-fabric-react/lib/Panel';
+import { PersonaSize} from 'office-ui-fabric-react/lib/Persona';
+
+
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
+
+/** Remove these when not using groups vvvvvv */
+import MyGroups from '../MyGroups/MyGroups';
+import { buildGroupProps, createStateGroupsPanel, } from '../MyGroups/GroupFunctions';
+import { IMyGroupsProps, IGroupsProps } from '../MyGroups/IMyGroupsProps';
+import { IPermissionsPanel } from '../Permissions/IMyPermissionsState';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+/** Remove these when not using groups ^^^^^ */
+
+import * as fpsAppIcons from '@mikezimm/npmfunctions/dist/Icons/standardEasyContents';
+import { doesObjectExistInArrayInt } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
 export interface IMyLogGroupProps {
     //title: string;
@@ -35,10 +53,16 @@ export interface IMyLogGroupProps {
 
     specialAlt: boolean;
 
+    wpContext: WebPartContext;
+    currentUser: IUser;
+
 }
 
 export interface IMyLogGroupState {
   maxChars?: number;
+  
+  panel: IPermissionsPanel;
+  showPanel: boolean;
 }
 
 const stackFormRowTokens: IStackTokens = { childrenGap: 10 };
@@ -62,6 +86,8 @@ const iconClassInfo = mergeStyles({
 
 export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLogGroupState> {
 
+  private groupTitlePrefix = "groupTitle-";
+  private groupIdPrefix = "groupId-";
 
     /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -78,6 +104,8 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
         super(props);
         this.state = {
           maxChars: this.props.maxChars ? this.props.maxChars : 50,
+          panel: createStateGroupsPanel( [''], false ),
+          showPanel: false,
         };
     }
         
@@ -139,7 +167,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
 
         if ( this.props.railsOff ) { columnsToVisible = styles.hideMe ; }
 
-        let itemRows = logItems.length === 0 ? null : logItems.map( Grp => { 
+        let itemRows = logItems.length === 0 ? null : logItems.map( ( Grp, index ) => { 
 
           let defButtonStyles = {
             root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
@@ -166,19 +194,27 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
           //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
           let detailsCard = buildPropsHoverCard(Grp, ["Title","Description","Id","odata.type", "typeString"], ["meta","searchString"] , true, null );
 
+          const CreateGroupsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='GetUsers' data-groupTitle={ Grp.Title } onClick={ this.openGroupPanel.bind(this) }> { fpsAppIcons.CreateGroups } </div>;
+
+          let userCount = <div style={{ display: 'inline-block'}}>
+            <div>{ Grp.userCount }</div>
+            { CreateGroupsIcon }
+          </div>;
+
             //columnsToVisible
             return <tr>
                 <td className={ '' }> { '' }</td> 
+                <td className={ '' }> { Grp.Id }</td> 
                 <td className={ styleTitle }> {  groupTitle }</td>
 
                 <td className= { styleAdvanced }> { groupLink }</td>
-                <td className={ '' }> { Grp.Id }</td> 
 
+                <td className={ '' }> { Grp.OwnerTitle }</td> 
                 <td className={ styleDesc }> { Grp.Description != null ? Grp.Description.slice(0,this.state.maxChars) + '...' : Grp.Description } </td>
 
                 <td className={ styleSpecial }> { /*this.getWebSpecialValue( F ) */ '' } </td>
                 <td className= { styleRailsOff }>Rails Off Content</td>
-                <td className= { styleUsers }> {Grp.userCount } </td>
+                <td className= { '' }> { userCount } </td>
                 <td className= { styleUsers }> { userString } </td>
                 
                 <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
@@ -187,6 +223,54 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
 
         });
 
+        
+        let myGroupsPanel = null;
+        let myGroups = null;
+
+        if ( this.state.showPanel == true ) {
+            let userId = this.props.wpContext.pageContext.legacyPageContext.userId;
+
+            /** set myGroups null when not using groups vvvvvv */
+            myGroups = <MyGroups
+              groupsShowAdmins= { true }
+              groupsShowGuests= { true }
+              isSiteAdmin={ this.props.currentUser.isSiteAdmin }
+              minAdminGuestIcons = { true }
+              userId= { userId }
+              personaSize={ PersonaSize.size16 }
+              title={ 'showGroupTitle'}
+              width= { 425}
+              maxWidth={ 425 }
+              setPivSize = { PivotLinkSize.normal }
+              setPivFormat = { PivotLinkFormat.tabs }
+              groups={ this.state.panel.groups } //["PivotTiles Owners", "PivotTiles Members", "PivotTiles Visitors"]
+              groupsProps={ this.state.panel.groupsProps } //["PivotTiles Owners", "PivotTiles Members", "PivotTiles Visitors"]
+              webURL={ this.props.wpContext.pageContext.web.absoluteUrl }
+              context={ this.props.wpContext }
+              searchFirstName={ true }
+              displayMode={ 0 }
+              updateProperty={
+                (value: string) => {
+                  // this.properties.title = value; //This is for updating Title Props from webpart
+              }
+              }
+              searchProps={ 'Mike' }
+              clearTextSearchProps={ ''}
+              pageSize={ 5 }
+            ></MyGroups>;
+        }
+
+        myGroupsPanel = <div><Panel
+              isOpen={ this.state.showPanel }
+              // this prop makes the panel non-modal
+              isBlocking={true}
+              onDismiss={ this._closePanel.bind(this) }
+              closeButtonAriaLabel="Close"
+              type = { this.state.panel.type }
+              isLightDismiss = { true }
+            >
+            { myGroups }
+        </Panel></div>;
     
 /***
  *                   d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -202,9 +286,10 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
         let webTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
                 <th></th>
+                <th className={ '' }>Id</th>
                 <th className={ styleTitle }>Title</th>
                 <th className={ styleAdvanced }>Link to Group</th>
-                <th className={ '' }>Id</th>
+                <th className={ '' }>Owner</th>
                 <th className={ styleDesc }>Description</th>
 
                 { /* <th className={ columnsToVisible }>Group</th> */ }
@@ -212,7 +297,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
                 <th className={ styleSpecial }></th>
 
                 <th className= { styleRailsOff }>Rails Off Heading</th>
-                <th className= { styleUsers }>Users</th>
+                <th className= { '' }>Users</th>
                 <th className= { styleUsers }></th>
                 <th>Details</th>
 
@@ -236,15 +321,15 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
             
         return (
           <div className={ styles.logListView }>
-              <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
+            <div style={{ paddingTop: 10}} className={ stylesInfo.infoPaneTight }>
                 { webTitle }
                 { webTable }
             </div>
+            { myGroupsPanel }
           </div>
           );
 
     } else {
-
 
       // <div className={ styles.container }></div>
       return (
@@ -255,5 +340,34 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
         } 
 
     } 
+
+    
+  private openGroupPanel( e: any ) {
+    //This element syntax works when you have <span><strong>text</strong></span>
+    let testElement = e.nativeEvent.target;
+    // let id = '';
+    // if ( testElement.id.indexOf( this.groupTitlePrefix) === 0 ) {
+    //   id = testElement.id.replace( this.groupTitlePrefix ,'' );
+    // } else if ( testElement.parentElement.id.indexOf( this.groupTitlePrefix) === 0 ) {
+    //   id = testElement.parentElement.id.replace( this.groupTitlePrefix ,'' );
+    // }
+
+    const parentElement = testElement.parentElement;
+    // const rail = parentElement.getAttribute('data-railFunction');
+    const groupTitle = parentElement.getAttribute('data-groupTitle');
+    const listIndex = doesObjectExistInArrayInt( this.props.items.groups, 'Title', groupTitle, true );
+    // const listObject = listIndex > -1 ? this.props.items.groups[listIndex] : null;
+
+    let panel = createStateGroupsPanel( [groupTitle], true );
+
+    this.setState({
+      panel: panel,
+      showPanel: true,
+    });
+
+  }
+  private _closePanel ( )  {
+    this.setState({ showPanel: false,});
+  }
 
 }

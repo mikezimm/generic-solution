@@ -7,23 +7,23 @@ import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Piv
 import { sp } from "@pnp/sp";
 import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
+import { WebPartContext } from '@microsoft/sp-webpart-base';
+
 import "@pnp/sp/webs";
+
+import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 import { IValidTemplate, allAvailableLists } from './listsFunction';
 import {  } from './listsFunction';
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
-
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
-
-import { IGenericWebpartProps } from '../../IGenericWebpartProps';
-import { IGenericWebpartState } from '../../IGenericWebpartState';
-
-import {  } from '../contentsComponent';
+import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
 
 import styles from '../contents.module.scss';
 
-import { IPickedList, IMyProgress, IUser, IPickedWebBasic } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { doesObjectExistInArrayInt } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -37,16 +37,17 @@ import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 import { createLink } from '../../HelpInfo/AllLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
-import { IMyPivots, IPivot, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IMyPivots, IPivot, IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogList from './listView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
+import CreateListPermissions from './railCreateGroups/component';
 
 export const pivCats = {
     visible: {title: 'Visible', desc: '', order: 1},
@@ -64,9 +65,11 @@ export const pivCats = {
     libraries:  {title: 'Libraries' , desc: '', order: 1},
 };
 
+export type IListRailFunction = 'ListPermissions' | '';
+
 export interface IInspectListsProps {
     // 0 - Context
-    
+    wpContext: WebPartContext;
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
@@ -76,6 +79,8 @@ export interface IInspectListsProps {
     allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
 
     pickedWeb : IPickedWebBasic;
+    analyticsWeb: string;
+    analyticsList: string;
 
     allLoaded: boolean;
 
@@ -136,14 +141,25 @@ export interface IInspectListsState {
     allowSettings: boolean;  //property that determines if the related toggle is visible or not
     allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
 
-
     showDesc: boolean;      //property set by toggle to actually show or hide this content
     showSettings: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
 
     errMessage: string | JSX.Element;
 
-}
+    showPanel: boolean;
+    panel: IRailsOffPanel;
+    railFunction: IListRailFunction;
+    selectedIndex: any;
+    selectedEntity: IContentsListInfo;
+  }
+  
+  export interface IRailsOffPanel {
+    // groups: IMyGroupsProps;
+    type: PanelType;
+    width?: number;
+    content?: any;
+  }
 
 export default class InspectLists extends React.Component<IInspectListsProps, IInspectListsState> {
 
@@ -212,9 +228,12 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             errMessage: '',
 
+            showPanel: false,
+            panel: this.createStateRailsOffPanel( [''], false ),
+            railFunction: '',
+            selectedIndex: null,
+            selectedEntity: null,
 
-
-        
         };
 
     // because our event handler needs access to the component, bind 
@@ -287,6 +306,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         showDesc = { this.state.showDesc } 
                         webURL = { this.props.pickedWeb.url }
                         allowCrazyLink = { this.props.allowCrazyLink }
+                        _openRailsOffPanel= { this._openRailsOffPanel.bind(this)}
                         pickThisList = { this.props.pickThisList }  descending={false}  titles={null}>
 
                     </MyLogList>;
@@ -294,6 +314,29 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
                 }
                 </div>;
+
+            let railsPanel = null;
+                      
+            if ( this.state.showPanel === true ) {
+                if ( this.state.railFunction === 'ListPermissions' ) { }
+
+                railsPanel = 
+                    <CreateListPermissions 
+                        wpContext={  this.props.wpContext }
+                        railFunction={ this.state.railFunction }
+                        theList={ this.state.selectedEntity }
+                        currentPage= { this.props.pageContext.web.absoluteUrl }
+                        pickedWeb= { this.props.pickedWeb }
+                        user={ this.props.currentUser }
+                        showPanel={ this.state.showPanel }
+                        // this prop makes the panel non-modal
+                        _closePanel={ this._closePanel.bind(this) }
+                        type = { this.state.panel.type }
+                        analyticsWeb= { this.props.analyticsWeb }
+                        analyticsList= { this.props.analyticsList }
+                    ></CreateListPermissions>;
+
+            } 
 
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
             let searchBox =
@@ -341,7 +384,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             thisPage = <div className={styles.contents}><div><div>{ disclaimers }</div>
 
                 <div className={ this.state.errMessage === '' ? styles.hideMe : styles.showErrorMessage  }>{ this.state.errMessage } </div>
-
+                { railsPanel }
                 <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign= {"center"} tokens={stackPageTokens}>{/* Stack for Buttons and Fields */}
                      { searchBox } { toggles }
                 </Stack>
@@ -487,6 +530,52 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     });
 
   }
+
+
+
+  private createStateRailsOffPanel( groupNames: string[], visible: boolean ) {
+
+    let panel : IRailsOffPanel= {
+      type: PanelType.medium,
+      content: null,
+      // width: number,
+    };
+  
+    return panel;
+  
+  }
+  
+    private _openRailsOffPanel( e: any ) {
+        //This element syntax works when you have <span><strong>text</strong></span>
+        let testElement = e.nativeEvent.target;
+        const parentElement = testElement.parentElement;
+        const rail = parentElement.getAttribute('data-railFunction');
+        const listTitle = parentElement.getAttribute('data-listTitle');
+        const listIndex = doesObjectExistInArrayInt( this.state.allLists, 'Title', listTitle, true );
+        const listObject = listIndex > -1 ? this.state.allLists[listIndex] : null;
+
+        // if ( testElement.id.indexOf( this.groupTitlePrefix) === 0 ) {
+        //   id = testElement.id.replace( this.groupTitlePrefix ,'' );
+        // } else if ( testElement.parentElement.id.indexOf( this.groupTitlePrefix) === 0 ) {
+        //   id = testElement.parentElement.id.replace( this.groupTitlePrefix ,'' );
+        // }
+        let panel = this.createStateRailsOffPanel( [listIndex.toFixed()], false );
+
+        this.setState({
+            panel: panel,
+            showPanel: true,
+            selectedIndex: listIndex,
+            selectedEntity: listObject,
+            railFunction: rail,
+        });
+
+    }
+
+    private _closePanel ( )  {
+        this.setState({ showPanel: false,});
+        this._updateStateOnPropsChange();
+    }
+
 
 
 /***
@@ -699,7 +788,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
  *                                                                   
  *                                                                   
  */
-
+//            let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
     private getPageToggles() {
 
         let togDesc = {

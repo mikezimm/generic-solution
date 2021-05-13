@@ -31,21 +31,18 @@ import { mergeAriaAttributeValues } from "office-ui-fabric-react";
  *                                                                                                                                                                              
  */
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists,  } from '@mikezimm/npmfunctions/dist/listTypes'; //Import view arrays for Time list
+import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
 
-import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/columnTypes'; //Import view arrays for Time list
+import { makeSmallTimeObject,} from '@mikezimm/npmfunctions/dist/Services/Time/smallTimeObject';
 
-import { IMyView,  } from '@mikezimm/npmfunctions/dist/viewTypes'; //Import view arrays for Time list
+import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
-import { makeSmallTimeObject, ITheTime} from '@mikezimm/npmfunctions/dist/dateServices';
+import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
 
-import { doesObjectExistInArray, addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
-import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Constants';
-
-import { encodeDecodeString } from '@mikezimm/npmfunctions/dist/stringServices';
-
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -120,7 +117,7 @@ export async function allAvailableLists( webURL: string, listBuckets: IListBucke
 
     try {
         thisWebInstance = Web(webURL);
-        let allLists : IContentsListInfo[] = await thisWebInstance.lists.get();
+        let allLists : IContentsListInfo[] = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').get();
         //console.log(allLists);
 
         for (let i in allLists ) {

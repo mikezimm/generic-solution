@@ -1,8 +1,14 @@
 import { IFormFields, IProjectFormFields } from './fields/fieldDefinitions';
 
-import { ITheTime } from '@mikezimm/npmfunctions/dist/dateServices';
+import { ITheTime } from '@mikezimm/npmfunctions/dist/Services/Time/Interfaces';
 
-import { IUser, IPivot, IMyPivots, IMyIcons, IMyFonts, ILink, IChartSeries, ICharNote, IPickedWebBasic } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IChartSeries, ICharNote, } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCharts';
+
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyProgress } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { IMyPivots, ILink} from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
+
 
 import { ISelectedUser, } from './Charts/charts';
 
@@ -10,24 +16,6 @@ import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList
 
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
 import { IDefinedLists } from './ListProvisioning/component/provisionListComponent';
-
-
-
-
-export interface IMyProgress {
-
-  time: string;
-  logLabel: string;
-  label: string;
-  description: string;
-  percentComplete?: number;
-  progressHidden?: boolean;
-  icon?: string;
-  color?: string;
-  ref?: string;
-  refElement?: any;
-}
-
 
   export interface IUserSummary { 
     title: string; 

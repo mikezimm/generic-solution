@@ -1,0 +1,56 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+.personaContainer {
+
+  //https://blog.hubspot.com/website/css-fade-in
+  opacity: 1;
+  transition: all ease 1s;
+
+}
+
+.personaContainerSmall {
+  @extend .personaContainer;
+  display: contents;
+  margin-right: 15px;
+  background: gray;
+  border: 0px transparent solid;
+  :hover {
+    background: #ddd;
+    border: 0px transparent solid;
+  }
+}
+  .docCardRow {
+    border: none;
+  }
+
+.inlineFlexSpaceBetween {
+  display: inline-flex;
+  padding-top: 4px;
+  padding-bottom: 8px;
+  width: 400px;
+  justify-content: space-between;
+  opacity: 1;
+  :hover {
+    background: #ddd;
+    border: 0px transparent solid;
+  }
+}
+
+.persona {
+  padding-left: 15px;
+  padding-right: 15px;
+
+  border: 0px transparent solid;
+  padding-top: 0px;
+  padding-bottom: 0px
+}
+
+.textOverflow {
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+}

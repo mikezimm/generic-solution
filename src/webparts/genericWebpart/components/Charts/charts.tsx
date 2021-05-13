@@ -3,8 +3,8 @@
 import * as React from 'react';
 
 import { IGenericWebpartState, ISaveEntry, IChartData,} from '../IGenericWebpartState';
-  import { IUser, IPivot, IMyPivots, IMyIcons, IMyFonts, ILink, IChartSeries, ICharNote } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
 
+import {IChartSeries, ICharNote } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCharts';
 
 import { IGenericWebpartProps } from '../IGenericWebpartProps';
 

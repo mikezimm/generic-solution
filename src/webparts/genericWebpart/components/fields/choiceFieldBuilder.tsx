@@ -2,12 +2,6 @@
 
 import * as React from 'react';
 
-import {IGenericWebpartState, } from '../IGenericWebpartState';
-
-import { ILink, IUser, } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
-
-import { IGenericWebpartProps } from '../IGenericWebpartProps';
-
 import { ChoiceGroup, IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
 import styles from '../GenericWebpart.module.scss';

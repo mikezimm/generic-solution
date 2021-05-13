@@ -52,13 +52,20 @@ import { PageContext } from '@microsoft/sp-page-context';
  *                                                                                                                                                                              
  */
 
-import { IPickedList, IPickedWebBasic, IMyPivots, IPivot,  ILink, IUser, IMyIcons, IMyFonts, IChartSeries, ICharNote, IMyProgress, IMyPivCat } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/listTypes';
+import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
-import { cleanURL, camelize, getChoiceKey, getChoiceText, cleanSPListURL, makeid, randomizeCase, isGuid } from '@mikezimm/npmfunctions/dist/stringServices';
+
+import { cleanURL, cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { camelize, randomizeCase, } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
+import { isGuid, makeid, } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+import { IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
+import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -149,7 +156,7 @@ import * as dTMT from '../ListsTMT/defineThisList';
 import * as dCust from '../ListsCustReq/defineCustReq';
 import * as dPCP from '../PreConfig/definePreConfig';
 
-import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/arrayServices';
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 //import * as dFinT from '../ListsFinTasks/defineFinTasks';
 //import * as dReps from '../ListsReports/defineReports';
 //import * as dTurn from '../ListsTurnover/defineTurnover';
@@ -285,7 +292,7 @@ export default class ProvisionItems extends React.Component<IProvisionItemsProps
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             'Provision Items', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Items', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON ); //richText
+            ActionJSON, 'ProvisionItem' ); //richText
 
     }
 

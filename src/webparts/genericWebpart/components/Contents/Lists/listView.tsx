@@ -2,8 +2,9 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
-import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '@mikezimm/npmfunctions/dist/listTypes';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
+
+import { IContentsListInfo, IMyListInfo, IServiceLog,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
@@ -19,9 +20,16 @@ import { IListBucketInfo } from './listsComponent';
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
+import * as fpsAppIcons from '@mikezimm/npmfunctions/dist/Icons/standardEasyContents';
+
+// const iconStyles: React.CSSProperties = { background: 'white', color: 'black', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
+// const redIconStyles: React.CSSProperties = { background: 'white', color: 'red', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
+// export const UniquePerms = <Icon iconName="Shield" title="Unique Permissions" style={ iconStyles }></Icon>;
+
 export interface IMyLogListProps {
     title: string;
     titles: [];
+    // context: WebPartContext;
     webURL: string;
     items: IListBucketInfo;
     showSettings: boolean;
@@ -31,6 +39,7 @@ export interface IMyLogListProps {
     maxChars?: number;
     showDesc?: boolean;
     pickThisList: any;
+    _openRailsOffPanel: any;
 
 }
 
@@ -75,6 +84,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
         super(props);
         this.state = {
           maxChars: this.props.maxChars ? this.props.maxChars : 50,
+
         };
     }
         
@@ -120,9 +130,10 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
         let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
+        let styleRailsRev = this.props.railsOff ? styles.hideMe : null;
         let styleDesc = this.props.showDesc ? styles.showMe : styles.hideMe;
 
-        let itemRows = logItems.length === 0 ? null : logItems.map( Lst => { 
+        let itemRows = logItems.length === 0 ? null : logItems.map( ( Lst, index)  => { 
 
           let defButtonStyles = {
             root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
@@ -166,14 +177,19 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             }
           }
 
+          const UniquePermIcon: JSX.Element = <div id={ index.toString() } > { fpsAppIcons.UniquePerms } </div>;
+
+          const CreateGroupsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.CreateGroups } </div>;
+          const ResetPermissionsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.ResetPermissions } </div>;
+          const RemoveItemsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.RemoveItems } </div>;
+         
           let listTitleRUL : any = Lst.Title;
           let listSettingsURL : any = Lst.EntityTypeName;
           let listVersionURL : any = versionNumbers ;
-          let listPermissionURL : any = '-';
+          let listPermissionURL : any = Lst.HasUniqueRoleAssignments === true ? UniquePermIcon : '-';
           let listAdvancedURL : any = '-';
           let listAdvancedCT : any = '-';
           
-
           let showList = false;
           let showSettings = false;
           let showVersion = false;
@@ -219,7 +235,20 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           if ( showList === true ) { listTitleRUL = createLink( Lst.listURL, '_blank', Lst.Title); }
           if ( showSettings === true ) { listSettingsURL = createLink(this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + Lst.Id + ")", '_blank', Lst.EntityTypeName); }
           if ( showVersion === true ) { listVersionURL = createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + Lst.Id + ")", '_blank', versionNumbers ); }
-          if ( showPermission === true ) { listPermissionURL = createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', 'Perms'); }
+          if ( showPermission === true ) { 
+            if ( Lst.HasUniqueRoleAssignments === true ) {
+              if ( showSettings === true ) {
+                listPermissionURL = createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', 'Perms' ); 
+              } else {
+                listPermissionURL = UniquePermIcon;
+              }
+              
+            } else {
+              listPermissionURL = createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', '---' ); 
+            }
+          }
+
+         
           if ( showAdvanced === true ) { listAdvancedURL = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'Adv'); }
           if ( showAdvanced === true ) { listAdvancedCT = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'CT'); }
 
@@ -231,15 +260,16 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             <td className={ styleDesc }> { Lst.Description.length > this.state.maxChars ? Lst.Description.slice(0,this.state.maxChars) + '...' : Lst.Description } </td>
             <td> { Lst.ItemCount } </td>
 
-            <td className={ styles.nowWrapping }> { Lst.Created } </td>
-            <td> { Lst.LastItemModifiedDate } </td>
+            <td className={ [styles.nowWrapping, styleRailsRev].join(' ') }> { Lst.Created } </td>
+            <td className={ styleRailsRev }> { Lst.LastItemModifiedDate } </td>
             <td> { listVersionURL } </td>
             <td> { listPermissionURL } </td>
-            <td> { Lst.NoCrawl } </td>
-            <td> { listAdvancedCT } </td>
-            <td> { listAdvancedURL } </td>
-            <td> { Lst.BaseTemplate } </td>
-            <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }> { other } </td>
+            <td className={ styleRailsRev }> { Lst.NoCrawl } </td>
+            <td className={ styleRailsRev }> { listAdvancedCT } </td>
+            <td className={ styleRailsRev }> { listAdvancedURL } </td>
+            <td className={ styleRailsRev }> { Lst.BaseTemplate } </td>
+            <td className={ styleRails }> {[ CreateGroupsIcon ] }</td>
+            <td style={{ backgroundColor: 'white' }} className={ [styles.listButtons, styleRailsRev].join(' ') }> { other } </td>
             <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 
           </tr>;
@@ -264,15 +294,16 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               <th>Name</th>
               <th className={ styleDesc }>Description</th>
               <th>Items</th>
-              <th>Created</th>
-              <th>Updated</th>
+              <th className={ [styles.nowWrapping, styleRailsRev].join(' ') }>Created</th>
+              <th className={ styleRailsRev }>Updated</th>
               <th>Vers</th>
               <th>Perms</th>
-              <th>Search</th>
-              <th>CT</th>  
-              <th>Exceptions</th>
-              <th>Base</th>
-              <th>Other</th>
+              <th className={ styleRailsRev }>Search</th>
+              <th className={ styleRailsRev }>CT</th>  
+              <th className={ styleRailsRev }>Exceptions</th>
+              <th className={ styleRailsRev }>Base</th>
+              <th className={ styleRails }>RailsOff</th>
+              <th className={ styleRailsRev }>Other</th>
               <th>More</th>
 
             </tr>

@@ -2,9 +2,6 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
-import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
-import { IContentsListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/listTypes';
-
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
 import { buildMLineDiv } from '../../../../../services/stringFormatService';

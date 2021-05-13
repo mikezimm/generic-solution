@@ -14,10 +14,10 @@ import { IGenericWebpartProps } from './components/IGenericWebpartProps';
 
 import { PageContext } from '@microsoft/sp-page-context';
 
-import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/dateServices';
+import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../services/createAnalytics';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/ErrorHandler';
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { sp } from '@pnp/sp';
 
@@ -27,7 +27,7 @@ require('../../services/GrayPropPaneAccordions.css');
 
 import { defineTheList } from './components/ListProvisioning/ListsTMT/defineThisList';
 
-import { IMyProgress } from '@mikezimm/npmfunctions/dist/IReUsableInterfaces';
+import { IMyProgress, } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
 export interface IGenericWebpartWebPartProps {
 
