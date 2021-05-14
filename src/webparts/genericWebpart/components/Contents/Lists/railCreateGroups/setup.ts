@@ -103,31 +103,31 @@ export interface IProcessSteps {
 
 }
 
-function checkGroup( name: string, required: boolean,  listTitle: string , groupTitle: string,  stepNo: number ) {
-  return createStep( 'Check Group ' + name, 'Check for existing group', 'Checking for existing group', 'Checked for existing group', 'Was not able to check for group', required, stepNo, listTitle, groupTitle, ''  );
+function checkGroup( name: string, required: boolean,  listTitle: string , groupTitle: string,  stepNo: number, dependsOn: string ) {
+  return createStep( 'Check Group ' + name, 'Check for existing group', 'Checking for existing group', 'Checked for existing group', 'Was not able to check for group', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
 }
 
-function createGroup( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number ) {
-  return createStep( 'Create Group ' + name, 'Create for existing group', 'Creating group', 'Created group', 'Was not able to Create group', required, stepNo, listTitle, groupTitle, ''  );
+function createGroup( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
+  return createStep( 'Create Group ' + name, 'Create for existing group', 'Creating group', 'Created group', 'Was not able to Create group', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
 }
 
-function assignParentToList( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number ) {
-  return createStep( 'Assign ' + name + '|List', 'Assign parent group to list', 'Assigning parent group to list', 'Assigned parent group to list', 'Was not able to Assign parent group to list', required, stepNo, listTitle, groupTitle, ''  );
+function assignParentToList( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
+  return createStep( 'Assign ' + name + '|List', 'Assign parent group to list', 'Assigning parent group to list', 'Assigned parent group to list', 'Was not able to Assign parent group to list', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
 }
 
-function assignToList( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number ) {
-  return createStep( 'Assign List Group ' + name + '|List', 'Assign group to list', 'Assigning group to list', 'Assigned group to list', 'Was not able to Assign group to list', required, stepNo, listTitle, groupTitle, ''  );
+function assignToList( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
+  return createStep( 'Assign List Group ' + name + '|List', 'Assign group to list', 'Assigning group to list', 'Assigned group to list', 'Was not able to Assign group to list', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
 }
 
-function assignToSite( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number ) {
-  return createStep( 'Assign List Group ' + name + '|Site',  'Assign group to Site', 'Assigning group to Site', 'Assigned group to Site', 'Was not able to Assign group to Site', required, stepNo, listTitle, groupTitle, ''  );
+function assignToSite( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
+  return createStep( 'Assign List Group ' + name + '|Site',  'Assign group to Site', 'Assigning group to Site', 'Assigned group to Site', 'Was not able to Assign group to Site', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
 }
 
 export function CheckListPermissions( listTitle: string ) { 
-  return createStep( 'Check List Permissions', 'Check existing list permissions', 'Fetching existing permissions', 'Checked existing permissions', 'Was not able to check list permissions', true, 0, listTitle, '', ''  ); }
+  return createStep( 'Check List Permissions', 'Check existing list permissions', 'Fetching existing permissions', 'Checked existing permissions', 'Was not able to check list permissions', true, 0, '', listTitle, '', ''  ); }
 
 export function BreakListPermissions( listTitle: string ) { 
-  return createStep( 'Break List Permissions', 'Break list permissions', 'Breaking list permissions', 'Broke list permissions', 'Was not able to Break list permissions', true, 1, listTitle, '', ''  ); }
+  return createStep( 'Break List Permissions', 'Break list permissions', 'Breaking list permissions', 'Broke list permissions', 'Was not able to Break list permissions', true, 1, '', listTitle, '', ''  ); }
 
 export function createProcessSteps( listTitle , contribGroup, readerGroup ){
 
@@ -135,22 +135,22 @@ export function createProcessSteps( listTitle , contribGroup, readerGroup ){
     checkListPerms: CheckListPermissions( listTitle ),
     breakListPerms: BreakListPermissions( listTitle ),
 
-    assignParentOwnerToList: assignParentToList('SiteOwnerGroup', true, listTitle, 'SiteOwnerGroup', 10 ),
-    assignParentMemberToList: assignParentToList('SiteMemberGroup', true, listTitle, 'SiteMemberGroup', 11 ),
-    assignParentVisitorToList: assignParentToList('SiteVisitorGroup', true, listTitle, 'SiteVisitorGroup', 12 ),
+    assignParentOwnerToList: assignParentToList('SiteOwnerGroup', true, listTitle, 'SiteOwnerGroup', 10, '' ),
+    assignParentMemberToList: assignParentToList('SiteMemberGroup', true, listTitle, 'SiteMemberGroup', 11, '' ),
+    assignParentVisitorToList: assignParentToList('SiteVisitorGroup', true, listTitle, 'SiteVisitorGroup', 12, '' ),
 
-    checkContribGroup: checkGroup('Contributors', true, listTitle, contribGroup, 20 ),
-    createContribGroup:  createGroup('Contributors', true, listTitle, contribGroup, 30 ),
+    checkContribGroup: checkGroup('Contributors', true, listTitle, contribGroup, 20, '' ),
+    createContribGroup:  createGroup('Contributors', true, listTitle, contribGroup, 30, '' ),
 
-    assignContribListRole:  assignToList('Contributors', true, listTitle, contribGroup, 40 ),
-    assignContribSiteRole:  assignToSite('Contributors', true, listTitle, contribGroup, 50 ),
+    assignContribListRole:  assignToList('Contributors', true, listTitle, contribGroup, 40, 'createContribGroup' ),
+    assignContribSiteRole:  assignToSite('Contributors', true, listTitle, contribGroup, 50, 'createContribGroup' ),
 
-    checkReaderGroup:  checkGroup('Readers', true, listTitle, readerGroup, 60 ),
-    createReaderGroup:  createGroup('Readers', true, listTitle, readerGroup, 70 ),
-    assignReaderListRole:  assignToList('Readers', true, listTitle, readerGroup, 80 ),
-    assignReaderSiteRole:  assignToSite('Readers', true, listTitle, readerGroup, 90 ),
+    checkReaderGroup:  checkGroup('Readers', true, listTitle, readerGroup, 60, '' ),
+    createReaderGroup:  createGroup('Readers', true, listTitle, readerGroup, 70, '' ),
+    assignReaderListRole:  assignToList('Readers', true, listTitle, readerGroup, 80, 'createReaderGroup' ),
+    assignReaderSiteRole:  assignToSite('Readers', true, listTitle, readerGroup, 90, 'createReaderGroup' ),
 
-    complete: createStep( 'Complete', 'Complete', 'Completed all tasks', 'Completed permissions', 'Had a problem Completing Permissions', true, 99, listTitle, '', ''  ),
+    complete: createStep( 'Complete', 'Complete', 'Completed all tasks', 'Completed permissions', 'Had a problem Completing Permissions', true, 99, '', listTitle, '', ''  ),
 
   };
 

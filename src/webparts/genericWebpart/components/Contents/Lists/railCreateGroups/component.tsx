@@ -77,7 +77,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
   import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
 
-  import RailsHistory from '../../../../../../services/RailsPane';
+  import RailsHistory from '../../../../../../services/RailsHistoryPane';
+  import SelectedRails from '../../../../../../services/RailsSelectedPane';
 
   import { createIconButton } from '../../../createButtons/IconButton';
   
@@ -305,35 +306,40 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
             let panelContent = null;
 
-            let selectedSteps = [];
-            if ( this.state.steps.checkListPerms.required === true ) { selectedSteps.push( this.buildSelectedStep( this.state.steps.checkListPerms ) ) ; }
-            if ( this.state.steps.breakListPerms.required === true ) { selectedSteps.push( this.buildSelectedStep( this.state.steps.breakListPerms ) ) ; }
-            if ( this.state.includeContrib === true ) { 
-                selectedSteps.push( this.buildSelectedStep( this.state.steps.checkContribGroup ) ) ;
-                selectedSteps.push( this.buildSelectedStep( this.state.steps.createContribGroup ) ) ;
-                selectedSteps.push( this.buildSelectedStep( this.state.steps.assignContribListRole ) ) ;
-                if ( this.state.contribSiteRead === true ) {
-                    selectedSteps.push( this.buildSelectedStep( this.state.steps.assignContribSiteRole ) ) ;
-                }
-            }
+            // let selectedSteps = [];
+            // if ( this.state.steps.checkListPerms.required === true ) { selectedSteps.push( this.buildSelectedStep( this.state.steps.checkListPerms ) ) ; }
+            // if ( this.state.steps.breakListPerms.required === true ) { selectedSteps.push( this.buildSelectedStep( this.state.steps.breakListPerms ) ) ; }
+            // if ( this.state.includeContrib === true ) { 
+            //     selectedSteps.push( this.buildSelectedStep( this.state.steps.checkContribGroup ) ) ;
+            //     selectedSteps.push( this.buildSelectedStep( this.state.steps.createContribGroup ) ) ;
+            //     selectedSteps.push( this.buildSelectedStep( this.state.steps.assignContribListRole ) ) ;
+            //     if ( this.state.contribSiteRead === true ) {
+            //         selectedSteps.push( this.buildSelectedStep( this.state.steps.assignContribSiteRole ) ) ;
+            //     }
+            // }
 
-            if ( this.state.includeViewers === true ) { 
-                selectedSteps.push( this.buildSelectedStep( this.state.steps.checkReaderGroup ) ) ;
-                selectedSteps.push( this.buildSelectedStep( this.state.steps.createReaderGroup ) ) ;
-                selectedSteps.push( this.buildSelectedStep( this.state.steps.assignReaderListRole ) ) ;
-                if ( this.state.viewersSiteRead === true ) {
-                    selectedSteps.push( this.buildSelectedStep( this.state.steps.assignReaderSiteRole ) ) ;
-                }
-            }
+            // if ( this.state.includeViewers === true ) { 
+            //     selectedSteps.push( this.buildSelectedStep( this.state.steps.checkReaderGroup ) ) ;
+            //     selectedSteps.push( this.buildSelectedStep( this.state.steps.createReaderGroup ) ) ;
+            //     selectedSteps.push( this.buildSelectedStep( this.state.steps.assignReaderListRole ) ) ;
+            //     if ( this.state.viewersSiteRead === true ) {
+            //         selectedSteps.push( this.buildSelectedStep( this.state.steps.assignReaderSiteRole ) ) ;
+            //     }
+            // }
             
-            selectedSteps.push( this.buildSelectedStep( this.state.steps.assignParentOwnerToList ) ) ;
-            selectedSteps.push( this.buildSelectedStep( this.state.steps.assignParentMemberToList ) ) ;
-            selectedSteps.push( this.buildSelectedStep( this.state.steps.assignParentVisitorToList ) ) ;
+            // selectedSteps.push( this.buildSelectedStep( this.state.steps.assignParentOwnerToList ) ) ;
+            // selectedSteps.push( this.buildSelectedStep( this.state.steps.assignParentMemberToList ) ) ;
+            // selectedSteps.push( this.buildSelectedStep( this.state.steps.assignParentVisitorToList ) ) ;
 
-            let selectedTable = <table style={{marginTop: '30px' }}>
-                <tr><th>Step</th><th>Status</th><th>Info</th><th>Details</th></tr>
-                { selectedSteps }
-            </table>;
+            // let selectedTable = <table style={{marginTop: '30px' }}>
+            //     <tr><th>Step</th><th>Status</th><th>Info</th><th>Details</th></tr>
+            //     { selectedSteps }
+            // </table>;
+
+            let selectedTable = <SelectedRails
+                steps={ this.state.steps }
+            ></SelectedRails>;
+
 
             let theListAny : any = this.props.theList; //Added because one property is required in MyPermissions but optional in this type.
             let permissions = <MyPermissions
@@ -380,28 +386,6 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                 analyticsListRails = { strings.analyticsListRails }
             ></RailsHistory>;
 
-            // if ( this.state.history !== null ) {
-            //     history = <div>
-            //         <div>Found { this.state.history.filteredKeys.length } tasks from this list: { this.props.theList.Title } </div>
-            //         {/* { this.state.history.filteredKeys.map( key=> <div> { key } </div> ) } */}
-            //         { this.state.history.filteredGroups.map( group=> 
-            //             <div><div style={{ fontSize: 'x-large', fontWeight: 600, background: 'lightgray', padding: '5px 15px', marginTop: '15px', borderRadius: '5px' }}>
-            //                  { group.key.split('~')[0] } 
-            //                  <span style={{ paddingLeft: '10px', fontSize: 'small' }}> { 
-            //                     group.localTime
-            //                     // new Date( group.key.split('~')[0] ).toLocaleString() //This does not work... gives "Invalid Date"
-            //                   } </span>
-            //             </div>
-            //             <table>
-            //                 <tr><th> Step </th><th> Result </th><th> Info </th></tr>
-            //                 { group.items.map( item => {
-            //                     return this.buildHistoryStep( item );
-            //                 })
-            //                 }
-            //             </table></div>
-            //         ) }
-            //     </div>;
-            // }
             panelContent = <div>
                 <Pivot
                     styles={ pivotStyles }
@@ -712,7 +696,9 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         let newValue = !this.state.includeViewers;
         let newSteps : IProcessSteps = JSON.parse(JSON.stringify( this.state.steps ));
         newSteps.checkReaderGroup = this.updateSteps( newSteps.checkReaderGroup, 'required', newValue );
-        newSteps.assignReaderListRole = this.updateSteps( newSteps.assignReaderListRole, 'required', newValue );
+        // newSteps.assignReaderListRole = this.updateSteps( newSteps.assignReaderListRole, 'required', newValue );
+        newSteps.createReaderGroup = this.updateSteps( newSteps.createReaderGroup, 'required', newValue );
+
         newSteps = this.updateCommonSteps( newSteps );
 
         this.setState({  
@@ -726,7 +712,9 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         let newValue = !this.state.includeContrib;
         let newSteps : IProcessSteps = JSON.parse(JSON.stringify( this.state.steps ));
         newSteps.checkContribGroup = this.updateSteps( newSteps.checkContribGroup, 'required', newValue );
-        newSteps.assignContribListRole = this.updateSteps( newSteps.assignContribListRole, 'required', newValue );
+        // newSteps.assignContribListRole = this.updateSteps( newSteps.assignContribListRole, 'required', newValue );
+        newSteps.createContribGroup = this.updateSteps( newSteps.createContribGroup, 'required', newValue );
+        
         newSteps = this.updateCommonSteps( newSteps );
 
         this.setState({  

@@ -47,7 +47,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
  import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
  import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
- import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
+ import { IArraySummary, IRailAnalytics, groupArrayItemsByField,  } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
+ import { sortNumberArray, sortStringArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
  
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -60,6 +61,7 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                 
  */
 
+import { shouldDoThisStepBasedOnDependant } from './railsSetup';
 
 
  /***
@@ -94,7 +96,7 @@ import { fetchAnalytics, } from './createAnalytics';
 
 import { IProcessStep, StatusIcons, StatusColors } from './railsSetup';
 
-import * as strings from 'GenericWebpartWebPartStrings';
+import { IProcessSteps } from '../webparts/genericWebpart/components/Contents/Lists/railCreateGroups/setup';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -108,18 +110,14 @@ import * as strings from 'GenericWebpartWebPartStrings';
  */
 
 
-export interface IRailsHistoryProps {
-    theList: IContentsListInfo;
+export interface ISelectedRailsProps {
 
-    pickedWeb : IPickedWebBasic;
-
-    analyticsWeb: string;
-    analyticsListRails: string;
+    steps: IProcessSteps;
 
   }
 
-export interface IRailsHistoryState {
-  history: IArraySummary;
+export interface ISelectedRailsState {
+
 }
 
 const toggleStyles = { root: { width: 160, } };
@@ -127,7 +125,7 @@ const panelWidth = '90%';
 const groupBottomPadding = '25px';
 const toggleBottomPadding = '5px';
 
-export default class RailsHistory extends React.Component<IRailsHistoryProps, IRailsHistoryState> {
+export default class SelectedRails extends React.Component<ISelectedRailsProps, ISelectedRailsState> {
 
 
     /***
@@ -141,18 +139,15 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
  *                                                                                                       
  */ 
 
-    constructor(props: IRailsHistoryProps) {
+    constructor(props: ISelectedRailsProps) {
         super(props);
-        let listTitle = this.props.theList.Title;
 
         this.state = {
-          history: null,
 
         };
     }
     
     public componentDidMount() {
-      this.fetchHistory();
 
     }
    
@@ -168,7 +163,7 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
  *                                                                                         
  */
 
-    public componentDidUpdate(prevProps: IRailsHistoryProps): void {
+    public componentDidUpdate(prevProps: ISelectedRailsProps): void {
         // this.setState({ refreshId: makeid(5) })
     //this._updateWebPart(prevProps);
     }
@@ -185,40 +180,70 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
  */
 
 
-    public render(): React.ReactElement<IRailsHistoryProps> {
+    public render(): React.ReactElement<ISelectedRailsProps> {
 
-        if ( this.props.theList ) {
+        if ( this.props.steps ) {
           
-            let listOrLib = this.props.theList.BaseType === 0 ? 'List' : 'Library' ;
-            
-            let history = null;
+            let thisPropsSteps = this.props.steps;
 
-            if ( this.state.history !== null ) {
-                history = <div>
-                    <div>Found { this.state.history.filteredKeys.length } tasks from this list: { this.props.theList.Title } </div>
-                    {/* { this.state.history.filteredKeys.map( key=> <div> { key } </div> ) } */}
-                    { this.state.history.filteredGroups.map( group=> 
-                        <div><div style={{ fontSize: 'x-large', fontWeight: 600, background: 'lightgray', padding: '5px 15px', marginTop: '15px', borderRadius: '5px' }}>
-                             { group.key.split('~')[0] } 
-                             <span style={{ paddingLeft: '10px', fontSize: 'small' }}> { 
-                                group.localTime
-                                // new Date( group.key.split('~')[0] ).toLocaleString() //This does not work... gives "Invalid Date"
-                              } </span>
-                        </div>
-                        <table>
-                            <tr><th> Step </th><th> Result </th><th> Info </th></tr>
-                            { group.items.map( item => {
-                                return this.buildHistoryStep( item );
-                            })
-                            }
-                        </table></div>
-                    ) }
-                </div>;
-            }
+            let keys = Object.keys(thisPropsSteps);
+            let originalOrders = []; //like [ 99, 1, 10 ]
+            let originalKeys = [];
+            keys.map( key => {
+                originalOrders.push( thisPropsSteps[key].stepNo ) ;
+                originalKeys.push( key ) ;
+            });
+
+            // newOrders returns  like [ 1, 10, 99, ]
+            let newOrders = sortNumberArray ( JSON.parse(JSON.stringify(originalOrders ) ), 'asc' );
+            let newKeys = [];
+
+            newOrders.map( order => {
+                let oldIndex = originalOrders.indexOf( order ) ;
+                newKeys.push( originalKeys[ oldIndex ] ) ;
+            });
+
+
+            let selectedSteps = [];
+
+            newKeys.map( key => {
+
+                let showThisItem = shouldDoThisStepBasedOnDependant( thisPropsSteps[ key ], thisPropsSteps ) ;
+
+                if ( showThisItem === true && thisPropsSteps[ key ].required === true ) {
+                    selectedSteps.push( this.buildSelectedStep( thisPropsSteps[key] ) ) ;
+                }
+            });
+
+            // if ( thisPropsSteps.checkListPerms.required === true ) { selectedSteps.push( this.buildSelectedStep( thisPropsSteps.checkListPerms ) ) ; }
+            // if ( thisPropsSteps.breakListPerms.required === true ) { selectedSteps.push( this.buildSelectedStep( thisPropsSteps.breakListPerms ) ) ; }
+            // if ( this.state.includeContrib === true ) { 
+            //     selectedSteps.push( this.buildSelectedStep( thisPropsSteps.checkContribGroup ) ) ;
+            //     selectedSteps.push( this.buildSelectedStep( thisPropsSteps.createContribGroup ) ) ;
+            //     selectedSteps.push( this.buildSelectedStep( thisPropsSteps.assignContribListRole ) ) ;
+            //     if ( this.state.contribSiteRead === true ) {
+            //         selectedSteps.push( this.buildSelectedStep( thisPropsSteps.assignContribSiteRole ) ) ;
+            //     }
+            // }
+
+            // if ( this.state.includeViewers === true ) { 
+            //     selectedSteps.push( this.buildSelectedStep( thisPropsSteps.checkReaderGroup ) ) ;
+            //     selectedSteps.push( this.buildSelectedStep( thisPropsSteps.createReaderGroup ) ) ;
+            //     selectedSteps.push( this.buildSelectedStep( thisPropsSteps.assignReaderListRole ) ) ;
+            //     if ( this.state.viewersSiteRead === true ) {
+            //         selectedSteps.push( this.buildSelectedStep( thisPropsSteps.assignReaderSiteRole ) ) ;
+            //     }
+            // }
+            
+            // selectedSteps.push( this.buildSelectedStep( thisPropsSteps.assignParentOwnerToList ) ) ;
+            // selectedSteps.push( this.buildSelectedStep( thisPropsSteps.assignParentMemberToList ) ) ;
+            // selectedSteps.push( this.buildSelectedStep( thisPropsSteps.assignParentVisitorToList ) ) ;
 
             return (
-              <div> { history }
-                </div>
+                <table style={{marginTop: '30px' }}>
+                    <tr><th>Step</th><th>Status</th><th>Info</th><th>Details</th></tr>
+                    { selectedSteps }
+                </table>
 
             );
 
@@ -232,45 +257,19 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
 
     } 
 
-    
-    private buildHistoryStep( step: IRailAnalytics ) {
-      // if ( step.required !== true ) { return null; }
-      // let info = step.current.error !== '' ? step.current.error : step.current.info; 
-      let key = step.Result;
-      let color = StatusColors[ key ];
-      let itemPadding = step.zzzText4 ? '7px 0px 3px 0px' : '0px';
+  private buildSelectedStep( step: IProcessStep ) {
+        if ( step.required !== true ) { return null; }
+        let info = step.current.error !== '' ? step.current.error : step.current.info; 
+        let key = step.current.key;
+        let color = StatusColors[ key ];
 
-      return <tr  title={ step.Result + ' ' + step.Title }>
-          <td>{ step.zzzText7 } </td>
-          <td style={{ textAlign: 'center' }} ><div style={{ fontSize: 'larger', margin: itemPadding }}><Icon iconName= { StatusIcons[ key ]} style={{ color: color }}></Icon></div></td>
-          <td>{ step.Title } 
-              <span style={{fontWeight: 700 }}>{ ( step.zzzText3 ? ' - ' + step.zzzText3 : '' ) } </span>
-              {  step.zzzText4 ? <div style={{color: 'red', fontSize: 'x-small', paddingBottom: '7px' }}>{ ( step.zzzText4 ? ' ' + step.zzzText4 : '' ) } </div> : null  }
-          </td>
-      </tr>;
-  }
-
-
-  private async fetchHistory() {
-
-    
-    let items: IRailAnalytics[] = await fetchAnalytics( this.props.analyticsWeb, this.props.analyticsListRails , this.props.pickedWeb.guid );
-
-    let history: IArraySummary = groupArrayItemsByField( items, ['zzzText1'], ' - ', 'TargetList.Url', 'zzzText7','asc' );
-
-    let filterBy = this.props.theList.listURL.indexOf('http') === 0 ? this.props.theList.listURL : window.location.origin + this.props.theList.listURL;
-    history.filteredGroups = [];
-    history.filteredKeys = [];
-    history.groups.map( group => {
-        if ( group.groupFilter === filterBy ) { 
-            history.filteredGroups.push( group ) ;
-            history.filteredKeys.push( group.key ) ;
-        }
-    });
-
-    this.setState({ history: history });
-
-  }
+        return <tr  title={ step.current.info }>
+            <td>{ step.label.split('|')[0] } </td>
+            <td style={{ textAlign: 'center' }} ><Icon iconName= { StatusIcons[ key ]} style={{ color: color }}></Icon></td>
+            <td style={{ color: color }}>{ info } </td>
+            <td>{ step.current.result } </td>
+        </tr>;
+    }
 
     private updateStateStatus( ) {
         

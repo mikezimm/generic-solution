@@ -80,7 +80,7 @@ import { pivCats, IListBucketInfo } from '../listsComponent';
 
 import { IProcessSteps, } from './setup';
 
-import { IProcessStatus, IStepPC, IProcessStep } from '../../../../../../services/railsSetup';
+import { IProcessStatus, IStepPC, IProcessStep, shouldDoThisStepBasedOnDependant } from '../../../../../../services/railsSetup';
 
 import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsComponent';
 
@@ -232,10 +232,11 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
  export async function giveGroupPermissions (newSteps: IProcessSteps, currentStepStr: string, listInstance, thisWebInstance, principalId: number, roleDefId: number, updateState: any, listOrWeb: 'list' | 'web' ){
 
-
   let currentStep: IProcessStep = JSON.parse( JSON.stringify( newSteps[currentStepStr] )) ;
   
-  if ( currentStep.required === true && roleDefId !== null ) {
+  let doThisStep = shouldDoThisStepBasedOnDependant( currentStep, newSteps );
+
+  if ( doThisStep === true && currentStep.required === true && roleDefId !== null ) {
 
     let errMessage = '';
     try {

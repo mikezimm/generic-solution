@@ -1,6 +1,4 @@
 
-
-
 export const StatusIcons: IStatusIcons = { plan: 'Edit', process: 'Gear', complete: 'Checkmark', error: 'Warning' };
 export const StatusColors: IStatusIcons = { plan: 'black', process: 'blue', complete: 'green', error: 'red' };
 export type IStatusIcon = 'Edit'| 'Gear'| 'Checkmark'| 'Warning';
@@ -28,6 +26,7 @@ export interface IProcessStep {
   label: string;
   required: boolean;
   stepNo: number;
+  dependsOn: string; //Step this step depends on
   value?: string | boolean;
   plan?: IProcessStatus;
   process?: IProcessStatus;
@@ -42,12 +41,27 @@ export interface IProcessStep {
 }
 
 
-export function createStep( label: string, planInfo: string , processInfo: string , completeInfo: string , errorInfo: string, required: boolean, stepNo: number, value1: any, value2: any, value3: any, value?: string | boolean ) {
+export function shouldDoThisStepBasedOnDependant( currentStep: IProcessStep, newSteps: any ) {
+
+  let doThisStep = true;
+  let keyDependsOnThis =  currentStep.dependsOn;
+  let dependsOn = keyDependsOnThis && keyDependsOnThis.length > 0 ? true : false ;
+
+  if ( dependsOn === true && newSteps[ keyDependsOnThis ].required !== true ) {
+    doThisStep = false;
+  }
+
+  return doThisStep;
+
+ }
+
+export function createStep( label: string, planInfo: string , processInfo: string , completeInfo: string , errorInfo: string, required: boolean, stepNo: number, dependsOn: string, value1: any, value2: any, value3: any, value?: string | boolean ) {
 
   const Step : IProcessStep = {
     label: label,
     required: required,
     stepNo: stepNo,
+    dependsOn: dependsOn,
     value: value,
     plan:  {
       key: 'plan',
