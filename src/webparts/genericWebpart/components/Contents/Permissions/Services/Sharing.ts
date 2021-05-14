@@ -51,7 +51,7 @@ import { ISharingInformation } from '@pnp/sp/sharing';
  *                                                                                                                                 
  */
 
-import { buildSharingRows } from './SharingElements';
+import { buildSharingRows, buildWasSharedRows } from './SharingElements';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -183,6 +183,7 @@ export interface IMySharedItem {
  GUID: string;
  odataEditLink: string;
 
+ HasUniqueRoleAssignments: boolean;
  FileRef: string;
  FileLeafRef: string;
 
@@ -198,80 +199,71 @@ export interface IMySharedItem {
  CheckoutUserId: number;
 }
 
+export interface IMySharingInfoSet {
+  items: any[];
+  elements: any[];
+  isLoaded: boolean;
+  errMessage: string;
+ }
+
 export interface IMySharingInfo {
- sharedItems: IMySharedItem[];
- sharedElements: any[];
- detailItems: any[];
- detailElements: any[];
- isLoaded: boolean;
- errMessage: string;
+  history: IMySharingInfoSet;
+  details: IMySharingInfoSet;
 }
 
+import { currentPermissions, sharedHistory, sharedDetails, IPermissionsPanel, IShowPermissionPage } from '../IMyPermissionsState';
 
-export async function allSharedItems( webURL: string, listTitle: string, addTheseItemsToState: any, setProgress: any, width: number ) {
- let sharedItems: IMySharedItem[] = [];
- let sharedElements: any[] = [];
+ /**
+  * These properties throw error on fetching.
+  * ,"ServerRedirectedPreviewURL", "SharedWithInternal"
+  */
+ const thisSelect = ["*","Title","FileRef","FileLeafRef","SharedWithUsers/Title","SharedWithUsers/Name","SharedWithDetails","ServerRedirectedEmbedURL","HasUniqueRoleAssignments"];
+ const thisExpand = ["SharedWithUsers"];
+
+export async function allSharedItems( doThis: IShowPermissionPage ,webURL: string, listTitle: string, addTheseItemsToState: any, setProgress: any, width: number ) {
+ let items: IMySharedItem[] = [];
+ let elements: any[] = [];
  let detailItems: any[] = [];
  let detailElements = null;
  let isLoaded = false;
 
  let errMessage = '';
- let webOrList = listTitle && listTitle.length > 0 && listTitle.toLowerCase() !== 'web' ? 'list' : 'web';
  let thisWebInstance = null;
-
- let thisSelect = ["*","Title","FileRef","FileLeafRef","SharedWithUsers/Title","SharedWithUsers/Name","SharedWithDetails"];
- let thisExpand = ["SharedWithUsers"];
 
  try {
      thisWebInstance = Web(webURL);
      let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
-     sharedItems = await thisListObject.items.select(thisSelect).expand(thisExpand).filter('SharedWithUsersId ne null').get();
-     sharedItems.map( item => {
-       item.SharedDetails = JSON.parse(item.SharedWithDetails);
-       item.SharedArray = Object.keys(item.SharedDetails).map( shareKey => {
-         let keys = shareKey.split('|');
-         let detail = item.SharedDetails[ shareKey ];
-         let key: string = keys[0];
-         let SharedTime = getDateFromDetails( detail.DateTime );
-         return {
-           key: shareKey,
-           keys: keys,
-           sharedWith: keys[2],
-           sharedBy: detail.LoginName,
-           DateTime: detail.DateTime,
-           LoginName: detail.LoginName,
-           TimeMS: SharedTime.getTime(),
-           SharedTime: SharedTime,
-           GUID: item.GUID ,
-           odataEditLink: item.odataEditLink ,
-           FileSystemObjectType: item.FileSystemObjectType ,
-           AuthorId: item.AuthorId ,
-           Created: item.Created ,
-           FileRef: item.FileRef ,
-           FileLeafRef: item.FileLeafRef ,
 
-         
-           Modified: item.Modified ,
-           EditorId: item.EditorId ,
-         
-           CheckoutUserId: item.CheckoutUserId ,
-         };
-       });
-     });
-     sharedElements = buildSharingRows( sharedItems, width );
+     if ( doThis.tab8 === sharedHistory.tab8 ) {
+        items = await thisListObject.items.select(thisSelect).expand(thisExpand).filter('SharedWithUsersId ne null').get();
+        items = processSharedItems( items );
+        elements = buildSharingRows( items, width );
+
+     } else { 
+        items = await thisListObject.items.select(thisSelect).expand(thisExpand).filter('SharedWithUsersId ne null').get(); 
+        items = processSharedItems( items );
+        elements = buildWasSharedRows( items, width );
+
+      }
+     
+
+
 
  } catch (e) {
      errMessage = getHelpfullError(e, false, true);
 
  }
 
- let mySharing : IMySharingInfo = {
-   sharedItems: sharedItems,
-   sharedElements: sharedElements,
-   detailItems: detailItems,
-   detailElements: detailElements,
+ let thisSet : IMySharingInfoSet = {
+   items: items,
+   elements: elements,
    isLoaded: isLoaded,
    errMessage: errMessage,
+ };
+
+ let mySharing : IMySharingInfo = {
+  history: doThis.tab8 === sharedHistory.tab8 ? thisSet : null ,
+  details: doThis.tab8 === sharedDetails.tab8 ? thisSet : null ,
  };
 
  addTheseItemsToState( mySharing, errMessage );
@@ -279,67 +271,88 @@ export async function allSharedItems( webURL: string, listTitle: string, addThes
  return { mySharing };
 }
 
-export function processSharedItems( foundItems: any[] ) {
-
-
-}
-
  
 export interface MySearchResults extends ISearchResult {
 
 }
 
-export async function getSharedFiles( webURL: string, listTitle: string, addTheseItemsToState: any, setProgress: any ) {
 
-    /**
-     *  Updated search query per pnpjs issue response:
-     *  https://github.com/pnp/pnpjs/issues/1552#issuecomment-767837463
-     * 
-     * GET Managed properties here:  https://tenanat-admin.sharepoint.com/_layouts/15/searchadmin/ta_listmanagedproperties.aspx?level=tenant
-     * 
-     */
-   const thisWebInstance = Web(webURL);
 
-   let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
-   const theList = await sp.web.lists.getByTitle('Documents').get();   //ListItemEntityTypeFullName: "SP.Data.Shared_x0020_DocumentsItem
+export async function getSharedFiles( webURL: string, listTitle: string, addTheseItemsToState: any, setProgress: any, width: number ) {
+  let items: IMySharedItem[] = [];
+  let sharedFiles: IMySharedItem[] = [];
+  let elements: any[] = [];
+  let isLoaded = false;
+ 
+  let errMessage = '';
+  let thisWebInstance = null;
 
-   let DocumentTemplateUrl = theList.DocumentTemplateUrl;  //"DocumentTemplateUrl":"/sites/PivotNotInstalled/Shared Documents/Forms/template.dotx"
-   let odataMetadata = theList['odata.metadata'];  // "odata.metadata":"https://mcclickster.sharepoint.com/sites/PivotNotInstalled/_api/$metadata#SP.ApiData.Lists/@Element"
-
-   //Can get serverrelativeURL via sp.web.getFolderByServerRelativePath("Shared Documents/Folder1").files()
-
-   let query=`Path:https://mcclickster.sharepoint.com/sites/PivotNotInstalled/Shared%20Documents* AND ContentClass:STS_ListItem` ;
-   let shareSelect = ["*","Title", "ServerRelativeUrl", "ServerRelativePath", "ID", "Id", "Path", "Filename","FileLeafRef", "Author","Editor","SharedWithUsersId", "SharedWithDetails", "SharedWithInternal","FileLeafRef","ows_FileLeafRef","ModifiedBy","Created","Modified","CreatedBy","CreatedById","ModifiedById","ServerRedirectedEmbedURL","ServerRedirectedPreviewURL","ServerRedirectedPreviewURL"];
-
-   sp.search(<ISearchQuery>{
-       Querytext: query,
-         SelectProperties: shareSelect,
-         "RowLimit": 500,
-//          "StartRow": 0,
-         EnableInterleaving: true,  //https://docs.microsoft.com/en-us/answers/questions/270812/bh-bhattmeet-get-most-viewed-documents-from-sharep.html
-//          "ClientType": "ContentSearchRegular",  //This is from Hubsearch
-         TrimDuplicates: false, //This is needed in order to also get the hub itself.
-         SortList:
-         [
-           {
-             Property: 'Created',
-             Direction: SortDirection.Descending
-           }
-         ],
-       })
-          .then( ( res: SearchResults) => {
-
-            console.log('associated sites with URL/Desc', res);
-            console.log(res.RowCount);
-            console.log(res.PrimarySearchResults);
-
-           //  entireResponse.hubs.map( h => {
-           //      h.sourceType = hubsCategory;
-           //  });
-           //  callback( entireResponse, custCategories, newData );
-
-    });
-
-    return;
+  try {
+      thisWebInstance = Web(webURL);
+      let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
+      items = await thisListObject.items.select(thisSelect).expand(thisExpand).get();
+      items = processSharedItems( items );
+      elements = buildWasSharedRows( sharedFiles, width );
+ 
+  } catch (e) {
+      errMessage = getHelpfullError(e, false, true);
+ 
+  }
+ 
+  let thisSet : IMySharingInfoSet = {
+    items: items,
+    elements: elements,
+    isLoaded: isLoaded,
+    errMessage: errMessage,
+  };
+ 
+  let mySharing : IMySharingInfo = {
+   history: null,
+   details: thisSet,
+  };
+  
+  addTheseItemsToState( mySharing, errMessage );
+  // console.log('mySharing:', mySharing );
+  return { mySharing };
 
 }
+
+
+export function processSharedItems( items: IMySharedItem[] ) {
+
+  items.map( item => {
+    item.SharedDetails = JSON.parse(item.SharedWithDetails);
+    item.SharedArray = Object.keys(item.SharedDetails).map( shareKey => {
+      let keys = shareKey.split('|');
+      let detail = item.SharedDetails[ shareKey ];
+      let key: string = keys[0];
+      let SharedTime = getDateFromDetails( detail.DateTime );
+      return {
+        key: shareKey,
+        keys: keys,
+        sharedWith: keys[2],
+        sharedBy: detail.LoginName,
+        DateTime: detail.DateTime,
+        LoginName: detail.LoginName,
+        TimeMS: SharedTime.getTime(),
+        SharedTime: SharedTime,
+        GUID: item.GUID ,
+        odataEditLink: item.odataEditLink ,
+        FileSystemObjectType: item.FileSystemObjectType ,
+        AuthorId: item.AuthorId ,
+        Created: item.Created ,
+        FileRef: item.FileRef ,
+        FileLeafRef: item.FileLeafRef ,
+
+      
+        Modified: item.Modified ,
+        EditorId: item.EditorId ,
+      
+        CheckoutUserId: item.CheckoutUserId ,
+      };
+    });
+  });
+
+  return items;
+}
+

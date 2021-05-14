@@ -42,7 +42,7 @@ import { IMyGroupsProps, IGroupsProps } from '../MyGroups/IMyGroupsProps';
 /** Remove these when not using groups ^^^^^ */
 
 import { allAvailableRoleAssignments, IMyPermissions, allWebLists, PermPriorityStyles, comparePermissions } from './Services/Permissions';
-import { allSharedItems, IMySharingInfo,  } from './Services/Sharing';
+import { allSharedItems, IMySharingInfo, getSharedFiles } from './Services/Sharing';
 import { IThisPermissionDelta } from './Services/Permissions';
 import { IShowPermissionPage } from './IMyPermissionsState';
 
@@ -134,12 +134,8 @@ public constructor(props:IMyPermissionsProps){
         equalElements: [],
 
         mySharing: {
-          sharedItems: [],
-          sharedElements: [],
-          detailItems: [],
-          detailElements: [],
-          isLoaded: false,
-          errMessage: '',
+          history: null,
+          details: null,
         },
 
         fetchTotal: 0,
@@ -416,18 +412,34 @@ public constructor(props:IMyPermissionsProps){
            * HISTORY PERMISSIONS
            */
           } else if ( this.state.showThis.tab8 === sharedHistory.tab8 ) {
-            if ( this.state.mySharing.sharedElements.length > 0 ) {
+            if ( this.state.mySharing.history && this.state.mySharing.history.elements.length > 0 ) {
               let tableStyle = this.props.width < 800 ? styles.tableTight : styles.tableNormal;
 
               permissionElements.push( <p style={{paddingBottom: '10px', fontSize: 'larger'}}> { this.state.showThis.desc } </p>) ;
               permissionElements.push(
                 <table className={ tableStyle }>
-                  <tr> { ['When', 'Type', 'GUID', 'Shared by', 'Shared with'].map( h=> { return <th> { h }</th>; } )  }
+                  <tr> { ['When', 'Type', 'File or Folder', 'Shared by', 'Shared with'].map( h=> { return <th> { h }</th>; } )  }
                   </tr>
-                    { this.state.mySharing.sharedElements }
+                    { this.state.mySharing.history.elements }
                 </table>
               );
+            }
+          /**
+           * DETAIL PERMISSIONS
+           */
+          } else if ( this.state.showThis.tab8 === sharedDetails.tab8 ) {
+            if ( this.state.mySharing.details && this.state.mySharing.details.elements.length > 0 ) {
+              let tableStyle = this.props.width < 800 ? styles.tableTight : styles.tableNormal;
 
+              permissionElements.push( <p style={{paddingBottom: '10px', fontSize: 'larger'}}> { this.state.showThis.desc } </p>) ;
+              permissionElements.push(
+                <table className={ tableStyle }>
+                  <tr> { ['Perms', 'Type', 'File or Folder', 'Details'].map( h=> { return <th> { h }</th>; } )  }
+                  </tr>
+                    { this.state.mySharing.details.elements }
+                </table>
+              );
+            }
            /**
            * UNKNOWN PERMISSIONS
            */
@@ -438,27 +450,14 @@ public constructor(props:IMyPermissionsProps){
             }
 
           } else {
-            if ( this.state.mySharing.detailItems.length > 0 ) {
-              let tableStyle = this.props.width < 800 ? styles.tableTight : styles.tableNormal;
 
-              permissionElements.push( <p style={{paddingBottom: '10px' }}> { this.state.showThis.desc } </p>) ;
-              permissionElements.push(
-                <table className={ tableStyle }>
-                  <tr> { ['When', 'Type', 'GUID', 'Shared by', 'Shared with'].map( h=> { return <th> { h }</th>; } )  }
-                  </tr>
-                    { this.state.mySharing.detailElements }
-                </table>
-              );
-            } else {
-              permissionElements.push(
-                <div> <h3>Unfortunately we haven't quite figured out how to get more details :(</h3>
-                      <h4>But we are working on it so stay tuned for updates!</h4>
-                 { errorBar } </div>
-              );
-            }
+            permissionElements.push(
+              <div> <h3>Unfortunately we haven't quite figured out how to get more details :(</h3>
+                    <h4>But we are working on it so stay tuned for updates!</h4>
+                { errorBar } </div>
+            );
 
           }
-        }
 
         let permissionInfoTokens = { childrenGap: 10 };
         const permissionInfo = isLoaded === true 
@@ -747,20 +746,11 @@ public constructor(props:IMyPermissionsProps){
     } else if ( itemKey === sharedDetails.tab8 || itemKey === sharedHistory.tab8 ) {
       let showThis = itemKey === sharedDetails.tab8 ? sharedDetails : sharedHistory;
 
-      if ( this.state.mySharing.isLoaded === true ) {
-        this.setState({ 
-          showThis: showThis,
-        });
+      this.setState({ 
+        showThis: showThis,
+      });
 
-      } else {
-
-        this.setState({ 
-          showThis: showThis,
-        });
-
-        this.getShared();
-
-      }
+      allSharedItems( showThis, this.props.webURL , this.props.listTitles[0], this.addShareHistoryToState.bind(this), null, this.props.width  );
 
     } else { 
       this.setState({ 
@@ -770,14 +760,16 @@ public constructor(props:IMyPermissionsProps){
 
   }
 
-  private getShared() {
-    allSharedItems( this.props.webURL , this.props.listTitles[0], this.addShareHistoryToState.bind(this), null, this.props.width  );
-  }
 
-  private addShareHistoryToState( mySharing : IMySharingInfo, errorMessage: string ) {
+  private addShareHistoryToState( newMySharing : IMySharingInfo, errorMessage: string ) {
 
     console.log('addShareHistoryToState', errorMessage );
-    console.log('THE Sharing', mySharing );
+    console.log('THE Sharing', newMySharing );
+
+    let mySharing = {
+      history: newMySharing.history !== null ? newMySharing.history : this.state.mySharing.history ,
+      details: newMySharing.details !== null ? newMySharing.details : this.state.mySharing.details ,
+    };
 
     this.setState({
         mySharing: mySharing,
