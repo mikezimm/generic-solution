@@ -77,6 +77,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
   import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
 
+  import RailsHistory from '../../../../../../services/RailsPane';
+
   import { createIconButton } from '../../../createButtons/IconButton';
   
   
@@ -98,7 +100,8 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, } from '
 
 
 import { IListRailFunction } from '../listsComponent';
-import { createProcessSteps, IProcessSteps, IProcessStep, StatusIcons, StatusColors } from './setup';
+import { createProcessSteps, IProcessSteps,  } from './setup';
+import {  IProcessStep, StatusIcons, StatusColors } from '../../../../../../services/railsSetup';
 import { doThisRailFunction } from './functions';
 import * as strings from 'GenericWebpartWebPartStrings';
 
@@ -368,30 +371,37 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             let disableViewerGroupSite = this.state.HasUniqueRoleAssignments === true && this.state.includeViewers === true ? false : true;
             let finished = this.state.finished;
             
-            let history = null;
+            let history = <RailsHistory
+                theList = { this.props.theList }
 
-            if ( this.state.history !== null ) {
-                history = <div>
-                    <div>Found { this.state.history.filteredKeys.length } tasks from this list: { this.props.theList.Title } </div>
-                    {/* { this.state.history.filteredKeys.map( key=> <div> { key } </div> ) } */}
-                    { this.state.history.filteredGroups.map( group=> 
-                        <div><div style={{ fontSize: 'x-large', fontWeight: 600, background: 'lightgray', padding: '5px 15px', marginTop: '15px', borderRadius: '5px' }}>
-                             { group.key.split('~')[0] } 
-                             <span style={{ paddingLeft: '10px', fontSize: 'small' }}> { 
-                                group.localTime
-                                // new Date( group.key.split('~')[0] ).toLocaleString() //This does not work... gives "Invalid Date"
-                              } </span>
-                        </div>
-                        <table>
-                            <tr><th> Step </th><th> Result </th><th> Info </th></tr>
-                            { group.items.map( item => {
-                                return this.buildHistoryStep( item );
-                            })
-                            }
-                        </table></div>
-                    ) }
-                </div>;
-            }
+                pickedWeb = { this.props.pickedWeb }
+            
+                analyticsWeb = { strings.analyticsWeb }
+                analyticsListRails = { strings.analyticsListRails }
+            ></RailsHistory>;
+
+            // if ( this.state.history !== null ) {
+            //     history = <div>
+            //         <div>Found { this.state.history.filteredKeys.length } tasks from this list: { this.props.theList.Title } </div>
+            //         {/* { this.state.history.filteredKeys.map( key=> <div> { key } </div> ) } */}
+            //         { this.state.history.filteredGroups.map( group=> 
+            //             <div><div style={{ fontSize: 'x-large', fontWeight: 600, background: 'lightgray', padding: '5px 15px', marginTop: '15px', borderRadius: '5px' }}>
+            //                  { group.key.split('~')[0] } 
+            //                  <span style={{ paddingLeft: '10px', fontSize: 'small' }}> { 
+            //                     group.localTime
+            //                     // new Date( group.key.split('~')[0] ).toLocaleString() //This does not work... gives "Invalid Date"
+            //                   } </span>
+            //             </div>
+            //             <table>
+            //                 <tr><th> Step </th><th> Result </th><th> Info </th></tr>
+            //                 { group.items.map( item => {
+            //                     return this.buildHistoryStep( item );
+            //                 })
+            //                 }
+            //             </table></div>
+            //         ) }
+            //     </div>;
+            // }
             panelContent = <div>
                 <Pivot
                     styles={ pivotStyles }
@@ -757,20 +767,20 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             }
 
         } else if ( itemKey === historyPivotHeaderText ) {
-            let items: IRailAnalytics[] = await fetchAnalytics( this.props.analyticsWeb, strings.analyticsListRails , this.props.pickedWeb.guid );
+            // let items: IRailAnalytics[] = await fetchAnalytics( this.props.analyticsWeb, strings.analyticsListRails , this.props.pickedWeb.guid );
 
-            let history: IArraySummary = groupArrayItemsByField( items, ['zzzText1'], ' - ', 'TargetList.Url', 'zzzText7','asc' );
-            let filterBy = this.props.theList.listURL.indexOf('http') === 0 ? this.props.theList.listURL : window.location.origin + this.props.theList.listURL;
-            history.filteredGroups = [];
-            history.filteredKeys = [];
-            history.groups.map( group => {
-                if ( group.groupFilter === filterBy ) { 
-                    history.filteredGroups.push( group ) ;
-                    history.filteredKeys.push( group.key ) ;
-                }
-            });
+            // let history: IArraySummary = groupArrayItemsByField( items, ['zzzText1'], ' - ', 'TargetList.Url', 'zzzText7','asc' );
+            // let filterBy = this.props.theList.listURL.indexOf('http') === 0 ? this.props.theList.listURL : window.location.origin + this.props.theList.listURL;
+            // history.filteredGroups = [];
+            // history.filteredKeys = [];
+            // history.groups.map( group => {
+            //     if ( group.groupFilter === filterBy ) { 
+            //         history.filteredGroups.push( group ) ;
+            //         history.filteredKeys.push( group.key ) ;
+            //     }
+            // });
 
-            this.setState({ history: history });
+            // this.setState({ history: history });
             // console.log('HISTORY:' , history );
         }
 

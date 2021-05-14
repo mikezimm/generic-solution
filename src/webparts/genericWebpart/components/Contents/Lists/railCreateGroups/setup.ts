@@ -43,7 +43,7 @@ import { mergeAriaAttributeValues } from "office-ui-fabric-react";
  *                                                                                                                                 
  */
 
-
+import { createStep, IProcessStep } from '../../../../../../services/railsSetup';
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88   88 88'     88      88  `8D 88'     88  `8D 88'  YP 
@@ -80,45 +80,6 @@ import { pivCats, IListBucketInfo } from '../listsComponent';
  */
 
 
-export const StatusIcons: IStatusIcons = { plan: 'Edit', process: 'Gear', complete: 'Checkmark', error: 'Warning' };
-export const StatusColors: IStatusIcons = { plan: 'black', process: 'blue', complete: 'green', error: 'red' };
-export type IStatusIcon = 'Edit'| 'Gear'| 'Checkmark'| 'Warning';
-export type IStepPC = 'Plan' | 'Process' | 'Complete' | '' | '';
-export type IStepKey = 'plan' | 'process' | 'complete' | 'error' | '';
-
-export interface IStatusIcons {
-  plan: string;
-  process: string;
-  complete: string;
-  error: string;
-}
-
-export interface IProcessStatus {
-  // label: IStepPC;
-  key: IStepKey; //should be lower case label IStep
-  info: any;
-  order?: number;
-  result: string;
-  success: boolean;
-  error?: string;
-}
-
-export interface IProcessStep {
-  label: string;
-  required: boolean;
-  stepNo: number;
-  value?: string | boolean;
-  plan?: IProcessStatus;
-  process?: IProcessStatus;
-  complete?: IProcessStatus;
-  error?: IProcessStatus;
-  current: IProcessStatus;
-  value1: any; //List Title
-  value2: any; //Group Title
-  value3: any; //TBD
-  value4: any; //TBD 
-
-}
 
 export interface IProcessSteps {
   checkListPerms: IProcessStep;
@@ -141,47 +102,6 @@ export interface IProcessSteps {
   complete: IProcessStep;
 
 }
-
-export function createStep( label: string, planInfo: string , processInfo: string , completeInfo: string , errorInfo: string, required: boolean, stepNo: number, value1: any, value2: any, value3: any, value?: string | boolean ) {
-
-  const Step : IProcessStep = {
-    label: label,
-    required: required,
-    stepNo: stepNo,
-    value: value,
-    plan:  {
-      key: 'plan',
-      info: planInfo,
-      order: 0, result: '', success: false, error: '',
-    },
-    process:  {
-      key: 'process',
-      info: processInfo,
-      order: 1, result: '', success: false, error: '',
-    },
-    complete:  {
-      key: 'complete',
-      info: completeInfo,
-      order: 2, result: '', success: false, error: '',
-    },
-    error:  {
-      key: 'error',
-      info: errorInfo,
-      order: 3, result: '', success: false, error: '',
-    },
-    current:  {
-      key: 'plan',
-      info: planInfo,
-      order: 0, result: '', success: false, error: '',
-    },
-    value1: value1 ? value1 : '', //List Title
-    value2: value2 ? value2 : '', //Group Title
-    value3: value3 ? value3 : '', //Group ID
-    value4: '', //ParentGroupID
-  };
-  return Step;
-
-} 
 
 function checkGroup( name: string, required: boolean,  listTitle: string , groupTitle: string,  stepNo: number ) {
   return createStep( 'Check Group ' + name, 'Check for existing group', 'Checking for existing group', 'Checked for existing group', 'Was not able to check for group', required, stepNo, listTitle, groupTitle, ''  );

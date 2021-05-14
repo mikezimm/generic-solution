@@ -5,6 +5,7 @@ import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/Services/Logging/
 import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
 import { sortObjectArrayByStringKey } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 import { IRailAnalytics } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 
 
@@ -211,6 +212,7 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
     // selColumns.length > 0 ? selectCols += "," + selColumns.join(",") : selectCols = selectCols;
     // if (expColumns.length > 0) { expandThese = expColumns.join(","); }
 
+    analyticsWeb = getFullUrlFromSlashSitesUrl( analyticsWeb );
     try {
         let web = Web(analyticsWeb);
         let restFilter = "zzzText5 eq '" + siteGuid + "'";

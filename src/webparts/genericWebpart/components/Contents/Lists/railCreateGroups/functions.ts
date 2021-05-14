@@ -78,7 +78,9 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
 
 import { pivCats, IListBucketInfo } from '../listsComponent';
 
-import { IProcessStep, IProcessSteps, IProcessStatus, IStepPC } from './setup';
+import { IProcessSteps, } from './setup';
+
+import { IProcessStatus, IStepPC, IProcessStep } from '../../../../../../services/railsSetup';
 
 import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsComponent';
 
