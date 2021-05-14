@@ -10,105 +10,105 @@
  *                                                                                                                                  
  *                                                                                                                                  
  */
- import { sp } from "@pnp/sp";
+import { sp } from "@pnp/sp";
 
- //https://sharepoint.stackexchange.com/questions/261222/spfx-and-pnp-sp-how-to-get-all-sites
- //Just had to change SearchQuery to ISearchQuery.
- 
- import { ISearchQuery, SearchResults, ISearchResult, SortDirection } from "@pnp/sp/search";
- 
- import { IHubSiteWebData, IHubSiteInfo } from  "@pnp/sp/hubsites";
- import "@pnp/sp/webs";
- import "@pnp/sp/hubsites/web";
- 
- import { Web, IList, IItem } from "@pnp/sp/presets/all";
- 
- /***
-  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
-  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      888o  88 88  `8D 88'YbdP`88      88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP 
-  *       88    88  88  88 88oodD' 88    88 88oobY'    88         88V8o 88 88oodD' 88  88  88      88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.   
-  *       88    88  88  88 88~~~   88    88 88`8b      88         88 V8o88 88~~~   88  88  88      88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b. 
-  *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         88  V888 88      88  88  88      88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D 
-  *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP         VP   V8P 88      YP  YP  YP      YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y' 
-  *                                                                                                                                                                              
-  *                                                                                                                                                                              
-  */
- 
- import { getExpandColumns, getKeysLike, getSelectColumns } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
- 
- import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+//https://sharepoint.stackexchange.com/questions/261222/spfx-and-pnp-sp-how-to-get-all-sites
+//Just had to change SearchQuery to ISearchQuery.
+
+import { ISearchQuery, SearchResults, ISearchResult, SortDirection } from "@pnp/sp/search";
+
+import { IHubSiteWebData, IHubSiteInfo } from  "@pnp/sp/hubsites";
+import "@pnp/sp/webs";
+import "@pnp/sp/hubsites/web";
+
+import { Web, IList, IItem } from "@pnp/sp/presets/all";
+
+/***
+ *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
+ *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      888o  88 88  `8D 88'YbdP`88      88'     88    88 888o  88 d8P  Y8 `~~88~~'   `88'   .8P  Y8. 888o  88 88'  YP 
+ *       88    88  88  88 88oodD' 88    88 88oobY'    88         88V8o 88 88oodD' 88  88  88      88ooo   88    88 88V8o 88 8P         88       88    88    88 88V8o 88 `8bo.   
+ *       88    88  88  88 88~~~   88    88 88`8b      88         88 V8o88 88~~~   88  88  88      88~~~   88    88 88 V8o88 8b         88       88    88    88 88 V8o88   `Y8b. 
+ *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         88  V888 88      88  88  88      88      88b  d88 88  V888 Y8b  d8    88      .88.   `8b  d8' 88  V888 db   8D 
+ *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP         VP   V8P 88      YP  YP  YP      YP      ~Y8888P' VP   V8P  `Y88P'    YP    Y888888P  `Y88P'  VP   V8P `8888Y' 
+ *                                                                                                                                                                              
+ *                                                                                                                                                                              
+ */
+
+import { getExpandColumns, getKeysLike, getSelectColumns } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
+
+import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { ISharingInformation } from '@pnp/sp/sharing';
 
 
+/***
+ *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
+ *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
+ *       88    88  88  88 88oodD' 88    88 88oobY'    88         `8bo.   88ooooo 88oobY' Y8    8P    88    8P      88ooooo `8bo.   
+ *       88    88  88  88 88~~~   88    88 88`8b      88           `Y8b. 88~~~~~ 88`8b   `8b  d8'    88    8b      88~~~~~   `Y8b. 
+ *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         db   8D 88.     88 `88.  `8bd8'    .88.   Y8b  d8 88.     db   8D 
+ *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP         `8888Y' Y88888P 88   YD    YP    Y888888P  `Y88P' Y88888P `8888Y' 
+ *                                                                                                                                 
+ *                                                                                                                                 
+ */
+
+import { buildSharingRows } from './SharingElements';
+
  /***
-  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
-  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
-  *       88    88  88  88 88oodD' 88    88 88oobY'    88         `8bo.   88ooooo 88oobY' Y8    8P    88    8P      88ooooo `8bo.   
-  *       88    88  88  88 88~~~   88    88 88`8b      88           `Y8b. 88~~~~~ 88`8b   `8b  d8'    88    8b      88~~~~~   `Y8b. 
-  *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         db   8D 88.     88 `88.  `8bd8'    .88.   Y8b  d8 88.     db   8D 
-  *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP         `8888Y' Y88888P 88   YD    YP    Y888888P  `Y88P' Y88888P `8888Y' 
-  *                                                                                                                                 
-  *                                                                                                                                 
-  */
- 
- import { buildSharingRows } from './SharingElements';
- 
-  /***
-  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
-  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88   88 88'     88      88  `8D 88'     88  `8D 88'  YP 
-  *       88    88  88  88 88oodD' 88    88 88oobY'    88         88ooo88 88ooooo 88      88oodD' 88ooooo 88oobY' `8bo.   
-  *       88    88  88  88 88~~~   88    88 88`8b      88         88~~~88 88~~~~~ 88      88~~~   88~~~~~ 88`8b     `Y8b. 
-  *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         88   88 88.     88booo. 88      88.     88 `88. db   8D 
-  *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP         YP   YP Y88888P Y88888P 88      Y88888P 88   YD `8888Y' 
-  *                                                                                                                       
-  *                                                                                                                       
-  */
- 
-  /***
-  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
-  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
-  *       88    88  88  88 88oodD' 88    88 88oobY'    88         8P      88    88 88  88  88 88oodD' 88    88 88V8o 88 88ooooo 88V8o 88    88    
-  *       88    88  88  88 88~~~   88    88 88`8b      88         8b      88    88 88  88  88 88~~~   88    88 88 V8o88 88~~~~~ 88 V8o88    88    
-  *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         Y8b  d8 `8b  d8' 88  88  88 88      `8b  d8' 88  V888 88.     88  V888    88    
-  *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP          `Y88P'  `Y88P'  YP  YP  YP 88       `Y88P'  VP   V8P Y88888P VP   V8P    YP    
-  *                                                                                                                                               
-  *                                                                                                                                               
-  */
- 
- 
+ *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
+ *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88   88 88'     88      88  `8D 88'     88  `8D 88'  YP 
+ *       88    88  88  88 88oodD' 88    88 88oobY'    88         88ooo88 88ooooo 88      88oodD' 88ooooo 88oobY' `8bo.   
+ *       88    88  88  88 88~~~   88    88 88`8b      88         88~~~88 88~~~~~ 88      88~~~   88~~~~~ 88`8b     `Y8b. 
+ *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         88   88 88.     88booo. 88      88.     88 `88. db   8D 
+ *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP         YP   YP Y88888P Y88888P 88      Y88888P 88   YD `8888Y' 
+ *                                                                                                                       
+ *                                                                                                                       
+ */
+
  /***
-  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
-  *    88'     `8b  d8' 88  `8D .8P  Y8. 88  `8D `~~88~~'        `88'   888o  88 `~~88~~' 88'     88  `8D 88'     d8' `8b d8P  Y8 88'     88'  YP 
-  *    88ooooo  `8bd8'  88oodD' 88    88 88oobY'    88            88    88V8o 88    88    88ooooo 88oobY' 88ooo   88ooo88 8P      88ooooo `8bo.   
-  *    88~~~~~  .dPYb.  88~~~   88    88 88`8b      88            88    88 V8o88    88    88~~~~~ 88`8b   88~~~   88~~~88 8b      88~~~~~   `Y8b. 
-  *    88.     .8P  Y8. 88      `8b  d8' 88 `88.    88           .88.   88  V888    88    88.     88 `88. 88      88   88 Y8b  d8 88.     db   8D 
-  *    Y88888P YP    YP 88       `Y88P'  88   YD    YP         Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P `8888Y' 
-  *                                                                                                                                               
-  *                                                                                                                                               
-  */
- 
- /**
-  * 
-  * https://www.techmikael.com/2018/04/working-with-hub-sites-and-search-api.html
-  * 
-  * There are other options to work with subsites. The CSOM Site object contains a property named IsHubSite
-  * you can check on, as does the tenant properties of a site.
-  * The site object also has a HubSiteId property which corresponds to the search managed property DepartmentId.
-  * 
-  */
- 
+ *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
+ *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
+ *       88    88  88  88 88oodD' 88    88 88oobY'    88         8P      88    88 88  88  88 88oodD' 88    88 88V8o 88 88ooooo 88V8o 88    88    
+ *       88    88  88  88 88~~~   88    88 88`8b      88         8b      88    88 88  88  88 88~~~   88    88 88 V8o88 88~~~~~ 88 V8o88    88    
+ *      .88.   88  88  88 88      `8b  d8' 88 `88.    88         Y8b  d8 `8b  d8' 88  88  88 88      `8b  d8' 88  V888 88.     88  V888    88    
+ *    Y888888P YP  YP  YP 88       `Y88P'  88   YD    YP          `Y88P'  `Y88P'  YP  YP  YP 88       `Y88P'  VP   V8P Y88888P VP   V8P    YP    
+ *                                                                                                                                               
+ *                                                                                                                                               
+ */
+
+
+/***
+ *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
+ *    88'     `8b  d8' 88  `8D .8P  Y8. 88  `8D `~~88~~'        `88'   888o  88 `~~88~~' 88'     88  `8D 88'     d8' `8b d8P  Y8 88'     88'  YP 
+ *    88ooooo  `8bd8'  88oodD' 88    88 88oobY'    88            88    88V8o 88    88    88ooooo 88oobY' 88ooo   88ooo88 8P      88ooooo `8bo.   
+ *    88~~~~~  .dPYb.  88~~~   88    88 88`8b      88            88    88 V8o88    88    88~~~~~ 88`8b   88~~~   88~~~88 8b      88~~~~~   `Y8b. 
+ *    88.     .8P  Y8. 88      `8b  d8' 88 `88.    88           .88.   88  V888    88    88.     88 `88. 88      88   88 Y8b  d8 88.     db   8D 
+ *    Y88888P YP    YP 88       `Y88P'  88   YD    YP         Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P `8888Y' 
+ *                                                                                                                                               
+ *                                                                                                                                               
+ */
 
 /**
- * Extract date in milliseconds from string:  https://stackoverflow.com/a/1016908
- * @param details  details = "\/Date(1618104869979)\/" from SharedWithDetails
+ * 
+ * https://www.techmikael.com/2018/04/working-with-hub-sites-and-search-api.html
+ * 
+ * There are other options to work with subsites. The CSOM Site object contains a property named IsHubSite
+ * you can check on, as does the tenant properties of a site.
+ * The site object also has a HubSiteId property which corresponds to the search managed property DepartmentId.
+ * 
  */
- export function getDateFromDetails( details : string ) {
 
-  let re = /-?\d+/; 
-  let m = re.exec(details); 
-  let d = new Date(parseInt(m[0]));
 
-  return d;
+/**
+* Extract date in milliseconds from string:  https://stackoverflow.com/a/1016908
+* @param details  details = "\/Date(1618104869979)\/" from SharedWithDetails
+*/
+export function getDateFromDetails( details : string ) {
+
+ let re = /-?\d+/; 
+ let m = re.exec(details); 
+ let d = new Date(parseInt(m[0]));
+
+ return d;
 
 }
 
@@ -121,10 +121,10 @@ get back:
 "SharedWithUsersId":[0:16]
 "SharedWithDetails":"{"i:0#.f|membership|charris@mcclickster.onmicrosoft.com":{"DateTime":"\/Date(1618104869979)\/","LoginName":"mike.mcclickster@mcclickster.onmicrosoft.com"}}"
 {
- "i:0#.f|membership|charris@mcclickster.onmicrosoft.com":{
-    "DateTime":"\/Date(1618104869979)\/",
-    "LoginName":"mike.mcclickster@mcclickster.onmicrosoft.com"
- }
+"i:0#.f|membership|charris@mcclickster.onmicrosoft.com":{
+   "DateTime":"\/Date(1618104869979)\/",
+   "LoginName":"mike.mcclickster@mcclickster.onmicrosoft.com"
+}
 }
 
 This gets items in a specific folder, but not all files
@@ -148,126 +148,135 @@ This is from the sp.web.getFolderByServerRelativePath("Shared Documents").files(
 // allSharedItems( webURL, listTitle, null, null );
 
 export interface ISharedArrayItem {
-  key: string;
-  keys: string[];
-  sharedWith: string;
-  sharedBy: string;
-  DateTime: string;
-  TimeMS: number;
-  LoginName: string;
-  SharedTime: Date;
+ key: string;
+ keys: string[];
+ sharedWith: string;
+ sharedBy: string;
+ DateTime: string;
+ TimeMS: number;
+ LoginName: string;
+ SharedTime: Date;
 
-  //Copying these down from item just for easier use.
-  GUID: string;
-  odataEditLink: string;
-  FileSystemObjectType: number;
-  AuthorId: number;
-  Created: string;
+ //Copying these down from item just for easier use.
+ GUID: string;
+ odataEditLink: string;
+ FileSystemObjectType: number;
+ AuthorId: number;
+ Created: string;
 
-  Modified: string;
-  EditorId: number;
+ Modified: string;
+ EditorId: number;
 
-  CheckoutUserId: number;
+ CheckoutUserId: number;
 }
 
 export interface IMySharedItem {
-  SharedWithDetails: string;
-  SharedDetails: any;
-  SharedArray: ISharedArrayItem[];
-  SharedWithUsersId: number[];
-  Title: string;
+ SharedWithDetails: string;
+ SharedDetails: any;
+ SharedArray: ISharedArrayItem[];
+ SharedWithUsersId: number[];
+ Title: string;
 
-  Id: number;
-  ID: number;
-  
-  GUID: string;
-  odataEditLink: string;
+ Id: number;
+ ID: number;
+ 
+ GUID: string;
+ odataEditLink: string;
 
-  FileSystemObjectType: number;
-  ServerRedirectedEmbedUrl: string;
-  ContentTypeId: string;
-  AuthorId: number;
-  Created: string;
+ FileRef: string;
+ FileLeafRef: string;
 
-  Modified: string;
-  EditorId: number;
+ FileSystemObjectType: number;
+ ServerRedirectedEmbedUrl: string;
+ ContentTypeId: string;
+ AuthorId: number;
+ Created: string;
 
-  CheckoutUserId: number;
+ Modified: string;
+ EditorId: number;
+
+ CheckoutUserId: number;
 }
 
 export interface IMySharingInfo {
-  sharedItems: IMySharedItem[];
-  sharedElements: any[];
-  detailItems: any[];
-  detailElements: any[];
-  isLoaded: boolean;
-  errMessage: string;
+ sharedItems: IMySharedItem[];
+ sharedElements: any[];
+ detailItems: any[];
+ detailElements: any[];
+ isLoaded: boolean;
+ errMessage: string;
 }
 
 
 export async function allSharedItems( webURL: string, listTitle: string, addTheseItemsToState: any, setProgress: any, width: number ) {
-  let sharedItems: IMySharedItem[] = [];
-  let sharedElements: any[] = [];
-  let detailItems: any[] = [];
-  let detailElements = null;
-  let isLoaded = false;
+ let sharedItems: IMySharedItem[] = [];
+ let sharedElements: any[] = [];
+ let detailItems: any[] = [];
+ let detailElements = null;
+ let isLoaded = false;
 
-  let errMessage = '';
-  let webOrList = listTitle && listTitle.length > 0 && listTitle.toLowerCase() !== 'web' ? 'list' : 'web';
-  let thisWebInstance = null;
+ let errMessage = '';
+ let webOrList = listTitle && listTitle.length > 0 && listTitle.toLowerCase() !== 'web' ? 'list' : 'web';
+ let thisWebInstance = null;
 
-  try {
-      thisWebInstance = Web(webURL);
-      let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
-      sharedItems = await thisListObject.items.filter('SharedWithUsersId ne null').get();
-      sharedItems.map( item => {
-        item.SharedDetails = JSON.parse(item.SharedWithDetails);
-        item.SharedArray = Object.keys(item.SharedDetails).map( shareKey => {
-          let keys = shareKey.split('|');
-          let detail = item.SharedDetails[ shareKey ];
-          let key: string = keys[0];
-          let SharedTime = getDateFromDetails( detail.DateTime );
-          return {
-            key: shareKey,
-            keys: keys,
-            sharedWith: keys[2],
-            sharedBy: detail.LoginName,
-            DateTime: detail.DateTime,
-            LoginName: detail.LoginName,
-            TimeMS: SharedTime.getTime(),
-            SharedTime: SharedTime,
-            GUID: item.GUID ,
-            odataEditLink: item.odataEditLink ,
-            FileSystemObjectType: item.FileSystemObjectType ,
-            AuthorId: item.AuthorId ,
-            Created: item.Created ,
-          
-            Modified: item.Modified ,
-            EditorId: item.EditorId ,
-          
-            CheckoutUserId: item.CheckoutUserId ,
-          };
-        });
-      });
-      sharedElements = buildSharingRows( sharedItems, width );
+ let thisSelect = ["*","Title","FileRef","FileLeafRef","SharedWithUsers/Title","SharedWithUsers/Name","SharedWithDetails"];
+ let thisExpand = ["SharedWithUsers"];
 
-  } catch (e) {
-      errMessage = getHelpfullError(e, false, true);
+ try {
+     thisWebInstance = Web(webURL);
+     let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
+     sharedItems = await thisListObject.items.select(thisSelect).expand(thisExpand).filter('SharedWithUsersId ne null').get();
+     sharedItems.map( item => {
+       item.SharedDetails = JSON.parse(item.SharedWithDetails);
+       item.SharedArray = Object.keys(item.SharedDetails).map( shareKey => {
+         let keys = shareKey.split('|');
+         let detail = item.SharedDetails[ shareKey ];
+         let key: string = keys[0];
+         let SharedTime = getDateFromDetails( detail.DateTime );
+         return {
+           key: shareKey,
+           keys: keys,
+           sharedWith: keys[2],
+           sharedBy: detail.LoginName,
+           DateTime: detail.DateTime,
+           LoginName: detail.LoginName,
+           TimeMS: SharedTime.getTime(),
+           SharedTime: SharedTime,
+           GUID: item.GUID ,
+           odataEditLink: item.odataEditLink ,
+           FileSystemObjectType: item.FileSystemObjectType ,
+           AuthorId: item.AuthorId ,
+           Created: item.Created ,
+           FileRef: item.FileRef ,
+           FileLeafRef: item.FileLeafRef ,
 
-  }
+         
+           Modified: item.Modified ,
+           EditorId: item.EditorId ,
+         
+           CheckoutUserId: item.CheckoutUserId ,
+         };
+       });
+     });
+     sharedElements = buildSharingRows( sharedItems, width );
 
-  let mySharing : IMySharingInfo = {
-    sharedItems: sharedItems,
-    sharedElements: sharedElements,
-    detailItems: detailItems,
-    detailElements: detailElements,
-    isLoaded: isLoaded,
-    errMessage: errMessage,
-  };
+ } catch (e) {
+     errMessage = getHelpfullError(e, false, true);
 
-  addTheseItemsToState( mySharing, errMessage );
-  // console.log('mySharing:', mySharing );
-  return { mySharing };
+ }
+
+ let mySharing : IMySharingInfo = {
+   sharedItems: sharedItems,
+   sharedElements: sharedElements,
+   detailItems: detailItems,
+   detailElements: detailElements,
+   isLoaded: isLoaded,
+   errMessage: errMessage,
+ };
+
+ addTheseItemsToState( mySharing, errMessage );
+ // console.log('mySharing:', mySharing );
+ return { mySharing };
 }
 
 export function processSharedItems( foundItems: any[] ) {
@@ -275,63 +284,62 @@ export function processSharedItems( foundItems: any[] ) {
 
 }
 
-  
- export interface MySearchResults extends ISearchResult {
  
- }
- 
- export async function getSharedFiles( webURL: string, listTitle: string, addTheseItemsToState: any, setProgress: any ) {
- 
-     /**
-      *  Updated search query per pnpjs issue response:
-      *  https://github.com/pnp/pnpjs/issues/1552#issuecomment-767837463
-      * 
-      * GET Managed properties here:  https://tenanat-admin.sharepoint.com/_layouts/15/searchadmin/ta_listmanagedproperties.aspx?level=tenant
-      * 
-      */
-    const thisWebInstance = Web(webURL);
+export interface MySearchResults extends ISearchResult {
 
-    let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
-    const theList = await sp.web.lists.getByTitle('Documents').get();   //ListItemEntityTypeFullName: "SP.Data.Shared_x0020_DocumentsItem
+}
 
-    let DocumentTemplateUrl = theList.DocumentTemplateUrl;  //"DocumentTemplateUrl":"/sites/PivotNotInstalled/Shared Documents/Forms/template.dotx"
-    let odataMetadata = theList['odata.metadata'];  // "odata.metadata":"https://mcclickster.sharepoint.com/sites/PivotNotInstalled/_api/$metadata#SP.ApiData.Lists/@Element"
+export async function getSharedFiles( webURL: string, listTitle: string, addTheseItemsToState: any, setProgress: any ) {
 
-    //Can get serverrelativeURL via sp.web.getFolderByServerRelativePath("Shared Documents/Folder1").files()
+    /**
+     *  Updated search query per pnpjs issue response:
+     *  https://github.com/pnp/pnpjs/issues/1552#issuecomment-767837463
+     * 
+     * GET Managed properties here:  https://tenanat-admin.sharepoint.com/_layouts/15/searchadmin/ta_listmanagedproperties.aspx?level=tenant
+     * 
+     */
+   const thisWebInstance = Web(webURL);
 
-    let query=`Path:https://mcclickster.sharepoint.com/sites/PivotNotInstalled/Shared%20Documents* AND ContentClass:STS_ListItem` ;
-    let shareSelect = ["*","Title", "ServerRelativeUrl", "ServerRelativePath", "ID", "Id", "Path", "Filename","FileLeafRef", "Author","Editor","SharedWithUsersId", "SharedWithDetails", "SharedWithInternal","FileLeafRef","ows_FileLeafRef","ModifiedBy","Created","Modified","CreatedBy","CreatedById","ModifiedById","ServerRedirectedEmbedURL","ServerRedirectedPreviewURL","ServerRedirectedPreviewURL"];
+   let thisListObject = thisWebInstance.lists.getByTitle( listTitle );
+   const theList = await sp.web.lists.getByTitle('Documents').get();   //ListItemEntityTypeFullName: "SP.Data.Shared_x0020_DocumentsItem
 
-    sp.search(<ISearchQuery>{
-        Querytext: query,
-          SelectProperties: shareSelect,
-          "RowLimit": 500,
+   let DocumentTemplateUrl = theList.DocumentTemplateUrl;  //"DocumentTemplateUrl":"/sites/PivotNotInstalled/Shared Documents/Forms/template.dotx"
+   let odataMetadata = theList['odata.metadata'];  // "odata.metadata":"https://mcclickster.sharepoint.com/sites/PivotNotInstalled/_api/$metadata#SP.ApiData.Lists/@Element"
+
+   //Can get serverrelativeURL via sp.web.getFolderByServerRelativePath("Shared Documents/Folder1").files()
+
+   let query=`Path:https://mcclickster.sharepoint.com/sites/PivotNotInstalled/Shared%20Documents* AND ContentClass:STS_ListItem` ;
+   let shareSelect = ["*","Title", "ServerRelativeUrl", "ServerRelativePath", "ID", "Id", "Path", "Filename","FileLeafRef", "Author","Editor","SharedWithUsersId", "SharedWithDetails", "SharedWithInternal","FileLeafRef","ows_FileLeafRef","ModifiedBy","Created","Modified","CreatedBy","CreatedById","ModifiedById","ServerRedirectedEmbedURL","ServerRedirectedPreviewURL","ServerRedirectedPreviewURL"];
+
+   sp.search(<ISearchQuery>{
+       Querytext: query,
+         SelectProperties: shareSelect,
+         "RowLimit": 500,
 //          "StartRow": 0,
-          EnableInterleaving: true,  //https://docs.microsoft.com/en-us/answers/questions/270812/bh-bhattmeet-get-most-viewed-documents-from-sharep.html
+         EnableInterleaving: true,  //https://docs.microsoft.com/en-us/answers/questions/270812/bh-bhattmeet-get-most-viewed-documents-from-sharep.html
 //          "ClientType": "ContentSearchRegular",  //This is from Hubsearch
-          TrimDuplicates: false, //This is needed in order to also get the hub itself.
-          SortList:
-          [
-            {
-              Property: 'Created',
-              Direction: SortDirection.Descending
-            }
-          ],
-        })
-           .then( ( res: SearchResults) => {
+         TrimDuplicates: false, //This is needed in order to also get the hub itself.
+         SortList:
+         [
+           {
+             Property: 'Created',
+             Direction: SortDirection.Descending
+           }
+         ],
+       })
+          .then( ( res: SearchResults) => {
 
-             console.log('associated sites with URL/Desc', res);
-             console.log(res.RowCount);
-             console.log(res.PrimarySearchResults);
+            console.log('associated sites with URL/Desc', res);
+            console.log(res.RowCount);
+            console.log(res.PrimarySearchResults);
 
-            //  entireResponse.hubs.map( h => {
-            //      h.sourceType = hubsCategory;
-            //  });
-            //  callback( entireResponse, custCategories, newData );
+           //  entireResponse.hubs.map( h => {
+           //      h.sourceType = hubsCategory;
+           //  });
+           //  callback( entireResponse, custCategories, newData );
 
-     });
+    });
 
-     return;
+    return;
 
- }
- 
+}
