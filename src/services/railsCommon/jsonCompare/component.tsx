@@ -28,6 +28,8 @@ import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
 
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 import { TextField,  ITextFieldProps, IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
+
+import { TooltipHost, TooltipDelay, DirectionalHint, ITooltipProps, ITooltipHostStyles } from 'office-ui-fabric-react';
 import { DefaultButton, PrimaryButton, CompoundButton, elementContains } from 'office-ui-fabric-react';
 
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
@@ -52,6 +54,8 @@ import ReactJson from "react-json-view";
  import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
 
  import { getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+
+ import { getIconStyles } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
  
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -126,6 +130,8 @@ export interface IMyJsonCompareProps {
 
   }
 
+  export type IIncludeOrIgnore = 'Ignore' | 'Include' ;
+
 export interface IMyJsonCompareState {
 
     disableDo: boolean;
@@ -138,6 +144,7 @@ export interface IMyJsonCompareState {
     otherList: string;
     otherProp: string;
     ignoreKeys: string[];
+    includeOrIgnore: IIncludeOrIgnore;
 
 }
 
@@ -153,6 +160,7 @@ const panelWidth = '90%';
 
 const groupBottomPadding = '25px';
 const toggleBottomPadding = '5px';
+const togglePadding = '';
 
 const pivotHeading1 = 'This';  //Templates
 const pivotHeading2 = 'Other';  //Templates
@@ -197,6 +205,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             otherProp: 'List',
             ignoreKeys: ignoreListKeys,
             showTab: pivotHeading1,
+            includeOrIgnore: 'Ignore',
 
         };
     }
@@ -251,6 +260,8 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
             let theListAny : any = this.props.theList; //Added because one property is required in MyPermissions but optional in this type.
 
+            let includeToggle = this.state.includeOrIgnore === 'Include' ? true : false;
+
             panelContent = <div>
                 <h3> { `${ this.props.theList.Title } ${ listOrLib }` }</h3>
                 <Pivot
@@ -299,10 +310,16 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                                         <PivotItem headerText={pivotTabHeading4} ariaLabel={pivotTabHeading4} title={pivotTabHeading4} itemKey={pivotTabHeading4} itemIcon={ null }></PivotItem>
                                     </Pivot>
                                 </div>
-
-                                { this.makeTextField( 'Keys to ignore', this.state.ignoreKeys.join(', ') , this._updateText3.bind(this) , false, '0px 0px ' + '20px ' + '0px', '500px' )}
+                                <div style={{ paddingLeft: '150px', display: 'flex' }}>
+                                    { this.makeToggle( '', includeToggle, false, this.updateTogggle1.bind(this) , '125px' ) }
+                                    { this.makeTextField( 'Keys to ignore', this.state.ignoreKeys.join(', ') , this._updateText3.bind(this) , false, '0px 0px ' + '20px ' + '0px', '500px' )}
+                                    <div style={{ marginLeft: '30px'}}>
+                                        <TooltipHost content="Include or ignore keys with these strings when comparing" id={ 'includeOrIgnoreTooltip' } calloutProps={ null }>
+                                            <Icon iconName="Info" style={ getIconStyles('PivotTiles', 'black') }></Icon>
+                                        </TooltipHost>
+                                    </div>
+                                </div>
                             </div>
-
 
                             { this.props.json2 === undefined || this.props.errorMess !== '' ? 
                                 <MessageBar messageBarType={MessageBarType.warning}>
@@ -406,28 +423,29 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
      */
     //            let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
-    private makeToggle( label: string, checked: boolean, disabled: boolean, _onChange: any ) {
-        return <div style={{ width: panelWidth, paddingBottom: toggleBottomPadding }}>
-            <h3>{ label } </h3>
+    private makeToggle( label: string, checked: boolean, disabled: boolean, _onChange: any, width = panelWidth, padding = togglePadding ) {
+        return <div style={{ width: width, padding: padding }}>
+            { label !== '' && label !== null ? <h3>{ label } </h3> : null }
             <Toggle 
-            onText={ 'Include' } 
-            offText={ 'Skip' } 
-            onChange={ _onChange } 
-            checked={ checked }
-            disabled= { disabled }
-            styles={ toggleStyles }
+                onText={ 'Include' } 
+                offText={ 'Ignore' } 
+                onChange={ _onChange } 
+                checked={ checked }
+                disabled= { disabled }
+                styles={ toggleStyles }
             />
         </div>;
 
     }
     
-    private updateTogggle1() {  
-        this.setState({  
+    private updateTogggle1() {
+        
+        let includeOrIgnore : IIncludeOrIgnore = this.state.includeOrIgnore === 'Include' ? 'Ignore' : 'Include';
 
+        this.setState({  
+            includeOrIgnore: includeOrIgnore,
          }); 
     }
-
-
     
     private async _selectDoThis(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
         //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));
