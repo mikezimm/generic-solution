@@ -133,6 +133,7 @@ export interface IMyJsonCompareState {
     refreshId: string;
     errorMess: string;
 
+    showTab: string;
     otherWeb: string;
     otherList: string;
     otherProp: string;
@@ -195,6 +196,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             otherList: this.props.theList.Title,
             otherProp: 'List',
             ignoreKeys: ignoreListKeys,
+            showTab: pivotHeading1,
 
         };
     }
@@ -255,7 +257,8 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                     styles={ pivotStyles }
                     linkFormat={PivotLinkFormat.links}
                     linkSize={PivotLinkSize.normal}
-                    onLinkClick={this._selectedIndex.bind(this)}
+                    onLinkClick={this._selectedIndexMainPivot.bind(this)}
+                    selectedKey={ this.state.showTab }
 
                 >
                     <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }>
@@ -274,11 +277,11 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                             {/* { permissions } */}
                             <div style={{  display: 'flex' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >Web URL</div>
-                                { this.makeTextField( 'Enter compare web URL', this.props.theList.ParentWebUrl , this._updateText1.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
+                                { this.makeTextField( 'Enter compare web URL', this.state.otherWeb , this._updateText1.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
                             </div>
                             <div style={{  display: 'flex' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >List Title</div>
-                                { this.makeTextField( 'Enter compare List Title', this.props.theList.Title , this._updateText2.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
+                                { this.makeTextField( 'Enter compare List Title', this.state.otherList , this._updateText2.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
                             </div>
                             <div style={{  display: 'flex', marginBottom: '20px' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >Do this</div>
@@ -441,7 +444,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         this.props._fetchCompare( this.state.otherWeb, this.state.otherList, itemKey );
       }
 
-    private async _selectedIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
+    private async _selectedIndexMainPivot(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
         /**
          * 
          * 
@@ -464,7 +467,9 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
         }
 
-        this.props._fetchCompare( this.state.otherWeb, this.state.otherList, itemKey );
+        this.setState({ showTab: itemKey });
+
+        this.props._fetchCompare( this.state.otherWeb, this.state.otherList, this.state.otherProp );
 
     }
 }

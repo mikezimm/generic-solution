@@ -473,23 +473,20 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     private async _fetchCompare( altWeb: string, altListTitle: string, doThis: string ) {
         if ( doThis === 'List' ) {
-            let firstJSON = [];
             let secondJSON = [];
 
-            let restFilter = `Title eq '${ this.state.selectedEntity.Title }'`;
-            if ( this.state.lastCompare !== 'List' ) { //Only do this if Fields was not the last compare type
-                firstJSON = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
-                // firstJSON = await ECFields.allAvailableFields( altWeb, this.state.selectedEntity.Title, ECFields.createSearchBuckets(),null, null, null );
-                
-            } else { firstJSON = this.state.firstJSON ; }
-            restFilter = `Title eq '${ altListTitle }'`;
-            secondJSON = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
+            if ( altListTitle === this.state.selectedEntity.Title ) {
+                secondJSON = [ this.state.selectedEntity ];
+            } else {
+                let restFilter = `Title eq '${ altListTitle }'`;
+                secondJSON = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
+            }
 
             this.setState({ 
-                firstJSON: firstJSON[0],
+                firstJSON: this.state.selectedEntity,
                 secondJSON: secondJSON[0],
                 compareError: '', 
-                lastCompare: 'Fields',
+                lastCompare: 'List',
             });
 
         } 
