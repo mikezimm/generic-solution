@@ -73,19 +73,6 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                       
  */
 
- import { getSiteInfoIncludingUnique } from './functions';
-
-  import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
-
-  import RailsHistory from '../../../../../../services/railsCommon/RailsHistoryPane';
-  import SelectedRails from '../../../../../../services/railsCommon/RailsSelectedPane';
-
-  import { createIconButton } from '../../../createButtons/IconButton';
-  
-  
-  import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
-  
-  import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -97,18 +84,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, } from '../../../../../../services/createAnalytics';
 
-
-import { IListRailFunction } from '../listsComponent';
-import { createProcessSteps, IProcessSteps,  } from './setup';
-import {  IProcessStep, StatusIcons, StatusColors } from '../../../../../../services/railsCommon/railsSetup';
-import { doThisRailFunction } from './functions';
-import * as strings from 'GenericWebpartWebPartStrings';
-
-import MyPermissions from '../../Permissions/MyPermissions';
-
-import { IFetchInfoSettingsMin } from '../../Permissions/IWebPermissionsProps';
+import * as strings from './node_modules/GenericWebpartWebPartStrings';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 

@@ -12,7 +12,11 @@ import { IContentsFieldInfo, IFieldBucketInfo } from  './fieldsComponent';
 import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';  //    webURL = getFullUrlFromSlashSitesUrl( webURL );
+
 import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { isGuid, makeid, } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 
 import { pivCats } from './fieldsComponent';
 
@@ -36,11 +40,22 @@ let ootbFields = [ 'Created_x0020_Date', 'Last_x0020_Modified', 'FileLeafRef', '
         
 ];
 
+export function createSearchBuckets() {
+    let result : IFieldBucketInfo[] = [
+        { fields: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content - Can update'} ,
+        { fields: [], count: 0, sort : '3' , bucketCategory: 'ReadOnly', bucketLabel: '3. ReadOnly - Calculated/Lookup?' } ,
+        { fields: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
+        { fields: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
+    ];
+    return result;
+}
 
 //export async function provisionTestPage( makeThisPage:  IContentsFieldInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allAvailableFields( webURL: string, listGUID: string, fieldBuckets: IFieldBucketInfo[], addTheseFieldsToState: any, setProgress: any, markComplete: any ): Promise<IContentsFieldInfo[]>{
 
     let contentsFields : IContentsFieldInfo = null;
+
+    webURL = getFullUrlFromSlashSitesUrl( webURL );
 
     //lists.getById(listGUID).fields.orderBy("Title", true).get().then(function(result) {
     //let allFields : IContentsFieldInfo[] = await thisWebInstance.fields.get();
@@ -51,10 +66,17 @@ export async function allAvailableFields( webURL: string, listGUID: string, fiel
     let scope = '';
     let errMessage = '';
 
+    let isId = isGuid( listGUID );
+
     try {
         if ( listGUID != '' ) {
             thisWebInstance = Web(webURL);
-            allFields = await thisWebInstance.lists.getById(listGUID).fields.orderBy("Title", true).get();
+            if ( isId === true ) {
+                allFields = await thisWebInstance.lists.getById(listGUID).fields.orderBy("Title", true).get();
+            } else {
+                allFields = await thisWebInstance.lists.getByTitle(listGUID).fields.orderBy("Title", true).get();
+            }
+
             scope = 'List';
     
         } else {
@@ -63,7 +85,7 @@ export async function allAvailableFields( webURL: string, listGUID: string, fiel
     
         }
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+        errMessage = getHelpfullError(e, false, true);
 
     }
 

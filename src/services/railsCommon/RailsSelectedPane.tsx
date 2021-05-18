@@ -92,11 +92,12 @@ import { shouldDoThisStepBasedOnDependant } from './railsSetup';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-import { fetchAnalytics, } from './createAnalytics';
+import { fetchAnalytics, } from '../createAnalytics';
 
 import { IProcessStep, StatusIcons, StatusColors } from './railsSetup';
 
-import { IProcessSteps } from '../webparts/genericWebpart/components/Contents/Lists/railCreateGroups/setup';
+// import { IProcessSteps } from '../../../../webparts/genericWebpart/components/Contents/Lists/railCreateGroups/';
+import { IProcessSteps } from '../../webparts/genericWebpart/components/Contents/Lists/railCreateGroups/setup';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 

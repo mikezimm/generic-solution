@@ -80,7 +80,7 @@ import { pivCats, IListBucketInfo } from '../listsComponent';
 
 import { IProcessSteps, } from './setup';
 
-import { IProcessStatus, IStepPC, IProcessStep, shouldDoThisStepBasedOnDependant } from '../../../../../../services/railsSetup';
+import { IProcessStatus, IStepPC, IProcessStep, shouldDoThisStepBasedOnDependant } from '../../../../../../services/railsCommon/railsSetup';
 
 import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsComponent';
 

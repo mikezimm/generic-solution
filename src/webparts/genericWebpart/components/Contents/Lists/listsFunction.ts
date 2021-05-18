@@ -44,6 +44,8 @@ import { encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';  //    webURL = getFullUrlFromSlashSitesUrl( webURL );
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -89,6 +91,8 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
 import { pivCats, IListBucketInfo } from './listsComponent';
 
+import { IFieldBucketInfo, IContentsFieldInfo } from '../Fields/fieldsComponent';
+import * as ECFields from '../Fields/fieldsFunctions';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -106,8 +110,16 @@ export type IValidTemplate = 100 | 101;
 
 
 
+export async function allFieldsCompare( webURL: string, listTitleOrId: string, fieldBuckets: IFieldBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsFieldInfo[]>{
+
+    let fields : IContentsFieldInfo[] = [];
+    let errMessage = '';
+    addTheseListsToState(fields, errMessage);
+    return fields;
+}
+
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableLists( webURL: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
+export async function allAvailableLists( webURL: string, restFilter: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
 
     let contentsLists : IContentsLists = null;
 
@@ -115,9 +127,16 @@ export async function allAvailableLists( webURL: string, listBuckets: IListBucke
     let scope = '';
     let errMessage = '';
 
+    webURL = getFullUrlFromSlashSitesUrl( webURL );
+
     try {
         thisWebInstance = Web(webURL);
-        let allLists : IContentsListInfo[] = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').get();
+        let allLists : IContentsListInfo[] = [];
+        if ( restFilter && restFilter.length > 0 ) {
+            allLists = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').filter( restFilter ).get();
+        } else {
+            allLists = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').get();
+        }
         //console.log(allLists);
 
         for (let i in allLists ) {
@@ -174,11 +193,11 @@ export async function allAvailableLists( webURL: string, listBuckets: IListBucke
         addTheseListsToState(allLists, '');
         return allLists;
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+        errMessage = getHelpfullError(e, false, true);
         console.log('checkThisPage', errMessage);
         addTheseListsToState([], errMessage);
+        return [];
     }
-
 
 }
 

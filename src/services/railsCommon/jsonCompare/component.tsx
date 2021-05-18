@@ -27,10 +27,12 @@ import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
 
 
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
-import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
+import { TextField,  ITextFieldProps, IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 import { DefaultButton, PrimaryButton, CompoundButton, elementContains } from 'office-ui-fabric-react';
 
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
+
+import ReactJson from "react-json-view";
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
@@ -48,6 +50,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
  import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
  import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
+
+ import { getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
  
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -72,13 +76,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                       
  *                                                                                                                       
  */
-
-//  import { getSiteInfoIncludingUnique } from './functions';
-
-//   import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
-
-//   import { createIconButton } from '../../../createButtons/IconButton';
   
+  import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
   
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -90,9 +89,6 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-import { fetchAnalytics, } from './createAnalytics';
-
-import { IProcessStep, StatusIcons, StatusColors } from './railsSetup';
 
 
 /***
@@ -107,26 +103,68 @@ import { IProcessStep, StatusIcons, StatusColors } from './railsSetup';
  */
 
 
-export interface IRailsHistoryProps {
+export interface IMyJsonCompareProps {
     theList: IContentsListInfo;
+    user: IUser;
+    wpContext: WebPartContext;
+    railFunction: string;
+    showPanel: boolean;
+    _closePanel: any;
+
+    type: PanelType;
+
+    json1: any;
+    json2?: any;
+
+    _fetchCompare: any; //Function that will get json2 from inputs in this component
 
     pickedWeb : IPickedWebBasic;
 
     analyticsWeb: string;
-    analyticsListRails: string;
+    analyticsList: string;
+    errorMess: string;
 
   }
 
-export interface IRailsHistoryState {
-  history: IArraySummary;
+export interface IMyJsonCompareState {
+
+    disableDo: boolean;
+    finished: boolean;
+    refreshId: string;
+    errorMess: string;
+
+    otherWeb: string;
+    otherList: string;
+    otherProp: string;
+    ignoreKeys: string[];
+
 }
 
+const pivotStyles = {
+    root: {
+      whiteSpace: "normal",
+    //   textAlign: "center"
+    }};
+
 const toggleStyles = { root: { width: 160, } };
+
 const panelWidth = '90%';
+
 const groupBottomPadding = '25px';
 const toggleBottomPadding = '5px';
 
-export default class RailsHistory extends React.Component<IRailsHistoryProps, IRailsHistoryState> {
+const pivotHeading1 = 'This';  //Templates
+const pivotHeading2 = 'Other';  //Templates
+const pivotHeading3 = 'Compare';  //Templates
+
+const pivotTabHeading1 = 'List';  //Templates
+const pivotTabHeading2 = 'Fields';  //Templates
+const pivotTabHeading3 = 'Views';  //Templates
+const pivotTabHeading4 = 'Types';  //Templates
+
+const ignoreListKeys = ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString'];
+
+export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, IMyJsonCompareState> {
 
 
     /***
@@ -140,21 +178,38 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
  *                                                                                                       
  */ 
 
-    constructor(props: IRailsHistoryProps) {
+    constructor(props: IMyJsonCompareProps) {
         super(props);
         let listTitle = this.props.theList.Title;
 
+        // let startTime = getTheCurrentTime();
+        let startTime = new Date();
+        let refreshId = startTime.toISOString().replace('T', ' T'); // + ' ~ ' + startTime.toLocaleTimeString();
+
         this.state = {
-          history: null,
+            disableDo: false,
+            refreshId: refreshId,
+            finished: false,
+            errorMess: '',
+            otherWeb: this.props.theList.ParentWebUrl,
+            otherList: this.props.theList.Title,
+            otherProp: 'List',
+            ignoreKeys: ignoreListKeys,
 
         };
     }
-    
+        
     public componentDidMount() {
-      this.fetchHistory();
-
+        this.props._fetchCompare( this.props.theList.ParentWebUrl, this.props.theList.Title );
     }
-   
+
+    private async _doCheck() {
+        this.setState({
+
+        });
+    }
+
+    
 
 /***
  *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
@@ -167,7 +222,7 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
  *                                                                                         
  */
 
-    public componentDidUpdate(prevProps: IRailsHistoryProps): void {
+    public componentDidUpdate(prevProps: IMyJsonCompareProps): void {
         // this.setState({ refreshId: makeid(5) })
     //this._updateWebPart(prevProps);
     }
@@ -184,39 +239,101 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
  */
 
 
-    public render(): React.ReactElement<IRailsHistoryProps> {
+    public render(): React.ReactElement<IMyJsonCompareProps> {
 
         if ( this.props.theList ) {
           
             let listOrLib = this.props.theList.BaseType === 0 ? 'List' : 'Library' ;
-            
-            let history = null;
 
-            if ( this.state.history !== null ) {
-                history = <div>
-                    <div>Found { this.state.history.filteredKeys.length } tasks from this list: { this.props.theList.Title } </div>
-                    {/* { this.state.history.filteredKeys.map( key=> <div> { key } </div> ) } */}
-                    { this.state.history.filteredGroups.map( group=> 
-                        <div><div style={{ fontSize: 'x-large', fontWeight: 600, background: 'lightgray', padding: '5px 15px', marginTop: '15px', borderRadius: '5px' }}>
-                             { group.key.split('~')[0] } 
-                             <span style={{ paddingLeft: '10px', fontSize: 'small' }}> { 
-                                group.localTime
-                                // new Date( group.key.split('~')[0] ).toLocaleString() //This does not work... gives "Invalid Date"
-                              } </span>
-                        </div>
-                        <table>
-                            <tr><th> Step </th><th> Result </th><th> Info </th></tr>
-                            { group.items.map( item => {
-                                return this.buildHistoryStep( item );
-                            })
+            let panelContent = null;
+
+            let theListAny : any = this.props.theList; //Added because one property is required in MyPermissions but optional in this type.
+
+            panelContent = <div>
+                <h3> { `${ this.props.theList.Title } ${ listOrLib }` }</h3>
+                <Pivot
+                    styles={ pivotStyles }
+                    linkFormat={PivotLinkFormat.links}
+                    linkSize={PivotLinkSize.normal}
+                    onLinkClick={this._selectedIndex.bind(this)}
+
+                >
+                    <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }>
+                        <div style={{marginTop: '20px'}}>
+                            {/* <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
+                                { this.makeToggle( 'Create Contributors', true, false, this.updateTogggle1.bind(this) ) }
+                                { this.makeToggle( 'Read site', true, false, this.updateTogggle1.bind(this) ) }
+                            </div> */}
+                            <div style={{ overflowY: 'auto' }}>
+                                <ReactJson src={ this.props.json1 } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                            </div>
+                            </div>
+                    </PivotItem>
+                    <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ null }>
+                        <div style={{marginTop: '20px'}}>
+                            {/* { permissions } */}
+                            <div style={{  display: 'flex' }}>
+                                <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >Web URL</div>
+                                { this.makeTextField( 'Enter compare web URL', this.props.theList.ParentWebUrl , this._updateText1.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
+                            </div>
+                            <div style={{  display: 'flex' }}>
+                                <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >List Title</div>
+                                { this.makeTextField( 'Enter compare List Title', this.props.theList.Title , this._updateText2.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
+                            </div>
+                            <div style={{  display: 'flex', marginBottom: '20px' }}>
+                                <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >Do this</div>
+                                <div style={{ paddingRight: '40px' }}>
+                                    <Pivot
+                                        styles={ pivotStyles }
+                                        linkFormat={PivotLinkFormat.tabs}
+                                        linkSize={PivotLinkSize.normal}
+                                        onLinkClick={this._selectDoThis.bind(this)}
+                                        selectedKey={ this.state.otherProp }
+                                    >
+                                        <PivotItem headerText={pivotTabHeading1} ariaLabel={pivotTabHeading1} title={pivotTabHeading1} itemKey={pivotTabHeading1} itemIcon={ null }></PivotItem>
+                                        <PivotItem headerText={pivotTabHeading2} ariaLabel={pivotTabHeading2} title={pivotTabHeading2} itemKey={pivotTabHeading2} itemIcon={ null }></PivotItem>
+                                        <PivotItem headerText={pivotTabHeading3} ariaLabel={pivotTabHeading3} title={pivotTabHeading3} itemKey={pivotTabHeading3} itemIcon={ null }></PivotItem>
+                                        <PivotItem headerText={pivotTabHeading4} ariaLabel={pivotTabHeading4} title={pivotTabHeading4} itemKey={pivotTabHeading4} itemIcon={ null }></PivotItem>
+                                    </Pivot>
+                                </div>
+
+                                { this.makeTextField( 'Keys to ignore', this.state.ignoreKeys.join(', ') , this._updateText3.bind(this) , false, '0px 0px ' + '20px ' + '0px', '500px' )}
+                            </div>
+
+
+                            { this.props.json2 === undefined || this.props.errorMess !== '' ? 
+                                <MessageBar messageBarType={MessageBarType.warning}>
+                                    { this.props.errorMess !== '' ? this.props.errorMess : 'Unable to find the list you mentioned :(' }
+                                </MessageBar>
+                            :<div style={{ overflowY: 'auto' }}>
+                                <ReactJson src={ this.props.json2 } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                            </div>
                             }
-                        </table></div>
-                    ) }
-                </div>;
-            }
 
+                        </div>
+                    </PivotItem>
+                    <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }>
+                        <div style={{marginTop: '20px'}}>
+                            {/* { history } */}
+                        </div>
+                    </PivotItem>
+                </Pivot>
+            </div>;
+
+            let panelHeader = 'Compare Properties' ;
             return (
-              <div> { history }
+                <div><Panel
+                        isOpen={ this.props.showPanel }
+                        // this prop makes the panel non-modal
+                        isBlocking={true}
+                        onDismiss={ this.props._closePanel }
+                        closeButtonAriaLabel="Close"
+                        type = { this.props.type }
+                        isLightDismiss = { true }
+                        headerText = { panelHeader }
+                    >
+                        { panelContent }
+                    </Panel>
                 </div>
 
             );
@@ -225,54 +342,53 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
 
             // <div className={ styles.container }></div>
             return ( <div className={ '' }>
-                  Error Message Here
+                    <Panel
+                        isOpen={ this.props.showPanel }
+                        // this prop makes the panel non-modal
+                        isBlocking={true}
+                        onDismiss={ this.props._closePanel }
+                        closeButtonAriaLabel="Close"
+                        type = { this.props.type }
+                        isLightDismiss = { true }
+                        headerText = { 'Ooops!' }
+                        >
+                            { 'OOPS!  We don\'t have a list to show you right now :(' }
+
+                        </Panel>
                 </div> );
         } 
 
     } 
 
-    
-    private buildHistoryStep( step: IRailAnalytics ) {
-      // if ( step.required !== true ) { return null; }
-      // let info = step.current.error !== '' ? step.current.error : step.current.info; 
-      let key = step.Result;
-      let color = StatusColors[ key ];
-      let itemPadding = step.zzzText4 ? '7px 0px 3px 0px' : '0px';
 
-      return <tr  title={ step.Result + ' ' + step.Title }>
-          <td>{ step.zzzText7 } </td>
-          <td style={{ textAlign: 'center' }} ><div style={{ fontSize: 'larger', margin: itemPadding }}><Icon iconName= { StatusIcons[ key ]} style={{ color: color }}></Icon></div></td>
-          <td>{ step.Title } 
-              <span style={{fontWeight: 700 }}>{ ( step.zzzText3 ? ' - ' + step.zzzText3 : '' ) } </span>
-              {  step.zzzText4 ? <div style={{color: 'red', fontSize: 'x-small', paddingBottom: '7px' }}>{ ( step.zzzText4 ? ' ' + step.zzzText4 : '' ) } </div> : null  }
-          </td>
-      </tr>;
-  }
+    private makeTextField( placeholder: string, def: string, onChanged: any, disabled: boolean, margin: any, width = panelWidth ) {
+        return <div style={{ width: width, margin: margin }}>
+             <TextField
+                 defaultValue={ def }
+                 placeholder={ placeholder }
+                 autoComplete='off'
+                 onChanged={ onChanged }
+                 required={ true }
+                 disabled={ disabled }
+                 style={{ width: width }}
+             />
+         </div>;
+    }
 
+    private _updateText1(oldVal: any): any {  
+        this.setState({  otherWeb: oldVal  }); 
+        this.props._fetchCompare( oldVal, this.state.otherList, this.state.otherProp );
+    }
 
-  private async fetchHistory() {
+    private _updateText2(oldVal: any): any {  
+        this.setState({  otherList: oldVal  }); 
+        this.props._fetchCompare( this.state.otherWeb, oldVal, this.state.otherProp );
+    }
 
-    
-    let items: IRailAnalytics[] = await fetchAnalytics( this.props.analyticsWeb, this.props.analyticsListRails , this.props.pickedWeb.guid );
-
-    let history: IArraySummary = groupArrayItemsByField( items, ['zzzText1'], ' - ', 'TargetList.Url', 'zzzText7','asc' );
-
-    let filterBy = this.props.theList.listURL.indexOf('http') === 0 ? this.props.theList.listURL : window.location.origin + this.props.theList.listURL;
-    history.filteredGroups = [];
-    history.filteredKeys = [];
-    history.groups.map( group => {
-        if ( group.groupFilter === filterBy ) { 
-            history.filteredGroups.push( group ) ;
-            history.filteredKeys.push( group.key ) ;
-        }
-    });
-
-    this.setState({ history: history });
-
-  }
-
-    private updateStateStatus( ) {
-        
+    private _updateText3(oldVal: any): any { 
+        let ignoreKeys = getStringArrayFromString ( oldVal, ';or,', true, null, true );
+        this.setState({  ignoreKeys: ignoreKeys }); 
+        this.props._fetchCompare( this.state.otherWeb, this.state.otherList, oldVal );
     }
 
     /***
@@ -302,8 +418,53 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
 
     }
     
-    private updateTogggleReaders() {  
+    private updateTogggle1() {  
+        this.setState({  
 
+         }); 
     }
 
+
+    
+    private async _selectDoThis(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
+        //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));
+        let itemKey = item.props.itemKey;
+        if ( itemKey === pivotHeading1 ) {
+            if (ev.ctrlKey) {
+                // window.open( this.props.theList.ParentWebUrl + "/_layouts/15/user.aspx?obj={" + this.props.theList.Id + "},doclib&List={" + this.props.theList.Id + "}", '_blank' );
+            }
+
+        } else if ( itemKey === pivotHeading2 ) {
+
+        }
+        this.setState({ otherProp : itemKey, });
+        this.props._fetchCompare( this.state.otherWeb, this.state.otherList, itemKey );
+      }
+
+    private async _selectedIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
+        /**
+         * 
+         * 
+         * 
+         * NEED TO DO SOMETHING HERE...
+         * When clicking LIST pivot after clicking Fields,
+         * NOTHING happens... need to refresh some data.
+         * 
+         * 
+         * 
+         */
+        //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));
+        let itemKey = item.props.itemKey;
+        if ( itemKey === pivotHeading1 ) {
+            if (ev.ctrlKey) {
+                // window.open( this.props.theList.ParentWebUrl + "/_layouts/15/user.aspx?obj={" + this.props.theList.Id + "},doclib&List={" + this.props.theList.Id + "}", '_blank' );
+            }
+
+        } else if ( itemKey === pivotHeading2 ) {
+
+        }
+
+        this.props._fetchCompare( this.state.otherWeb, this.state.otherList, itemKey );
+
+    }
 }

@@ -14,7 +14,7 @@ import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
 
 import "@pnp/sp/webs";
 
-import { IValidTemplate, allAvailableFields } from './fieldsFunctions';
+import { IValidTemplate, allAvailableFields, createSearchBuckets } from './fieldsFunctions';
 
 import {  } from '../contentsComponent';
 
@@ -188,15 +188,7 @@ export interface IInspectColumnsState {
 
 export default class InspectColumns extends React.Component<IInspectColumnsProps, IInspectColumnsState> {
 
-    private createSearchBuckets() {
-        let result : IFieldBucketInfo[] = [
-            { fields: [], count: 0, sort : '0' , bucketCategory: 'Custom' , bucketLabel: '0. User Content - Can update'} ,
-            { fields: [], count: 0, sort : '3' , bucketCategory: 'ReadOnly', bucketLabel: '3. ReadOnly - Calculated/Lookup?' } ,
-            { fields: [], count: 0, sort : '6' , bucketCategory: 'OOTB', bucketLabel: '6. OOTB' } ,
-            { fields: [], count: 0, sort : '9' , bucketCategory: 'System', bucketLabel: '9. System'} ,
-        ];
-        return result;
-    }
+
     private clearHistory() {
         let history: IMyHistory = {
             count: 0,
@@ -236,7 +228,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             first20searchedItems: [],
             searchCount: 0,
 
-            fieldBuckets : this.createSearchBuckets(),
+            fieldBuckets : createSearchBuckets(),
 
             meta: [],
 
@@ -441,7 +433,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     private getFieldDefs() {
         let listGuid = '';
         if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
-        let result : any = allAvailableFields( this.props.pickedWeb.url, listGuid, this.createSearchBuckets(), this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableFields( this.props.pickedWeb.url, listGuid, createSearchBuckets(), this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 
@@ -449,7 +441,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
 
         let newFilteredItems : IContentsFieldInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allFields );
 
-        let fieldBuckets  : IFieldBucketInfo[] = this.bucketFields( newFilteredItems, this.createSearchBuckets() );
+        let fieldBuckets  : IFieldBucketInfo[] = this.bucketFields( newFilteredItems, createSearchBuckets() );
         
         this.setState({
             allFields: allFields,
@@ -602,7 +594,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     let searchItems : IContentsFieldInfo[] = this.state.allFields;
     let searchCount = searchItems.length;
 
-    let fieldBuckets : IFieldBucketInfo[] = this.createSearchBuckets();
+    let fieldBuckets : IFieldBucketInfo[] = createSearchBuckets();
 
     let newFilteredItems : IContentsFieldInfo[] = this.getNewFilteredItems( text, meta, searchItems );
 

@@ -13,7 +13,7 @@ import "@pnp/sp/webs";
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
-import { IValidTemplate, allAvailableLists } from './listsFunction';
+import { IValidTemplate, allAvailableLists, allFieldsCompare  } from './listsFunction';
 import {  } from './listsFunction';
 
 import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
@@ -40,12 +40,17 @@ import { PageContext } from '@microsoft/sp-page-context';
 import { IMyPivots, IPivot, IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
+import MyJsonCompare from '../../../../../services/railsCommon/jsonCompare/component';
+
 import MyLogList from './listView';
 
 import * as links from '../../HelpInfo/AllLinks';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
+
+import { IFieldBucketInfo, IContentsFieldInfo } from '../Fields/fieldsComponent';
+import * as ECFields from '../Fields/fieldsFunctions';
 
 import CreateListPermissions from './railCreateGroups/component';
 
@@ -65,7 +70,7 @@ export const pivCats = {
     libraries:  {title: 'Libraries' , desc: '', order: 1},
 };
 
-export type IListRailFunction = 'ListPermissions' | '';
+export type IListRailFunction = 'ListPermissions' | 'compareJSON' | '';
 
 export interface IInspectListsProps {
     // 0 - Context
@@ -152,6 +157,12 @@ export interface IInspectListsState {
     railFunction: IListRailFunction;
     selectedIndex: any;
     selectedEntity: IContentsListInfo;
+
+    firstJSON: any;
+    secondJSON: any;
+    compareError: string;
+    lastCompare: string;
+
   }
   
   export interface IRailsOffPanel {
@@ -233,6 +244,11 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             railFunction: '',
             selectedIndex: null,
             selectedEntity: null,
+
+            firstJSON: null,
+            secondJSON: null,
+            compareError: '',
+            lastCompare: null,
 
         };
 
@@ -317,27 +333,51 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             let railsPanel = null;
                       
-            if ( this.state.showPanel === true ) {
-                if ( this.state.railFunction === 'ListPermissions' ) { }
 
-                railsPanel = 
-                    <CreateListPermissions 
+            if ( this.state.showPanel === true ) {
+                if ( this.state.railFunction === 'ListPermissions' ) { 
+                    railsPanel = 
+                        <CreateListPermissions 
+                            wpContext={  this.props.wpContext }
+                            railFunction={ this.state.railFunction }
+                            theList={ this.state.selectedEntity }
+                            currentPage= { this.props.pageContext.web.absoluteUrl }
+                            pickedWeb= { this.props.pickedWeb }
+                            user={ this.props.currentUser }
+                            showPanel={ this.state.showPanel }
+                            // this prop makes the panel non-modal
+                            _closePanel={ this._closePanel.bind(this) }
+                            type = { this.state.panel.type }
+                            analyticsWeb= { this.props.analyticsWeb }
+                            analyticsList= { this.props.analyticsList }
+                        ></CreateListPermissions>;
+
+                } else if ( this.state.railFunction === 'compareJSON' ) {
+
+                    /**
+                     * Got this error: Warning
+                     * Warning - tslint - src\webparts\genericWebpart\components\Contents\Lists\listsComponent.tsx(332,17): error no-unused-expression: unused expression, exp
+                     * Just put "railsPanel = ".... and it fixed it :)
+                     */
+                    railsPanel = <MyJsonCompare
                         wpContext={  this.props.wpContext }
                         railFunction={ this.state.railFunction }
                         theList={ this.state.selectedEntity }
-                        currentPage= { this.props.pageContext.web.absoluteUrl }
                         pickedWeb= { this.props.pickedWeb }
                         user={ this.props.currentUser }
                         showPanel={ this.state.showPanel }
-                        // this prop makes the panel non-modal
+                        json1={ this.state.firstJSON }
+                        json2={ this.state.secondJSON }
+                        errorMess= { this.state.compareError }
+                        _fetchCompare={ this._fetchCompare.bind(this) }
                         _closePanel={ this._closePanel.bind(this) }
                         type = { this.state.panel.type }
                         analyticsWeb= { this.props.analyticsWeb }
                         analyticsList= { this.props.analyticsList }
-                    ></CreateListPermissions>;
 
-            } 
-
+                    ></MyJsonCompare>;
+                }
+            }
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
             let searchBox =
             <div className={[styles.searchContainer, styles.padLeft20 ].join(' ')} >
@@ -431,10 +471,101 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     }   //End Public Render
 
+    private async _fetchCompare( altWeb: string, altListTitle: string, doThis: string ) {
+        if ( doThis === 'List' ) {
+            let firstJSON = [];
+            let secondJSON = [];
+
+            let restFilter = `Title eq '${ this.state.selectedEntity.Title }'`;
+            if ( this.state.lastCompare !== 'List' ) { //Only do this if Fields was not the last compare type
+                firstJSON = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
+                // firstJSON = await ECFields.allAvailableFields( altWeb, this.state.selectedEntity.Title, ECFields.createSearchBuckets(),null, null, null );
+                
+            } else { firstJSON = this.state.firstJSON ; }
+            restFilter = `Title eq '${ altListTitle }'`;
+            secondJSON = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
+
+            this.setState({ 
+                firstJSON: firstJSON[0],
+                secondJSON: secondJSON[0],
+                compareError: '', 
+                lastCompare: 'Fields',
+            });
+
+        } 
+        if ( doThis === 'Fields' ) {
+            let firstJSON = [];
+            let secondJSON = [];
+            if ( this.state.lastCompare !== 'Fields' ) { //Only do this if Fields was not the last compare type
+                firstJSON = await ECFields.allAvailableFields( altWeb, this.state.selectedEntity.Title, ECFields.createSearchBuckets(),this.addCompareFieldToState.bind(this), null, null );
+                // firstJSON = await ECFields.allAvailableFields( altWeb, this.state.selectedEntity.Title, ECFields.createSearchBuckets(),null, null, null );
+            } else { firstJSON = this.state.firstJSON ; }
+
+            secondJSON = await ECFields.allAvailableFields( altWeb, altListTitle, ECFields.createSearchBuckets(),this.addCompareFieldToState.bind(this), null, null );
+            // secondJSON = await ECFields.allAvailableFields( altWeb, altListTitle, ECFields.createSearchBuckets(),null, null, null );
+
+            this.setState({ 
+                firstJSON: firstJSON,
+                secondJSON: secondJSON,
+                compareError: '', 
+                lastCompare: 'Fields',
+            });
+            // private getFieldDefs() {
+            //     let listGuid = '';
+            //     if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
+            //     let result : any = allAvailableFields( this.props.pickedWeb.url, listGuid, createSearchBuckets(), this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+
+            // }
+
+            // private addTheseFieldsToState( allFields, scope : 'List' | 'Web' , errMessage : string ) {
+
+            //     let newFilteredItems : IContentsFieldInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allFields );
+
+            //     let fieldBuckets  : IFieldBucketInfo[] = this.bucketFields( newFilteredItems, createSearchBuckets() );
+                
+            //     this.setState({
+            //         allFields: allFields,
+            //         searchedItems: newFilteredItems,
+            //         searchCount: newFilteredItems.length,
+            //         errMessage: errMessage,
+            //         fieldBuckets: fieldBuckets,
+            //         searchText: '',
+            //         searchMeta: this.state.searchMeta,
+            //     });
+            //     return true;
+            // }
+
+        } 
+
+    }
+
+    private addCompareFieldToState( allFields:  IContentsFieldInfo[] ,scope: string, errMessage : string ) {
+        return ;
+
+        let thisIsPrimaryList: any = false;
+        allFields.map( field => {
+            if ( field['odata.editLink'].indexOf( this.state.selectedEntity.Id ) > -1 ) {
+                thisIsPrimaryList = true;
+            }
+        });
+
+        this.setState({ 
+            firstJSON: thisIsPrimaryList === true ? allFields : this.state.firstJSON,
+            secondJSON: thisIsPrimaryList === true ? [] : allFields,
+            compareError: errMessage, 
+            lastCompare: 'Fields',
+         });
+
+    }
+
+    private addCompareListToState( allLists:  IContentsListInfo[] ,  errMessage : string ) {
+        return ;
+        this.setState({ secondJSON: allLists[0], compareError: errMessage, lastCompare: 'List' });
+
+    }
 
     private getListDefs() {
-        let result : any = allAvailableLists( this.props.pickedWeb.url, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
-
+        let result : any = allAvailableLists( this.props.pickedWeb.url, null, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
     }
 
     private addTheseListsToState( allLists , errMessage : string ) {
@@ -451,6 +582,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             listBuckets: listBuckets,
             searchText: '',
             searchMeta: this.state.searchMeta,
+            firstJSON: allLists,
+            secondJSON: allLists,
         });
         return true;
     }
@@ -533,10 +666,10 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
 
 
-  private createStateRailsOffPanel( groupNames: string[], visible: boolean ) {
+  private createStateRailsOffPanel( groupNames: string[], visible: boolean, type: PanelType = PanelType.medium ) {
 
     let panel : IRailsOffPanel= {
-      type: PanelType.medium,
+      type: type,
       content: null,
       // width: number,
     };
@@ -549,7 +682,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         //This element syntax works when you have <span><strong>text</strong></span>
         let testElement = e.nativeEvent.target;
         const parentElement = testElement.parentElement;
-        const rail = parentElement.getAttribute('data-railFunction');
+        //export type IListRailFunction = 'ListPermissions' | 'compareJSON' | '';
+        const rail : IListRailFunction = parentElement.getAttribute('data-railFunction');
         const listTitle = parentElement.getAttribute('data-listTitle');
         const listIndex = doesObjectExistInArrayInt( this.state.allLists, 'Title', listTitle, true );
         const listObject = listIndex > -1 ? this.state.allLists[listIndex] : null;
@@ -559,8 +693,15 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         // } else if ( testElement.parentElement.id.indexOf( this.groupTitlePrefix) === 0 ) {
         //   id = testElement.parentElement.id.replace( this.groupTitlePrefix ,'' );
         // }
-        let panel = this.createStateRailsOffPanel( [listIndex.toFixed()], false );
+        let panel = null;
+        if ( rail === 'ListPermissions') {
+            panel = this.createStateRailsOffPanel( [listIndex.toFixed()], false, PanelType.medium );
 
+        } else if ( rail === 'compareJSON' ) {
+            panel = this.createStateRailsOffPanel( [listIndex.toFixed()], false, PanelType.large );
+
+        }
+        
         this.setState({
             panel: panel,
             showPanel: true,

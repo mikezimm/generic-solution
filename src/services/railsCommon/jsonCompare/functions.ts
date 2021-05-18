@@ -9,13 +9,11 @@
  *                                                                                                                                  
  *                                                                                                                                  
  */
-
-import { Web, IList } from "@pnp/sp/presets/all";
-
-import { sp } from "@pnp/sp";
-
 import "@pnp/sp/webs";
 import "@pnp/sp/clientside-pages/web";
+
+import { Web, IList, sp, SiteGroups, SiteGroup, ISiteGroupInfo } from "@pnp/sp/presets/all";
+
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
 import { mergeAriaAttributeValues } from "office-ui-fabric-react";
@@ -31,6 +29,17 @@ import { mergeAriaAttributeValues } from "office-ui-fabric-react";
  *                                                                                                                                                                              
  */
 
+import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
+
+import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
+
+import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
+
+import { encodeDecodeString, getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+
+import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -43,7 +52,8 @@ import { mergeAriaAttributeValues } from "office-ui-fabric-react";
  *                                                                                                                                 
  */
 
-import { createStep, IProcessStep } from '../../../../../../services/railsCommon/railsSetup';
+
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88   88 88'     88      88  `8D 88'     88  `8D 88'  YP 
@@ -66,7 +76,6 @@ import { createStep, IProcessStep } from '../../../../../../services/railsCommon
  *                                                                                                                                               
  */
 
-import { pivCats, IListBucketInfo } from '../listsComponent';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -79,80 +88,25 @@ import { pivCats, IListBucketInfo } from '../listsComponent';
  *                                                                                                                                               
  */
 
+ 
 
+ export async function doThisRailFunction( theList: IContentsListInfo, updateState: any ) {
 
-export interface IProcessSteps {
-  checkListPerms: IProcessStep;
-  breakListPerms: IProcessStep;
+  let currentStep = null;
+  let listOrLib = theList.BaseType === 0 ? 'List' : 'Library' ;
+  let thisWebInstance = null;
+  let listInstance = null;
+  let webUrl: string = theList['odata.id'];
+  webUrl = webUrl.substr( 0, webUrl.indexOf('_api'));
+  let errMessage = '';
 
-  checkContribGroup: IProcessStep;
-  createContribGroup: IProcessStep;
-  assignContribListRole: IProcessStep;
-  assignContribSiteRole: IProcessStep;
+  try {
+      thisWebInstance = Web( webUrl );
+  } catch (e) {
+      errMessage = getHelpfullError(e, true, true);
+  }
 
-  checkReaderGroup: IProcessStep;
-  createReaderGroup: IProcessStep;
-  assignReaderListRole: IProcessStep;
-  assignReaderSiteRole: IProcessStep;
+  updateState( );
 
-  assignParentOwnerToList: IProcessStep;
-  assignParentMemberToList: IProcessStep;
-  assignParentVisitorToList: IProcessStep;
+ }
 
-  complete: IProcessStep;
-
-}
-
-function checkGroup( name: string, required: boolean,  listTitle: string , groupTitle: string,  stepNo: number, dependsOn: string ) {
-  return createStep( 'Check Group ' + name, 'Check for existing group', 'Checking for existing group', 'Checked for existing group', 'Was not able to check for group', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
-}
-
-function createGroup( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
-  return createStep( 'Create Group ' + name, 'Create for existing group', 'Creating group', 'Created group', 'Was not able to Create group', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
-}
-
-function assignParentToList( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
-  return createStep( 'Assign ' + name + '|List', 'Assign parent group to list', 'Assigning parent group to list', 'Assigned parent group to list', 'Was not able to Assign parent group to list', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
-}
-
-function assignToList( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
-  return createStep( 'Assign List Group ' + name + '|List', 'Assign group to list', 'Assigning group to list', 'Assigned group to list', 'Was not able to Assign group to list', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
-}
-
-function assignToSite( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
-  return createStep( 'Assign List Group ' + name + '|Site',  'Assign group to Site', 'Assigning group to Site', 'Assigned group to Site', 'Was not able to Assign group to Site', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
-}
-
-export function CheckListPermissions( listTitle: string ) { 
-  return createStep( 'Check List Permissions', 'Check existing list permissions', 'Fetching existing permissions', 'Checked existing permissions', 'Was not able to check list permissions', true, 0, '', listTitle, '', ''  ); }
-
-export function BreakListPermissions( listTitle: string ) { 
-  return createStep( 'Break List Permissions', 'Break list permissions', 'Breaking list permissions', 'Broke list permissions', 'Was not able to Break list permissions', true, 1, '', listTitle, '', ''  ); }
-
-export function createProcessSteps( listTitle , contribGroup, readerGroup ){
-
-  const Steps: IProcessSteps = {
-    checkListPerms: CheckListPermissions( listTitle ),
-    breakListPerms: BreakListPermissions( listTitle ),
-
-    assignParentOwnerToList: assignParentToList('SiteOwnerGroup', true, listTitle, 'SiteOwnerGroup', 10, '' ),
-    assignParentMemberToList: assignParentToList('SiteMemberGroup', true, listTitle, 'SiteMemberGroup', 11, '' ),
-    assignParentVisitorToList: assignParentToList('SiteVisitorGroup', true, listTitle, 'SiteVisitorGroup', 12, '' ),
-
-    checkContribGroup: checkGroup('Contributors', true, listTitle, contribGroup, 20, '' ),
-    createContribGroup:  createGroup('Contributors', true, listTitle, contribGroup, 30, '' ),
-
-    assignContribListRole:  assignToList('Contributors', true, listTitle, contribGroup, 40, 'createContribGroup' ),
-    assignContribSiteRole:  assignToSite('Contributors', true, listTitle, contribGroup, 50, 'createContribGroup' ),
-
-    checkReaderGroup:  checkGroup('Readers', true, listTitle, readerGroup, 60, '' ),
-    createReaderGroup:  createGroup('Readers', true, listTitle, readerGroup, 70, '' ),
-    assignReaderListRole:  assignToList('Readers', true, listTitle, readerGroup, 80, 'createReaderGroup' ),
-    assignReaderSiteRole:  assignToSite('Readers', true, listTitle, readerGroup, 90, 'createReaderGroup' ),
-
-    complete: createStep( 'Complete', 'Complete', 'Completed all tasks', 'Completed permissions', 'Had a problem Completing Permissions', true, 99, '', listTitle, '', ''  ),
-
-  };
-
-  return Steps;
-}
