@@ -472,7 +472,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     }   //End Public Render
 
     private async _fetchCompare( altWeb: string, altListTitle: string, doThis: string ) {
-        if ( doThis === 'List' ) {
+        if ( doThis === 'Lists' ) {
             let secondJSON = [];
 
             if ( altListTitle === this.state.selectedEntity.Title ) {
@@ -486,7 +486,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                 firstJSON: this.state.selectedEntity,
                 secondJSON: secondJSON[0],
                 compareError: '', 
-                lastCompare: 'List',
+                lastCompare: 'Lists',
             });
 
         } 
@@ -557,7 +557,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     private addCompareListToState( allLists:  IContentsListInfo[] ,  errMessage : string ) {
         return ;
-        this.setState({ secondJSON: allLists[0], compareError: errMessage, lastCompare: 'List' });
+        this.setState({ secondJSON: allLists[0], compareError: errMessage, lastCompare: 'Lists' });
 
     }
 

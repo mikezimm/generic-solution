@@ -175,10 +175,18 @@ const pivotHeading1 = 'This';  //Templates
 const pivotHeading2 = 'Other';  //Templates
 const pivotHeading3 = 'Compare';  //Templates
 
-const pivotTabHeading1 = 'List';  //Templates
+const pivotTabHeading1 = 'Lists';  //Templates
 const pivotTabHeading2 = 'Fields';  //Templates
 const pivotTabHeading3 = 'Views';  //Templates
 const pivotTabHeading4 = 'Types';  //Templates
+
+const comparePivot0 = 'Hide';
+const comparePivot1 = 'Ignored';
+const comparePivot2 = 'Compared';
+const comparePivot3 = 'Identical';
+const comparePivot4 = 'Different';
+const comparePivot5 = 'New';
+
 
 const ignoreListKeys = ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString'];
 
@@ -211,7 +219,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             errorMess: '',
             otherWeb: this.props.theList.ParentWebUrl,
             otherList: this.props.theList.Title,
-            otherProp: 'List',
+            otherProp: 'Lists',
             ignoreKeys: ignoreListKeys,
             showTab: pivotHeading1,
             includeOrIgnore: 'Ignore',
@@ -223,7 +231,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
     }
         
     public componentDidMount() {
-        this.props._fetchCompare( this.props.theList.ParentWebUrl, this.props.theList.Title );
+        this.props._fetchCompare( this.props.theList.ParentWebUrl, this.props.theList.Title, this.state.otherProp );
     }
 
     private async _doCheck() {
@@ -278,15 +286,49 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             <div>
                 <div className={ stylesInfo.infoPaneTight }>
                     {/* { ['ignoredKeys','compareKeys','identicalKeys','differentKeys','newKeys'] } */}
-                    <div style={{ padding: '5px 30px 5px 20px'}}> Ignored Properties: ({ this.state.compareResults.ignoredKeys.length }) { this.state.compareResults.ignoredKeys.join(', ') } </div>
-                    <div style={{ padding: '5px 30px 5px 20px'}}> Compared Properties: ({ this.state.compareResults.compareKeys.length }) { this.state.compareResults.compareKeys.join(', ') } </div>
-                    <div style={{ padding: '5px 30px 5px 20px'}}> Identical Properties: ({ this.state.compareResults.identicalKeys.length }) { this.state.compareResults.identicalKeys.join(', ') } </div>
-                    <div style={{ padding: '5px 30px 5px 20px'}}> Different Properties: ({ this.state.compareResults.differentKeys.length }) { this.state.compareResults.differentKeys.join(', ') } </div>
-                    <div style={{ padding: '5px 30px 5px 20px'}}> New Properties: ({ this.state.compareResults.newKeys.length }) { this.state.compareResults.newKeys.join(', ') } </div>
+                    <Pivot
+                        styles={ pivotStyles }
+                        linkFormat={PivotLinkFormat.tabs}
+                        linkSize={PivotLinkSize.normal}
+                    >
+                        <PivotItem  headerText={comparePivot0} ariaLabel={comparePivot0} itemKey={comparePivot0} >
+                        </PivotItem>
+                        <PivotItem  headerText={comparePivot1} ariaLabel={comparePivot1} itemKey={comparePivot1} itemCount={ this.state.compareResults.ignoredKeys.length }>
+                            <div style={{ padding: '5px 30px 5px 20px'}}>
+                                <h3>These ( { this.state.compareResults.compareKeys.length } ) properties were { this.state.includeOrIgnore }d due to your filter criteria:</h3>
+                                <p>{ this.state.ignoreKeys.join(', ') }</p>
+                                { this.state.compareResults.ignoredKeys.join(', ') }
+                            </div>
+                        </PivotItem>
+                        <PivotItem  headerText={comparePivot2} ariaLabel={comparePivot2} itemKey={comparePivot2} itemCount={ this.state.compareResults.compareKeys.length }>
+                            <div style={{ padding: '5px 30px 5px 20px'}}>
+                                <h3>These properties were NOT { this.state.includeOrIgnore }d due to your filter criteria:</h3>
+                                { this.state.compareResults.compareKeys.join(', ') }
+                            </div>
+                        </PivotItem>
+                        <PivotItem  headerText={comparePivot3} ariaLabel={comparePivot3} itemKey={comparePivot3} itemCount={ this.state.compareResults.identicalKeys.length }>
+                            <div style={{ padding: '5px 30px 5px 20px'}}>
+                                <h3>Of the ( { this.state.compareResults.compareKeys.length } ) properties to compare, these had IDENTICAL values on all { this.state.otherProp }:</h3>
+                                { this.state.compareResults.identicalKeys.join(', ') }
+                            </div>
+                        </PivotItem>
+                        <PivotItem  headerText={comparePivot4} ariaLabel={comparePivot4} itemKey={comparePivot4} itemCount={ this.state.compareResults.differentKeys.length }>
+                            <div style={{ padding: '5px 30px 5px 20px'}}>
+                                <h3>Of the ( { this.state.compareResults.compareKeys.length } ) properties to compare, these had DIFFERENT values on all { this.state.otherProp }:</h3>
+                                { this.state.compareResults.differentKeys.join(', ') }
+                            </div>
+                        </PivotItem>
+                        <PivotItem  headerText={comparePivot5} ariaLabel={comparePivot5} itemKey={comparePivot5} itemCount={ this.state.compareResults.newKeys.length }>
+                            <div style={{ padding: '5px 30px 5px 20px'}}>
+                                <h3>These were not on your Baseline List but were on the New { this.state.otherProp }:</h3>
+                                { this.state.compareResults.newKeys.join(', ') }
+                            </div>
+                        </PivotItem>
+                    </Pivot>
+                    <table style={{ display: '', borderCollapse: 'collapse', width: '100%', padding: '20px', marginTop: '20px !important' }} className={stylesInfo.infoTable}>
+                        { this.state.comparedProps }
+                    </table>
                 </div>
-                <table style={{ display: '', borderCollapse: 'collapse', width: '100%', padding: '20px' }} className={stylesInfo.infoTable}>
-                    { this.state.comparedProps }
-                </table>
             </div>
                 
             ;
@@ -298,7 +340,6 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                     linkSize={PivotLinkSize.normal}
                     onLinkClick={this._selectedIndexMainPivot.bind(this)}
                     selectedKey={ this.state.showTab }
-
                 >
                     <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }>
                         <div style={{marginTop: '20px'}}>
@@ -436,7 +477,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
     private _updateText3(oldVal: any): any { 
         let ignoreKeys = getStringArrayFromString ( oldVal, ';or,', true, null, true );
         this.setState({  ignoreKeys: ignoreKeys }); 
-        this.props._fetchCompare( this.state.otherWeb, this.state.otherList, oldVal );
+        this.props._fetchCompare( this.state.otherWeb, this.state.otherList, this.state.otherProp );
     }
 
     /***
