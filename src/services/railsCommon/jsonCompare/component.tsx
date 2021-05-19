@@ -188,7 +188,7 @@ const comparePivot4 = 'Different';
 const comparePivot5 = 'New';
 
 
-const ignoreListKeys = ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString'];
+const ignoreListKeys = ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'];
 
 export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, IMyJsonCompareState> {
 
@@ -325,9 +325,12 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                             </div>
                         </PivotItem>
                     </Pivot>
-                    <table style={{ display: '', borderCollapse: 'collapse', width: '100%', padding: '20px', marginTop: '20px !important' }} className={stylesInfo.infoTable}>
-                        { this.state.comparedProps }
-                    </table>
+                    <div id="whyGodwhy" style={{ paddingTop: '20px !important' }}>
+                        <div id="spacerX" style={{ height: '20px'}}></div>
+                        <table style={{ display: '', borderCollapse: 'collapse', width: '100%', padding: '20px' }} className={stylesInfo.infoTable}>
+                            { this.state.comparedProps }
+                        </table>
+                    </div>
                 </div>
             </div>
                 
