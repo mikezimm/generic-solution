@@ -579,7 +579,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             listBuckets: listBuckets,
             searchText: '',
             searchMeta: this.state.searchMeta,
-            firstJSON: allLists,
+            firstJSON: this.state.selectedEntity,
             secondJSON: allLists,
         });
         return true;

@@ -34,6 +34,8 @@ import { DefaultButton, PrimaryButton, CompoundButton, elementContains } from 'o
 
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
+import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
+
 import ReactJson from "react-json-view";
 
 /***
@@ -47,16 +49,19 @@ import ReactJson from "react-json-view";
  *                                                                                                                                                                              
  */
 
- import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
- import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
- import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
- import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
- import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
+import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
+import { getKeyChanges, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
- import { getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+import { getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 
- import { getIconStyles } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
+import { getIconStyles } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
  
+import { compareFlatObjects, ICompareKeysResult } from  '@mikezimm/npmfunctions/dist/Services/Arrays/compare';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -81,7 +86,9 @@ import ReactJson from "react-json-view";
  *                                                                                                                       
  */
   
-  import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
+import stylesInfo from '../../../webparts/genericWebpart/components/HelpInfo/InfoPane.module.scss';
+
+
   
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -146,6 +153,8 @@ export interface IMyJsonCompareState {
     ignoreKeys: string[];
     includeOrIgnore: IIncludeOrIgnore;
 
+    comparedProps: any[];
+    compareResults: ICompareKeysResult;
 }
 
 const pivotStyles = {
@@ -207,6 +216,9 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             showTab: pivotHeading1,
             includeOrIgnore: 'Ignore',
 
+            comparedProps: [],
+            compareResults: null,
+
         };
     }
         
@@ -262,6 +274,22 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
             let includeToggle = this.state.includeOrIgnore === 'Include' ? true : false;
 
+            let history = this.state.showTab !== pivotHeading3 ? null : 
+            <div>
+                <div className={ stylesInfo.infoPaneTight }>
+                    {/* { ['ignoredKeys','compareKeys','identicalKeys','differentKeys','newKeys'] } */}
+                    <div style={{ padding: '5px 30px 5px 20px'}}> Ignored Properties: ({ this.state.compareResults.ignoredKeys.length }) { this.state.compareResults.ignoredKeys.join(', ') } </div>
+                    <div style={{ padding: '5px 30px 5px 20px'}}> Compared Properties: ({ this.state.compareResults.compareKeys.length }) { this.state.compareResults.compareKeys.join(', ') } </div>
+                    <div style={{ padding: '5px 30px 5px 20px'}}> Identical Properties: ({ this.state.compareResults.identicalKeys.length }) { this.state.compareResults.identicalKeys.join(', ') } </div>
+                    <div style={{ padding: '5px 30px 5px 20px'}}> Different Properties: ({ this.state.compareResults.differentKeys.length }) { this.state.compareResults.differentKeys.join(', ') } </div>
+                    <div style={{ padding: '5px 30px 5px 20px'}}> New Properties: ({ this.state.compareResults.newKeys.length }) { this.state.compareResults.newKeys.join(', ') } </div>
+                </div>
+                <table style={{ display: '', borderCollapse: 'collapse', width: '100%', padding: '20px' }} className={stylesInfo.infoTable}>
+                    { this.state.comparedProps }
+                </table>
+            </div>
+                
+            ;
             panelContent = <div>
                 <h3> { `${ this.props.theList.Title } ${ listOrLib }` }</h3>
                 <Pivot
@@ -272,7 +300,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                     selectedKey={ this.state.showTab }
 
                 >
-                    <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }>
+                    <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }>
                         <div style={{marginTop: '20px'}}>
                             {/* <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
                                 { this.makeToggle( 'Create Contributors', true, false, this.updateTogggle1.bind(this) ) }
@@ -283,7 +311,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                             </div>
                             </div>
                     </PivotItem>
-                    <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ null }>
+                    <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} itemKey={pivotHeading2} itemIcon={ null }>
                         <div style={{marginTop: '20px'}}>
                             {/* { permissions } */}
                             <div style={{  display: 'flex' }}>
@@ -332,9 +360,9 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
                         </div>
                     </PivotItem>
-                    <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }>
+                    <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }>
                         <div style={{marginTop: '20px'}}>
-                            {/* { history } */}
+                            { history }
                         </div>
                     </PivotItem>
                 </Pivot>
@@ -476,18 +504,42 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
          */
         //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));
         let itemKey = item.props.itemKey;
-        if ( itemKey === pivotHeading1 ) {
+        if ( itemKey === pivotHeading1 || itemKey === pivotHeading2 ) {
             if (ev.ctrlKey) {
                 // window.open( this.props.theList.ParentWebUrl + "/_layouts/15/user.aspx?obj={" + this.props.theList.Id + "},doclib&List={" + this.props.theList.Id + "}", '_blank' );
             }
+            this.setState({ showTab: itemKey });
 
-        } else if ( itemKey === pivotHeading2 ) {
+        } else if ( itemKey === pivotHeading3 ) {
+
+            let compareResults: ICompareKeysResult = compareFlatObjects( this.props.json1, this.props.json2, this.state.ignoreKeys, this.state.includeOrIgnore );
+            let compareStyle = 'table'; //'table','text','json';
+
+            let tableRows: any = [];
+            // let comparedProps: string[] = [];
+
+            if ( compareStyle === 'table' ) {
+
+                let tableHeaders = <tr> { ['No','Property',this.props.theList.Title, this.state.otherList ].map( h=> { return <th> { h } </th>; }) } </tr>;
+                tableRows.push( tableHeaders );
+                Object.keys(compareResults.keyChanges).map( ( key, index ) => {
+                    // comparedProps.push(key);
+                    let theseValues = compareResults.keyChanges[key].split( ' >>> ' );
+                    let thisProp = <tr><td> { index + 1 } </td>  <td> { key } </td>  <td> { theseValues[0] } </td>  <td> { theseValues[1] } </td> </tr>;
+                    tableRows.push( thisProp );
+                });
+            }
+
+            this.setState({ showTab: itemKey, comparedProps: tableRows, compareResults: compareResults  });
 
         }
 
-        this.setState({ showTab: itemKey });
 
-        this.props._fetchCompare( this.state.otherWeb, this.state.otherList, this.state.otherProp );
+
+        if ( itemKey !== pivotHeading3 ) {
+            this.props._fetchCompare( this.state.otherWeb, this.state.otherList, this.state.otherProp );
+        }
+        
 
     }
 }
