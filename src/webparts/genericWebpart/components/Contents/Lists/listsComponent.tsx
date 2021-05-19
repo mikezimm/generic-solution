@@ -9,6 +9,8 @@ import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(usePr
 
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 
+import { Site, ISite } from "@pnp/sp/presets/all"; //    theSite: ISite;
+
 import "@pnp/sp/webs";
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
@@ -163,6 +165,8 @@ export interface IInspectListsState {
     compareError: string;
     lastCompare: string;
 
+    theSite: ISite;
+
   }
   
   export interface IRailsOffPanel {
@@ -249,6 +253,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             secondJSON: null,
             compareError: '',
             lastCompare: null,
+            theSite: null,
 
         };
 
@@ -350,6 +355,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                             type = { this.state.panel.type }
                             analyticsWeb= { this.props.analyticsWeb }
                             analyticsList= { this.props.analyticsList }
+                            theSite={ this.state.theSite }
                         ></CreateListPermissions>;
 
                 } else if ( this.state.railFunction === 'compareJSON' ) {
@@ -565,7 +571,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         let result : any = allAvailableLists( this.props.pickedWeb.url, null, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
     }
 
-    private addTheseListsToState( allLists , errMessage : string ) {
+    private addTheseListsToState( allLists , errMessage : string, theSite: ISite ) {
 
         let newFilteredItems : IContentsListInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allLists );
 
@@ -581,6 +587,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             searchMeta: this.state.searchMeta,
             firstJSON: this.state.selectedEntity,
             secondJSON: allLists,
+            theSite: theSite ? theSite : this.state.theSite ,
         });
         return true;
     }

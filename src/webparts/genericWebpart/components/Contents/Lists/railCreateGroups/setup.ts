@@ -87,11 +87,13 @@ export interface IProcessSteps {
 
   checkContribGroup: IProcessStep;
   createContribGroup: IProcessStep;
+  updateContribOwner: IProcessStep;
   assignContribListRole: IProcessStep;
   assignContribSiteRole: IProcessStep;
 
   checkReaderGroup: IProcessStep;
   createReaderGroup: IProcessStep;
+  updateReaderOwner: IProcessStep;
   assignReaderListRole: IProcessStep;
   assignReaderSiteRole: IProcessStep;
 
@@ -111,6 +113,10 @@ function createGroup( name: string, required: boolean,  listTitle: string , grou
   return createStep( 'Create Group ' + name, 'Create for existing group', 'Creating group', 'Created group', 'Was not able to Create group', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
 }
 
+function updateOwner( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
+  return createStep( 'Update Owner for ' + name,  'Update Group Owner', 'Updating Group Owner', 'Updated Group Owner', 'Had problem updating group owner', required, stepNo, dependsOn, listTitle, groupTitle, 'SiteOwnerGroup'  );
+}
+
 function assignParentToList( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
   return createStep( 'Assign ' + name + '|List', 'Assign parent group to list', 'Assigning parent group to list', 'Assigned parent group to list', 'Was not able to Assign parent group to list', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
 }
@@ -122,6 +128,7 @@ function assignToList( name: string, required: boolean,  listTitle: string , gro
 function assignToSite( name: string, required: boolean,  listTitle: string , groupTitle: string, stepNo: number, dependsOn: string ) {
   return createStep( 'Assign List Group ' + name + '|Site',  'Assign group to Site', 'Assigning group to Site', 'Assigned group to Site', 'Was not able to Assign group to Site', required, stepNo, dependsOn, listTitle, groupTitle, ''  );
 }
+
 
 export function CheckListPermissions( listTitle: string ) { 
   return createStep( 'Check List Permissions', 'Check existing list permissions', 'Fetching existing permissions', 'Checked existing permissions', 'Was not able to check list permissions', true, 0, '', listTitle, '', ''  ); }
@@ -142,11 +149,16 @@ export function createProcessSteps( listTitle , contribGroup, readerGroup ){
     checkContribGroup: checkGroup('Contributors', true, listTitle, contribGroup, 20, '' ),
     createContribGroup:  createGroup('Contributors', true, listTitle, contribGroup, 30, '' ),
 
+    updateContribOwner: updateOwner('Contributors', true, listTitle, contribGroup, 35, 'createContribGroup' ),
+
     assignContribListRole:  assignToList('Contributors', true, listTitle, contribGroup, 40, 'createContribGroup' ),
     assignContribSiteRole:  assignToSite('Contributors', true, listTitle, contribGroup, 50, 'createContribGroup' ),
 
     checkReaderGroup:  checkGroup('Readers', true, listTitle, readerGroup, 60, '' ),
     createReaderGroup:  createGroup('Readers', true, listTitle, readerGroup, 70, '' ),
+
+    updateReaderOwner: updateOwner('Readers', true, listTitle, contribGroup, 75, 'createReaderGroup' ),
+
     assignReaderListRole:  assignToList('Readers', true, listTitle, readerGroup, 80, 'createReaderGroup' ),
     assignReaderSiteRole:  assignToSite('Readers', true, listTitle, readerGroup, 90, 'createReaderGroup' ),
 

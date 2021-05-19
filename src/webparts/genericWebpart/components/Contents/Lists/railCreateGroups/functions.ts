@@ -12,11 +12,14 @@
 import "@pnp/sp/webs";
 import "@pnp/sp/clientside-pages/web";
 
-import { Web, IList, sp, SiteGroups, SiteGroup, ISiteGroupInfo } from "@pnp/sp/presets/all";
+import { Web, IList, sp, SiteGroups, SiteGroup, ISiteGroupInfo, Site, ISite } from "@pnp/sp/presets/all";
 
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
 import { mergeAriaAttributeValues } from "office-ui-fabric-react";
+
+import { HttpClient, HttpClientResponse } from "@microsoft/sp-http";
+
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
@@ -40,6 +43,7 @@ import { encodeDecodeString, getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfu
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -83,6 +87,7 @@ import { IProcessSteps, } from './setup';
 import { IProcessStatus, IStepPC, IProcessStep, shouldDoThisStepBasedOnDependant } from '../../../../../../services/railsCommon/railsSetup';
 
 import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsComponent';
+import { BodyFin } from "../../../ListProvisioning/ListsFinTasks/columnsFinTasks";
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -98,12 +103,14 @@ import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsCompon
  
 export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
+
  export async function doThisRailFunction( steps: IProcessSteps, theList: IContentsListInfo, updateState: any ) {
 
   let newSteps : IProcessSteps = JSON.parse(JSON.stringify( steps ));
   let currentStep = null;
   let listOrLib = theList.BaseType === 0 ? 'List' : 'Library' ;
   let thisWebInstance = null;
+  let thisSiteInstance = null;
   let listInstance = null;
   let webUrl: string = theList['odata.id'];
   webUrl = webUrl.substr( 0, webUrl.indexOf('_api'));
@@ -118,6 +125,20 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   if ( newSteps.checkListPerms.required === true ) {
 
   }
+
+  try {
+    thisSiteInstance = Site( webUrl );
+  } catch (e) {
+      errMessage = getHelpfullError(e, true, true);
+  }
+
+  const { Id: siteId } = await thisSiteInstance.get();
+  const { Url: siteUrl } = await thisSiteInstance.get();
+
+  // // let siteUrl = theSite.Url;
+
+  // console.log('railSiteID:', siteId );
+  // console.log('siteUrl:', siteUrl );
 
   listInstance = await thisWebInstance.lists.getById( theList.Id );
 
@@ -196,8 +217,14 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       let GroupTitle = currentStep.value2; //theList.Title + ' Contributors';
       let GroupDesc = `Can UPDATE content in the ${ listOrLib } - ${ theList.Title }`;
       newSteps = await createThisGroup( newSteps, thisWebInstance, GroupTitle, GroupDesc, currentStep, ownerGroup.Id, updateState );
+
+      principalId = currentStep.current.result;
+      newSteps = await updateGroupOwner( newSteps, 'updateContribOwner', GroupTitle, siteId, siteUrl, principalId, ownerGroup.Id, updateState );
+
     }
+
     principalId = currentStep.current.result;
+
     // currentStep = newSteps.assignReaderListRole;
     newSteps = await giveGroupPermissions( newSteps, 'assignContribListRole', listInstance, thisWebInstance, principalId , contRoleDefId, updateState, 'list' ) ;
     // currentStep = newSteps.assignReaderSiteRole;
@@ -210,11 +237,17 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
    */
   if ( newSteps.checkReaderGroup.required === true ) {
     currentStep = newSteps.createReaderGroup;
+
     if ( currentStep.required === true ) {
       let GroupTitle = currentStep.value2; //theList.Title + ' Readers';
       let GroupDesc = `Can READ content in the ${ listOrLib }: ${ theList.Title }`;
       newSteps = await createThisGroup( newSteps, thisWebInstance, GroupTitle, GroupDesc, currentStep, ownerGroup.Id, updateState );
+
+      principalId = currentStep.current.result;
+      newSteps = await updateGroupOwner( newSteps, 'updateReaderOwner', GroupTitle, siteId, siteUrl, principalId, ownerGroup.Id, updateState );
+
     }
+
     principalId = currentStep.current.result;
     // currentStep = newSteps.assignReaderListRole;
     newSteps = await giveGroupPermissions( newSteps, 'assignReaderListRole', listInstance, thisWebInstance, principalId , readRoleDefId, updateState, 'list' ) ;
@@ -229,6 +262,28 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
  }
 
+ export function updateGroupOwner ( newSteps: IProcessSteps,  currentStepStr: string, GroupTitle: string, siteId: string, siteUrl: string, principalId: number, ownerGroupId: number, updateState ) {
+
+  let currentStep: IProcessStep = JSON.parse( JSON.stringify( newSteps[currentStepStr] )) ;
+
+  let doThisStep = shouldDoThisStepBasedOnDependant( currentStep, newSteps );
+
+  if ( doThisStep === true && currentStep.required === true && principalId !== null && ownerGroupId !== null ) {
+
+    currentStep.current = JSON.parse(JSON.stringify( currentStep.powerApp ));
+    currentStep.current.result = 'Que PowerApp';
+    currentStep.value3 = principalId;
+    currentStep.value4 = ownerGroupId;
+
+    newSteps[currentStepStr] = currentStep;
+
+    updateState(newSteps, currentStep, siteId );
+
+  }
+
+  return newSteps;
+   
+}
 
  export async function giveGroupPermissions (newSteps: IProcessSteps, currentStepStr: string, listInstance, thisWebInstance, principalId: number, roleDefId: number, updateState: any, listOrWeb: 'list' | 'web' ){
 
@@ -356,3 +411,89 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
  }
  
+
+ 
+const APISiteGetEndPoint : string = '_api/site';
+const APISitePostQueryEndPoint : string = '_vti_bin/client.svc/ProcessQuery';
+
+export async function fUpdateGroup ( httpClient: HttpClient, siteUrl: string, siteGuid: string, targetGroupId: string, ownerGroupID: string  ) {
+
+  if ( siteUrl.lastIndexOf('/') !== siteUrl.length -1 ) { siteUrl += '/';}
+
+    const endpoint: string = `${ siteUrl }${ APISitePostQueryEndPoint }`;
+    let body: string = '';
+    body += '<Request AddExpandoFieldTypeSuffix="true" SchemaVersion="15.0.0.0" LibraryVersion="15.0.0.0" ApplicationName=".NET Library" xmlns="http://schemas.microsoft.com/sharepoint/clientquery/2009">';
+    body +=   '<SetProperty Id="1" ObjectPathId="2" Name="Owner">';
+    body +=     '<Parameter ObjectPathId="3" />';
+    body +=   '</SetProperty>';
+    body +=   '<Method Name="Update" Id="4" ObjectPathId="2" />';
+    body +=   '</Actions>';
+    body +=   '<ObjectPaths>';
+    body +=     '<Identity Id="2" Name="740c6a0b-85e2-48a0-a494-e0f1759d4aa7:site:AddSiteGUIDHERE:g:TargetGroupID" />';
+    body +=     '<Identity Id="3" Name="740c6a0b-85e2-48a0-a494-e0f1759d4aa7:site:AddSiteGUIDHERE:g:OwnerGroupID" />';
+    body +=   '</ObjectPaths>';
+    body += '</Request>';
+
+    body = body.replace(/AddSiteGUIDHERE/g, siteGuid );
+    body = body.replace(/TargetGroupID/g, targetGroupId );
+    body = body.replace(/OwnerGroupID/g, ownerGroupID );
+
+    const request: any = {
+      body: body
+    };
+    let result = null;
+    let errMessage = '';
+
+    try {
+      result = await httpClient.post( endpoint, HttpClient.configurations.v1, request);
+    } catch (e) {
+      errMessage = getHelpfullError(e, true, true );
+    }
+
+    console.log( result );
+    return result;
+
+}
+
+export class UpdateGroup {
+
+  constructor(private httpClient: HttpClient ) { }
+
+  public updateOwner( siteUrl: string, siteGuid: string, targetGroupId: string, ownerGroupID: string ): Promise<any> {
+    if ( siteUrl.lastIndexOf('/') !== siteUrl.length -1 ) { siteUrl += '/';}
+    return new Promise<any>((resolve,reject) => {
+      const endpoint: string = `${ siteUrl }${ APISitePostQueryEndPoint }`;
+      let body = '<Request AddExpandoFieldTypeSuffix="true" SchemaVersion="15.0.0.0" LibraryVersion="15.0.0.0" ApplicationName=".NET Library" xmlns="http://schemas.microsoft.com/sharepoint/clientquery/2009">';
+      body += '<SetProperty Id="1" ObjectPathId="2" Name="Owner">';
+      body += '<Parameter ObjectPathId="3" />';
+      body += '</SetProperty>';
+      body += '<Method Name="Update" Id="4" ObjectPathId="2" />';
+      body += '</Actions>';
+      body += '<ObjectPaths>';
+      body += '<Identity Id="2" Name="740c6a0b-85e2-48a0-a494-e0f1759d4aa7:site:AddSiteGUIDHERE:g:TargetGroupID" />';
+      body += '<Identity Id="3" Name="740c6a0b-85e2-48a0-a494-e0f1759d4aa7:site:AddSiteGUIDHERE:g:OwnerGroupID" />';
+      body += '</ObjectPaths>';
+      body += '</Request>';
+
+      body.replace('AddSiteGUIDHERE', siteGuid );
+      body.replace('TargetGroupID', targetGroupId );
+      body.replace('OwnerGroupID', ownerGroupID );
+
+      const request: any = {
+        body: body
+      };
+
+      this.httpClient.post( endpoint, HttpClient.configurations.v1, request)
+      .then((rawResponse: HttpClientResponse) => {
+          return rawResponse.json();
+      })
+      .then((jsonResponse: any ) => {
+          resolve(jsonResponse);
+      })
+      .catch(( error ) => {
+        reject( error );
+      });
+
+    });
+  }
+}

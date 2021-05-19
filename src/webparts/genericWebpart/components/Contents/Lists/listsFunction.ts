@@ -10,7 +10,7 @@
  *                                                                                                                                  
  */
 
-import { Web, IList } from "@pnp/sp/presets/all";
+import { Web, IList, Site, ISite } from "@pnp/sp/presets/all";
 
 import { sp } from "@pnp/sp";
 
@@ -114,9 +114,29 @@ export async function allFieldsCompare( webURL: string, listTitleOrId: string, f
 
     let fields : IContentsFieldInfo[] = [];
     let errMessage = '';
-    addTheseListsToState(fields, errMessage);
+    addTheseListsToState(fields, errMessage, null );
     return fields;
 }
+
+
+export async function getSiteInfo( webUrl: string ) {
+
+    let thisSiteInstance: ISite = null;
+    let errMessage = null;
+  
+    webUrl = getFullUrlFromSlashSitesUrl( webUrl );
+  
+    try {
+      thisSiteInstance = await Site( webUrl );
+    } catch (e) {
+      errMessage = getHelpfullError(e, true, true);
+    }
+  
+    const theSite = await thisSiteInstance.get();
+ 
+    return theSite;
+  
+  }
 
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allAvailableLists( webURL: string, restFilter: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
@@ -127,9 +147,13 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
     let scope = '';
     let errMessage = '';
 
+    let theSite: ISite = await getSiteInfo( webURL );
+
     webURL = getFullUrlFromSlashSitesUrl( webURL );
 
     try {
+
+
         thisWebInstance = Web(webURL);
         let allLists : IContentsListInfo[] = [];
         if ( restFilter && restFilter.length > 0 ) {
@@ -190,12 +214,12 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
 
         }
 
-        addTheseListsToState(allLists, '');
+        addTheseListsToState(allLists, '', theSite);
         return allLists;
     } catch (e) {
         errMessage = getHelpfullError(e, false, true);
         console.log('checkThisPage', errMessage);
-        addTheseListsToState([], errMessage);
+        addTheseListsToState([], errMessage, theSite );
         return [];
     }
 

@@ -332,9 +332,8 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                         </table>
                     </div>
                 </div>
-            </div>
-                
-            ;
+            </div>;
+            
             panelContent = <div>
                 <h3> { `${ this.props.theList.Title } ${ listOrLib }` }</h3>
                 <Pivot
