@@ -22,6 +22,8 @@ import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
 import * as fpsAppIcons from '@mikezimm/npmfunctions/dist/Icons/standardEasyContents';
 
+import { buildAppWarnIcon } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
+
 // const iconStyles: React.CSSProperties = { background: 'white', color: 'black', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
 // const redIconStyles: React.CSSProperties = { background: 'white', color: 'red', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
 // export const UniquePerms = <Icon iconName="Shield" title="Unique Permissions" style={ iconStyles }></Icon>;
@@ -178,8 +180,10 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           }
 
           const UniquePermIcon: JSX.Element = <div id={ index.toString() } > { fpsAppIcons.UniquePerms } </div>;
+          const CreateJSONIcon = buildAppWarnIcon( 'EasyContents', 'Code', "Compare", 'black' );
 
           const CreateGroupsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.CreateGroups } </div>;
+          const CompareJSONIcon: JSX.Element = <div id={ index.toString() } data-railFunction='compareJSON' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { CreateJSONIcon } </div>;
           const ResetPermissionsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.ResetPermissions } </div>;
           const RemoveItemsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.RemoveItems } </div>;
          
@@ -252,7 +256,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           if ( showAdvanced === true ) { listAdvancedURL = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'Adv'); }
           if ( showAdvanced === true ) { listAdvancedCT = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'CT'); }
 
-          let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes }  </div>;
+          let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes } { CompareJSONIcon } </div>;
 
           return <tr>
             <td className={ styles.nowWrapping }> { listTitleRUL } </td>

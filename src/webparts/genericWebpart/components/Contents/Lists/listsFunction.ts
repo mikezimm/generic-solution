@@ -10,7 +10,7 @@
  *                                                                                                                                  
  */
 
-import { Web, IList } from "@pnp/sp/presets/all";
+import { Web, IList, Site, ISite } from "@pnp/sp/presets/all";
 
 import { sp } from "@pnp/sp";
 
@@ -43,6 +43,8 @@ import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames }
 import { encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';  //    webURL = getFullUrlFromSlashSitesUrl( webURL );
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -89,6 +91,8 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
 import { pivCats, IListBucketInfo } from './listsComponent';
 
+import { IFieldBucketInfo, IContentsFieldInfo } from '../Fields/fieldsComponent';
+import * as ECFields from '../Fields/fieldsFunctions';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -106,8 +110,36 @@ export type IValidTemplate = 100 | 101;
 
 
 
+export async function allFieldsCompare( webURL: string, listTitleOrId: string, fieldBuckets: IFieldBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsFieldInfo[]>{
+
+    let fields : IContentsFieldInfo[] = [];
+    let errMessage = '';
+    addTheseListsToState(fields, errMessage, null );
+    return fields;
+}
+
+
+export async function getSiteInfo( webUrl: string ) {
+
+    let thisSiteInstance: ISite = null;
+    let errMessage = null;
+  
+    webUrl = getFullUrlFromSlashSitesUrl( webUrl );
+  
+    try {
+      thisSiteInstance = await Site( webUrl );
+    } catch (e) {
+      errMessage = getHelpfullError(e, true, true);
+    }
+  
+    const theSite = await thisSiteInstance.get();
+ 
+    return theSite;
+  
+  }
+
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableLists( webURL: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
+export async function allAvailableLists( webURL: string, restFilter: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
 
     let contentsLists : IContentsLists = null;
 
@@ -115,9 +147,20 @@ export async function allAvailableLists( webURL: string, listBuckets: IListBucke
     let scope = '';
     let errMessage = '';
 
+    let theSite: ISite = await getSiteInfo( webURL );
+
+    webURL = getFullUrlFromSlashSitesUrl( webURL );
+
     try {
+
+
         thisWebInstance = Web(webURL);
-        let allLists : IContentsListInfo[] = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').get();
+        let allLists : IContentsListInfo[] = [];
+        if ( restFilter && restFilter.length > 0 ) {
+            allLists = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').filter( restFilter ).get();
+        } else {
+            allLists = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').get();
+        }
         //console.log(allLists);
 
         for (let i in allLists ) {
@@ -171,14 +214,14 @@ export async function allAvailableLists( webURL: string, listBuckets: IListBucke
 
         }
 
-        addTheseListsToState(allLists, '');
+        addTheseListsToState(allLists, '', theSite);
         return allLists;
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+        errMessage = getHelpfullError(e, false, true);
         console.log('checkThisPage', errMessage);
-        addTheseListsToState([], errMessage);
+        addTheseListsToState([], errMessage, theSite );
+        return [];
     }
-
 
 }
 

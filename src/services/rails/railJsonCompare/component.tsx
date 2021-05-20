@@ -17,8 +17,6 @@ import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mi
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
-import { Web, IList, Site, ISite } from "@pnp/sp/presets/all";
-
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
@@ -26,6 +24,7 @@ import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} fro
 import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
+
 
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
@@ -49,8 +48,7 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
  import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
  import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
- import { encodeDecodeString, getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-
+ 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -75,19 +73,6 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                       
  */
 
- import { getSiteInfoIncludingUnique, fUpdateGroup } from './functions';
-
-  import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
-
-  import RailsHistory from '../../../../../../services/railsCommon/RailsHistoryPane';
-  import SelectedRails from '../../../../../../services/railsCommon/RailsSelectedPane';
-
-  import { createIconButton } from '../../../createButtons/IconButton';
-  
-  
-  import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
-  
-  import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -99,18 +84,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, } from '../../../../../../services/createAnalytics';
 
-
-import { IListRailFunction } from '../listsComponent';
-import { createProcessSteps, IProcessSteps,  } from './setup';
-import {  IProcessStep, StatusIcons, StatusColors } from '../../../../../../services/railsCommon/railsSetup';
-import { doThisRailFunction } from './functions';
-import * as strings from 'GenericWebpartWebPartStrings';
-
-import MyPermissions from '../../Permissions/MyPermissions';
-
-import { IFetchInfoSettingsMin } from '../../Permissions/IWebPermissionsProps';
+import * as strings from './node_modules/GenericWebpartWebPartStrings';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -138,8 +113,6 @@ export interface IMyCreateListPermissionsProps {
 
     analyticsWeb: string;
     analyticsList: string;
-
-    theSite: ISite;
     //currentUser: IUser;
 
   }
@@ -445,13 +418,6 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                             >
                                 Add Groups and Permissions
                             </PrimaryButton>
-                            <DefaultButton
-                                    onClick = { this._testUpdateGroup.bind(this) }
-                                    title= { "Test Update Group" }
-                                    style={{ marginRight: '0px', padding: '20px' }}
-                                >Test Update Owner
-                            </DefaultButton>
-
                         </div>
 
                         { <div style={{display: this.state.HasUniqueRoleAssignments === true ? 'none' : null, width: panelWidth, margin: '20px 0px' }}>
@@ -518,13 +484,6 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
     } 
 
-    private _testUpdateGroup(){
-
-        // let result = fUpdateGroup( httpClient, siteUrl, siteGuid, targetGroupId, ownerGroupID );
-        let result = fUpdateGroup( this.props.wpContext.httpClient, 'https://mcclickster.sharepoint.com/sites/PivotNotInstalled', 'fbeb30c8-3c2a-492d-bacf-1bd6686c9d35', '103', '84' );
-
-    }
-
     private startThisRailFunction() {
         doThisRailFunction( this.state.steps, this.props.theList , this.updateStateStatus.bind(this) );
     }
@@ -538,9 +497,8 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             disableDo: finished === true ? true : this.state.disableDo,
         });
         
-        let theSite: any = this.props.theSite;
         let ServerRelativeUrl = this.props.currentPage;
-        let pickedWeb = this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid + '|' + theSite.Url + '|' + theSite.Id ;
+        let pickedWeb = this.props.pickedWeb ? this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid : ServerRelativeUrl;
         
         // value1: value1 ? value1 : '', //List Title
         // value2: value2 ? value2 : '', //Group Title
@@ -613,7 +571,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
     private _updateVisitorGroup(oldVal: any): any {  
         let steps = JSON.parse(JSON.stringify( this.state.steps ));
-        [ 'checkReaderGroup', 'createReaderGroup', 'assignReaderListRole', 'assignReaderSiteRole','updateReaderOwner' ].map( step => {
+        [ 'checkReaderGroup', 'createReaderGroup', 'assignReaderListRole', 'assignReaderSiteRole' ].map( step => {
             steps[step].value2 = oldVal;
         });
     
@@ -621,7 +579,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
     }
     private _updateContribGroup(oldVal: any): any {  
         let steps = JSON.parse(JSON.stringify( this.state.steps ));
-        [ 'checkContribGroup', 'createContribGroup', 'assignContribListRole', 'assignContribSiteRole','updateContribOwner' ].map( step => {
+        [ 'checkContribGroup', 'createContribGroup', 'assignContribListRole', 'assignContribSiteRole' ].map( step => {
             steps[step].value2 = oldVal;
         });
         this.setState({  contribName: oldVal, steps: steps  });  
