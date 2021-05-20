@@ -235,13 +235,20 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
     private buildHistoryStep( step: IRailAnalytics ) {
       // if ( step.required !== true ) { return null; }
       // let info = step.current.error !== '' ? step.current.error : step.current.info; 
-      let key = step.Result;
-      let color = StatusColors[ key ];
+      let results = step.Result.split(' ');
+      let colors = results.map( key => {
+        return StatusColors[ key ];
+      });
+
+      let Icons = results.map( ( key, index ) => {
+        return <Icon iconName= { StatusIcons[ key ]} style={{ color: colors [ index ], padding: '0px 4px' }}></Icon>;
+      });
+          
       let itemPadding = step.zzzText4 ? '7px 0px 3px 0px' : '0px';
 
       return <tr  title={ step.Result + ' ' + step.Title }>
           <td>{ step.zzzText7 } </td>
-          <td style={{ textAlign: 'center' }} ><div style={{ fontSize: 'larger', margin: itemPadding }}><Icon iconName= { StatusIcons[ key ]} style={{ color: color }}></Icon></div></td>
+          <td style={{ textAlign: 'center' }} ><div style={{ fontSize: 'larger', margin: itemPadding, whiteSpace: 'nowrap', padding: '0px 10px' }}> { Icons } </div></td>
           <td>{ step.Title } 
               <span style={{fontWeight: 700 }}>{ ( step.zzzText3 ? ' - ' + step.zzzText3 : '' ) } </span>
               {  step.zzzText4 ? <div style={{color: 'red', fontSize: 'x-small', paddingBottom: '7px' }}>{ ( step.zzzText4 ? ' ' + step.zzzText4 : '' ) } </div> : null  }

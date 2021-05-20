@@ -270,8 +270,8 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
   if ( doThisStep === true && currentStep.required === true && principalId !== null && ownerGroupId !== null ) {
 
-    currentStep.current = JSON.parse(JSON.stringify( currentStep.powerApp ));
-    currentStep.current.result = 'Que PowerApp';
+    currentStep.current = JSON.parse(JSON.stringify( currentStep.powerAuto ));
+    currentStep.current.result = 'Que powerAuto';
     currentStep.value3 = principalId;
     currentStep.value4 = ownerGroupId;
 

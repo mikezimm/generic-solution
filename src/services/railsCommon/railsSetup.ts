@@ -1,18 +1,18 @@
 
-export const StatusIcons: IStatusIcons = { plan: 'Edit', process: 'Gear', complete: 'Checkmark', error: 'Warning', powerApp: 'MicrosoftFlowLogo' };
+export const StatusIcons: IStatusIcons = { plan: 'Edit', process: 'Gear', complete: 'Checkmark', error: 'Warning', powerAuto: 'MicrosoftFlowLogo' };
 
-export const StatusColors: IStatusIcons = { plan: 'black', process: 'blue', complete: 'green', error: 'red', powerApp: 'purple' };
+export const StatusColors: IStatusIcons = { plan: 'black', process: 'blue', complete: 'green', error: 'red', powerAuto: 'purple' };
 
 export type IStatusIcon = 'Edit'| 'Gear'| 'Checkmark'| 'Warning';
 export type IStepPC = 'Plan' | 'Process' | 'Complete' | '' | '';
-export type IStepKey = 'plan' | 'process' | 'complete' | 'error' | 'powerApp' | '';
+export type IStepKey = 'plan' | 'process' | 'complete' | 'error' | 'powerAuto' | '';
 
 export interface IStatusIcons {
   plan: string;
   process: string;
   complete: string;
   error: string;
-  powerApp: string;
+  powerAuto: string;
 }
 
 export interface IProcessStatus {
@@ -23,7 +23,7 @@ export interface IProcessStatus {
   result: string;
   success: boolean;
   error?: string;
-  powerApp?: string;
+  powerAuto?: string;
 }
 
 export interface IProcessStep {
@@ -37,7 +37,7 @@ export interface IProcessStep {
   complete?: IProcessStatus;
   error?: IProcessStatus;
   current: IProcessStatus;
-  powerApp: IProcessStatus;
+  powerAuto: IProcessStatus;
   value1: any; //List Title
   value2: any; //Group Title
   value3: any; //TBD
@@ -93,8 +93,8 @@ export function createStep( label: string, planInfo: string , processInfo: strin
       info: planInfo,
       order: 0, result: '', success: false, error: '',
     },
-    powerApp: {
-      key: 'powerApp',
+    powerAuto: {
+      key: 'powerAuto',
       info: planInfo,
       order: 4, result: '', success: false, error: '',
     },

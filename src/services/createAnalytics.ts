@@ -56,6 +56,9 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
     let zzzNumber4 = null;
     let zzzNumber5 = null;
     let siteGuid = '';
+    let webGuid = '';
+    let siteUrl = '';
+
     let zzzText6 = '';
     let zzzText7 = '';
 
@@ -90,7 +93,10 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
         let tempSite = TargetSite.split('|');
         TargetSite = tempSite[0];
-        siteGuid = tempSite[1] ? tempSite[1] : null;
+        webGuid = tempSite[1] ? tempSite[1] : null;
+        siteUrl = tempSite[2] ? tempSite[2] : null;
+        siteGuid = tempSite[3] ? tempSite[3] : null;
+
 
         let tempTitle = saveTitle.split('|');
         zzzText6 = tempTitle[1] ? tempTitle[1] : null;//Get scope - site or list
@@ -166,6 +172,9 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
             'SiteLink': siteLink,
             'SiteTitle': webTitle,
             'TargetSite': targetSite,
+            'SiteID': siteGuid,
+            'WebID': webGuid,
+            'CollectionUrl': siteUrl,
             'Result': result,
             'TargetList': targetList,
             'ListTitle': listTitle,
@@ -187,7 +196,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 }
 
 
-export async function fetchAnalytics( analyticsWeb: string, analyticsList: string, siteGuid: string ) {
+export async function fetchAnalytics( analyticsWeb: string, analyticsList: string, WebID: string ) {
     //Do nothing if either of these strings is blank
     if (!analyticsList) { return ; }
     if (!analyticsWeb) { return ; }
@@ -199,7 +208,7 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
         'zzzNumber1', 'zzzNumber2', 'zzzNumber3', 'zzzNumber4', 'zzzNumber5',
         'zzzText1', 'zzzText2', 'zzzText3', 'zzzText4', 'zzzText5', 'zzzText6', 'zzzText7',
         'PageLink', 'SiteLink', 'SiteTitle', 'TargetSite', 'Result',
-        'TargetList', 'ListTitle', 'Setting',
+        'TargetList', 'ListTitle', 'Setting','WebID','SiteID','CollectionUrl'
     ];
 
     let expColumns : any = getExpandColumns(allColumns);
@@ -214,7 +223,7 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
     analyticsWeb = getFullUrlFromSlashSitesUrl( analyticsWeb );
     try {
         let web = Web(analyticsWeb);
-        let restFilter = "zzzText5 eq '" + siteGuid + "'";
+        let restFilter = "WebID eq '" + WebID + "'";
         items = await web.lists.getByTitle(analyticsList).items.select(allColumns).expand(expColumns).filter( restFilter ).top(5000).orderBy('Id',false).get();
 
     } catch (e) {

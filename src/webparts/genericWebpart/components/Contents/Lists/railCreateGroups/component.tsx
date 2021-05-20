@@ -539,9 +539,8 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         });
         
         let theSite: any = this.props.theSite;
-        let webGuid: string = currentStep.label.indexOf('Update Owner') > -1 ? theSite.Id : this.props.pickedWeb.guid;
         let ServerRelativeUrl = this.props.currentPage;
-        let pickedWeb = this.props.pickedWeb ? this.props.pickedWeb.ServerRelativeUrl + '|' + webGuid : ServerRelativeUrl;
+        let pickedWeb = this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid + '|' + theSite.Url + '|' + theSite.Id ;
         
         // value1: value1 ? value1 : '', //List Title
         // value2: value2 ? value2 : '', //Group Title
