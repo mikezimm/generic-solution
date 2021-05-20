@@ -433,7 +433,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
     private getFieldDefs() {
         let listGuid = '';
         if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
-        let result : any = allAvailableFields( this.props.pickedWeb.url, listGuid, createSearchBuckets(), this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableFields( this.props.pickedWeb.url, listGuid, null, createSearchBuckets(), this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
 
     }
 

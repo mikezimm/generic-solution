@@ -51,7 +51,7 @@ export function createSearchBuckets() {
 }
 
 //export async function provisionTestPage( makeThisPage:  IContentsFieldInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableFields( webURL: string, listGUID: string, fieldBuckets: IFieldBucketInfo[], addTheseFieldsToState: any, setProgress: any, markComplete: any ): Promise<IContentsFieldInfo[]>{
+export async function allAvailableFields( webURL: string, listGUID: string, restFilter: string, fieldBuckets: IFieldBucketInfo[], addTheseFieldsToState: any, setProgress: any, markComplete: any ): Promise<IContentsFieldInfo[]>{
 
     let contentsFields : IContentsFieldInfo = null;
 
@@ -72,9 +72,13 @@ export async function allAvailableFields( webURL: string, listGUID: string, fiel
         if ( listGUID != '' ) {
             thisWebInstance = Web(webURL);
             if ( isId === true ) {
-                allFields = await thisWebInstance.lists.getById(listGUID).fields.orderBy("Title", true).get();
+                if ( restFilter && restFilter.length > 0 ) {
+                    allFields = await thisWebInstance.lists.getById(listGUID).fields.filter( restFilter ).orderBy("Title", true).get();
+                } else { allFields = await thisWebInstance.lists.getById(listGUID).fields.orderBy("Title", true).get(); }
             } else {
-                allFields = await thisWebInstance.lists.getByTitle(listGUID).fields.orderBy("Title", true).get();
+                if ( restFilter && restFilter.length > 0 ) {
+                    allFields = await thisWebInstance.lists.getByTitle(listGUID).fields.filter( restFilter ).orderBy("Title", true).get();
+                } else { allFields = await thisWebInstance.lists.getByTitle(listGUID).fields.orderBy("Title", true).get(); }
             }
 
             scope = 'List';
