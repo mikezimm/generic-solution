@@ -200,7 +200,7 @@ const comparePivot5 = 'New';
 
 const ignoreKeysDefaults = {
     'Lists': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
-    'Fields': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
+    'Fields': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken','=Scope','odata.','SchemaXml'],
     'Views': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
     'Types': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
 };
@@ -384,8 +384,9 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                 </div>
             </div>;
             
-            panelContent = <div>
-                <h3> { `${ this.props.theList.Title } ${ listOrLib }` }</h3>
+            let otherList = this.props.theList.Title === this.state.otherList ? ' =>> Hey!  You can\'t compare a list to itself goof!' : `<= VS => ${ this.state.otherList }`;
+            panelContent = <div id='thisUniquePanelContent'>
+                <h3> { `${ this.props.theList.Title } ${ listOrLib }` } { otherList } </h3>
                 <Pivot
                     styles={ pivotStyles }
                     linkFormat={PivotLinkFormat.links}
@@ -698,6 +699,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         //make consolidated compareResults
         let compareResults: ICompareKeysResult = buildEmptyCompareResults( ignoreKeys, this.state.includeOrIgnoreKeys );
 
+        let otherProp = this.state.otherProp;
         //Go through all matched pairs and do full compare
         allPairs.map( (pair, index1 ) => {
             if ( pair.obj1.obj && pair.obj2.obj ) {
@@ -708,18 +710,25 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                     compareResultsItem[doThis].map( key => { compareResults[doThis] = addItemToArrayIfItDoesNotExist( compareResults[doThis], key, true ) ; } ) ;
                 });
     
+                let itemTitle = pair.obj1.obj[thisItemCompareKey];
+
                 let tableRows: any = [];
+
                 // let comparedProps: string[] = [];
         
                 if ( compareStyle === 'table' ) {
-                    let tableHeaders = <tr> { ['No','Property',this.props.theList.Title, this.state.otherList ].map( h=> { return <th> { h } </th>; }) } </tr>;
+                    let tableHeaders = <tr> { ['No', otherProp,'Property',this.props.theList.Title, this.state.otherList ].map( h=> { return <th> { h } </th>; }) } </tr>;
                     tableRows.push( tableHeaders );
+                    if ( allTableRows.length === 0 ) { allTableRows.push( tableHeaders ) ; }
+                    let isNewItem = true;
                     Object.keys(compareResultsItem.keyChanges).map( ( key, index ) => {
+                        let thisRowStyle = isNewItem === true ? { borderBottom: '1px solid darkgray', paddingBottom: '5px' } : null;
                         // comparedProps.push(key);
                         let theseValues = compareResultsItem.keyChanges[key].split( ' >>> ' );
-                        let thisProp = <tr><td> { index + 1 } </td>  <td> { key } </td>  <td> { theseValues[0] } </td>  <td> { theseValues[1] } </td> </tr>;
+                        let thisProp = <tr style={ thisRowStyle }><td> { index + 1 } </td> <td> { itemTitle } </td>  <td> { key } </td>  <td> { theseValues[0] } </td>  <td> { theseValues[1] } </td> </tr>;
                         tableRows.push( thisProp );
                         allTableRows.push( thisProp );
+                        isNewItem = false;
                     });
                 }
     
