@@ -200,7 +200,7 @@ const comparePivot5 = 'New';
 
 const ignoreKeysDefaults = {
     'Lists': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
-    'Fields': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken','=Scope','odata.','SchemaXml'],
+    'Fields': ['CustomFormatter','Id','=Scope','odata.','SchemaXml','bucket','Schema','Xml','odata','searchString'],
     'Views': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
     'Types': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
 };
@@ -462,7 +462,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                         <div style={{ paddingTop: '5px', display: 'flex' }}>
                             { <div style={{ fontSize: 'larger', fontWeight: 'bolder', paddingRight: '30px', minWidth: '235px'}}>{ this.state.otherProp } to { this.state.includeOrIgnoreItems }:</div>}
                             { this.makeToggle( '', includeItemState, false, this.updateTogggle2.bind(this) , '125px' ) }
-                            { this.makeTextField( 'Keys to ignore', this.state.ignoreItems.join(', ') , this._updateText3.bind(this) , false, '0px 0px ' + '20px ' + '0px', '600px' )}
+                            { this.makeTextField( 'Keys to ignore', this.state.ignoreItems.join(', ') , this._updateText4.bind(this) , false, '0px 0px ' + '20px ' + '0px', '600px' )}
                             <div style={{ marginLeft: '30px'}}>
                                 <TooltipHost content={`${ this.state.includeOrIgnoreItems} keys with these strings when comparing`} id={ 'includeOrIgnoreItemsTooltip' } calloutProps={ null }>
                                     <Icon iconName="Info" style={ getIconStyles('PivotTiles', 'black') }></Icon>
@@ -722,10 +722,10 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                     if ( allTableRows.length === 0 ) { allTableRows.push( tableHeaders ) ; }
                     let isNewItem = true;
                     Object.keys(compareResultsItem.keyChanges).map( ( key, index ) => {
-                        let thisRowStyle = isNewItem === true ? { borderBottom: '1px solid darkgray', paddingBottom: '5px' } : null;
+                        let thisRowStyle = isNewItem === true ? { borderTop: '1px dashed darkgray', paddingTop: '5px' } : null;
                         // comparedProps.push(key);
                         let theseValues = compareResultsItem.keyChanges[key].split( ' >>> ' );
-                        let thisProp = <tr style={ thisRowStyle }><td> { index + 1 } </td> <td> { itemTitle } </td>  <td> { key } </td>  <td> { theseValues[0] } </td>  <td> { theseValues[1] } </td> </tr>;
+                        let thisProp = <tr style={ thisRowStyle }><td> { index + 1 } </td> <td style={{ fontWeight: 'bolder' }}> { isNewItem === true ? itemTitle : null } </td>  <td> { key } </td>  <td> { theseValues[0] } </td>  <td> { theseValues[1] } </td> </tr>;
                         tableRows.push( thisProp );
                         allTableRows.push( thisProp );
                         isNewItem = false;
