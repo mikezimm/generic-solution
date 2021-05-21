@@ -423,7 +423,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             let isSameList = this.props.theList.Title === this.state.otherList ? true : false;
             let isSameWeb = this.props.theList.ParentWebUrl === this.state.otherWeb ? true : false; 
             let isSameEntity = isSameList === true && isSameWeb === true ? true : false;
-            let actualPivotHeading3 = isSameEntity === true ? null : pivotHeading3;
+            let actualPivotHeading3 = isSameEntity === true || this.state.errorMess !== '' ? null : pivotHeading3;
             let errorImageStyle = isSameEntity === false || this.state.showTab !== pivotHeading2 ? {
                     display: 'none',
                     transition:'all 0.3s ease',

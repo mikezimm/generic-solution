@@ -120,11 +120,12 @@ export async function allFieldsCompare( webURL: string, listTitleOrId: string, f
 
 
 export async function getSiteInfo( webUrl: string ) {
+  
+    webUrl = getFullUrlFromSlashSitesUrl( webUrl );
 
     let thisSiteInstance: ISite = null;
     let errMessage = null;
-  
-    webUrl = getFullUrlFromSlashSitesUrl( webUrl );
+
   
     try {
       thisSiteInstance = await Site( webUrl );
@@ -141,17 +142,20 @@ export async function getSiteInfo( webUrl: string ) {
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
 export async function allAvailableLists( webURL: string, restFilter: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[] | any >{
 
+    webURL = getFullUrlFromSlashSitesUrl( webURL );
+
     let contentsLists : IContentsLists = null;
 
     let thisWebInstance = null;
     let scope = '';
     let errMessage = '';
     let allLists : IContentsListInfo[] = [];
-    let theSite: ISite = await getSiteInfo( webURL );
+    let theSite: ISite = null;
 
-    webURL = getFullUrlFromSlashSitesUrl( webURL );
 
     try {
+
+        theSite = await getSiteInfo( webURL );
 
         thisWebInstance = Web(webURL);
 
