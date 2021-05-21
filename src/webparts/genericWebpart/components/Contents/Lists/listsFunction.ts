@@ -120,11 +120,12 @@ export async function allFieldsCompare( webURL: string, listTitleOrId: string, f
 
 
 export async function getSiteInfo( webUrl: string ) {
+  
+    webUrl = getFullUrlFromSlashSitesUrl( webUrl );
 
     let thisSiteInstance: ISite = null;
     let errMessage = null;
-  
-    webUrl = getFullUrlFromSlashSitesUrl( webUrl );
+
   
     try {
       thisSiteInstance = await Site( webUrl );
@@ -139,23 +140,25 @@ export async function getSiteInfo( webUrl: string ) {
   }
 
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableLists( webURL: string, restFilter: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[]>{
+export async function allAvailableLists( webURL: string, restFilter: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[] | any >{
+
+    webURL = getFullUrlFromSlashSitesUrl( webURL );
 
     let contentsLists : IContentsLists = null;
 
     let thisWebInstance = null;
     let scope = '';
     let errMessage = '';
+    let allLists : IContentsListInfo[] = [];
+    let theSite: ISite = null;
 
-    let theSite: ISite = await getSiteInfo( webURL );
-
-    webURL = getFullUrlFromSlashSitesUrl( webURL );
 
     try {
 
+        theSite = await getSiteInfo( webURL );
 
         thisWebInstance = Web(webURL);
-        let allLists : IContentsListInfo[] = [];
+
         if ( restFilter && restFilter.length > 0 ) {
             allLists = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').filter( restFilter ).get();
         } else {
@@ -188,7 +191,6 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
 
             //console.log('EntityTypeName - urlEntityName: ', allLists[i].EntityTypeName , urlEntityName);
 
-
             if ( urlEntityName.indexOf('OData.') === 0 || urlEntityName.indexOf('OData_') === 0 ) {
                 //These are special libraries
                 urlEntityName = urlEntityName.replace('OData.','');
@@ -214,13 +216,14 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
 
         }
 
-        addTheseListsToState(allLists, '', theSite);
-        return allLists;
+        addTheseListsToState(allLists, errMessage, theSite);
+        return { allLists: allLists, errMessage: errMessage, theSite: theSite } ;
+
     } catch (e) {
         errMessage = getHelpfullError(e, false, true);
         console.log('checkThisPage', errMessage);
         addTheseListsToState([], errMessage, theSite );
-        return [];
+        return { allLists: allLists, errMessage: errMessage, theSite: theSite } ;
     }
 
 }

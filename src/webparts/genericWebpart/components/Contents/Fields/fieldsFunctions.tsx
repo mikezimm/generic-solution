@@ -51,7 +51,7 @@ export function createSearchBuckets() {
 }
 
 //export async function provisionTestPage( makeThisPage:  IContentsFieldInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableFields( webURL: string, listGUID: string, restFilter: string, fieldBuckets: IFieldBucketInfo[], addTheseFieldsToState: any, setProgress: any, markComplete: any ): Promise<IContentsFieldInfo[]>{
+export async function allAvailableFields( webURL: string, listGUID: string, restFilter: string, fieldBuckets: IFieldBucketInfo[], addTheseFieldsToState: any, setProgress: any, markComplete: any ): Promise<IContentsFieldInfo[] | any>{
 
     let contentsFields : IContentsFieldInfo = null;
 
@@ -108,11 +108,10 @@ export async function allAvailableFields( webURL: string, listGUID: string, rest
         allFields[i].meta = buildMetaFromField(allFields[i]);
         allFields[i].searchString = buildSearchStringFromField(allFields[i]);
 
-
     }
 
     addTheseFieldsToState(allFields, scope, errMessage);
-    return allFields;
+    return { allFields: allFields, scope: scope, errMessage: errMessage } ;
 
 }
 

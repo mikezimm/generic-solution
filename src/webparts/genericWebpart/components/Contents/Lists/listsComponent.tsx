@@ -479,40 +479,46 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     private async _fetchCompare( altWeb: string, altListTitle: string, doThis: string ) {
         if ( doThis === 'Lists' ) {
-            let secondJSON = [];
+            let secondJSON = null;
+            let compareError = '';
 
-            if ( altListTitle === this.state.selectedEntity.Title ) {
-                secondJSON = [ this.state.selectedEntity ];
+            if ( altListTitle === this.state.selectedEntity.Title && altWeb === this.state.selectedEntity.ParentWebUrl ) {
+                secondJSON = this.state.selectedEntity ;
             } else {
                 let restFilter = `Title eq '${ altListTitle }'`;
-                secondJSON = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
+                let result = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
+                secondJSON = result.allLists[0];
+                compareError= result.errMessage;
             }
 
             this.setState({ 
                 firstJSON: this.state.selectedEntity,
-                secondJSON: secondJSON[0],
-                compareError: '', 
-                lastCompare: 'Lists',
+                secondJSON: secondJSON,
+                compareError: compareError, 
+                lastCompare: doThis,
             });
 
-        } 
-        if ( doThis === 'Fields' ) {
+        } else if ( doThis === 'Fields' ) {
             let firstJSON = [];
             let secondJSON = [];
-            let restFilter = "Hidden eq false"
-            if ( this.state.lastCompare !== 'Fields' ) { //Only do this if Fields was not the last compare type
-                firstJSON = await ECFields.allAvailableFields( altWeb, this.state.selectedEntity.Title, restFilter, ECFields.createSearchBuckets(),this.addCompareFieldToState.bind(this), null, null );
-                // firstJSON = await ECFields.allAvailableFields( altWeb, this.state.selectedEntity.Title, ECFields.createSearchBuckets(),null, null, null );
-            } else { firstJSON = this.state.firstJSON ; }
+            let compareError = '';
+            let restFilter = "Hidden eq false";
 
-            secondJSON = await ECFields.allAvailableFields( altWeb, altListTitle, restFilter, ECFields.createSearchBuckets(),this.addCompareFieldToState.bind(this), null, null );
+            let result1 = await ECFields.allAvailableFields( this.state.selectedEntity.ParentWebUrl, this.state.selectedEntity.Title, restFilter, ECFields.createSearchBuckets(),this.addCompareFieldToState.bind(this), null, null );
+            firstJSON = result1.allFields;
+            compareError= result1.errMessage;
+
+            let result2 = await ECFields.allAvailableFields( altWeb, altListTitle, restFilter, ECFields.createSearchBuckets(),this.addCompareFieldToState.bind(this), null, null );
             // secondJSON = await ECFields.allAvailableFields( altWeb, altListTitle, ECFields.createSearchBuckets(),null, null, null );
+
+            secondJSON = result2.allFields;
+            compareError += result2.errMessage;
 
             this.setState({ 
                 firstJSON: firstJSON,
                 secondJSON: secondJSON,
-                compareError: '', 
-                lastCompare: 'Fields',
+                compareError: compareError, 
+                lastCompare: doThis,
             });
             // private getFieldDefs() {
             //     let listGuid = '';
@@ -718,7 +724,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     }
 
     private _closePanel ( )  {
-        this.setState({ showPanel: false,});
+        this.setState({ showPanel: false, firstJSON: null, secondJSON: null });
         this._updateStateOnPropsChange();
     }
 
