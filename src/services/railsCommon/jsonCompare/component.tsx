@@ -206,7 +206,7 @@ const comparePivot5 = 'New';
 
 const ignoreKeysDefaults = {
     'Lists': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
-    'Fields': ['CustomFormatter','Id','=Scope','odata.','SchemaXml','bucket','Schema','Xml','odata','searchString'],
+    'Fields': ['CustomFormatter','Id','=Scope','odata.','SchemaXml','bucket','Schema','Xml','searchString'],
     'Views': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
     'Types': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
 };
@@ -256,6 +256,9 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         let startTime = new Date();
         let refreshId = startTime.toISOString().replace('T', ' T'); // + ' ~ ' + startTime.toLocaleTimeString();
 
+        let json1PropCount = this.props.json1 === null ? 0 : this.props.json1.length;
+        let json2PropCount = this.props.json2 === null ? 0 : this.props.json2.length;
+
         this.state = {
             disableDo: false,
             refreshId: refreshId,
@@ -276,8 +279,8 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             compareResults: compareResults,
             compareArray: [],
 
-            json1PropCount: this.props.json1 === null ? 0 : this.props.json1.length,
-            json2PropCount: this.props.json2 === null ? 0 : this.props.json2.length,
+            json1PropCount: json1PropCount,
+            json2PropCount: json2PropCount,
 
         };
     }
@@ -423,7 +426,8 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             let isSameList = this.props.theList.Title === this.state.otherList ? true : false;
             let isSameWeb = this.props.theList.ParentWebUrl === this.state.otherWeb ? true : false; 
             let isSameEntity = isSameList === true && isSameWeb === true ? true : false;
-            let actualPivotHeading3 = isSameEntity === true || this.state.errorMess !== '' ? null : pivotHeading3;
+            let actualPivotHeading3 = isSameEntity === true || this.state.errorMess !== '' || this.props.errorMess !== '' ? null : pivotHeading3;
+
             let errorImageStyle = isSameEntity === false || this.state.showTab !== pivotHeading2 ? {
                     display: 'none',
                     transition:'all 0.3s ease',
@@ -785,10 +789,17 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
                 let tableRows: any = [];
 
+                let theListTitle = this.props.theList.Title;
+                let otherListTitle = this.state.otherList;
+                if ( this.props.theList.ParentWebUrl !== this.state.otherWeb && this.state.otherWeb !== null && this.state.otherWeb.length !== 0 ) {
+                    theListTitle += ` - on:  ${ this.props.theList.ParentWebUrl.replace('/sites','') }`;
+                    otherListTitle += ` - on:  ${ this.state.otherWeb.replace('/sites','') }`;
+                }
+        
                 // let comparedProps: string[] = [];
         
                 if ( compareStyle === 'table' ) {
-                    let tableHeaders = <tr> { ['No', otherProp,'Property',this.props.theList.Title, this.state.otherList ].map( h=> { return <th> { h } </th>; }) } </tr>;
+                    let tableHeaders = <tr> { ['No', otherProp,'Property', theListTitle, otherListTitle ].map( h=> { return <th> { h } </th>; }) } </tr>;
                     tableRows.push( tableHeaders );
                     if ( allTableRows.length === 0 ) { allTableRows.push( tableHeaders ) ; }
                     let isNewItem = true;
@@ -796,7 +807,16 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                         let thisRowStyle = isNewItem === true ? { borderTop: '1px dashed darkgray', paddingTop: '5px' } : null;
                         // comparedProps.push(key);
                         let theseValues = compareResultsItem.keyChanges[key].split( ' >>> ' );
-                        let thisProp = <tr style={ thisRowStyle }><td> { index + 1 } </td> <td style={{ fontWeight: 'bolder' }}> { isNewItem === true ? itemTitle : null } </td>  <td> { key } </td>  <td> { theseValues[0] } </td>  <td> { theseValues[1] } </td> </tr>;
+                        let value0 = theseValues[0] === 'undefined' ? '-' : theseValues[0] === 'null' ? '-null-' : theseValues[0];
+                        let value1 = theseValues[1] === 'undefined' ? '-' : theseValues[1] === 'null' ? '-null-' : theseValues[1];
+
+                        let thisProp = <tr style={ thisRowStyle }>
+                                <td> { index + 1 } </td> 
+                                <td style={{ fontWeight: 'bolder' }}> { isNewItem === true ? itemTitle : null } </td>
+                                <td> { key } </td>
+                                <td> { value0 } </td>
+                                <td> { value1 } </td>
+                            </tr>;
                         tableRows.push( thisProp );
                         allTableRows.push( thisProp );
                         isNewItem = false;
@@ -833,15 +853,28 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
         let tableRows: any = [];
         // let comparedProps: string[] = [];
+        let theListTitle = this.props.theList.Title;
+        let otherListTitle = this.state.otherList;
+        if ( this.props.theList.ParentWebUrl !== this.state.otherWeb && this.state.otherWeb !== null && this.state.otherWeb.length !== 0 ) {
+            theListTitle += ` - on:  ${ this.props.theList.ParentWebUrl.replace('/sites','') }`;
+            otherListTitle += ` - on:  ${ this.state.otherWeb.replace('/sites','') }`;
+        }
 
         if ( compareStyle === 'table' ) {
 
-            let tableHeaders = <tr> { ['No','Property',this.props.theList.Title, this.state.otherList ].map( h=> { return <th> { h } </th>; }) } </tr>;
+            let tableHeaders = <tr> { ['No','Property', theListTitle, otherListTitle ].map( h=> { return <th> { h } </th>; }) } </tr>;
             tableRows.push( tableHeaders );
             Object.keys(compareResults.keyChanges).map( ( key, index ) => {
                 // comparedProps.push(key);
                 let theseValues = compareResults.keyChanges[key].split( ' >>> ' );
-                let thisProp = <tr><td> { index + 1 } </td>  <td> { key } </td>  <td> { theseValues[0] } </td>  <td> { theseValues[1] } </td> </tr>;
+                let value0 = theseValues[0] === 'undefined' ? '-' : theseValues[0] === 'null' ? '-null-' : theseValues[0];
+                let value1 = theseValues[1] === 'undefined' ? '-' : theseValues[1] === 'null' ? '-null-' : theseValues[1];
+                let thisProp = <tr>
+                        <td> { index + 1 } </td>
+                        <td> { key } </td>
+                        <td> { value0 } </td>
+                        <td> { value1 } </td>
+                    </tr>;
                 tableRows.push( thisProp );
             });
         }

@@ -724,7 +724,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     }
 
     private _closePanel ( )  {
-        this.setState({ showPanel: false,});
+        this.setState({ showPanel: false, firstJSON: null, secondJSON: null });
         this._updateStateOnPropsChange();
     }
 
