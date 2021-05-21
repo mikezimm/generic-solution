@@ -128,6 +128,7 @@ public constructor(props:IInfoAboutMeProps){
                 {/* 3 files to update version number:  package-solution.json, package-lock.json, package.json*/}
                 <table className={styles.infoTable}>
                     <tr><th>Date</th><th>Version</th><th>Focus</th><th>Notes</th></tr>
+                    <tr><td style={ nowWrap }>2021-05-20</td><td>{'1.1.13.4'}</td><td>Compare List Fields.</td><td></td></tr>
                     <tr><td style={ nowWrap }>2021-05-20</td><td>{'1.1.13.3'}</td><td>Create Library Permissions.  Compare List Properties.</td><td></td></tr>
                     <tr><td style={ nowWrap }>2021-05-13</td><td>{'1.1.13.2'}</td><td>Add Groups Panel to get current groups users.</td><td></td></tr>
                     <tr><td style={ nowWrap }>2021-05-13</td><td>{'1.1.13.1'}</td><td>CreateListGroups, Upgrade to npmFunctions</td><td></td></tr>
