@@ -499,7 +499,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         if ( doThis === 'Fields' ) {
             let firstJSON = [];
             let secondJSON = [];
-            let restFilter = "Hidden eq false"
+            let restFilter = "Hidden eq false";
             if ( this.state.lastCompare !== 'Fields' ) { //Only do this if Fields was not the last compare type
                 firstJSON = await ECFields.allAvailableFields( altWeb, this.state.selectedEntity.Title, restFilter, ECFields.createSearchBuckets(),this.addCompareFieldToState.bind(this), null, null );
                 // firstJSON = await ECFields.allAvailableFields( altWeb, this.state.selectedEntity.Title, ECFields.createSearchBuckets(),null, null, null );

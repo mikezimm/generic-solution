@@ -54,13 +54,16 @@ import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IM
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
-import { getKeyChanges, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import { getKeyChanges, doesObjectExistInArrayInt, ICompareResult, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
 import { getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 
 import { getIconStyles } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
  
-import { compareFlatObjects, ICompareKeysResult } from  '@mikezimm/npmfunctions/dist/Services/Arrays/compare';
+import { compareFlatObjects, ICompareKeysResult, } from  '@mikezimm/npmfunctions/dist/Services/Arrays/compare';
+import { addItemToArrayIfItDoesNotExist, } from  '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
+
+
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -112,7 +115,17 @@ import stylesInfo from '../../../webparts/genericWebpart/components/HelpInfo/Inf
  *                                                                                                                                               
  *                                                                                                                                               
  */
+export interface ICompareObject { 
+    obj: any;
+    title: string;
+    idx: number;
+    status: 'Match' | 'NotFound' | 'NoMatch' ;
+}
 
+export interface IComparePair {
+    obj1: ICompareObject;
+    obj2: ICompareObject;
+}
 
 export interface IMyJsonCompareProps {
     theList: IContentsListInfo;
@@ -150,11 +163,16 @@ export interface IMyJsonCompareState {
     otherWeb: string;
     otherList: string;
     otherProp: string;
+
     ignoreKeys: string[];
-    includeOrIgnore: IIncludeOrIgnore;
+    includeOrIgnoreKeys: IIncludeOrIgnore;
+
+    ignoreItems: string[];
+    includeOrIgnoreItems: IIncludeOrIgnore;
 
     comparedProps: any[];
     compareResults: ICompareKeysResult;
+    compareArray: ICompareKeysResult[];
 }
 
 const pivotStyles = {
@@ -188,7 +206,26 @@ const comparePivot4 = 'Different';
 const comparePivot5 = 'New';
 
 
-const ignoreListKeys = ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'];
+const ignoreKeysDefaults = {
+    'Lists': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
+    'Fields': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
+    'Views': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
+    'Types': ['Id','Date','Age','URL','Path','bucket','Schema','Xml','odata','searchString','CurrentChangeToken'],
+};
+
+const ignoreItemsDefaults  = {
+    'Lists': [''],
+    'Fields': ['','','','',''],
+    'Views': ['','','','',''],
+    'Types': ['','','','',''],
+};
+
+const itemCompareKey  = {
+    'Lists': ['EntityTypeName','Title','Id'],
+    'Fields': ['StaticName','InternalName','Title','Id'],
+    'Views': [''],
+    'Types': [''],
+};
 
 export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, IMyJsonCompareState> {
 
@@ -207,10 +244,18 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
     constructor(props: IMyJsonCompareProps) {
         super(props);
         let listTitle = this.props.theList.Title;
+        
+        let includeOrIgnoreKeys: IIncludeOrIgnore = 'Ignore';
+        let defaultProp = pivotTabHeading1;
+        let ignoreKeys = ignoreKeysDefaults[defaultProp];
+        let ignoreItems = ignoreItemsDefaults[defaultProp];
+
+        let compareResults: ICompareKeysResult = this.buildEmptyCompareResults( ignoreKeys, includeOrIgnoreKeys );
 
         // let startTime = getTheCurrentTime();
         let startTime = new Date();
         let refreshId = startTime.toISOString().replace('T', ' T'); // + ' ~ ' + startTime.toLocaleTimeString();
+
 
         this.state = {
             disableDo: false,
@@ -220,12 +265,17 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             otherWeb: this.props.theList.ParentWebUrl,
             otherList: this.props.theList.Title,
             otherProp: 'Lists',
-            ignoreKeys: ignoreListKeys,
             showTab: pivotHeading1,
-            includeOrIgnore: 'Ignore',
+
+            ignoreKeys: ignoreKeys,
+            includeOrIgnoreKeys: 'Ignore',
+
+            ignoreItems: ignoreItems,
+            includeOrIgnoreItems: 'Include',
 
             comparedProps: [],
-            compareResults: null,
+            compareResults: compareResults,
+            compareArray: [],
 
         };
     }
@@ -280,7 +330,15 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
             let theListAny : any = this.props.theList; //Added because one property is required in MyPermissions but optional in this type.
 
-            let includeToggle = this.state.includeOrIgnore === 'Include' ? true : false;
+            let includeKeyState = this.state.includeOrIgnoreKeys === 'Include' ? true : false;
+            let includeItemState = this.state.includeOrIgnoreItems === 'Include' ? true : false;
+
+            let x = this.state.compareResults;
+            let ignoredKeys = x.ignoredKeys;
+            let compareKeys = x.compareKeys;
+            let identicalKeys = x.identicalKeys;
+            let differentKeys = x.differentKeys;
+            let newKeys = x.newKeys;
 
             let history = this.state.showTab !== pivotHeading3 ? null : 
             <div>
@@ -293,35 +351,35 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                     >
                         <PivotItem  headerText={comparePivot0} ariaLabel={comparePivot0} itemKey={comparePivot0} >
                         </PivotItem>
-                        <PivotItem  headerText={comparePivot1} ariaLabel={comparePivot1} itemKey={comparePivot1} itemCount={ this.state.compareResults.ignoredKeys.length }>
+                        <PivotItem  headerText={comparePivot1} ariaLabel={comparePivot1} itemKey={comparePivot1} itemCount={ ignoredKeys.length }>
                             <div style={{ padding: '5px 30px 5px 20px'}}>
-                                <h3>These ( { this.state.compareResults.compareKeys.length } ) properties were { this.state.includeOrIgnore }d due to your filter criteria:</h3>
+                                <h3>These ( { compareKeys.length } ) properties were { this.state.includeOrIgnoreKeys }d due to your filter criteria:</h3>
                                 <p>{ this.state.ignoreKeys.join(', ') }</p>
-                                { this.state.compareResults.ignoredKeys.join(', ') }
+                                { ignoredKeys.join(', ') }
                             </div>
                         </PivotItem>
-                        <PivotItem  headerText={comparePivot2} ariaLabel={comparePivot2} itemKey={comparePivot2} itemCount={ this.state.compareResults.compareKeys.length }>
+                        <PivotItem  headerText={comparePivot2} ariaLabel={comparePivot2} itemKey={comparePivot2} itemCount={ compareKeys.length }>
                             <div style={{ padding: '5px 30px 5px 20px'}}>
-                                <h3>These properties were NOT { this.state.includeOrIgnore }d due to your filter criteria:</h3>
-                                { this.state.compareResults.compareKeys.join(', ') }
+                                <h3>These properties were NOT { this.state.includeOrIgnoreKeys }d due to your filter criteria:</h3>
+                                { compareKeys.join(', ') }
                             </div>
                         </PivotItem>
-                        <PivotItem  headerText={comparePivot3} ariaLabel={comparePivot3} itemKey={comparePivot3} itemCount={ this.state.compareResults.identicalKeys.length }>
+                        <PivotItem  headerText={comparePivot3} ariaLabel={comparePivot3} itemKey={comparePivot3} itemCount={ identicalKeys.length }>
                             <div style={{ padding: '5px 30px 5px 20px'}}>
-                                <h3>Of the ( { this.state.compareResults.compareKeys.length } ) properties to compare, these had IDENTICAL values on all { this.state.otherProp }:</h3>
-                                { this.state.compareResults.identicalKeys.join(', ') }
+                                <h3>Of the ( { compareKeys.length } ) properties to compare, these had IDENTICAL values on all { this.state.otherProp }:</h3>
+                                { identicalKeys.join(', ') }
                             </div>
                         </PivotItem>
-                        <PivotItem  headerText={comparePivot4} ariaLabel={comparePivot4} itemKey={comparePivot4} itemCount={ this.state.compareResults.differentKeys.length }>
+                        <PivotItem  headerText={comparePivot4} ariaLabel={comparePivot4} itemKey={comparePivot4} itemCount={ differentKeys.length }>
                             <div style={{ padding: '5px 30px 5px 20px'}}>
-                                <h3>Of the ( { this.state.compareResults.compareKeys.length } ) properties to compare, these had DIFFERENT values on all { this.state.otherProp }:</h3>
-                                { this.state.compareResults.differentKeys.join(', ') }
+                                <h3>Of the ( { compareKeys.length } ) properties to compare, these had DIFFERENT values on all { this.state.otherProp }:</h3>
+                                { differentKeys.join(', ') }
                             </div>
                         </PivotItem>
-                        <PivotItem  headerText={comparePivot5} ariaLabel={comparePivot5} itemKey={comparePivot5} itemCount={ this.state.compareResults.newKeys.length }>
+                        <PivotItem  headerText={comparePivot5} ariaLabel={comparePivot5} itemKey={comparePivot5} itemCount={ newKeys.length }>
                             <div style={{ padding: '5px 30px 5px 20px'}}>
                                 <h3>These were not on your Baseline List but were on the New { this.state.otherProp }:</h3>
-                                { this.state.compareResults.newKeys.join(', ') }
+                                { newKeys.join(', ') }
                             </div>
                         </PivotItem>
                     </Pivot>
@@ -381,15 +439,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                                         <PivotItem headerText={pivotTabHeading4} ariaLabel={pivotTabHeading4} title={pivotTabHeading4} itemKey={pivotTabHeading4} itemIcon={ null }></PivotItem>
                                     </Pivot>
                                 </div>
-                                <div style={{ paddingLeft: '150px', display: 'flex' }}>
-                                    { this.makeToggle( '', includeToggle, false, this.updateTogggle1.bind(this) , '125px' ) }
-                                    { this.makeTextField( 'Keys to ignore', this.state.ignoreKeys.join(', ') , this._updateText3.bind(this) , false, '0px 0px ' + '20px ' + '0px', '500px' )}
-                                    <div style={{ marginLeft: '30px'}}>
-                                        <TooltipHost content="Include or ignore keys with these strings when comparing" id={ 'includeOrIgnoreTooltip' } calloutProps={ null }>
-                                            <Icon iconName="Info" style={ getIconStyles('PivotTiles', 'black') }></Icon>
-                                        </TooltipHost>
-                                    </div>
-                                </div>
+
                             </div>
 
                             { this.props.json2 === undefined || this.props.errorMess !== '' ? 
@@ -404,6 +454,29 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                         </div>
                     </PivotItem>
                     <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }>
+
+                        <div style={{ paddingTop: '20px', display: 'flex' }}>
+                            { <div style={{ fontSize: 'larger', fontWeight: 'bolder', paddingRight: '30px', minWidth: '235px'}}>{ this.state.otherProp } Properties to { this.state.includeOrIgnoreKeys }:</div>}
+                            { this.makeToggle( '', includeKeyState, false, this.updateTogggle1.bind(this) , '125px' ) }
+                            { this.makeTextField( 'Keys to ignore', this.state.ignoreKeys.join(', ') , this._updateText3.bind(this) , false, '0px 0px ' + '20px ' + '0px', '600px' )}
+                            <div style={{ marginLeft: '30px'}}>
+                                <TooltipHost content={`${ this.state.includeOrIgnoreKeys} keys with these strings when comparing`} id={ 'includeOrIgnoreKeysTooltip' } calloutProps={ null }>
+                                    <Icon iconName="Info" style={ getIconStyles('PivotTiles', 'black') }></Icon>
+                                </TooltipHost>
+                            </div>
+                        </div>
+
+                        <div style={{ paddingTop: '5px', display: 'flex' }}>
+                            { <div style={{ fontSize: 'larger', fontWeight: 'bolder', paddingRight: '30px', minWidth: '235px'}}>{ this.state.otherProp } to { this.state.includeOrIgnoreItems }:</div>}
+                            { this.makeToggle( '', includeItemState, false, this.updateTogggle2.bind(this) , '125px' ) }
+                            { this.makeTextField( 'Keys to ignore', this.state.ignoreItems.join(', ') , this._updateText3.bind(this) , false, '0px 0px ' + '20px ' + '0px', '600px' )}
+                            <div style={{ marginLeft: '30px'}}>
+                                <TooltipHost content={`${ this.state.includeOrIgnoreItems} keys with these strings when comparing`} id={ 'includeOrIgnoreItemsTooltip' } calloutProps={ null }>
+                                    <Icon iconName="Info" style={ getIconStyles('PivotTiles', 'black') }></Icon>
+                                </TooltipHost>
+                            </div>
+                        </div>
+
                         <div style={{marginTop: '20px'}}>
                             { history }
                         </div>
@@ -478,8 +551,14 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
     private _updateText3(oldVal: any): any { 
         let ignoreKeys = getStringArrayFromString ( oldVal, ';or,', true, null, true );
-        this.setState({  ignoreKeys: ignoreKeys }); 
-        this.props._fetchCompare( this.state.otherWeb, this.state.otherList, this.state.otherProp );
+        this.updateCompareResults( this.state.showTab, ignoreKeys, this.state.ignoreItems , this.state.includeOrIgnoreKeys, this.state.includeOrIgnoreItems );
+
+    }
+
+    private _updateText4(oldVal: any): any { 
+        let ignoreItems = getStringArrayFromString ( oldVal, ';or,', true, null, true );
+        this.updateCompareResults( this.state.showTab, this.state.ignoreKeys, ignoreItems, this.state.includeOrIgnoreKeys, this.state.includeOrIgnoreItems );
+
     }
 
     /***
@@ -508,14 +587,20 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         </div>;
 
     }
-    
     private updateTogggle1() {
         
-        let includeOrIgnore : IIncludeOrIgnore = this.state.includeOrIgnore === 'Include' ? 'Ignore' : 'Include';
+        let includeOrIgnoreKeys : IIncludeOrIgnore = this.state.includeOrIgnoreKeys === 'Include' ? 'Ignore' : 'Include';
 
-        this.setState({  
-            includeOrIgnore: includeOrIgnore,
-         }); 
+        this.updateCompareResults( this.state.showTab, this.state.ignoreKeys, this.state.ignoreItems, includeOrIgnoreKeys, this.state.includeOrIgnoreItems );
+
+    }
+    
+    private updateTogggle2() {
+        
+        let includeOrIgnoreItems : IIncludeOrIgnore = this.state.includeOrIgnoreItems === 'Include' ? 'Ignore' : 'Include';
+
+        this.updateCompareResults( this.state.showTab, this.state.ignoreKeys, this.state.ignoreItems, this.state.includeOrIgnoreKeys, includeOrIgnoreItems,  );
+
     }
     
     private async _selectDoThis(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
@@ -529,7 +614,10 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         } else if ( itemKey === pivotHeading2 ) {
 
         }
-        this.setState({ otherProp : itemKey, });
+        let ignoreKeys = ignoreKeysDefaults[itemKey];
+        let ignoreItems = ignoreItemsDefaults[itemKey];
+
+        this.setState({ otherProp : itemKey, ignoreKeys: ignoreKeys, ignoreItems: ignoreItems });
         this.props._fetchCompare( this.state.otherWeb, this.state.otherList, itemKey );
       }
 
@@ -554,35 +642,150 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             this.setState({ showTab: itemKey });
 
         } else if ( itemKey === pivotHeading3 ) {
-
-            let compareResults: ICompareKeysResult = compareFlatObjects( this.props.json1, this.props.json2, this.state.ignoreKeys, this.state.includeOrIgnore );
-            let compareStyle = 'table'; //'table','text','json';
-
-            let tableRows: any = [];
-            // let comparedProps: string[] = [];
-
-            if ( compareStyle === 'table' ) {
-
-                let tableHeaders = <tr> { ['No','Property',this.props.theList.Title, this.state.otherList ].map( h=> { return <th> { h } </th>; }) } </tr>;
-                tableRows.push( tableHeaders );
-                Object.keys(compareResults.keyChanges).map( ( key, index ) => {
-                    // comparedProps.push(key);
-                    let theseValues = compareResults.keyChanges[key].split( ' >>> ' );
-                    let thisProp = <tr><td> { index + 1 } </td>  <td> { key } </td>  <td> { theseValues[0] } </td>  <td> { theseValues[1] } </td> </tr>;
-                    tableRows.push( thisProp );
-                });
-            }
-
-            this.setState({ showTab: itemKey, comparedProps: tableRows, compareResults: compareResults  });
-
+            this.updateCompareResults( itemKey, this.state.ignoreKeys, this.state.ignoreItems, this.state.includeOrIgnoreKeys, this.state.includeOrIgnoreItems );
         }
-
-
 
         if ( itemKey !== pivotHeading3 ) {
             this.props._fetchCompare( this.state.otherWeb, this.state.otherList, this.state.otherProp );
         }
+    
+    }
+
+    private updateCompareResults ( itemKey: string, ignoreKeys: string[], ignoreItems: string[], includeOrIgnoreKeys: IIncludeOrIgnore, includeOrIgnoreItems: IIncludeOrIgnore ) {
+        if ( this.state.otherProp === pivotTabHeading1 ) {
+            this.updateCompareFlat( itemKey, ignoreKeys, includeOrIgnoreKeys, includeOrIgnoreItems );
+        } else {
+            this.updateCompareArray( itemKey, ignoreKeys, ignoreItems, includeOrIgnoreKeys, includeOrIgnoreItems );
+        }
+
+    }
+
+
+    private updateCompareArray ( itemKey: string, ignoreKeys: string[], ignoreItems: string[], includeOrIgnoreKeys: IIncludeOrIgnore, includeOrIgnoreItems: IIncludeOrIgnore ) {
+
+        let compareStyle = 'table'; //'table','text','json';
+        let compareArray = [];
+        let allTableRows = [];
+
+        let thisItemCompareKey = itemCompareKey[ this.state.otherProp ][0];
+        let matchedPairs: IComparePair[] = [];
+        let notFoundPairs: IComparePair[] = [];
+        let allPairs: IComparePair[] = [];
+
+        let foundJson2: number[] = [];
+
+        //Find obvious matches
+        this.props.json1.map( ( item, idx ) => {
+            let itemTitle = item[thisItemCompareKey];
+            let obj1: ICompareObject = { title: itemTitle, idx: idx, status: 'Match', obj: item };
+            let matchIdx = doesObjectExistInArrayInt ( this.props.json2, thisItemCompareKey, itemTitle, true );
+            let obj2: ICompareObject = {
+                title: itemTitle,
+                idx: matchIdx > -1 ? matchIdx : matchIdx,
+                obj: matchIdx > -1 ? this.props.json2[matchIdx] : null,
+                status: matchIdx > -1 ? 'Match' : 'NotFound',
+            };
+            if ( matchIdx > -1 ) { foundJson2.push( matchIdx ) ; }
+            let thisPair: IComparePair = { obj1: obj1, obj2: obj2 };
+            matchedPairs.push( thisPair );
+            allPairs.push( thisPair );
+        });
+
+        //Find objects in json2 that were not matched
+        this.props.json2.map( ( item, idx ) => {
+            let itemTitle = item[thisItemCompareKey];
+            if ( foundJson2.indexOf( idx ) === -1 ) {
+                let obj1: ICompareObject = { title: itemTitle, idx: -1, status: 'NoMatch', obj: null };
+                let obj2: ICompareObject = { title: itemTitle, idx: -1, status: 'NoMatch', obj: item };
+                let thisPair: IComparePair = { obj1: obj1, obj2: obj2 };
+                notFoundPairs.push( thisPair );
+                allPairs.push( thisPair );
+            }
+        });
+
+        //make consolidated compareResults
+        let compareResults: ICompareKeysResult = this.buildEmptyCompareResults( ignoreKeys, this.state.includeOrIgnoreKeys );
+
+        //Go through all matched pairs and do full compare
+        allPairs.map( (pair, index1 ) => {
+            if ( pair.obj1.obj && pair.obj2.obj ) {
+                let compareResultsItem: ICompareKeysResult = compareFlatObjects( pair.obj1.obj, pair.obj2.obj, ignoreKeys, includeOrIgnoreKeys );
+
+                //consolidate compareResults
+                ['ignoredKeys','compareKeys','identicalKeys','differentKeys','newKeys'].map( doThis => {
+                    compareResultsItem[doThis].map( key => { compareResults[doThis] = addItemToArrayIfItDoesNotExist( compareResults[doThis], key, true ) ; } ) ;
+                });
+    
+                let tableRows: any = [];
+                // let comparedProps: string[] = [];
         
+                if ( compareStyle === 'table' ) {
+                    let tableHeaders = <tr> { ['No','Property',this.props.theList.Title, this.state.otherList ].map( h=> { return <th> { h } </th>; }) } </tr>;
+                    tableRows.push( tableHeaders );
+                    Object.keys(compareResultsItem.keyChanges).map( ( key, index ) => {
+                        // comparedProps.push(key);
+                        let theseValues = compareResultsItem.keyChanges[key].split( ' >>> ' );
+                        let thisProp = <tr><td> { index + 1 } </td>  <td> { key } </td>  <td> { theseValues[0] } </td>  <td> { theseValues[1] } </td> </tr>;
+                        tableRows.push( thisProp );
+                        allTableRows.push( thisProp );
+                    });
+                }
+    
+                compareArray.push( tableRows );
+
+            } else {
+                console.log('CANT COMPARE THESE:', pair.obj1.obj , pair.obj2.obj);
+                //Need to decide what to do with unmatched items.
+                //Maybe just place the obj1 in and leave it.  
+                //Will need to modify the compareFlatObjects to auto-correct for that
+            }
+
+
+        });
+
+        this.setState({ showTab: itemKey, comparedProps: allTableRows, compareResults: compareResults, compareArray: compareArray, ignoreKeys: ignoreKeys, includeOrIgnoreKeys: includeOrIgnoreKeys  });
+
+    }
+
+    /**
+     * Move this function to compare.ts
+     */
+    private buildEmptyCompareResults( ignoreKeys: string[], flagStyle  : IIncludeOrIgnore ) {
+
+        let compareKeysResult: ICompareKeysResult = {
+            flagKeys: ignoreKeys,
+            flagStyle: flagStyle,
+            ignoredKeys: [],
+            compareKeys: [],
+            keyChanges: null,
+            identicalKeys: [],
+            differentKeys: [],
+            newKeys: [],
+        };
+        return compareKeysResult;
+    }
+
+    private updateCompareFlat ( itemKey: string, ignoreKeys: string[], includeOrIgnoreKeys: IIncludeOrIgnore, includeOrIgnoreItems: IIncludeOrIgnore ) {
+
+        let compareResults: ICompareKeysResult = compareFlatObjects( this.props.json1, this.props.json2, ignoreKeys, includeOrIgnoreKeys );
+        let compareStyle = 'table'; //'table','text','json';
+
+        let tableRows: any = [];
+        // let comparedProps: string[] = [];
+
+        if ( compareStyle === 'table' ) {
+
+            let tableHeaders = <tr> { ['No','Property',this.props.theList.Title, this.state.otherList ].map( h=> { return <th> { h } </th>; }) } </tr>;
+            tableRows.push( tableHeaders );
+            Object.keys(compareResults.keyChanges).map( ( key, index ) => {
+                // comparedProps.push(key);
+                let theseValues = compareResults.keyChanges[key].split( ' >>> ' );
+                let thisProp = <tr><td> { index + 1 } </td>  <td> { key } </td>  <td> { theseValues[0] } </td>  <td> { theseValues[1] } </td> </tr>;
+                tableRows.push( thisProp );
+            });
+        }
+
+        this.setState({ showTab: itemKey, comparedProps: tableRows, compareResults: compareResults, compareArray: [], ignoreKeys: ignoreKeys, includeOrIgnoreKeys: includeOrIgnoreKeys  });
 
     }
 }
