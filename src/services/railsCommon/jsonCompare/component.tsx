@@ -60,10 +60,13 @@ import { getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/S
 
 import { getIconStyles } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
  
-import { compareFlatObjects, ICompareKeysResult, } from  '@mikezimm/npmfunctions/dist/Services/Arrays/compare';
 import { addItemToArrayIfItDoesNotExist, } from  '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
+import { ICompareObject, IComparePair, IIncludeOrIgnore, ICompareKeysResult } 
+    from '@mikezimm/npmfunctions/dist/Services/Arrays/compare';
 
+import { compareFlatObjects, getListOfKeysToCompare, buildEmptyCompareResults,  } 
+from '@mikezimm/npmfunctions/dist/Services/Arrays/compare';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -115,17 +118,7 @@ import stylesInfo from '../../../webparts/genericWebpart/components/HelpInfo/Inf
  *                                                                                                                                               
  *                                                                                                                                               
  */
-export interface ICompareObject { 
-    obj: any;
-    title: string;
-    idx: number;
-    status: 'Match' | 'NotFound' | 'NoMatch' ;
-}
 
-export interface IComparePair {
-    obj1: ICompareObject;
-    obj2: ICompareObject;
-}
 
 export interface IMyJsonCompareProps {
     theList: IContentsListInfo;
@@ -150,7 +143,6 @@ export interface IMyJsonCompareProps {
 
   }
 
-  export type IIncludeOrIgnore = 'Ignore' | 'Include' ;
 
 export interface IMyJsonCompareState {
 
@@ -250,7 +242,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         let ignoreKeys = ignoreKeysDefaults[defaultProp];
         let ignoreItems = ignoreItemsDefaults[defaultProp];
 
-        let compareResults: ICompareKeysResult = this.buildEmptyCompareResults( ignoreKeys, includeOrIgnoreKeys );
+        let compareResults: ICompareKeysResult = buildEmptyCompareResults( ignoreKeys, includeOrIgnoreKeys );
 
         // let startTime = getTheCurrentTime();
         let startTime = new Date();
@@ -704,7 +696,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         });
 
         //make consolidated compareResults
-        let compareResults: ICompareKeysResult = this.buildEmptyCompareResults( ignoreKeys, this.state.includeOrIgnoreKeys );
+        let compareResults: ICompareKeysResult = buildEmptyCompareResults( ignoreKeys, this.state.includeOrIgnoreKeys );
 
         //Go through all matched pairs and do full compare
         allPairs.map( (pair, index1 ) => {
@@ -750,20 +742,6 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
     /**
      * Move this function to compare.ts
      */
-    private buildEmptyCompareResults( ignoreKeys: string[], flagStyle  : IIncludeOrIgnore ) {
-
-        let compareKeysResult: ICompareKeysResult = {
-            flagKeys: ignoreKeys,
-            flagStyle: flagStyle,
-            ignoredKeys: [],
-            compareKeys: [],
-            keyChanges: null,
-            identicalKeys: [],
-            differentKeys: [],
-            newKeys: [],
-        };
-        return compareKeysResult;
-    }
 
     private updateCompareFlat ( itemKey: string, ignoreKeys: string[], includeOrIgnoreKeys: IIncludeOrIgnore, includeOrIgnoreItems: IIncludeOrIgnore ) {
 
