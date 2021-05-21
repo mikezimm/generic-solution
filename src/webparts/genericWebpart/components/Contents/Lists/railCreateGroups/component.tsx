@@ -445,12 +445,6 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                             >
                                 Add Groups and Permissions
                             </PrimaryButton>
-                            <DefaultButton
-                                    onClick = { this._testUpdateGroup.bind(this) }
-                                    title= { "Test Update Group" }
-                                    style={{ marginRight: '0px', padding: '20px' }}
-                                >Test Update Owner
-                            </DefaultButton>
 
                         </div>
 
@@ -517,13 +511,6 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         } 
 
     } 
-
-    private _testUpdateGroup(){
-
-        // let result = fUpdateGroup( httpClient, siteUrl, siteGuid, targetGroupId, ownerGroupID );
-        let result = fUpdateGroup( this.props.wpContext.httpClient, 'https://mcclickster.sharepoint.com/sites/PivotNotInstalled', 'fbeb30c8-3c2a-492d-bacf-1bd6686c9d35', '103', '84' );
-
-    }
 
     private startThisRailFunction() {
         doThisRailFunction( this.state.steps, this.props.theList , this.updateStateStatus.bind(this) );

@@ -363,8 +363,6 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
           xmlArray.push( buildMLineDiv(2,prop) );
 
         } else {
-
-
           //&#xA; = lineFeed
           xmlArray.push( buildMLineDiv(2, sample.slice(0, loc + 1 ) ) );
 

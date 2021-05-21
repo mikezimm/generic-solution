@@ -21,6 +21,7 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
+import { Image, IImageProps, ImageFit, ImageCoverStyle } from 'office-ui-fabric-react/lib/Image';
 import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
@@ -93,6 +94,7 @@ from '@mikezimm/npmfunctions/dist/Services/Arrays/compare';
  */
   
 import stylesInfo from '../../../webparts/genericWebpart/components/HelpInfo/InfoPane.module.scss';
+import styles from '../../../webparts/genericWebpart/components/GenericWebpart.module.scss';
 
 
   
@@ -106,6 +108,8 @@ import stylesInfo from '../../../webparts/genericWebpart/components/HelpInfo/Inf
  *                                                                                                                                               
  *                                                                                                                                               
  */
+
+import stylesCompare from './jsonCompare.module.scss';
 
 
 /***
@@ -165,6 +169,8 @@ export interface IMyJsonCompareState {
     comparedProps: any[];
     compareResults: ICompareKeysResult;
     compareArray: ICompareKeysResult[];
+    json1PropCount: number;
+    json2PropCount: number;
 }
 
 const pivotStyles = {
@@ -219,6 +225,8 @@ const itemCompareKey  = {
     'Types': [''],
 };
 
+const hardSpacer = <div id="spacerX" style={{ height: '20px'}}></div>;
+
 export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, IMyJsonCompareState> {
 
 
@@ -248,7 +256,6 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         let startTime = new Date();
         let refreshId = startTime.toISOString().replace('T', ' T'); // + ' ~ ' + startTime.toLocaleTimeString();
 
-
         this.state = {
             disableDo: false,
             refreshId: refreshId,
@@ -268,6 +275,9 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             comparedProps: [],
             compareResults: compareResults,
             compareArray: [],
+
+            json1PropCount: this.props.json1 === null ? 0 : this.props.json1.length,
+            json2PropCount: this.props.json2 === null ? 0 : this.props.json2.length,
 
         };
     }
@@ -296,8 +306,32 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
  */
 
     public componentDidUpdate(prevProps: IMyJsonCompareProps): void {
-        // this.setState({ refreshId: makeid(5) })
-    //this._updateWebPart(prevProps);
+        
+        return ;
+        
+        let json1 = this.props.json1;
+        let json2 = this.props.json2;
+
+        let json1PropCount = 0;
+        let json2PropCount = 0;
+
+        if ( this.props.errorMess === '' ) {
+            if ( this.state.otherProp  === pivotTabHeading1 ) { //Flat Object, just count props
+                json1PropCount = json1 === null ? 0 : Object.keys(json1).length;
+                json2PropCount = json2 === null ? 0 : Object.keys(json2).length;
+
+            } else {  //Object Array, count keys and objects
+                json1PropCount = json1 === null ? 0 : json1.length * Object.keys(json1[0]).length;
+                json2PropCount = json2 === null ? 0 : json2.length * Object.keys(json2[0]).length;
+
+            }
+
+        }
+
+        this.setState({
+            json1PropCount: json1PropCount,
+            json2PropCount: json2PropCount,
+        });
     }
 
 /***
@@ -331,7 +365,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             let identicalKeys = x.identicalKeys;
             let differentKeys = x.differentKeys;
             let newKeys = x.newKeys;
-
+            
             let history = this.state.showTab !== pivotHeading3 ? null : 
             <div>
                 <div className={ stylesInfo.infoPaneTight }>
@@ -375,8 +409,10 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                             </div>
                         </PivotItem>
                     </Pivot>
+                    { hardSpacer }
+                    <div style={{ paddingTop: '20px !important' }}>We crunched a total of { this.state.json1PropCount + this.state.json2PropCount } properties for you.... and this is what was different</div>
                     <div id="whyGodwhy" style={{ paddingTop: '20px !important' }}>
-                        <div id="spacerX" style={{ height: '20px'}}></div>
+                        { hardSpacer }
                         <table style={{ display: '', borderCollapse: 'collapse', width: '100%', padding: '20px' }} className={stylesInfo.infoTable}>
                             { this.state.comparedProps }
                         </table>
@@ -384,7 +420,16 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                 </div>
             </div>;
             
-            let otherList = this.props.theList.Title === this.state.otherList ? ' =>> Hey!  You can\'t compare a list to itself goof!' : `<= VS => ${ this.state.otherList }`;
+            let isSameList = this.props.theList.Title === this.state.otherList ? true : false;
+            let isSameWeb = this.props.theList.ParentWebUrl === this.state.otherWeb ? true : false; 
+            let isSameEntity = isSameList === true && isSameWeb === true ? true : false;
+            let actualPivotHeading3 = isSameEntity === true ? null : pivotHeading3;
+            let errorImageStyle = isSameEntity === false || this.state.showTab !== pivotHeading2 ? {
+                    display: 'none',
+                    transition:'all 0.3s ease',
+                } : null ;
+
+            let otherList = isSameEntity === true ? ' =>> Hey!  You can\'t compare a list url to itself goof!' : `<= VS => ${ this.state.otherList }`;
             panelContent = <div id='thisUniquePanelContent'>
                 <h3> { `${ this.props.theList.Title } ${ listOrLib }` } { otherList } </h3>
                 <Pivot
@@ -400,6 +445,8 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                                 { this.makeToggle( 'Create Contributors', true, false, this.updateTogggle1.bind(this) ) }
                                 { this.makeToggle( 'Read site', true, false, this.updateTogggle1.bind(this) ) }
                             </div> */}
+                            <div style={{ paddingTop: '20px !important' }}>We found a total of <span style={{fontSize: 'larger'}}>{ this.state.json1PropCount }</span> properties in { this.props.theList.Title } </div>
+                            { hardSpacer }
                             <div style={{ overflowY: 'auto' }}>
                                 <ReactJson src={ this.props.json1 } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
                             </div>
@@ -410,11 +457,11 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                             {/* { permissions } */}
                             <div style={{  display: 'flex' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >Web URL</div>
-                                { this.makeTextField( 'Enter compare web URL', this.state.otherWeb , this._updateText1.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
+                                { this.makeTextField( 'Enter compare web URL', this.state.otherWeb , this._updateText1_Web.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
                             </div>
                             <div style={{  display: 'flex' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >List Title</div>
-                                { this.makeTextField( 'Enter compare List Title', this.state.otherList , this._updateText2.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
+                                { this.makeTextField( 'Enter compare List Title', this.state.otherList , this._updateText2_List.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
                             </div>
                             <div style={{  display: 'flex', marginBottom: '20px' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >Do this</div>
@@ -439,19 +486,23 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                                 <MessageBar messageBarType={MessageBarType.warning}>
                                     { this.props.errorMess !== '' ? this.props.errorMess : 'Unable to find the list you mentioned :(' }
                                 </MessageBar>
-                            :<div style={{ overflowY: 'auto' }}>
-                                <ReactJson src={ this.props.json2 } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                            </div>
+                            :  <div>
+                                    <div style={{ paddingTop: '20px !important' }}>We found a total of <span style={{fontSize: 'larger'}}>{ this.state.json2PropCount }</span> properties in { this.state.otherWeb } </div>
+                                    { hardSpacer }
+                                    <div style={{ overflowY: 'auto' }}>
+                                        <ReactJson src={ this.props.json2 } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                                    </div>
+                                </div>
                             }
 
                         </div>
                     </PivotItem>
-                    <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }>
+                    <PivotItem headerText={actualPivotHeading3} ariaLabel={actualPivotHeading3} itemKey={actualPivotHeading3} itemIcon={ null }>
 
                         <div style={{ paddingTop: '20px', display: 'flex' }}>
                             { <div style={{ fontSize: 'larger', fontWeight: 'bolder', paddingRight: '30px', minWidth: '235px'}}>{ this.state.otherProp } Properties to { this.state.includeOrIgnoreKeys }:</div>}
                             { this.makeToggle( '', includeKeyState, false, this.updateTogggle1.bind(this) , '125px' ) }
-                            { this.makeTextField( 'Keys to ignore', this.state.ignoreKeys.join(', ') , this._updateText3.bind(this) , false, '0px 0px ' + '20px ' + '0px', '600px' )}
+                            { this.makeTextField( 'Keys to ignore', this.state.ignoreKeys.join(', ') , this._updateText3_KeyFilters.bind(this) , false, '0px 0px ' + '20px ' + '0px', '600px' )}
                             <div style={{ marginLeft: '30px'}}>
                                 <TooltipHost content={`${ this.state.includeOrIgnoreKeys} keys with these strings when comparing`} id={ 'includeOrIgnoreKeysTooltip' } calloutProps={ null }>
                                     <Icon iconName="Info" style={ getIconStyles('PivotTiles', 'black') }></Icon>
@@ -462,7 +513,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                         <div style={{ paddingTop: '5px', display: 'flex' }}>
                             { <div style={{ fontSize: 'larger', fontWeight: 'bolder', paddingRight: '30px', minWidth: '235px'}}>{ this.state.otherProp } to { this.state.includeOrIgnoreItems }:</div>}
                             { this.makeToggle( '', includeItemState, false, this.updateTogggle2.bind(this) , '125px' ) }
-                            { this.makeTextField( 'Keys to ignore', this.state.ignoreItems.join(', ') , this._updateText4.bind(this) , false, '0px 0px ' + '20px ' + '0px', '600px' )}
+                            { this.makeTextField( 'Keys to ignore', this.state.ignoreItems.join(', ') , this._updateText4_ItemFilters.bind(this) , false, '0px 0px ' + '20px ' + '0px', '600px' )}
                             <div style={{ marginLeft: '30px'}}>
                                 <TooltipHost content={`${ this.state.includeOrIgnoreItems} keys with these strings when comparing`} id={ 'includeOrIgnoreItemsTooltip' } calloutProps={ null }>
                                     <Icon iconName="Info" style={ getIconStyles('PivotTiles', 'black') }></Icon>
@@ -475,6 +526,19 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                         </div>
                     </PivotItem>
                 </Pivot>
+                <div className = { '' } style={ errorImageStyle }>
+                    <div style={{ fontSize: '30px', paddingTop: '30px', textAlign: 'center' }}>I'm waiting for you to figure it out</div>
+                    <Image
+                        src="https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F6%2F2017%2F05%2F2458_mdm3_prints_p1880-2000.jpg"
+                        imageFit={ImageFit.centerContain}
+                        coverStyle={ImageCoverStyle.portrait}
+                        shouldFadeIn={true} 
+                        styles={{ root: {height:'400px'}, }}
+                    >
+                        {/* <img src="https://imagesvc.meredithcorp.io/v3/mm/image?url=https%3A%2F%2Fstatic.onecms.io%2Fwp-content%2Fuploads%2Fsites%2F6%2F2017%2F05%2F2458_mdm3_prints_p1880-2000.jpg" alt="" srcset=""/> */}
+                    </Image>
+                </div>
+
             </div>;
 
             let panelHeader = 'Compare Properties' ;
@@ -532,23 +596,25 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
          </div>;
     }
 
-    private _updateText1(oldVal: any): any {  
+    private _updateText1_Web(oldVal: any): any {  
+        if ( oldVal === undefined || oldVal === null || oldVal.length === 0 ) { oldVal = this.props.theList.ParentWebUrl ; }
         this.setState({  otherWeb: oldVal  }); 
         this.props._fetchCompare( oldVal, this.state.otherList, this.state.otherProp );
     }
 
-    private _updateText2(oldVal: any): any {  
+    private _updateText2_List(oldVal: any): any {  
+        if ( oldVal === undefined || oldVal === null || oldVal.length === 0 ) { oldVal = this.props.theList.Title ; }
         this.setState({  otherList: oldVal  }); 
         this.props._fetchCompare( this.state.otherWeb, oldVal, this.state.otherProp );
     }
 
-    private _updateText3(oldVal: any): any { 
+    private _updateText3_KeyFilters(oldVal: any): any { 
         let ignoreKeys = getStringArrayFromString ( oldVal, ';or,', true, null, true );
         this.updateCompareResults( this.state.showTab, ignoreKeys, this.state.ignoreItems , this.state.includeOrIgnoreKeys, this.state.includeOrIgnoreItems );
 
     }
 
-    private _updateText4(oldVal: any): any { 
+    private _updateText4_ItemFilters(oldVal: any): any { 
         let ignoreItems = getStringArrayFromString ( oldVal, ';or,', true, null, true );
         this.updateCompareResults( this.state.showTab, this.state.ignoreKeys, ignoreItems, this.state.includeOrIgnoreKeys, this.state.includeOrIgnoreItems );
 
@@ -667,8 +733,14 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
         let foundJson2: number[] = [];
 
+        let json1PropCount = 0;
+        let json2PropCount = 0;
+
         //Find obvious matches
         this.props.json1.map( ( item, idx ) => {
+
+            json1PropCount += Object.keys(item).length;
+
             let itemTitle = item[thisItemCompareKey];
             let obj1: ICompareObject = { title: itemTitle, idx: idx, status: 'Match', obj: item };
             let matchIdx = doesObjectExistInArrayInt ( this.props.json2, thisItemCompareKey, itemTitle, true );
@@ -686,6 +758,9 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
         //Find objects in json2 that were not matched
         this.props.json2.map( ( item, idx ) => {
+
+            json2PropCount += Object.keys(item).length;
+
             let itemTitle = item[thisItemCompareKey];
             if ( foundJson2.indexOf( idx ) === -1 ) {
                 let obj1: ICompareObject = { title: itemTitle, idx: -1, status: 'NoMatch', obj: null };
@@ -740,11 +815,14 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                 //Maybe just place the obj1 in and leave it.  
                 //Will need to modify the compareFlatObjects to auto-correct for that
             }
-
-
         });
 
-        this.setState({ showTab: itemKey, comparedProps: allTableRows, compareResults: compareResults, compareArray: compareArray, ignoreKeys: ignoreKeys, includeOrIgnoreKeys: includeOrIgnoreKeys  });
+        this.setState({ 
+            showTab: itemKey, 
+            comparedProps: allTableRows, compareResults: compareResults, compareArray: compareArray, 
+            ignoreKeys: ignoreKeys, includeOrIgnoreKeys: includeOrIgnoreKeys,
+            json1PropCount: json1PropCount, json2PropCount: json2PropCount
+        });
 
     }
 
@@ -772,7 +850,15 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             });
         }
 
-        this.setState({ showTab: itemKey, comparedProps: tableRows, compareResults: compareResults, compareArray: [], ignoreKeys: ignoreKeys, includeOrIgnoreKeys: includeOrIgnoreKeys  });
+        let json1PropCount = Object.keys(this.props.json1).length;
+        let json2PropCount = Object.keys(this.props.json2).length;
 
+        this.setState({ 
+            showTab: itemKey, 
+            comparedProps: tableRows, 
+            compareResults: compareResults, compareArray: [], 
+            ignoreKeys: ignoreKeys, includeOrIgnoreKeys: includeOrIgnoreKeys,
+            json1PropCount: json1PropCount, json2PropCount: json2PropCount
+          });
     }
 }
