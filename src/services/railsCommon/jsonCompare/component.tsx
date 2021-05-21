@@ -307,31 +307,31 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
     public componentDidUpdate(prevProps: IMyJsonCompareProps): void {
         
-        return ;
+        // return ;
         
-        let json1 = this.props.json1;
-        let json2 = this.props.json2;
+        // let json1 = this.props.json1;
+        // let json2 = this.props.json2;
 
-        let json1PropCount = 0;
-        let json2PropCount = 0;
+        // let json1PropCount = 0;
+        // let json2PropCount = 0;
 
-        if ( this.props.errorMess === '' ) {
-            if ( this.state.otherProp  === pivotTabHeading1 ) { //Flat Object, just count props
-                json1PropCount = json1 === null ? 0 : Object.keys(json1).length;
-                json2PropCount = json2 === null ? 0 : Object.keys(json2).length;
+        // if ( this.props.errorMess === '' ) {
+        //     if ( this.state.otherProp  === pivotTabHeading1 ) { //Flat Object, just count props
+        //         json1PropCount = json1 === null ? 0 : Object.keys(json1).length;
+        //         json2PropCount = json2 === null ? 0 : Object.keys(json2).length;
 
-            } else {  //Object Array, count keys and objects
-                json1PropCount = json1 === null ? 0 : json1.length * Object.keys(json1[0]).length;
-                json2PropCount = json2 === null ? 0 : json2.length * Object.keys(json2[0]).length;
+        //     } else {  //Object Array, count keys and objects
+        //         json1PropCount = json1 === null ? 0 : json1.length * Object.keys(json1[0]).length;
+        //         json2PropCount = json2 === null ? 0 : json2.length * Object.keys(json2[0]).length;
 
-            }
+        //     }
 
-        }
+        // }
 
-        this.setState({
-            json1PropCount: json1PropCount,
-            json2PropCount: json2PropCount,
-        });
+        // this.setState({
+        //     json1PropCount: json1PropCount,
+        //     json2PropCount: json2PropCount,
+        // });
     }
 
 /***
@@ -596,15 +596,15 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
          </div>;
     }
 
-    private _updateText1_Web(oldVal: any): any {  
+    private async _updateText1_Web(oldVal: any): Promise<any> {  
         if ( oldVal === undefined || oldVal === null || oldVal.length === 0 ) { oldVal = this.props.theList.ParentWebUrl ; }
-        this.setState({  otherWeb: oldVal  }); 
+        await this.setState({  otherWeb: oldVal  }); 
         this.props._fetchCompare( oldVal, this.state.otherList, this.state.otherProp );
     }
 
-    private _updateText2_List(oldVal: any): any {  
+    private async _updateText2_List(oldVal: any):  Promise<any> {  
         if ( oldVal === undefined || oldVal === null || oldVal.length === 0 ) { oldVal = this.props.theList.Title ; }
-        this.setState({  otherList: oldVal  }); 
+        await this.setState({  otherList: oldVal  }); 
         this.props._fetchCompare( this.state.otherWeb, oldVal, this.state.otherProp );
     }
 
@@ -699,15 +699,11 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                 // window.open( this.props.theList.ParentWebUrl + "/_layouts/15/user.aspx?obj={" + this.props.theList.Id + "},doclib&List={" + this.props.theList.Id + "}", '_blank' );
             }
             this.setState({ showTab: itemKey });
+            this.props._fetchCompare( this.state.otherWeb, this.state.otherList, this.state.otherProp );
 
         } else if ( itemKey === pivotHeading3 ) {
             this.updateCompareResults( itemKey, this.state.ignoreKeys, this.state.ignoreItems, this.state.includeOrIgnoreKeys, this.state.includeOrIgnoreItems );
         }
-
-        if ( itemKey !== pivotHeading3 ) {
-            this.props._fetchCompare( this.state.otherWeb, this.state.otherList, this.state.otherProp );
-        }
-    
     }
 
     private updateCompareResults ( itemKey: string, ignoreKeys: string[], ignoreItems: string[], includeOrIgnoreKeys: IIncludeOrIgnore, includeOrIgnoreItems: IIncludeOrIgnore ) {
