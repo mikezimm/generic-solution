@@ -55,7 +55,7 @@ import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IM
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
-import { getKeyChanges, doesObjectExistInArrayInt, ICompareResult, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import { getKeyChanges, doesObjectExistInArrayInt, ICompareResult, DoesNotExistLabel } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
 import { getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 
@@ -63,7 +63,7 @@ import { getIconStyles } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuilder
  
 import { addItemToArrayIfItDoesNotExist, } from  '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
-import { ICompareObject, IComparePair, IIncludeOrIgnore, ICompareKeysResult, BaseFieldKeys } 
+import { ICompareObject, IComparePair, IIncludeOrIgnore, ICompareKeysResult, } 
     from '@mikezimm/npmfunctions/dist/Services/Arrays/compare';
 
 import { compareFlatObjects, getListOfKeysToCompare, buildEmptyCompareResults,  } 
@@ -822,10 +822,12 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                         let theseValues = compareResultsItem.keyChanges[key].split( ' >>> ' );
                         let value0 = theseValues[0] === 'undefined' ? '-' : theseValues[0] === 'null' ? '-null-' : theseValues[0];
                         let value1 = theseValues[1] === 'undefined' ? '-' : theseValues[1] === 'null' ? '-null-' : theseValues[1];
+                        if ( value0 === DoesNotExistLabel ) { value0 = <span style={{fontWeight: 'bolder'}}><mark> { value0 } </mark></span> ; }
+                        if ( value1 === DoesNotExistLabel ) { value1 = <span style={{fontWeight: 'bolder'}}><mark> { value1 } </mark></span> ; }
 
                         let thisProp = <tr style={ thisRowStyle }>
                                 <td> { index + 1 } </td> 
-                                <td style={{ fontWeight: 'bolder' }}> { isNewItem === true ? itemTitle : null } </td>
+                                <td style={{ maxWidth: '200px', fontWeight: 'bolder' }}> { isNewItem === true ? itemTitle : null } </td>
                                 <td> { key } </td>
                                 <td> { value0 } </td>
                                 <td> { value1 } </td>
@@ -884,7 +886,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                 let value1 = theseValues[1] === 'undefined' ? '-' : theseValues[1] === 'null' ? '-null-' : theseValues[1];
                 let thisProp = <tr>
                         <td> { index + 1 } </td>
-                        <td> { key } </td>
+                        <td style={{ maxWidth: '200px' }}> { key } </td>
                         <td> { value0 } </td>
                         <td> { value1 } </td>
                     </tr>;
