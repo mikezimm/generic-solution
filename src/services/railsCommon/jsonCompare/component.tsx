@@ -759,17 +759,24 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         //Find objects in json2 that were not matched
         this.props.json2.map( ( item, idx ) => {
 
+            // debugger;
             json2PropCount += Object.keys(item).length;
 
             let itemTitle = item[thisItemCompareKey];
             if ( foundJson2.indexOf( idx ) === -1 ) {
+
                 let obj1: ICompareObject = { title: itemTitle, idx: -1, status: 'NoMatch', obj: null };
                 let obj2: ICompareObject = { title: itemTitle, idx: -1, status: 'NoMatch', obj: item };
                 let thisPair: IComparePair = { obj1: obj1, obj2: obj2 };
+                console.log('unmatchedpair:',thisPair);
                 notFoundPairs.push( thisPair );
                 allPairs.push( thisPair );
             }
         });
+
+        console.log('foundJson2:',foundJson2);
+        console.log('notFoundPairs:',notFoundPairs);
+        console.log('allPairs:',allPairs);
 
         //make consolidated compareResults
         let compareResults: ICompareKeysResult = buildEmptyCompareResults( ignoreKeys, this.state.includeOrIgnoreKeys );
@@ -777,15 +784,21 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         let otherProp = this.state.otherProp;
         //Go through all matched pairs and do full compare
         allPairs.map( (pair, index1 ) => {
-            if ( pair.obj1.obj && pair.obj2.obj ) {
-                let compareResultsItem: ICompareKeysResult = compareFlatObjects( pair.obj1.obj, pair.obj2.obj, ignoreKeys, includeOrIgnoreKeys );
+            // if ( pair.obj1.obj && pair.obj2.obj ) {
+                let compareResultsItem: ICompareKeysResult = this.compareFlatObjects( pair.obj1.obj, pair.obj2.obj, ignoreKeys, includeOrIgnoreKeys );
 
                 //consolidate compareResults
                 ['ignoredKeys','compareKeys','identicalKeys','differentKeys','newKeys'].map( doThis => {
                     compareResultsItem[doThis].map( key => { compareResults[doThis] = addItemToArrayIfItDoesNotExist( compareResults[doThis], key, true ) ; } ) ;
                 });
     
-                let itemTitle = pair.obj1.obj[thisItemCompareKey];
+                //itemTitle will be from obj1 unless it's not available... then obj2
+                let itemTitle = 'TBD';
+                if ( pair.obj1.obj && pair.obj1.obj[thisItemCompareKey] ) {
+                    itemTitle= pair.obj1.obj[thisItemCompareKey] ;
+                } else {
+                    itemTitle = pair.obj2.obj[thisItemCompareKey] ;
+                }
 
                 let tableRows: any = [];
 
@@ -825,12 +838,12 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
     
                 compareArray.push( tableRows );
 
-            } else {
-                console.log('CANT COMPARE THESE:', pair.obj1.obj , pair.obj2.obj);
-                //Need to decide what to do with unmatched items.
-                //Maybe just place the obj1 in and leave it.  
-                //Will need to modify the compareFlatObjects to auto-correct for that
-            }
+            // } else {
+            //     console.log('CANT COMPARE THESE:', pair.obj1.obj , pair.obj2.obj);
+            //     //Need to decide what to do with unmatched items.
+            //     //Maybe just place the obj1 in and leave it.  
+            //     //Will need to modify the compareFlatObjects to auto-correct for that
+            // }
         });
 
         this.setState({ 
@@ -841,6 +854,142 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         });
 
     }
+
+
+ /**
+  * This function will
+  *     take 2 flat objects baselineObject & compareObject
+  *     take array of strings to compare with baselineObject keys
+  *     take flagStyle which tells to include or ignore keys found in flagKeys
+  *     
+  *     return compareKeysResult object back which gives all information regarding comparing the 2 objects
+  * 
+  * @param baselineObject 
+  * @param compareObject 
+  * @param flagKeys 
+  * @param flagStyle 
+  * @param parseMe 
+  */
+ private compareFlatObjects( baselineObject: any, compareObject : any, flagKeys: string[], flagStyle: IIncludeOrIgnore ) {
+
+    let identicalKeys: string[] = [];
+    let differentKeys: string[] = [];
+    let newKeys: string[] = [];
+    let isBaselineNull = false;
+
+    let compareKeysResult: ICompareKeysResult = this.getListOfKeysToCompare( baselineObject, flagKeys, flagStyle );
+    if ( compareKeysResult.success === false ) {
+        isBaselineNull = true;
+        compareKeysResult = this.getListOfKeysToCompare( compareObject, flagKeys, flagStyle );
+    }
+  
+    compareKeysResult.keyChanges = this.getKeyChanges( baselineObject, compareKeysResult.compareKeys, compareObject, false );
+  
+    //Get identical keys
+    compareKeysResult.compareKeys.map( compareKey => {
+      if ( Object.keys( compareKeysResult.keyChanges).indexOf( compareKey ) > -1 ) { differentKeys.push( compareKey ); } else { identicalKeys.push( compareKey ); }
+    });
+  
+    //Get newKeys not in the baselineObject
+    if ( baselineObject && compareObject ) {
+        //Only do this if baseline object exists
+        Object.keys( compareObject ).map( oldKey => {
+            if ( Object.keys( baselineObject ).indexOf( oldKey ) === -1 ) { newKeys.push( oldKey ) ; }
+          });
+    } else  {
+        //If baseline object does not exist, newKeys is really all the keys in the compareObject
+        newKeys = compareKeysResult.compareKeys;
+    }
+
+    compareKeysResult.identicalKeys = identicalKeys;
+    compareKeysResult.differentKeys = differentKeys;
+    compareKeysResult.newKeys = newKeys;
+  
+    return compareKeysResult;
+  
+  }
+
+  private getKeyChanges( baselineObject: any, specificKeys: string[], compareObject : any, parseMe: boolean ) {
+
+    let keyChanges : any = {};
+    // if ( baselineObject !== null && compareObject !== null ) {
+        let TestTheseKeys = specificKeys !== null && specificKeys !== undefined && specificKeys.length > 0 ? specificKeys : baselineObject ? Object.keys( baselineObject ) : Object.keys( compareObject );
+        TestTheseKeys.map( key => {
+            let baselineObjectVal: any = baselineObject ? baselineObject[key] : undefined;
+            let compareObjectVal: any = compareObject ? compareObject[key] : undefined;
+            
+            //Can't directly compare arrays or objects so you have to stringify them first
+            if ( typeof baselineObjectVal === 'object' ) {
+                baselineObjectVal = JSON.stringify( baselineObject[key] );
+            }
+
+            //Can't directly compare arrays or objects so you have to stringify them first
+            if ( typeof compareObjectVal === 'object' ) {
+                compareObjectVal = JSON.stringify( compareObject[key] );
+            }
+
+            if ( baselineObjectVal !== compareObjectVal ) { 
+                let keyChange = compareObjectVal + ' >>> ' + baselineObjectVal;
+                let ignoreCompares = ['undefined >>> null', 'undefined >>> function(){}','undefined >>> [object HTMLDivElement]','undefined >>> [object Object]','undefined >>> '];
+                if ( ignoreCompares.indexOf( keyChange ) < 0 && keyChange.indexOf( 'undefined >>> function' ) < 0 ) { 
+                    keyChanges[key] = keyChange ;
+                }
+            } 
+        });
+    // }
+  
+    if ( parseMe !== false ) { keyChanges = JSON.parse( JSON.stringify( keyChanges ) ) ; } 
+
+    return keyChanges;
+ }
+
+  private getListOfKeysToCompare( baselineObject: any, flagKeys: string[], flagStyle: IIncludeOrIgnore ) {
+
+    let compareKeysResult: ICompareKeysResult = {
+      flagKeys: flagKeys,
+      flagStyle: flagStyle,
+      ignoredKeys: [],
+      compareKeys: [],
+      keyChanges: null,
+      identicalKeys: [],
+      differentKeys: [],
+      newKeys: [],
+      success: true,
+    };
+    
+    if ( baselineObject === null || baselineObject === undefined ) {
+        compareKeysResult.success = false;
+
+    } else {
+        /**
+         * Identify keys to compare using flagKeys and flagStyle
+         */
+    
+        Object.keys(baselineObject).map( ObjectKey => {
+    
+            let thisKeyMatchesFlags : any = false;
+            flagKeys.map( flagKey => {  //Go through all the flagged keys (like "Id","Date","odata" etc...)
+                let partialOrExact = flagKey.indexOf('=') === 0 ? 'Exact' : 'Partial';
+                let actualKey = partialOrExact === 'Exact' ? flagKey.substr(1) : flagKey;
+        
+                if ( partialOrExact === 'Partial' && ObjectKey.indexOf( actualKey) > -1 ) { thisKeyMatchesFlags = true; }
+                if ( partialOrExact === 'Exact' && ObjectKey === actualKey ) { thisKeyMatchesFlags = true; }
+            });
+    
+            if ( flagStyle === 'Include') {
+                if ( thisKeyMatchesFlags === true ) { 
+                    compareKeysResult.compareKeys.push( ObjectKey ) ; } else { compareKeysResult.ignoredKeys.push( ObjectKey) ;
+                }
+            } else {
+                if ( thisKeyMatchesFlags === true ) { 
+                    compareKeysResult.ignoredKeys.push( ObjectKey ) ; } else { compareKeysResult.compareKeys.push( ObjectKey) ;
+                }
+            }
+        } ) ;
+    }
+    return compareKeysResult;
+  
+  }
 
     /**
      * Move this function to compare.ts
