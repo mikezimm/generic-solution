@@ -63,7 +63,7 @@ import { getIconStyles } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuilder
  
 import { addItemToArrayIfItDoesNotExist, } from  '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
-import { ICompareObject, IComparePair, IIncludeOrIgnore, ICompareKeysResult } 
+import { ICompareObject, IComparePair, IIncludeOrIgnore, ICompareKeysResult, BaseFieldKeys } 
     from '@mikezimm/npmfunctions/dist/Services/Arrays/compare';
 
 import { compareFlatObjects, getListOfKeysToCompare, buildEmptyCompareResults,  } 
@@ -913,10 +913,19 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
     let keyChanges : any = {};
     // if ( baselineObject !== null && compareObject !== null ) {
-        let TestTheseKeys = specificKeys !== null && specificKeys !== undefined && specificKeys.length > 0 ? specificKeys : baselineObject ? Object.keys( baselineObject ) : Object.keys( compareObject );
+        let TestTheseKeys =[];
+        
+        if ( baselineObject === null || compareObject === null ) {
+            TestTheseKeys = ['Title','StaticName','TypeAsString','FieldTypeKind','TypeDisplayName','InternalName','Required','Sealed','CanBeDeleted'];
+        } else if ( specificKeys !== null && specificKeys !== undefined && specificKeys.length > 0 ) {
+            TestTheseKeys = specificKeys;
+        } else {
+            TestTheseKeys = baselineObject ? Object.keys( baselineObject ) : Object.keys( compareObject );
+        }
+
         TestTheseKeys.map( key => {
-            let baselineObjectVal: any = baselineObject ? baselineObject[key] : undefined;
-            let compareObjectVal: any = compareObject ? compareObject[key] : undefined;
+            let baselineObjectVal: any = baselineObject ? baselineObject[key] : key === 'Title' ? ' - >> Does NOT Exist << -' : undefined;
+            let compareObjectVal: any = compareObject ? compareObject[key] : key === 'Title' ? ' - >> Does NOT Exist << -' : undefined;
             
             //Can't directly compare arrays or objects so you have to stringify them first
             if ( typeof baselineObjectVal === 'object' ) {
