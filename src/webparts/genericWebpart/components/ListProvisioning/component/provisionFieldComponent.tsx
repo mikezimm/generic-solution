@@ -73,7 +73,7 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../se
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 import ButtonCompound from '../../createButtons/ICreateButtons';
 import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
-import * as links from '../../HelpInfo/AllLinks';
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 import { IFieldDef } from '../../fields/fieldDefinitions';
 import { createBasicTextField, createMultiLineTextField } from  '../../fields/textFieldBuilder';
 
@@ -110,6 +110,7 @@ import MyLogList from './listView';
 
 import { IMakeThisList } from './provisionWebPartList';
 
+import { JSONEditorShort } from '../../HelpInfo/AllLinks';
 
 /**
  * Steps to add new list def:
@@ -526,7 +527,7 @@ public constructor(props:IProvisionFieldsProps){
                     </div>;
 
                 listDetails = <div style={{display: '', marginBottom: '30px' }}>
-                        <div><h2>Details for list: <span style={{fontSize: 'small', paddingLeft: '50px'}}> { links.JSONEditorShort } </span></h2></div>
+                        <div><h2>Details for list: <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
                         { listDefInputField }
                     </div>;
 
@@ -548,7 +549,7 @@ public constructor(props:IProvisionFieldsProps){
                         </div>;
 
                 fieldDetails = <div style={{display: '', marginBottom: '30px' }}>
-                        <div><h2>Details for fields:  <span style={{fontSize: 'small', paddingLeft: '50px'}}> { links.JSONEditorShort } </span></h2></div>
+                        <div><h2>Details for fields:  <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
                         { fieldDefInputField }
                     </div>;
 

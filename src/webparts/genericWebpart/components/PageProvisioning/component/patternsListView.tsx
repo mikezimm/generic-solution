@@ -13,7 +13,7 @@ import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 import styles from '../../Contents/listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
 
-import { createLink } from '../../HelpInfo/AllLinks';
+import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
 
 import { createIconButton } from '../../createButtons/IconButton';
 
@@ -186,7 +186,7 @@ export default class MyPatternsList extends React.Component<IMyPatternsListProps
               buttonTitle = 'Cancel Page';
             }
 
-            let queIcon = createIconButton( buttonIcon, buttonTitle, this.props.quePage, allIndex , patternStyles );
+            let queIcon = createIconButton( buttonIcon, buttonTitle, this.props.quePage, allIndex , patternStyles, false );
 
             let titleLink = createLink( h["File"]["ServerRelativeUrl"], '_blank', h['File']['Name']);
 

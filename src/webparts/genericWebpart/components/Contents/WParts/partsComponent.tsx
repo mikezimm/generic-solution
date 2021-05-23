@@ -29,7 +29,7 @@ import { PageContext } from '@microsoft/sp-page-context';
 
 import MyLogList from './partsListView';
 
-import * as links from '../../HelpInfo/AllLinks';
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
 
 import { IWPart,  } from './partsFunction';
 

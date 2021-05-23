@@ -11,6 +11,8 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 import { Web, IWeb } from "@pnp/sp/presets/all";
 
+import { IconButton, IIconProps, IContextualMenuProps, Stack, Link } from 'office-ui-fabric-react';
+
 import styles from './GenericWebpart.module.scss';
 import { IGenericWebpartProps } from './IGenericWebpartProps';
 import { IGenericWebpartState } from './IGenericWebpartState';
@@ -21,8 +23,16 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
 import { IMyPivots,  } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
+
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
-import InfoPage from './HelpInfo/infoPages';
+
+import  EarlyAccess from './HelpInfo/EarlyAccess';
+import { IEarlyAccessItem } from './HelpInfo/EarlyAccess';
+
+import InfoPages from './HelpInfo/Component/InfoPages';
+
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
+
 
 
 //These are for provisionLists
@@ -38,6 +48,9 @@ import InspectContents from './Contents/contentsComponent';
 
 import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
 
+import { createIconButton , defCommandIconStyles} from "./createButtons/IconButton";
+
+
 //These are for provisionPages
 import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/component/provisionPageComponent';
 import { defineThePage } from './PageProvisioning/FinancePages/defineThisPage';
@@ -52,13 +65,32 @@ import { analyticsList } from 'GenericWebpartWebPartStrings';
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import * as links from './HelpInfo/AllLinks';
-import  EarlyAccess from './HelpInfo/EarlyAccess';
+
 
 
 const emptyString = (value: string | Date) : string => { return "";};
 
 export default class GenericWebpart extends React.Component<IGenericWebpartProps, IGenericWebpartState> {
+
+  // private buildEarlyAccessButton( title: string, icon: string, onClick: any, ) {
+  //   defCommandIconStyles.icon.fontWeight = '600' ;
+    
+  //   return <div title={ title } className= {stylesB.buttons} id={ 'NoID' } style={{background: 'white', opacity: .7, borderRadius: '10px', cursor: 'pointer' }}>
+  //     <IconButton iconProps={{ iconName: icon }} 
+  //       text= { 'parent component' }
+  //       title= { title } 
+  //       //uniqueId= { titleText } 
+  //       //data= { titleText } 
+  //       //key= { titleText } 
+  //       ariaLabel= { title } 
+  //       disabled={false} 
+  //       checked={false}
+  //       onClick={ onClick }
+  //       styles={ defCommandIconStyles }
+  //       />
+  //   </div>;
+
+  // }
 
   private errTitles() {
     let options = [
@@ -476,16 +508,29 @@ public async getListDefinitions( doThis: 'props' | 'state') {
             ></ProvisionPatterns>
         </div>;
 
+      //Build up hard coded array of user emails that can
+      let showTricks = false;
+      links.trickyEmails.map( getsTricks => {
+        if ( this.props.pageContext.user.email && this.props.pageContext.user.email.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
 
-      const infoPage = this.props.allowRailsOff !== true ? null : 
-        <div>
-          <InfoPage 
-              allLoaded={ true }
-              showInfo={ true }
-              parentProps= { this.props }
-              parentState= { this.state }
-          ></InfoPage>
-        </div>;
+      let infoPages = this.props.allowRailsOff !== true ? null : 
+          <div id={ 'InfoPagesID' + this.props.chartId } style={{ display: 'none' }}>
+            <InfoPages 
+                showInfo = { true }
+                allLoaded = { true }
+                showTricks = { showTricks }
+
+                parentListURL = { this.state.fetchList.parentListURL }
+                childListURL = { null }
+
+                parentListName = { this.state.fetchList.name }
+                childListName = { null }
+
+                gitHubRepo = { links.gitRepoEasyContnets }
+
+                hideWebPartLinks = { false }
+            ></InfoPages>
+          </div>;
 
       const contentsPage = <div className= { defaultPageClass }>
         <InspectContents
@@ -555,7 +600,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         <div className= { defaultPageClass } style={{ paddingLeft: 10, paddingRight: 20 }}>
           { contentsPage }
         </div>
-        
+
       :<div className= { defaultPageClass } style={{ paddingLeft: 10, paddingRight: 20 }}>
         <Pivot aria-label="Provision Options"
           defaultSelectedIndex ={ 4 }>
@@ -575,7 +620,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           <PivotItem headerText="Patterns">
               { provisionPatternsPage }
           </PivotItem>
-          
+
           <PivotItem headerText="Contents">
               { contentsPage }
           </PivotItem>    
@@ -588,7 +633,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           : null }
 
           <PivotItem headerText="Help">
-              { infoPage }
+              { infoPages }
           </PivotItem>
 
 
@@ -599,14 +644,47 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       <div>
         { this.state.stateError }
       </div>;
-      
-      let earlyAccess = 
-      <EarlyAccess 
-          image = { "https://autoliv.sharepoint.com/sites/crs/PublishingImages/Early%20Access%20Image.png" }
-          messages = { [ <div><span><b>Welcome to ALV Webpart Early Access!!!</b></span></div>, "Get more info here -->"] }
-          links = { [ links.gitRepoGenericWebpart.wiki, links.gitRepoGenericWebpart.issues ]}
-          email = { 'mailto:General - WebPart Dev <0313a49d.Autoliv.onmicrosoft.com@amer.teams.ms>?subject=Contents Webpart Feedback&body=Enter your message here :)  \nScreenshots help!' }
-      ></EarlyAccess>;
+
+    /**
+     * Add early access bar
+     */
+     let earlyAccess = null;
+     defCommandIconStyles.icon.fontWeight = '600' ;
+     
+    //  let buttonHelp = this.buildEarlyAccessButton( "Feedback" , 'Help', this._toggleInfoPages.bind(this));
+    //  let buttonAdvanced = this.buildEarlyAccessButton( "Layout" , 'Design', this._toggleDesign.bind(this));
+    //  let buttonData = this.buildEarlyAccessButton( "Data" , 'Calculator', this._toggleData.bind(this));
+ 
+     if ( this.props.showEarlyAccess === true ) {
+       let messages : IEarlyAccessItem[] = [];
+       let linksArray : IEarlyAccessItem[] = [];
+ 
+       messages.push( { minWidth: 1000, item: <div><span><b>{ 'Welcome to ALV Webpart Early Access!!!' }</b></span></div> });
+       messages.push( { minWidth: 1000, item: <div><span><b>{ 'Get more info here -->' }</b></span></div> });
+ 
+       messages.push( { minWidth: 700, maxWidth: 799.9, item: <div><span><b>{ 'Webpart Early Access!!!' }</b></span></div> });
+       messages.push( { minWidth: 700, maxWidth: 799.9, item: <div><span><b>{ 'More info ->' }</b></span></div> });
+ 
+       messages.push( { minWidth: 400, maxWidth: 699.9, item: <div><span><b>{ 'info ->' }</b></span></div> });
+ 
+       linksArray.push( { minWidth: 450, item: links.gitRepoCarrotCharts.wiki });
+       linksArray.push( { minWidth: 600, item: links.gitRepoCarrotCharts.issues });
+       linksArray.push( { minWidth: 800, item: links.gitRepoCarrotCharts.projects });
+ 
+       earlyAccess = 
+       <div style={{ paddingBottom: 10 }}>
+         <EarlyAccess 
+             image = { "https://autoliv.sharepoint.com/sites/crs/PublishingImages/Early%20Access%20Image.png" }
+             messages = { messages }
+             links = { linksArray }
+             email = { 'mailto:General - WebPart Dev <0313a49d.Autoliv.onmicrosoft.com@amer.teams.ms>?subject=Drilldown Webpart Feedback&body=Enter your message here :)  \nScreenshots help!' }
+            //  farRightIcons = { [ { item: buttonData } , { item: buttonAdvanced } , { item: buttonHelp }  ] }
+             WebpartWidth = { this.state.WebpartWidth }
+         ></EarlyAccess>
+       </div>;
+ 
+     }
+ 
 
     return (
       <div className={ styles.genericWebpart }>

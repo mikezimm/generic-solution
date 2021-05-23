@@ -17,7 +17,7 @@ import styles from '../contents.module.scss';
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
-import { createLink } from '../../HelpInfo/AllLinks';
+import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
 
 import { PageContext } from '@microsoft/sp-page-context';
 import { IMyPivots, IPivot, IMyPivCat  } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
@@ -30,7 +30,7 @@ import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogView from './viewsListView';
 
-import * as links from '../../HelpInfo/AllLinks';
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';

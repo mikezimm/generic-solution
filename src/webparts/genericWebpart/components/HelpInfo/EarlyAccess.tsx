@@ -6,8 +6,6 @@ import { Link, ILinkProps } from 'office-ui-fabric-react';
 import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
 import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
 
-import WebPartLinks from './WebPartLinks';
-
 import { createIconButton , defCommandIconStyles} from "../createButtons/IconButton";
 
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
@@ -18,12 +16,21 @@ import { Icon } from 'office-ui-fabric-react/lib/Icon';
 
 import styles from './InfoPane.module.scss';
 
+export interface IEarlyAccessItem {
+    item: any;
+    minWidth?: number; //Minimum width to display this item at
+    maxWidth?: number; //Maximum width to display this item at 
+}
+
 export interface IEarlyAccessProps {
     image?: string;
     email?: string;   //Valid email URL like:  'mailto:General - WebPart Dev <0313a49d.yourTenant.onmicrosoft.com@amer.teams.ms>?subject=Drilldown Webpart Feedback&body=Enter your message here :)  \nScreenshots help!'
-    messages?: any[];
-    links?: any[];
-    farRightIcons?: any[];
+    messages?: IEarlyAccessItem[];
+    links?: IEarlyAccessItem[];
+    farRightIcons?: IEarlyAccessItem[];
+
+    WebpartWidth:   number;    //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+
     stylesImage?: any; //Not yet set up
     stylesBar?: any; //Not yet set up
     stylesBanner?: any; //Not yet set up
@@ -88,29 +95,29 @@ export default class EarlyAccess extends React.Component<IEarlyAccessProps, IEar
             padding: '0px !important',
           });
 
-        let hasFarRight = this.props.farRightIcons !== null && this.props.farRightIcons !== undefined && this.props.farRightIcons.length > 0 ?  true : false;
+          let hasFarRight = this.props.farRightIcons !== null && this.props.farRightIcons !== undefined && this.props.farRightIcons.length > 0 ?  true : false;
 
-        let iconStyles: any = { root: {
-            //color: h.color ? h.color : "blue",
-            cursor: 'pointer',
-            paddingRight: hasFarRight === true ? null : '20px',
-        }};
-
-        let barLinkHover = styles.barLinkHover;
-        let farLinkHover = styles.farLinkHover;
-
-        defCommandIconStyles.icon.fontWeight = '600' ;
-
-        let emailButton = <div title={ "Feedback" } className={ farLinkHover } style={{background: 'white', opacity: '.7', borderRadius: '10px', cursor: 'pointer', marginRight: hasFarRight === true ? null : '20px' }}>
-        { createIconButton('MailReply','Email',this._onIconClick.bind(this), null, defCommandIconStyles ) } </div>;
-
+          let iconStyles: any = { root: {
+              //color: h.color ? h.color : "blue",
+              cursor: 'pointer',
+              paddingRight: hasFarRight === true ? null : '20px',
+          }};
+  
+          let barLinkHover = styles.barLinkHover;
+          let farLinkHover = styles.farLinkHover;
+  
+          defCommandIconStyles.icon.fontWeight = '600' ;
+  
+          let emailButton = <div title={ "Feedback" } className={ farLinkHover } style={{background: 'white', opacity: .7, borderRadius: '10px', cursor: 'pointer', marginRight: hasFarRight === true ? null : '20px' }}>
+          { createIconButton('MailReply','Email',this._onIconClick.bind(this), null, defCommandIconStyles, false ) } </div>;
+  
 //        let emailIcon = this.props.email == null || this.props.email == undefined ? null :
 //                <div className= { styles.mailLinkHover } style={{background: 'white', opacity: '.7', borderRadius: '10px' }}><Icon title={ "Feedback" } iconName={ "MailReply"} className={ iconClassInfo } styles = {iconStyles} onClick = { this._onIconClick.bind(this) } /></div>;
 
         //styles.earlyAccess, styles.innerShadow
         
         let image = this.props.image == null || this.props.image == undefined ? null : 
-            <div style={{ paddingLeft: '20px' }}><Image 
+            <div style={{ paddingLeft: '20px', minHeight: 20 }} className={ '' }><Image 
                 className={[
                 styles.imgHoverZoom, 
                 ( this.state.imgHover === true  ? styles.imgHoverZoomHover : null )
@@ -119,20 +126,22 @@ export default class EarlyAccess extends React.Component<IEarlyAccessProps, IEar
                 shouldFadeIn={true} 
                 imageFit={ ImageFit.centerContain }
                 coverStyle={ ImageCoverStyle.landscape }      
-                width={ 100 } height={ 50 }
+                width={ 80 } height={ 40 }
             /></div>;
 
-        let messages = this.props.messages == null || this.props.messages == undefined ? null : this.props.messages.map( mess => { return <div style={{whiteSpace: 'nowrap'}}> { mess } </div>; });
+        //let messages = this.props.messages == null || this.props.messages == undefined ? null : this.props.messages.map( mess => { return <div style={{whiteSpace: 'nowrap'}}> { mess.item } </div>; });
+        let messages: any[] = this.buildWidthTrimmedArray ( this.props.messages, '' );
 
-        let links = this.props.links == null || this.props.links == undefined ? null : this.props.links.map( link => { return <div className={ barLinkHover } style={{whiteSpace: 'nowrap'}}> { link } </div>; });
+        //let links = this.props.links == null || this.props.links == undefined ? null : this.props.links.map( link => { return <div className={ barLinkHover } style={{whiteSpace: 'nowrap'}}> { link.item } </div>; });
+        let links: any[] = this.buildWidthTrimmedArray ( this.props.links, barLinkHover );
 
-        let farRightIcons = this.props.farRightIcons == null || this.props.farRightIcons == undefined ? null : this.props.farRightIcons.map( icon => { return <div className={ farLinkHover }> { icon } </div>; });
+        //let farRightIcons = this.props.farRightIcons == null || this.props.farRightIcons == undefined ? null : this.props.farRightIcons.map( icon => { return <div className={ farLinkHover }> { icon.item } </div>; });
+        let farRightIcons = this.buildWidthTrimmedArray ( this.props.farRightIcons, farLinkHover );
 
-        let defBannerStyle = this.props.stylesBanner ? this.props.stylesBanner : { background: 'lightgray', color: 'black', width: '100%', verticalAlign: 'center' };
+        let defBannerStyle = this.props.stylesBanner ? this.props.stylesBanner : { background: 'lightgray', color: 'black', width: '100%', verticalAlign: 'center', height: '40px' };
 
         thisPage = <div className= { styles.infoPane } ><div className= { [ styles.earlyAccess, styles.innerShadow ].join(' ') } style={ defBannerStyle }>
             <Stack horizontal={true} wrap={true} horizontalAlign={"space-between"} verticalAlign={"center"} tokens={stackTokensBody}>
-
                 { image }
                 { messages }
                 { links }
@@ -147,6 +156,17 @@ export default class EarlyAccess extends React.Component<IEarlyAccessProps, IEar
 
     }   //End Public Render
 
+    private buildWidthTrimmedArray( messages: IEarlyAccessItem[] , className: string ) {
+        let message: any[] = [];
+        messages.map( mess => {
+            let passMinWidth = !mess.minWidth || ( mess.minWidth && this.props.WebpartWidth >= mess.minWidth ) ? true : false;
+            let passMaxWidth = !mess.maxWidth || ( mess.maxWidth && this.props.WebpartWidth <= mess.maxWidth ) ? true : false;
+            if ( passMinWidth && passMaxWidth ) { message.push( <div className={ className }  style={{whiteSpace: 'nowrap'}}> { mess.item } </div> ) ; }
+        });
+
+        if ( message.length === 0  ) { message = null; }
+        return message;
+    }
 
     public mouseOver(event): void {
         this.setState({ imgHover: true });

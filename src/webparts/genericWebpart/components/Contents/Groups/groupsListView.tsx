@@ -17,7 +17,7 @@ import { Panel } from 'office-ui-fabric-react/lib/Panel';
 import { PersonaSize} from 'office-ui-fabric-react/lib/Persona';
 
 
-import { createLink } from '../../HelpInfo/AllLinks';
+import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';

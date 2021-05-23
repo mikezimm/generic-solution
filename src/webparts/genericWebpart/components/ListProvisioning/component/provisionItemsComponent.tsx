@@ -100,7 +100,7 @@ import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButt
 
 import { createIconButton } from '../../createButtons/IconButton';
 
-import * as links from '../../HelpInfo/AllLinks';
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -554,7 +554,7 @@ public constructor(props:IProvisionItemsProps){
                                 margin: '0px 2px',
                                 color: '#00457e', //This will set icon color
                             },
-                        });
+                        }, false );
 
                 let myProgress = this.state.progress == null ? null : <ProgressIndicator
                     label={this.state.progress.label}

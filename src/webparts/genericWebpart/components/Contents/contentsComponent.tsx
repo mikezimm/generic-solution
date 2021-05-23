@@ -23,7 +23,9 @@ import { IMyPivCat, IMyPivots,IPivot, ILink } from '@mikezimm/npmfunctions/dist/
 import { IMyIcons, IMyFonts } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IChartSeries, ICharNote, } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCharts';
 
-import InfoPage from '../HelpInfo/infoPages';
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
+
+import InfoPage from '../HelpInfo/Component/infoPages';
 
 import InspectLists from './Lists/listsComponent';
 
@@ -335,15 +337,30 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         ></InspectFeatures>
         </div>;
 
+      //Build up hard coded array of user emails that can
+      let showTricks = false;
+      links.trickyEmails.map( getsTricks => {
+        if ( this.props.pageContext.user.email && this.props.pageContext.user.email.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
 
-        const infoPage = <div>
-        <InfoPage 
-            allLoaded={ true }
-            showInfo={ true }
-            parentProps= { this.props.parentProps }
-            parentState= { this.props.parentState }
-        ></InfoPage>
-        </div>;
+
+        let infoPages = 
+            <div id={ 'InfoPagesID' + this.props.chartId } style={{ display: 'none' }}>
+                <InfoPages 
+                    showInfo = { true }
+                    allLoaded = { true }
+                    showTricks = { showTricks }
+
+                    parentListURL = { this.state.fetchList.parentListURL }
+                    childListURL = { null }
+
+                    parentListName = { this.state.fetchList.name }
+                    childListName = { null }
+
+                    gitHubRepo = { links.gitRepoEasyContnets }
+
+                    hideWebPartLinks = { false }
+                ></InfoPages>
+            </div>;
 
         const railsPage = validWeb !== true ? null : <div>
             { noPageAvailable }

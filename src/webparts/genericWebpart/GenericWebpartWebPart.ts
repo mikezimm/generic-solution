@@ -232,6 +232,8 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         pivotOptions: this.properties.pivotOptions,
         pivotTab: 'Projects', //this.properties.pivotTab (was setTab in pivot-tiles)
 
+        showEarlyAccess: true,
+
       }
     );
 

@@ -43,7 +43,7 @@ import { allWebProps } from './thisWebFunctions';
 
 import MyLogProps from './thisSiteListView';
 
-import { createLink } from '../../HelpInfo/AllLinks';
+import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
 
 import { resultContent } from 'office-ui-fabric-react/lib/components/ExtendedPicker/PeoplePicker/ExtendedPeoplePicker.scss';
 

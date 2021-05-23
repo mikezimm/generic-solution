@@ -49,7 +49,7 @@ import { PageContext } from '@microsoft/sp-page-context';
 
 import * as strings from 'GenericWebpartWebPartStrings';
 
-import * as links from '../../HelpInfo/AllLinks';
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
 import { copyPatterns } from './provisionPatternsFunctions';
 

@@ -1,31 +1,14 @@
 import * as React from 'react';
 
-
-import { Link, ILinkProps } from 'office-ui-fabric-react';
-
-import * as links from './AllLinks';
-
-import { CompoundButton, Stack, IStackTokens, elementContains } from 'office-ui-fabric-react';
-import { IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
-
-import { IGenericWebpartProps } from '../IGenericWebpartProps';
-import { IGenericWebpartState } from '../IGenericWebpartState';
 import styles from './InfoPane.module.scss';
 
-export interface IBasicsProps {
-    showInfo: boolean;
-    allLoaded: boolean;
-    parentProps: IGenericWebpartProps;
-    parentState: IGenericWebpartState;
+import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from './ISinglePageProps';
+//Moved these to npmfunctions 
 
+export interface ISinglePageState {
 }
 
-export interface IBasicsState {
-    selectedChoice: string;
-    lastChoice: string;
-}
-
-export default class Basics extends React.Component<IBasicsProps, IBasicsState> {
+export default class SinglePage extends React.Component<ISinglePageProps, ISinglePageState> {
 
 
 /***
@@ -39,25 +22,14 @@ export default class Basics extends React.Component<IBasicsProps, IBasicsState> 
  *                                                                                                       
  */
 
-public constructor(props:IBasicsProps){
+public constructor(props:ISinglePageProps){
     super(props);
     this.state = { 
-        selectedChoice: 'projectList',
-        lastChoice: '',
-
     };
-
-    // because our event handler needs access to the component, bind 
-    //  the component to the function so it can get access to the
-    //  components properties (this.props)... otherwise "this" is undefined
-    // this.onLinkClick = this.onLinkClick.bind(this);
-
-    
   }
 
 
   public componentDidMount() {
-    
   }
 
 
@@ -73,14 +45,6 @@ public constructor(props:IBasicsProps){
  */
 
   public componentDidUpdate(prevProps){
-
-    let rebuildTiles = false;
-    /*
-    if (rebuildTiles === true) {
-      this._updateStateOnPropsChange({});
-    }
-    */
-
   }
 
 /***
@@ -94,10 +58,10 @@ public constructor(props:IBasicsProps){
  *                                                          
  */
 
-    public render(): React.ReactElement<IBasicsProps> {
+    public render(): React.ReactElement<ISinglePageProps> {
 
         if ( this.props.allLoaded && this.props.showInfo ) {
-            console.log('infoPages.tsx', this.props, this.state);
+            console.log('SinglePage.tsx', this.props, this.state);
 
 /***
  *              d888888b db   db d888888b .d8888.      d8888b.  .d8b.   d888b  d88888b 
@@ -106,25 +70,38 @@ public constructor(props:IBasicsProps){
  *                 88    88~~~88    88      `Y8b.      88~~~   88~~~88 88  ooo 88~~~~~ 
  *                 88    88   88   .88.   db   8D      88      88   88 88. ~8~ 88.     
  *                 YP    YP   YP Y888888P `8888Y'      88      YP   YP  Y888P  Y88888P 
- *                                                                                     
- *                                                                                     
+ *
+ *
  */
 
-            let thisPage = null;
-            thisPage =     <div className={styles.infoPane}>
+            let thisTable = null;
+            let propsTable = this.props.content.table;
+            if ( propsTable && propsTable.rows.length > 0 ) {
 
-            <h3>Please submit any issues or suggestions on github (requires free account)</h3>
-            { links.gitRepoGenericWebpart.issues }
-        
-        
-            <h3>FUTURE Plans - See that page for more details</h3>
-              <ul>
-                <li><span className={styles.iColNam}>TBD More Info:</span>TBD More Details</li>
-              </ul>
+                let heading = propsTable.heading ? <h2> { propsTable.heading } </h2> : null;
 
-        
-          </div>;
+                let tableHeaders = propsTable.headers.map( header => {
+                    return <th>{ header }</th>;
+                });
 
+                let tableRows = propsTable.rows.map( row => {
+                    let cells = row.map( cell => {
+                        let style = null;
+                        if ( cell['style'] ) { style = cell['style'];}
+                        return <td style={ style }>{ cell['style'] ? cell['info'] : cell } </td>;
+                    });
+                    return <tr>{ cells }</tr>;
+                });
+
+                thisTable = <div>
+                    { heading }
+                    <table className={styles.infoTable}>
+                        { tableHeaders }
+                        { tableRows }
+                    </table>
+                </div>;
+
+            }
 
 /***
  *              d8888b. d88888b d888888b db    db d8888b. d8b   db 
@@ -133,23 +110,22 @@ public constructor(props:IBasicsProps){
  *              88`8b   88~~~~~    88    88    88 88`8b   88 V8o88 
  *              88 `88. 88.        88    88b  d88 88 `88. 88  V888 
  *              88   YD Y88888P    YP    ~Y8888P' 88   YD VP   V8P 
- *                                                                 
- *                                                                 
+ *
+ *
  */
 
             return (
-                <div className={ styles.infoPane } style={{ paddingBottom: '30px'}}>
-                    { thisPage }
+                <div className={ styles.infoPane } style={{ paddingTop: '10px'}}>
+                    { this.props.content.header }
+                    { this.props.content.html1 }
+                    { thisTable }
+                    { this.props.content.html2 }
+                    { this.props.content.footer }
                 </div>
-            );
-            
+            ); 
         } else {
             console.log('infoPages.tsx return null');
             return ( null );
         }
-
     }   //End Public Render
-
-
-
 }
