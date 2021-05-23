@@ -39,7 +39,7 @@ import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogFeature from './featuresListView';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';

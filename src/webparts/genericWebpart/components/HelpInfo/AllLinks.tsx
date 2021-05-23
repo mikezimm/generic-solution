@@ -8,7 +8,7 @@ import { createLink, createRepoLinks, IRepoLinks } from '@mikezimm/npmfunctions/
 export const baseDevDocs = 'https://developer.microsoft.com/en-us/fabric#/controls/web/';
 
 /**
- *  Fabric UI Controls on DevDocs
+ *  This should be moved to npmFunctions
  */
 
 export const JSONEditor = createLink( 'https://codebeautify.org/jsonviewer', '_blank', 'Edit JSON here: CodeBeautify.org');

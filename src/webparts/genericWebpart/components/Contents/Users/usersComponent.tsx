@@ -40,7 +40,7 @@ import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogUser from './usersList';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
