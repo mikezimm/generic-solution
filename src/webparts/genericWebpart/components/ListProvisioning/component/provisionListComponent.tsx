@@ -79,7 +79,9 @@ import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButt
 import { IFieldDef } from '../../fields/fieldDefinitions';
 import { createBasicTextField } from  '../../fields/textFieldBuilder';
 
-import * as links from '../../HelpInfo/AllLinks';
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
+
+import { JSONEditorShort } from '../../HelpInfo/AllLinks';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -538,7 +540,7 @@ public constructor(props:IProvisionListsProps){
                 </div>;
 
                 listDetails = <div style={{display: '', marginBottom: '30px' }}>
-                         <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { links.JSONEditorShort } </span></h2></div>
+                         <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
                         { listJSON }
                     </div>;
 

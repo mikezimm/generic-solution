@@ -12,7 +12,7 @@ import { IContentsViewInfo, IViewBucketInfo} from './viewsComponent';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
-import { createLink } from '../../HelpInfo/AllLinks';
+import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
 
 
 import styles from '../listView.module.scss';

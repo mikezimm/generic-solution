@@ -12,6 +12,8 @@ define([], function() {
 
     "analyticsList": "EasyContentsLog",
     "analyticsListRails": "EasyContentsRails",
+    "analyticsListListery": "EasyContentsHistory",
+
     "analyticsWeb": "/sites/Templates/Analytics/",
     "patternsWeb": "/sites/Patterns/", //Must end in slash :)
     "minClickWeb": "",

@@ -29,6 +29,9 @@ import { defineTheList } from './components/ListProvisioning/ListsTMT/defineThis
 
 import { IMyProgress, } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
+import { makeid, getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+
+
 export interface IGenericWebpartWebPartProps {
 
   description: string;
@@ -73,6 +76,8 @@ export interface IGenericWebpartWebPartProps {
   pivotFormat: string;
   pivotOptions: string;
   pivotTab: string;
+
+  uniqueId: string;
   
 }
 
@@ -110,6 +115,10 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
             document.getElementById("workbenchPageContent").style.maxWidth = "none";
           }
         } 
+
+        if ( this.properties.uniqueId && this.properties.uniqueId.length > 0 ) {} else { 
+          this.properties.uniqueId = makeid( 7 ) ;
+        }
 
         //console.log('window.location',window.location);
         sp.setup({
@@ -231,6 +240,10 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
         pivotFormat: this.properties.pivotFormat,
         pivotOptions: this.properties.pivotOptions,
         pivotTab: 'Projects', //this.properties.pivotTab (was setTab in pivot-tiles)
+
+        showEarlyAccess: true,
+
+        uniqueId: this.properties.uniqueId,
 
       }
     );

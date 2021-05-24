@@ -13,7 +13,7 @@ import { createIconButton } from '../../createButtons/IconButton';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
-import { createLink } from '../../HelpInfo/AllLinks';
+import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
 
 import { IListBucketInfo } from './listsComponent';
 
@@ -164,9 +164,9 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
 //          console.log('listInfo', listInfo);
 //          console.log(' this.props.pickThisList',  this.props.pickThisList);
-          let gotoColumns = createIconButton('OEM', 'Columns', this.props.pickThisList, 'Columns' + listInfo , columnsStyles );
-          let gotoViews = createIconButton('ChevronDown', 'Views', this.props.pickThisList, 'Views' + listInfo, viewsStyles );
-          let gotoTypes = createIconButton('TypeScriptLanguage', 'Types', this.props.pickThisList, 'Types' + listInfo, typesStyles );
+          let gotoColumns = createIconButton('OEM', 'Columns', this.props.pickThisList, 'Columns' + listInfo , columnsStyles, false );
+          let gotoViews = createIconButton('ChevronDown', 'Views', this.props.pickThisList, 'Views' + listInfo, viewsStyles, false );
+          let gotoTypes = createIconButton('TypeScriptLanguage', 'Types', this.props.pickThisList, 'Types' + listInfo, typesStyles, false );
 
           //import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
           let detailsCard = buildPropsHoverCard(Lst, ["Title","BaseTemplate","Description","EntityTypeName","Id"], ["meta","searchString"] , true, null );

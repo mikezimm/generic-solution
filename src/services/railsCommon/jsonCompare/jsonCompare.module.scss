@@ -1,4 +1,18 @@
+.jsonTable {
+  box-sizing: border-box;
+}
 
+.title {
+  font-weight: 'bolder';
+}
+.property {
+
+}
+
+.value {
+  display: 'inline-block';
+  width: '300px';
+}
 
 .showFeedbackImage {
   display: '';

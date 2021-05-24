@@ -54,5 +54,8 @@ export interface IGenericWebpartProps {
   pivotOptions: string;
   pivotTab: string;  //May not be needed because we have projectMasterPriority
 
+  showEarlyAccess: boolean;
 
+  uniqueId: string;
+  
 }

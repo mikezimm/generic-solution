@@ -17,7 +17,7 @@ import { Panel } from 'office-ui-fabric-react/lib/Panel';
 import { PersonaSize} from 'office-ui-fabric-react/lib/Persona';
 
 
-import { createLink } from '../../HelpInfo/AllLinks';
+import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
@@ -229,12 +229,13 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
 
         if ( this.state.showPanel == true ) {
             let userId = this.props.wpContext.pageContext.legacyPageContext.userId;
+            let isSiteAdmin = this.props.wpContext.pageContext.legacyPageContext.isSiteAdmin;
 
             /** set myGroups null when not using groups vvvvvv */
             myGroups = <MyGroups
               groupsShowAdmins= { true }
               groupsShowGuests= { true }
-              isSiteAdmin={ this.props.currentUser.isSiteAdmin }
+              isSiteAdmin={ isSiteAdmin }
               minAdminGuestIcons = { true }
               userId= { userId }
               personaSize={ PersonaSize.size16 }

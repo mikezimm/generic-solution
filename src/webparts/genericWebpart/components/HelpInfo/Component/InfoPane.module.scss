@@ -1,22 +1,17 @@
 @import '~office-ui-fabric-react/dist/sass/References.scss';
 
-//2020-12-05:  Copied entire file from PivotTiles7 for Early Access bar
-
 //Copied to chartsPage.module.scss so it can be more stand alone.
-
 
 .infoPane {
 
     .earlyAccess {
       opacity: .25;
       transition: all, .3s ease;
-      //max-height: 20px;
     }
 
     .earlyAccess:hover {
       opacity: 1;
       transition: all, .3s ease;
-      //max-height: 50px;
     }
 
     .innerShadow {
@@ -133,7 +128,9 @@
     }    
 
     .infoTable {
-  
+      
+      width: 100%;
+      
       tr {
         padding-top: 0px;
       }
