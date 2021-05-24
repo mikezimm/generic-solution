@@ -57,7 +57,7 @@ import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServi
 import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
 import { getKeyChanges, doesObjectExistInArrayInt, ICompareResult, DoesNotExistLabel } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
-import { getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+import { getStringArrayFromString, getGuidsFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 
 import { getIconStyles } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
  
@@ -801,6 +801,23 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                     itemTitle = pair.obj2.obj[thisItemCompareKey] ;
                 }
 
+                let fullTitle = null;
+
+                let itemTitleGuid : string[] = getGuidsFromString( itemTitle, 'contains' );
+                if ( itemTitleGuid === null ) { itemTitleGuid = getGuidsFromString( itemTitle, 'start' ); }
+                if ( itemTitleGuid !== null ) {
+                    fullTitle = itemTitle + '';
+                    let guidIdx = itemTitle.indexOf( itemTitleGuid[0] ) ;
+                    if ( guidIdx === 0 ) { //guid is at the start... trim out the ending part of the guid
+                        let shortGuid = itemTitleGuid[0].substr(0, itemTitleGuid[0].indexOf('-') + 1 ) + '...';	
+                        itemTitle = itemTitle.replace( itemTitleGuid[0] , '') + ' ( ' + shortGuid + ' )';
+
+                    } else {
+                        let shortGuid = itemTitleGuid[0].substr(0, itemTitleGuid[0].indexOf('-') + 1 ) + '...';	
+                        itemTitle = itemTitle.replace( itemTitleGuid[0] , '') + ' ( ' + shortGuid + ' )';
+                    }
+                }
+
                 let tableRows: any = [];
 
                 let theListTitle = this.props.theList.Title;
@@ -838,7 +855,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
                         let thisProp = <tr style={ thisRowStyle }>
                                 <td> { index + 1 } </td> 
-                                <td style = { titleStyle } > { isNewItem === true ? itemTitle : null } </td>
+                                <td title={ fullTitle } style = { titleStyle } > { isNewItem === true ? itemTitle : null } </td>
                                 <td style = { propStyle } > { key } </td>
                                 <td style = { valueStyle } > { value0 } </td>
                                 <td style = { valueStyle } > { value1 } </td>
