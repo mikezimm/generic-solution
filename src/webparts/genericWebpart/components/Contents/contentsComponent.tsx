@@ -25,7 +25,7 @@ import { IChartSeries, ICharNote, } from '@mikezimm/npmfunctions/dist/CSSCharts/
 
 import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
 
-import InfoPage from '../HelpInfo/Component/infoPages';
+import InfoPages from '../HelpInfo/Component/InfoPages';
 
 import InspectLists from './Lists/listsComponent';
 
@@ -89,6 +89,8 @@ export interface IInspectContentsProps {
 
     WebpartHeight: number;
     WebpartWidth: number;
+
+    uniqueId: string;
 
     // 2 - Source and destination list information
 
@@ -342,18 +344,18 @@ export default class InspectContents extends React.Component<IInspectContentsPro
       links.trickyEmails.map( getsTricks => {
         if ( this.props.pageContext.user.email && this.props.pageContext.user.email.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
 
-
         let infoPages = 
-            <div id={ 'InfoPagesID' + this.props.chartId } style={{ display: 'none' }}>
+            // <div id={ 'InfoPagesID' + this.props.uniqueId } style={{ display: 'none' }}> //This was display:none on carrotCharts because it was not using react.
+            <div id={ 'InfoPagesID' + this.props.uniqueId } style={{  }}>
                 <InfoPages 
                     showInfo = { true }
                     allLoaded = { true }
                     showTricks = { showTricks }
 
-                    parentListURL = { this.state.fetchList.parentListURL }
+                    parentListURL = { null }
                     childListURL = { null }
 
-                    parentListName = { this.state.fetchList.name }
+                    parentListName = { null }
                     childListName = { null }
 
                     gitHubRepo = { links.gitRepoEasyContnets }
@@ -422,7 +424,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
 
             {  !this.state.allowRailsOff ? 
                 <PivotItem headerText="Help">
-                    { infoPage }
+                    { infoPages }
                 </PivotItem>:
                 <PivotItem headerText={ contentsTabs[10] }>
                     <h3>RailsOff</h3>

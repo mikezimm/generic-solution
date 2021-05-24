@@ -34,7 +34,7 @@ export interface IInfoPagesProps {
     parentListName: string;  // Static Name of list (for URL) - used for links and determined by first returned item
     childListName?: string;  // Static Name of list (for URL) - used for links and determined by first returned item
 
-    gitHubRepo: any; // replace with IRepoLinks from npmfunctions v0.1.0.3
+    gitHubRepo: any; // replace with IRepoLinks from npmFunctions v0.1.0.3
 
     hideWebPartLinks?: boolean;  //default = false... set to True if Early Access Banner is visible
 
@@ -174,16 +174,15 @@ public constructor(props:IInfoPagesProps){
 
             const ColoredLine = ({ color }) => ( <hr style={{ color: color, backgroundColor: color, height: 1 }}/> );
 
-            return (
-                <div className={ styles.infoPane } style={{paddingBottom: '30px', paddingLeft: '20px' }}>
-                    { webPartLinks }
-                    <Stack horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
-                        { pageChoices }
-                    </Stack>
+            return (<div className={ styles.infoPane } style={{paddingBottom: '30px', paddingLeft: '20px' }}>
+                        { webPartLinks }
+                        <Stack horizontal={true} horizontalAlign={"space-between"} tokens={stackButtonTokensBody}> {/* Stack for Projects and body */}
+                            { pageChoices }
+                        </Stack>
 
-                    { thisPage }
-                    <ColoredLine color="gray" />
-                </div>
+                        { thisPage }
+                        <ColoredLine color="gray" />
+                    </div>
             );
         } else {
             //console.log('InfoPagess.tsx return null');

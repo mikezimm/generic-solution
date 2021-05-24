@@ -94,7 +94,8 @@ from '@mikezimm/npmfunctions/dist/Services/Arrays/compare';
  */
   
 import stylesInfo from '../../../webparts/genericWebpart/components/HelpInfo/InfoPane.module.scss';
-import styles from '../../../webparts/genericWebpart/components/GenericWebpart.module.scss';
+import styles from './jsonCompare.module.scss';
+
 
 
   
@@ -416,7 +417,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                     <div style={{ paddingTop: '20px !important' }}>We crunched a total of { this.state.json1PropCount + this.state.json2PropCount } properties for you.... and this is what was different</div>
                     <div id="whyGodwhy" style={{ paddingTop: '20px !important' }}>
                         { hardSpacer }
-                        <table style={{ display: '', borderCollapse: 'collapse', width: '100%', padding: '20px' }} className={stylesInfo.infoTable}>
+                        <table style={{ display: '', borderCollapse: 'collapse', width: '100%', padding: '20px' }} className={ [stylesInfo.infoTable , styles.jsonTable ].join( ' ') }>
                             { this.state.comparedProps }
                         </table>
                     </div>
@@ -810,9 +811,19 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                 }
         
                 // let comparedProps: string[] = [];
-        
+                  
+                let valueStyle : React.CSSProperties = { display: 'inline-block', width: '380px' };
+                let titleStyle : React.CSSProperties = { fontWeight: 'bolder' };
+                let propStyle : React.CSSProperties = { };
+
                 if ( compareStyle === 'table' ) {
-                    let tableHeaders = <tr> { ['No', otherProp,'Property', theListTitle, otherListTitle ].map( h=> { return <th> { h } </th>; }) } </tr>;
+                    let tableHeaders = <tr>
+                            <th> { 'No' } </th>
+                            <th style = { null } > { otherProp } </th>
+                            <th style = { propStyle } > { 'Property' } </th>
+                            <th style = { valueStyle } > { theListTitle } </th>
+                            <th style = { valueStyle } > { otherListTitle } </th>
+                        </tr>;
                     tableRows.push( tableHeaders );
                     if ( allTableRows.length === 0 ) { allTableRows.push( tableHeaders ) ; }
                     let isNewItem = true;
@@ -827,10 +838,10 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
                         let thisProp = <tr style={ thisRowStyle }>
                                 <td> { index + 1 } </td> 
-                                <td style={{ maxWidth: '200px', fontWeight: 'bolder' }}> { isNewItem === true ? itemTitle : null } </td>
-                                <td> { key } </td>
-                                <td> { value0 } </td>
-                                <td> { value1 } </td>
+                                <td style = { titleStyle } > { isNewItem === true ? itemTitle : null } </td>
+                                <td style = { propStyle } > { key } </td>
+                                <td style = { valueStyle } > { value0 } </td>
+                                <td style = { valueStyle } > { value1 } </td>
                             </tr>;
                         tableRows.push( thisProp );
                         allTableRows.push( thisProp );

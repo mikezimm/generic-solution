@@ -100,33 +100,37 @@ export function creatChartChoices( selectedKey: string, _onChange){
 
 
 
-export function creatInfoChoices( selectedKey: string, _onChange){
+export function creatInfoChoices( selectedKey: string, options : IChoiceGroupOption[], _onChange){
 
-  let options : IChoiceGroupOption[] = [];
   let choiceSpacer = '\u00A0\u00A0';
   let spacer4x = choiceSpacer + choiceSpacer + choiceSpacer + choiceSpacer;
-  options.push(  {key: 'gettingStarted', text: 'Getting started' + spacer4x });
-  options.push(  {key: 'basics', text: 'Basics' + spacer4x });
-  options.push(  {key: 'advanced', text: 'Advanced' + spacer4x });
-  options.push(  {key: 'errors', text: 'Errors' + spacer4x });
-  options.push(  {key: 'futurePlans', text: 'Future Plans' + spacer4x });
-  options.push(  {key: 'dev', text: 'Developers' + spacer4x });
-  options.push(  {key: 'about', text: 'About' + choiceSpacer });
 
-  return (
-    
-    <ChoiceGroup
+  let pageContent = null;
+  //Add spacer to text
+  if ( options.length > 0 ) {
+
+    if ( options[0].text.indexOf( choiceSpacer ) < 0 && options[0].text.indexOf( spacer4x ) < 0 ) {
+      options.map( (o, index) => {
+        let ending = index < options.length -1 ? spacer4x : "";
+        o.text += ending;
+      });
+    }
+
+    pageContent = <ChoiceGroup
       // className = "inlineflex" //This didn't do anything
       //className="defaultChoiceGroup" //This came with the example but does not seem to do anything
       //https://github.com/OfficeDev/office-ui-fabric-react/issues/8079#issuecomment-479136073
-      styles={{ flexContainer: { display: "flex" , paddingLeft: 30} }}
+      styles={{ flexContainer: { display: "flex" , paddingLeft: 0} }}
       selectedKey={ selectedKey }
       options={options}
       onChange={_onChange}
       label='' 
       required={true}
-    />
-  );
+    />;
+
+  }
+
+  return pageContent ;
 }
 
 /*

@@ -3,7 +3,7 @@ import * as React from 'react';
 import styles from './InfoPane.module.scss';
 
 import { IHelpTableRow, IHelpTable, IPageContent, ISinglePageProps } from './ISinglePageProps';
-//Moved these to npmfunctions 
+//Moved these to npmFunctions 
 
 export interface ISinglePageState {
 }

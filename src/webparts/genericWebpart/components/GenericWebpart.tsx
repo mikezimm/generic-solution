@@ -514,16 +514,17 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         if ( this.props.pageContext.user.email && this.props.pageContext.user.email.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
 
       let infoPages = this.props.allowRailsOff !== true ? null : 
-          <div id={ 'InfoPagesID' + this.props.chartId } style={{ display: 'none' }}>
+          // <div id={ 'InfoPagesID' + this.props.uniqueId } style={{ display: 'none' }}> //This was display:none on carrotCharts because it was not using react.
+          <div id={ 'InfoPagesID' + this.props.uniqueId } style={{  }}>
             <InfoPages 
                 showInfo = { true }
                 allLoaded = { true }
                 showTricks = { showTricks }
 
-                parentListURL = { this.state.fetchList.parentListURL }
+                parentListURL = { null }
                 childListURL = { null }
 
-                parentListName = { this.state.fetchList.name }
+                parentListName = { null }
                 childListName = { null }
 
                 gitHubRepo = { links.gitRepoEasyContnets }
@@ -558,6 +559,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           parentProps = { this.props.allowRailsOff === true ? null : this.props }
           parentState = { this.props.allowRailsOff === true ? null : this.state } 
                   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
+
+          uniqueId = { this.props.uniqueId }
 
         ></InspectContents>
       </div>;
@@ -667,9 +670,9 @@ public async getListDefinitions( doThis: 'props' | 'state') {
  
        messages.push( { minWidth: 400, maxWidth: 699.9, item: <div><span><b>{ 'info ->' }</b></span></div> });
  
-       linksArray.push( { minWidth: 450, item: links.gitRepoCarrotCharts.wiki });
-       linksArray.push( { minWidth: 600, item: links.gitRepoCarrotCharts.issues });
-       linksArray.push( { minWidth: 800, item: links.gitRepoCarrotCharts.projects });
+       linksArray.push( { minWidth: 450, item: links.gitRepoEasyContnets.wiki });
+       linksArray.push( { minWidth: 600, item: links.gitRepoEasyContnets.issues });
+       linksArray.push( { minWidth: 800, item: links.gitRepoEasyContnets.projects });
  
        earlyAccess = 
        <div style={{ paddingBottom: 10 }}>
@@ -678,6 +681,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
              messages = { messages }
              links = { linksArray }
              email = { 'mailto:General - WebPart Dev <0313a49d.Autoliv.onmicrosoft.com@amer.teams.ms>?subject=Drilldown Webpart Feedback&body=Enter your message here :)  \nScreenshots help!' }
+             farRightIcons = { [ ] }
             //  farRightIcons = { [ { item: buttonData } , { item: buttonAdvanced } , { item: buttonHelp }  ] }
              WebpartWidth = { this.state.WebpartWidth }
          ></EarlyAccess>
