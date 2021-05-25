@@ -408,7 +408,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                         </PivotItem>
                         <PivotItem  headerText={comparePivot2} ariaLabel={comparePivot2} itemKey={comparePivot2} itemCount={ compareKeys.length }>
                             <div style={{ padding: '5px 30px 5px 20px'}}>
-                                <h3>These ( { compareKeys.length } )properties were NOT { this.state.includeOrIgnoreKeys }d due to your filter criteria:</h3>
+                                <h3>These ( { compareKeys.length } ) properties were NOT { this.state.includeOrIgnoreKeys }d due to your filter criteria:</h3>
                                 { compareKeys.join(', ') }
                             </div>
                         </PivotItem>
@@ -650,6 +650,19 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
     
     }
 
+    private async setItemAccordion( filter: any ) {  //https://reactjs.org/docs/faq-functions.html
+        //Based on https://stackoverflow.com/a/48064608
+        let query = `[data-field="${ filter + "-Row+" }"]`;
+        let toggleElements: any = document.querySelectorAll(query);
+        let display = null;
+        for (let element of toggleElements) {
+            if ( display === null ) { display = element.style.display === 'none' ? null : 'none' ; }
+            element.style.display = display;
+          }
+
+
+    } 
+
     /***
      *         d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
      *         `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'     88'  YP 
@@ -885,7 +898,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                   
                 let styleNo : React.CSSProperties = { textAlign: 'center', padding: '0px 15px' };
                 let valueStyle : React.CSSProperties = { display: 'inline-block', width: '380px' };
-                let titleStyle : React.CSSProperties = { fontWeight: 'bolder' };
+                let titleStyle : React.CSSProperties = { fontWeight: 'bolder', cursor: 'default' };
                 let propStyle : React.CSSProperties = { };
                 let seeDetailsStyle : React.CSSProperties = { cursor: 'pointer' };
 
@@ -905,7 +918,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                     let isNewItem = true;
                     Object.keys(compareResultsItem.keyChanges).map( ( key, index ) => {
                         if ( isNewItem === true ) { summaryIndex ++ ; }
-                        let thisRowStyle = isNewItem === true ? { borderTop: '1px dashed darkgray', paddingTop: '5px' } : null;
+                        let thisRowStyle = isNewItem === true ? { borderTop: '1px dashed darkgray', paddingTop: '5px' } : { display: '' };
                         
                         // comparedProps.push(key);
                         let theseValues = compareResultsItem.keyChanges[key].split( ' >>> ' );
@@ -918,7 +931,26 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
                         let bothExist = value0Exists === true && value1Exists === true ? true : false;
 
-                        let thisProp = <tr style={ thisRowStyle }>
+                        if ( isNewItem === true ) { 
+                            let titleStyle2 : React.CSSProperties = { fontWeight: 'bolder', cursor: 'pointer' };
+                            let thisPropDiff = <tr style={ thisRowStyle } data-field={ fullTitle + '-Row1' }>
+                                <td style = { styleNo } > { summaryIndex } </td> 
+                                <td style = { titleStyle2 } title={ `See all details for ${fullTitle}` } onClick={ () => this.setItemAccordion( fullTitle ) }> { itemTitle } </td>
+                                {/* passingParams:  https://reactjs.org/docs/faq-functions.html */}
+                                <td style = { seeDetailsStyle } title={ `See all details for items similar to ${fullTitle}` } onClick={ () => this.setItemFilter( fullTitle ) }> { key } </td>
+                                <td style = { valueStyle } > { value0 } </td>
+                                <td style = { valueStyle } > { value1 } </td>
+                            </tr>;
+                            summaryRows.push( thisPropDiff );
+
+                        } else if ( index === 1 ) { //Go back and update the values from the previous item (which should be the newly created header row )
+                            //    summaryRows[ summaryRows.length - 1].props.children[1].props.style.cursor = 'none';
+                        //     summaryRows[ summaryRows.length - 1].props.children[2].props.children[1] = 'See Details';
+                        //     summaryRows[ summaryRows.length - 1].props.children[3].props.children[1] = bothExist === true ? value0 : value0Exists ? value0 : '-';
+                        //     summaryRows[ summaryRows.length - 1].props.children[4].props.children[1] = bothExist === true ? value1 : value1Exists ? value1 : '-';
+                        }
+
+                        let thisProp = <tr style={ thisRowStyle } data-field={ fullTitle + '-Row+' }>
                                 <td style = { styleNo } > { summaryIndex + '.' + ( index + 1 ) } </td> 
                                 <td title={ fullTitle } style = { titleStyle } > { isNewItem === true ? itemTitle : null } </td>
                                 <td style = { propStyle } > { key } </td>
@@ -928,17 +960,20 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                         tableRows.push( thisProp );
                         allTableRows.push( thisProp );
 
-                        if ( isNewItem === true ) { 
-                            let thisPropDiff = <tr style={ thisRowStyle }>
-                                <td style = { styleNo } > { summaryIndex } </td> 
-                                <td title={ fullTitle } style = { titleStyle } > { isNewItem === true ? itemTitle : null } </td>
-                                {/* passingParams:  https://reactjs.org/docs/faq-functions.html */}
-                                <td style = { seeDetailsStyle } onClick={ () => this.setItemFilter( fullTitle ) }> { 'See Details' } </td>
-                                <td style = { valueStyle } > { bothExist === true ? 'is different' : value0Exists ? 'Exists' : value0 } </td>
-                                <td style = { valueStyle } > { bothExist === true ? 'is different' : value1Exists ? 'Exists' : value1 } </td>
+                        if ( isNewItem !== true ) {
+                            let thisRowStyle2 = {paddingTop: '5px', display: index === 0 ? '' : 'none' };
+                            
+                            let thisProp2 = <tr style={ thisRowStyle2 } data-field={ fullTitle + '-Row+' }>
+                                <td style = { styleNo } > { summaryIndex + '.' + ( index + 1 ) } </td> 
+                                <td title={ fullTitle } style = { null } > { null } </td>
+                                <td style = { propStyle } > { key } </td>
+                                <td style = { valueStyle } > { value0 } </td>
+                                <td style = { valueStyle } > { value1 } </td>
                             </tr>;
-                            summaryRows.push( thisPropDiff );
-                         }
+
+                            summaryRows.push( thisProp2 );
+                        }
+
 
                         isNewItem = false;
                     });
