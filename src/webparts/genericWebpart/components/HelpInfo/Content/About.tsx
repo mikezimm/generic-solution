@@ -11,6 +11,7 @@ export function aboutTable() {
         rows: [],
     };
 
+    table.rows.push( ['2021-05-25', '1.1.13.5',    <span>Improve Compare List Fields, summary, accordion, styling.</span>,                ''] );
     table.rows.push( ['2021-05-22', '1.1.13.4',    <span>Compare List Fields.</span>,                ''] );
     table.rows.push( ['2021-05-20', '1.1.13.3',    <span>Create Library Permissions.  Compare List Properties.</span>,                ''] );
     table.rows.push( ['2021-05-13', '1.1.13.2',    <span>Add Groups Panel to get current groups users.</span>,                ''] );
