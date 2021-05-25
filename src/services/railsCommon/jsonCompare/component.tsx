@@ -401,14 +401,14 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
 
                         <PivotItem  headerText={comparePivot1} ariaLabel={comparePivot1} itemKey={comparePivot1} itemCount={ ignoredKeys.length }>
                             <div style={{ padding: '5px 30px 5px 20px'}}>
-                                <h3>These ( { compareKeys.length } ) properties were { this.state.includeOrIgnoreKeys }d due to your filter criteria:</h3>
+                                <h3>These ( { ignoredKeys.length } ) properties were { this.state.includeOrIgnoreKeys }d due to your filter criteria:</h3>
                                 <p>{ this.state.ignoreKeys.join(', ') }</p>
                                 { ignoredKeys.join(', ') }
                             </div>
                         </PivotItem>
                         <PivotItem  headerText={comparePivot2} ariaLabel={comparePivot2} itemKey={comparePivot2} itemCount={ compareKeys.length }>
                             <div style={{ padding: '5px 30px 5px 20px'}}>
-                                <h3>These properties were NOT { this.state.includeOrIgnoreKeys }d due to your filter criteria:</h3>
+                                <h3>These ( { compareKeys.length } )properties were NOT { this.state.includeOrIgnoreKeys }d due to your filter criteria:</h3>
                                 { compareKeys.join(', ') }
                             </div>
                         </PivotItem>
