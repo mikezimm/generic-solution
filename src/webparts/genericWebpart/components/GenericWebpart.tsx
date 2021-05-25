@@ -511,7 +511,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
       //Build up hard coded array of user emails that can
       let showTricks = false;
       links.trickyEmails.map( getsTricks => {
-        if ( this.props.pageContext.user.email && this.props.pageContext.user.email.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
+        if ( this.props.pageContext.user.loginName && this.props.pageContext.user.loginName.toLowerCase().indexOf( getsTricks ) > -1 ) { showTricks = true ; }   } ); 
 
       let infoPages = this.props.allowRailsOff !== true ? null : 
           // <div id={ 'InfoPagesID' + this.props.uniqueId } style={{ display: 'none' }}> //This was display:none on carrotCharts because it was not using react.
