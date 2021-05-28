@@ -708,7 +708,6 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
   private async _onWebUrlChange(newValue: string){
 
-      let ev = event.target;
       let errMessage = null;
       let stateError : any[] = [];
       const thisWebObject = Web( newValue );

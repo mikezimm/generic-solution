@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
+import ReactJson from "react-json-view";
+
 import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
 import { IContentsSiteInfo, ISitePropsBucketInfo } from  './thisSiteComponent';
@@ -149,12 +151,31 @@ export default class MyLogProps extends React.Component<IMyLogPropsProps, IMyLog
             if ( thisItem.element != null ) {
               valueCell = thisItem.element;
 
-            } else if ( typeof thisItem.value === 'object' ) { 
-                valueCell = JSON.stringify(thisItem.value);
+            } else if ( thisItem.property.indexOf('Associated') === 0 ) {
 
-            } else { valueCell = thisItem.value; }
+              let groupJSON = {
+                Title: thisItem.value.Title,
+                PrincipalType: thisItem.value.PrincipalType,
+                Id: thisItem.value.Id,
+                // Description: thisItem.value.Description,
+                OwnerTitle: thisItem.value.OwnerTitle,
+                // LoginName: thisItem.value.LoginName,
+
+                AllowRequestToJoinLeave: thisItem.value.AllowRequestToJoinLeave,
+                AllowMembersEditMembership: thisItem.value.AllowMembersEditMembership,
+                OnlyAllowMembersViewMembership: thisItem.value.OnlyAllowMembersViewMembership,
+              };
+
+              valueCell = <ReactJson src={ groupJSON } collapsed={ false } displayDataTypes={ false } displayObjectSize={ false } enableClipboard={ false } style={{ padding: '15px 0px'}} />;
+
+            } else if ( thisItem.value !== null && typeof thisItem.value === 'object' ) { 
+
+                valueCell = <ReactJson src={ thisItem.value } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />;
+
+            } else { valueCell = thisItem.value; } 
 
             let shortProperty = thisItem.property != null && thisItem.property.length > 30 ? thisItem.property.slice(0, 30) + '...' : thisItem.property;
+
 
             return <tr>
                 <td className={ styles.nowWrapping }> {  thisItem.meta[0]  }</td> 

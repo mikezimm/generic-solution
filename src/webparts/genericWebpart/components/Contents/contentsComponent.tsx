@@ -118,7 +118,7 @@ export interface IInspectContentsState {
 
 }
 
-export const contentsTabs = ['ThisSite','Subsites','Lists','Columns','Views','Types','WebParts','Groups', 'Users', 'Features', 'RailsOff'];
+export const contentsTabs = ['Site','Web','Subsites','Lists','Columns','Views','Types','WebParts','Groups', 'Users', 'Features', 'RailsOff'];
 
 export default class InspectContents extends React.Component<IInspectContentsProps, IInspectContentsState> {
 
@@ -210,15 +210,32 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             pickedWebError = 'Web not found';
         }
 
-
         const pickListMessage = <div style={{ paddingBottom: 30, paddingTop: 30 }}>Please pick a list first</div>;
         const pickWebMessage = <div style={{ paddingBottom: 30, paddingTop: 30  }}>Please pick a WEB first</div>;
         const noPageAvailable = <div style={{ paddingBottom: 30, paddingTop: 30  }}>This feature is not yet available</div>;
 
-
         //InspectThisSite
+        let thisSiteTab: any = contentsTabs[0];
         const sitePage = validWeb !== true ? pickWebMessage : <div>
             <InspectThisSite 
+                siteOrWeb = { thisSiteTab }
+                pageContext = { this.props.pageContext }
+                currentUser = { this.props.currentUser }
+                allowOtherSites = { true }
+                allLoaded = { true }
+                pickedWeb = { this.props.pickedWeb }
+                allowRailsOff = { this.state.allowRailsOff }
+                allowSettings = { this.state.allowSettings }
+                allowCrazyLink = { this.props.allowCrazyLink }
+                //webURL = { this.props.pickedWeb.url }
+            ></InspectThisSite>
+        </div>;
+        //InspectThisWeb
+
+        let thisWebTab: any = contentsTabs[1];
+        const webPage = validWeb !== true ? pickWebMessage : <div>
+            <InspectThisSite 
+                siteOrWeb = { thisWebTab }
                 pageContext = { this.props.pageContext }
                 currentUser = { this.props.currentUser }
                 allowOtherSites = { true }
@@ -387,35 +404,39 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             <PivotItem headerText={ contentsTabs[0] }>
                 { sitePage }
             </PivotItem>
-            
+
             <PivotItem headerText={ contentsTabs[1] }>
+                { webPage }
+            </PivotItem>
+
+            <PivotItem headerText={ contentsTabs[2] }>
                 { websPage }
             </PivotItem>
-            <PivotItem headerText={ contentsTabs[2] }>
+            <PivotItem headerText={ contentsTabs[3] }>
                 { listPage }
             </PivotItem>
-            <PivotItem headerText={ contentsTabs[3] }>
+            <PivotItem headerText={ contentsTabs[4] }>
                 { columnsPage }
             </PivotItem>
-            <PivotItem headerText={ contentsTabs[4] }>
+            <PivotItem headerText={ contentsTabs[5] }>
                 { viewsPage }
             </PivotItem>
-            <PivotItem headerText={ contentsTabs[5] }>
+            <PivotItem headerText={ contentsTabs[6] }>
                 <h3>Types</h3>
                 { typesPage }
             </PivotItem>
-            <PivotItem headerText={ contentsTabs[6] }>
+            <PivotItem headerText={ contentsTabs[7] }>
                 { partsPage }
             </PivotItem>
-            <PivotItem headerText={ contentsTabs[7] }>
+            <PivotItem headerText={ contentsTabs[8] }>
                 { groupsPage }
             </PivotItem>
 
-            <PivotItem headerText={ contentsTabs[8] }>
+            <PivotItem headerText={ contentsTabs[9] }>
                 { usersPage }
             </PivotItem>
 
-            <PivotItem headerText={ contentsTabs[9] }>
+            <PivotItem headerText={ contentsTabs[10] }>
                 <h3>Features</h3>
                 { featurePage }
             </PivotItem>
@@ -426,7 +447,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 <PivotItem headerText="Help">
                     { infoPages }
                 </PivotItem>:
-                <PivotItem headerText={ contentsTabs[10] }>
+                <PivotItem headerText={ contentsTabs[11] }>
                     <h3>RailsOff</h3>
                     { railsPage }
                 </PivotItem>

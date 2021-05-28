@@ -18,7 +18,7 @@ import { buildMLineDiv } from '../../../../../services/stringFormatService';
 
 import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import { BasicProps, AdvProps, GraphProps, HubProps, NavProps, SPOProps, LegacyProps } from './thisSiteComponent';
+import { SecurityProps, BasicProps, AdvProps, GraphProps, HubProps, NavProps, SPOProps, LegacyProps } from './thisSiteComponent';
 
 
 
@@ -85,7 +85,12 @@ export async function allWebProps( webURL: string, propBuckets: ISitePropsBucket
         try {
             thisPropsObject = Web(webURL);
             actualReturnObj = await thisPropsObject.get();
-        
+
+            actualReturnObj.AssociatedOwnerGroup = await thisPropsObject.associatedOwnerGroup.get();
+            actualReturnObj.AssociatedMemberGroup = await thisPropsObject.associatedMemberGroup.get();
+            actualReturnObj.AssociatedVisitorGroup = await thisPropsObject.associatedVisitorGroup.get();
+
+
         } catch (e) {
             errMessage = getHelpfullError(e, true, true);
         }
@@ -179,6 +184,7 @@ function buildMetaFromProp( thisKey: string ) {
 
     let meta: string[] = [];
 
+    if ( SecurityProps.indexOf(thisKey) > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta,'Security'); }
     if ( BasicProps.indexOf(thisKey) > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta,'Basic'); }
     if ( AdvProps.indexOf(thisKey) > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta,'Advanced'); }
     if ( GraphProps.indexOf(thisKey) > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta,'Graph'); }

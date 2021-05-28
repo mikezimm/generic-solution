@@ -24,6 +24,8 @@ import * as fpsAppIcons from '@mikezimm/npmfunctions/dist/Icons/standardEasyCont
 
 import { buildAppWarnIcon } from '@mikezimm/npmfunctions/dist/Icons/stdIconsBuildersV02';
 
+import { createSpanLink } from '../../../../../services/basicElements';
+
 // const iconStyles: React.CSSProperties = { background: 'white', color: 'black', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
 // const redIconStyles: React.CSSProperties = { background: 'white', color: 'red', padding: '5px', margin: '1px', borderRadius: '50%', opacity: '80%'} ;
 // export const UniquePerms = <Icon iconName="Shield" title="Unique Permissions" style={ iconStyles }></Icon>;
@@ -235,26 +237,38 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
           }
 
           if ( Lst.railsOffLink !== true && Lst.allowCrazyLink !== true ) { showList = true; }
+          let linkStyle = { cursor: 'pointer', color: 'darkblue' };
+          if ( showList === true ) { 
+            listTitleRUL = createSpanLink( Lst.listURL , Lst.Title );
+          }
+          if ( showSettings === true ) { 
+            listSettingsURL = createSpanLink( this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + Lst.Id + ")" , Lst.EntityTypeName );
+          }
 
-          if ( showList === true ) { listTitleRUL = createLink( Lst.listURL, '_blank', Lst.Title); }
-          if ( showSettings === true ) { listSettingsURL = createLink(this.props.webURL + "/_layouts/15/listedit.aspx?List=(" + Lst.Id + ")", '_blank', Lst.EntityTypeName); }
-          if ( showVersion === true ) { listVersionURL = createLink(this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + Lst.Id + ")", '_blank', versionNumbers ); }
+          if ( showVersion === true ) { 
+            listVersionURL = createSpanLink( this.props.webURL + "/_layouts/15/LstSetng.aspx?List=(" + Lst.Id + ")" , versionNumbers );
+          }
+
           if ( showPermission === true ) { 
             if ( Lst.HasUniqueRoleAssignments === true ) {
               if ( showSettings === true ) {
-                listPermissionURL = createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', 'Perms' ); 
+                listPermissionURL = createSpanLink( this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}" , 'Perms' );
               } else {
                 listPermissionURL = UniquePermIcon;
               }
               
             } else {
-              listPermissionURL = createLink(this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}", '_blank', '---' ); 
+              listPermissionURL = createSpanLink( this.props.webURL + "/_layouts/15/user.aspx?obj={" + Lst.Id + "},doclib&List={" + Lst.Id + "}" , '---' );
             }
           }
 
          
-          if ( showAdvanced === true ) { listAdvancedURL = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'Adv'); }
-          if ( showAdvanced === true ) { listAdvancedCT = createLink(this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")", '_blank', 'CT'); }
+          if ( showAdvanced === true ) {
+            listAdvancedURL = createSpanLink( this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")" , 'Adv' );
+          }
+          if ( showAdvanced === true ) {
+            listAdvancedCT = createSpanLink( this.props.webURL + "/_layouts/15/advsetng.aspx?List=(" + Lst.Id + ")" , 'CT' );
+          }
 
           let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes } { CompareJSONIcon } </div>;
 
@@ -338,5 +352,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
         } 
 
     } 
+
+
 
 }

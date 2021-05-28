@@ -12,8 +12,7 @@ import { IContentsViewInfo, IViewBucketInfo} from './viewsComponent';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
-import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
-
+import { createSpanLink } from '../../../../../services/basicElements';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
@@ -194,7 +193,7 @@ export default class MyLogView extends React.Component<IMyLogViewProps, IMyLogVi
             ["odata.type","meta","searchString"] , true, null );
 
           let vIdUC = Viw.Id.toUpperCase();
-          let viewSettingsURL = !this.props.showSettings ? Viw.Title : createLink(this.props.webURL + "/_layouts/15/ViewEdit.aspx?List={" + this.props.listGuid + "}&View={" + vIdUC + "}", '_blank', Viw.Title);
+          let viewSettingsURL = !this.props.showSettings ? Viw.Title : createSpanLink( this.props.webURL + "/_layouts/15/ViewEdit.aspx?List={" + this.props.listGuid + "}&View={" + vIdUC + "}" , Viw.Title );
 
           let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
 

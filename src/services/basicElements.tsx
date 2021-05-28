@@ -19,3 +19,19 @@ export function convertTextToListItems ( value: string, delim: string, leftPad: 
     return result;
   
   }
+
+  //import { createSpanLink } from '../../../../../services/basicElements';
+  export function createSpanLink( url, desc, title = null, size = null ) {
+    let linkStyle = { cursor: 'pointer', color: '#1a0dab', fontSize: size !== null ? size : 'normal' };
+    const thisLink = <span style={ linkStyle } 
+                        onClick={ () => _openThisLinkInNewTab( url ) }
+                        title={ title !== null ? title : desc }
+                      >
+                          { desc }
+                      </span>;
+    return thisLink;
+  }
+
+  export function _openThisLinkInNewTab( link ) {
+    window.open( link, '_blank' );
+  }

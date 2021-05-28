@@ -1,4 +1,4 @@
-import { Web, IList, IWebInfo, IWeb } from "@pnp/sp/presets/all";
+import { Web, IList, IWebInfo, IWeb, Site, ISite } from "@pnp/sp/presets/all";
 
 import { sp } from "@pnp/sp";
 import "@pnp/sp/sites";
@@ -23,7 +23,7 @@ import { IViewLog, addTheseViews } from '../../../../../services/listServices/vi
 import { IAnyArray } from  '../../../../../services/listServices/listServices';
 import { mergeAriaAttributeValues } from "office-ui-fabric-react";
 
-import { BasicProps, AdvProps, GraphProps, HubProps, NavProps, SPOProps, LegacyProps } from './thisSiteComponent';
+import { SecurityProps, BasicProps, AdvProps, GraphProps, HubProps, NavProps, SPOProps, LegacyProps } from './thisSiteComponent';
 
 import { pivCats } from './thisSiteComponent';
 
@@ -41,21 +41,33 @@ function getThisElement(K: string, val: any) {
         elements = val2.split(';');
         result = elements.map( e => { return buildMLineDiv(0, e); });
 
-    } else if ( K = 'odata.metadata') {
-        let val2 : string = val;
-        elements = val2.split('$');
-        elements[1] = '$' + elements[1];
-        result = elements.map( e => { return buildMLineDiv(0, e); });
+    } else if ( K === 'odata.metadata') {
+        if ( typeof val === 'string' ) {
+            let val2 : string = val;
+            elements = val2.split('$');
+            console.log('count of odata.metadata', elements.length, elements ) ;
 
-    } else if ( K = 'ResourcePath') {
-        let val2 : string = val;
-        elements = val2.split(':');
-        elements[0] = elements[0] + ':' ;
-        result = elements.map( e => { return buildMLineDiv(0, e); });
+            if ( elements.length === 2 ) { elements[1] = '$' + elements[1]; }
+            result = elements.map( e => { return buildMLineDiv(0, e); });
+
+        } else {
+            let val2 = val;
+            elements = [val2];
+            result = elements.map( e => { return buildMLineDiv(0, e); });
+            result = null;
+        }
+    } else if ( K === 'ResourcePath') {
+        if ( Object.keys( val ).length === 1 ) {
+            result = val['DecodedUrl'];
+        } else  {
+            result = JSON.stringify( val );
+        }
 
     } else if ( K === 'Created' || K === 'LastItemModifiedDate' || K === 'LastItemUserModifiedDate') {
         let thisTime = makeSmallTimeObject( val );
         result = val + ' ( ' + thisTime.dayDDDMMMDD + ' ) ' + thisTime.daysAgo.toString() + ' days ago';
+    } else {
+        result = JSON.stringify( val );
     }
 
     return result;
@@ -69,76 +81,63 @@ export async function allSiteProps( webURL: string, propBuckets: ISitePropsBucke
     let addedKeys: string[] = [];
 
     let thisIsNow = new Date().toLocaleString();
-    const thisWebObject = Web( webURL );
-    
+    const thisSiteObject = Site( webURL );
     let scope = '';
     let errMessage = '';
 
-    let thisPropsObject = null;
+    try {
 
-        try {
+        actualReturnObj = await thisSiteObject.get();
+        console.log( 'rootWeb:', actualReturnObj );
+    
+    } catch (e) {
+        errMessage = getHelpfullError(e, true, true);
+    }
 
-            let rootWeb = await sp.site.getRootWeb();
-            console.log( 'rootWeb:', rootWeb );
-            let aOG = await rootWeb.associatedOwnerGroup.get();
-            let aMG = await rootWeb.associatedMemberGroup.get();
-            let aVG = await rootWeb.associatedVisitorGroup.get();
-            let sFeatures = await rootWeb.features.get();
-            let reg = await rootWeb.regionalSettings.get();
-            let nav = await rootWeb.navigation.topNavigationBar.get();
-            let nav2 = await rootWeb.navigation.quicklaunch.get();
-            thisPropsObject = await rootWeb.allProperties();
-            console.log( 'rootWeb All Props:', rootWeb );
-            actualReturnObj = await thisPropsObject.get();
-        
-        } catch (e) {
-            errMessage = getHelpfullError(e, true, true);
+    let allInfoKeys = actualReturnObj === null || actualReturnObj === undefined ? [] : Object.keys(actualReturnObj);
+    
+    //this.state.webBuckets.map( bucket => {
+    allProps = allInfoKeys.map( thisKey => { 
+
+        // Check if key has been added
+        if ( addedKeys.indexOf(thisKey) >= 0 ) {
+            return null;
+
+        } else {
+            let thisProp  = actualReturnObj[thisKey];
+            let meta : string[] = buildMetaFromProp( thisKey );
+
+            let idx = getPropsSort( thisProp , propBuckets);
+            let bucketLabel = propBuckets[idx]['bucketLabel'];
+            let bucketCategory = propBuckets[idx]['bucketCategory'];
+            let sort = propBuckets[idx]['sort'];
+
+            meta = addItemToArrayIfItDoesNotExist(meta, sort );
+            meta = addItemToArrayIfItDoesNotExist(meta, bucketLabel );
+            thisKey = thisKey.toString();
+
+            let result : IContentsSiteInfo = {
+                property : thisKey,
+                value: thisProp,
+                meta: meta,
+                element: getThisElement(thisKey,thisProp),
+                bucketIdx: idx,
+                bucketCategory: bucketCategory,
+                bucketLabel: bucketLabel,
+                searchString: '',
+                sort: sort,
+            };
+
+            result.searchString = buildSearchStringFromProp( result );
+
+            return result;
+
         }
+        // Check if key is in any of the designated arrays and not added, go ahead and add
 
-        let allInfoKeys = actualReturnObj === null || actualReturnObj === undefined ? [] : Object.keys(actualReturnObj);
-        
-        //this.state.webBuckets.map( bucket => {
-        allProps = allInfoKeys.map( thisKey => { 
-    
-            // Check if key has been added
-            if ( addedKeys.indexOf(thisKey) >= 0 ) {
-                return null;
-    
-            } else {
-                let thisProp  = actualReturnObj[thisKey];
-                let meta : string[] = buildMetaFromProp( thisKey );
-    
-                let idx = getPropsSort( thisProp , propBuckets);
-                let bucketLabel = propBuckets[idx]['bucketLabel'];
-                let bucketCategory = propBuckets[idx]['bucketCategory'];
-                let sort = propBuckets[idx]['sort'];
+        // If it's not in designated ones, add to "Other"
 
-                meta = addItemToArrayIfItDoesNotExist(meta, sort );
-                meta = addItemToArrayIfItDoesNotExist(meta, bucketLabel );
-
-                let result : IContentsSiteInfo = {
-                    property : thisKey,
-                    value: thisProp,
-                    meta: meta,
-                    element: getThisElement(thisKey,thisProp),
-                    bucketIdx: idx,
-                    bucketCategory: bucketCategory,
-                    bucketLabel: bucketLabel,
-                    searchString: '',
-                    sort: sort,
-                };
-
-                result.searchString = buildSearchStringFromProp( result );
-    
-                return result;
-    
-            }
-            // Check if key is in any of the designated arrays and not added, go ahead and add
-    
-            // If it's not in designated ones, add to "Other"
-    
-        });
-
+    });
 
     addThesePropsToState(allProps, scope, errMessage);
     return allProps;
@@ -183,6 +182,7 @@ function buildMetaFromProp( thisKey: string ) {
 
     let meta: string[] = [];
 
+    if ( SecurityProps.indexOf(thisKey) > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta,'Security'); }
     if ( BasicProps.indexOf(thisKey) > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta,'Basic'); }
     if ( AdvProps.indexOf(thisKey) > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta,'Advanced'); }
     if ( GraphProps.indexOf(thisKey) > -1 ) { meta = addItemToArrayIfItDoesNotExist(meta,'Graph'); }
