@@ -49,9 +49,10 @@ import { resultContent } from 'office-ui-fabric-react/lib/components/ExtendedPic
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},
-    basic: {title: 'Basic' , desc: '', order: 1},
-    advanced:  {title: 'Advanced' , desc: '', order: 1},
-    graph:  {title: 'Graph' , desc: '', order: 1},
+    security: {title: 'Security', desc: '', order: 2},
+    basic: {title: 'Basic' , desc: '', order: 3},
+    advanced:  {title: 'Advanced' , desc: '', order: 3},
+    graph:  {title: 'Graph' , desc: '', order: 3},
     hub: {title: 'Hub', desc: '', order: 9 },
     nav: {title: 'Nav', desc: '', order: 9 },
     spo: {title: 'SPO', desc: '', order: 9 },
@@ -62,6 +63,7 @@ export const pivCats = {
 export interface IInspectThisSiteProps {
     // 0 - Context
     
+    siteOrWeb: 'Site' | 'Web';
     pageContext: PageContext;
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
@@ -86,7 +88,31 @@ export interface IInspectThisSiteProps {
 
 }
 
+export const SecurityProps = [
+    "AssociatedOwnerGroup",
+    "AssociatedMemberGroup",
+    "AssociatedVisitorGroup",
+    "SyndicationEnabled",
+    "NoCrawl",
+    "TenantAdminMembersCanShare",
+    "AuditLogTrimmingRetention",
+    "ChannelGroupId",
+    "DisableCompanyWideSharingLinks",
+    "DisableFlows",
+    "ExternalSharingTipsEnabled",
+    "GeoLocation",
+    "GroupId",
+    "SensitivityLabelId",
+    "LockIssue",
+    "ReadOnly",
+    "ShareByEmailEnabled",
+    "TrimAuditLog",
+    "LockIssue",
+    "LockIssue",
+];
+
 export const BasicProps = [
+    "Id",
     "ServerRelativeUrl",
     "SiteLogoUrl",
     "Url",
@@ -129,7 +155,7 @@ export const GraphProps = [];
 export const HubProps = [];
 
 export const AdvProps = [
-    "NoCrawl",
+
     "ObjectCacheEnabled",
     "OverwriteTranslationsOnChange",
     "RecycleBinEnabled",
@@ -138,9 +164,6 @@ export const AdvProps = [
     "CustomMasterUrl",
     "DesignPackageId",
     "IsRevertHomepageLinkHidden",
-    "SyndicationEnabled",
-    "TenantAdminMembersCanShare",
-    "Id",
     "CurrentChangeToken",
     "ResourcePath",
     "SearchScope",    
@@ -320,10 +343,10 @@ export default class InspectThisSite extends React.Component<IInspectThisSitePro
             this.state.propBuckets.map( bucket => {
 
                 return <MyLogProps 
-                    showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
-                    items={ bucket }    specialAlt= { false }
-                    searchMeta= { this.state.searchMeta } showRailsOff= { this.state.allowRailsOff } 
-                    webURL = { this.props.pickedWeb.url } descending={false} titles={null} 
+                        showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
+                        items={ bucket }    specialAlt= { false }
+                        searchMeta= { this.state.searchMeta } showRailsOff= { this.state.allowRailsOff } 
+                        webURL = { this.props.pickedWeb.url } descending={false} titles={null} 
                     ></MyLogProps>;
             })
 
@@ -530,7 +553,16 @@ public _onSearchForMeta = (item): void => {
         let listGuid = '';
         if ( this.props.pickedWeb && this.props.pickedWeb.guid ) { listGuid = this.props.pickedWeb.guid; }
     //    let resultWeb : any = allWebProps( this.props.pickedWeb.url, this.state.propBuckets, this.addThesePropsToState.bind(this), null, null );
-        let resultSite : any = allWebProps( this.props.pickedWeb.url, this.createSearchBuckets(), this.addThesePropsToState.bind(this), null, null );
+
+        if ( this.props.siteOrWeb === 'Web' ) {
+            let resultWeb : any = allWebProps( this.props.pickedWeb.url, this.createSearchBuckets(), this.addThesePropsToState.bind(this), null, null );
+        } else if ( this.props.siteOrWeb === 'Site' ) {
+            let resultSite : any = allSiteProps( this.props.pickedWeb.url, this.createSearchBuckets(), this.addThesePropsToState.bind(this), null, null );
+        } else {
+            alert('Ooopss... not expecting this error trying to get site or web props: ' + this.props.siteOrWeb );
+        }
+
+
 
     }
 
@@ -573,14 +605,14 @@ public _onSearchForMeta = (item): void => {
 
         let pivotWeb = 
         <Pivot 
-        style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
-        styles={ theseStyles }
-        linkSize= { pivotOptionsGroup.getPivSize('normal') }
-        linkFormat= { pivotOptionsGroup.getPivFormat('links') }
-        onLinkClick= { this._onSearchForMeta.bind(this) }  //{this.specialClick.bind(this)}
-        selectedKey={ setPivot }
-        headersOnly={true}>
-            {this.getPropPivots()}
+            style={{ flexGrow: 1, paddingLeft: '10px', display: display }}
+            styles={ theseStyles }
+            linkSize= { pivotOptionsGroup.getPivSize('normal') }
+            linkFormat= { pivotOptionsGroup.getPivFormat('links') }
+            onLinkClick= { this._onSearchForMeta.bind(this) }  //{this.specialClick.bind(this)}
+            selectedKey={ setPivot }
+            headersOnly={true}>
+                {this.getPropPivots()}
         </Pivot>;
         return pivotWeb;
     }

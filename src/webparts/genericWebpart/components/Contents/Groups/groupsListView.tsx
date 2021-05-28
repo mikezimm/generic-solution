@@ -18,6 +18,7 @@ import { PersonaSize} from 'office-ui-fabric-react/lib/Persona';
 
 
 import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
+import { createSpanLink } from '../../../../../services/basicElements';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
@@ -180,7 +181,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
           };
 
           let groupTitle = Grp.Title != null && Grp.Title.indexOf('SharingLinks') === 0 ? Grp.Title.slice(0, 20) : Grp.Title;
-          let groupLink = createLink(this.props.webURL + '/_layouts/15/people.aspx?MembershipGroupId=' + Grp.Id, '_blank', groupTitle );
+          let groupLink = createSpanLink(this.props.webURL + '/_layouts/15/people.aspx?MembershipGroupId=' + Grp.Id, groupTitle );
 
           let userString = Grp.userString;
           

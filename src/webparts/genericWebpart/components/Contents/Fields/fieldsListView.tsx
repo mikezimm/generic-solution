@@ -11,8 +11,7 @@ import { IContentsFieldInfo, IFieldBucketInfo} from './fieldsComponent';
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';
 
-import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
-
+import { createSpanLink } from '../../../../../services/basicElements';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
@@ -170,7 +169,7 @@ export default class MyLogField extends React.Component<IMyLogFieldProps, IMyLog
             let showSettings = this.props.showSettings === true ? true : false;
             if ( Fld.bucketCategory === 'System') { showSettings = false ; }
 
-            let fieldSettingsURL = !showSettings ? Fld.StaticName : createLink(this.props.webURL + "/_layouts/15/FldEdit.aspx?List={" + this.props.listGuid + "}&Field=" + Fld.StaticName, '_blank', Fld.StaticName);
+            let fieldSettingsURL = !showSettings ? Fld.StaticName : createSpanLink( this.props.webURL + "/_layouts/15/FldEdit.aspx?List={" + this.props.listGuid + "}&Field=" + Fld.StaticName , Fld.StaticName );
 
             let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns }  </div>;
 
