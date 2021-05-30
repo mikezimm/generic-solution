@@ -112,6 +112,7 @@ import ReactJson from "react-json-view";
  *                                                                                                                                               
  */
 
+ import { makeIMakeThisListFromExisting } from './functions';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -145,6 +146,8 @@ export interface IMyAddListTemplateProps {
     analyticsWeb: string;
     analyticsList: string;
 
+    errorMess: string;
+
   }
 
 export interface IMyAddListTemplateState {
@@ -164,6 +167,7 @@ export interface IMyAddListTemplateState {
     lists: IMakeThisList[];
 
     definedList: IDefinedLists; 
+    doList: boolean;
 
 }
 
@@ -206,6 +210,15 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         let startTime = new Date();
         let refreshId = startTime.toISOString().replace('T', ' T'); // + ' ~ ' + startTime.toLocaleTimeString();
 
+        let definedList = availLists[0];
+
+        //makeIMakeThisListFromExisting( definedList: IDefinedLists, listDefinition: string, theList: IContentsListInfo, consoleLog: boolean = false ) {
+        let makeThisList : IMakeThisList = makeIMakeThisListFromExisting( definedList , '' , this.props.theList, true ) ;
+        let doList = this.props.theList.BaseType === 100 ? true : false;
+
+        let theLists = getTheseDefinedLists( definedList, true, [ makeThisList.title ], [], makeThisList.webURL, makeThisList.webURL, doList, null );
+        console.log( 'theLists in railAddTemplate props: ', theLists );
+
         this.state = {
             disableDo: false,
             refreshId: refreshId,
@@ -216,6 +229,8 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             otherProp: '',
             makeThisList: makeThisList,
             lists: theLists,
+            definedList: definedList,
+            doList: doList,
         };
     }
         
@@ -296,7 +311,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                         </div> }
 
                         <div style={{ overflowY: 'auto' }}>
-                            <ReactJson src={ this.props.json1 } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                            <ReactJson src={ this.state.makeThisList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
                         </div>;
 
                     </PivotItem>
@@ -377,16 +392,15 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
     if ( justReturnLists === false ) { provisionListTitles = [] ; }
 
-    if ( defineThisList === availLists[0] ) {
-        //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-        this.setState({
-            lists: theLists,
-            definedList: defineThisList,
-        });
-    } else  {
-        getTheseDefinedLists
+    if ( defineThisList !== availLists[0] ) { //Update to get available lists to build
+        theLists = getTheseDefinedLists( defineThisList, true, [ this.state.makeThisList.title ], [], this.state.makeThisList.webURL, this.state.makeThisList.webURL, this.state.doList, null );
     }
 
+    //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+    this.setState({
+        lists: theLists,
+        definedList: defineThisList,
+    });
 
 }
 
@@ -395,11 +409,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
     let thisValue : any = getChoiceText(item.text);
 
-    let theLists = this.getDefinedLists(thisValue, false);
-
-    let doList: boolean = theLists.length === 0 ? null : theLists[0].template === 100 ? true : theLists[0].template === 101 ? false : null;
-
-    this.setState({ lists: theLists, doList: doList });
+    this.getDefinedLists(thisValue, true);
 
 }
 

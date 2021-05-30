@@ -65,6 +65,10 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
  *                                                                                                                       
  */
 
+  import { IDefinedLists } from '../../../ListProvisioning/component/provisionListComponent';
+  import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
+  import { amIOnThisWeb } from '../../../../../../services/createAnalytics';
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
@@ -88,7 +92,45 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
  *                                                                                                                                               
  */
 
- 
+ export function makeIMakeThisListFromExisting( definedList: IDefinedLists, listDefinition: string, theList: IContentsListInfo, consoleLog: boolean = false ) {
+
+    let  {BaseTemplate, ContentTypesEnabled, EnableVersioning, MajorVersionLimit, listURL } = theList;
+
+    let makeThisList: IMakeThisList = {
+
+        definedList: definedList,
+        title: theList.Title,
+        name: theList.EntityTypeName,
+        webURL: theList.ParentWebUrl,
+        desc: theList.Description,
+        template: BaseTemplate === 100 || BaseTemplate === 101 ? BaseTemplate : 100,
+        enableContentTypes: ContentTypesEnabled,
+        additionalSettings: {
+            EnableVersioning: EnableVersioning,
+            MajorVersionLimit: MajorVersionLimit,
+            OnQuickLaunch: null, //Should check into this property to get it right
+         },
+        createTheseFields: null,
+        createTheseViews: null,
+        createTheseItems: null,
+        autoItemCreate: false,
+        listURL: listURL,
+        confirmed: false,
+        onCurrentSite: amIOnThisWeb( theList.ParentWebUrl ),
+        webExists: true,
+        listExists: true,
+        listExistedB4: true,
+        existingTemplate: null,
+        sameTemplate: false,
+        listDefinition: listDefinition,
+
+    };
+
+    //let listResult = await provisionTheList( makeThisList, setProgress );
+    if ( consoleLog === true ) { console.log('Clicked List in IMakeThisList: ', makeThisList ); }
+    return makeThisList;
+
+ }
 
  export async function doThisRailFunction( theList: IContentsListInfo, updateState: any ) {
 

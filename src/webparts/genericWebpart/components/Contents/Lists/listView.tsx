@@ -69,6 +69,8 @@ const iconClassInfo = mergeStyles({
   padding: '0px !important',
 });
 
+const CreateJSONIcon = buildAppWarnIcon( 'EasyContents', 'Code', "Compare", 'black' );
+const AddTemplateIcon = buildAppWarnIcon( 'EasyContents', 'WebTemplate', "Add Template", 'darkgreen' );
 
 export default class MyLogList extends React.Component<IMyLogListProps, IMyLogListState> {
 
@@ -181,10 +183,13 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             }
           }
 
+          // const CreateJSONIcon = buildAppWarnIcon( 'EasyContents', 'Code', "Compare", 'black' );
+          // const AddTemplateIcon = buildAppWarnIcon( 'EasyContents', 'WebTemplate', "Add Template", 'darkgreen' );
+
           const UniquePermIcon: JSX.Element = <div id={ index.toString() } > { fpsAppIcons.UniquePerms } </div>;
-          const CreateJSONIcon = buildAppWarnIcon( 'EasyContents', 'Code', "Compare", 'black' );
 
           const CreateGroupsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.CreateGroups } </div>;
+          const ApplyTemplateIcon: JSX.Element = <div id={ index.toString() } data-railFunction='AddTemplate' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { AddTemplateIcon } </div>;
           const CompareJSONIcon: JSX.Element = <div id={ index.toString() } data-railFunction='compareJSON' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { CreateJSONIcon } </div>;
           const ResetPermissionsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.ResetPermissions } </div>;
           const RemoveItemsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.RemoveItems } </div>;
@@ -272,6 +277,8 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
           let other = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { gotoColumns } { gotoViews } { gotoTypes } { CompareJSONIcon } </div>;
 
+          let rails = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { CreateGroupsIcon } { ApplyTemplateIcon } </div>;
+
           return <tr>
             <td className={ styles.nowWrapping }> { listTitleRUL } </td>
             <td className={ styles.nowWrapping }> { listSettingsURL }</td>
@@ -286,7 +293,7 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             <td className={ styleRailsRev }> { listAdvancedCT } </td>
             <td className={ styleRailsRev }> { listAdvancedURL } </td>
             <td className={ styleRailsRev }> { Lst.BaseTemplate } </td>
-            <td className={ styleRails }> {[ CreateGroupsIcon ] }</td>
+            <td className={ styleRails }> { rails }</td>
             <td style={{ backgroundColor: 'white' }} className={ [styles.listButtons, styleRailsRev].join(' ') }> { other } </td>
             <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 

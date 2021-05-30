@@ -43,6 +43,7 @@ import { IMyPivots, IPivot, IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyJsonCompare from '../../../../../services/railsCommon/jsonCompare/component';
+import MyAddListTemplate from './railAddTemplate/component';
 
 import MyLogList from './listView';
 
@@ -72,7 +73,7 @@ export const pivCats = {
     libraries:  {title: 'Libraries' , desc: '', order: 1},
 };
 
-export type IListRailFunction = 'ListPermissions' | 'compareJSON' | '';
+export type IListRailFunction = 'ListPermissions' | 'compareJSON' | 'AddTemplate' | '';
 
 export interface IInspectListsProps {
     // 0 - Context
@@ -165,6 +166,8 @@ export interface IInspectListsState {
     compareError: string;
     lastCompare: string;
 
+    applyTemplateError: string;
+
     theSite: ISite;
 
   }
@@ -254,6 +257,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             compareError: '',
             lastCompare: null,
             theSite: null,
+
+            applyTemplateError: '',
 
         };
 
@@ -382,7 +387,31 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         analyticsList= { this.props.analyticsList }
 
                     ></MyJsonCompare>;
-                }
+                } else if ( this.state.railFunction === 'AddTemplate' ) {
+
+                    /**
+                     * Got this error: Warning
+                     * Warning - tslint - src\webparts\genericWebpart\components\Contents\Lists\listsComponent.tsx(332,17): error no-unused-expression: unused expression, exp
+                     * Just put "railsPanel = ".... and it fixed it :)
+                     */
+                    railsPanel = <MyAddListTemplate
+                        wpContext={  this.props.wpContext }
+                        railFunction={ this.state.railFunction }
+                        theList={ this.state.selectedEntity }
+                        pickedWeb= { this.props.pickedWeb }
+                        user={ this.props.currentUser }
+                        showPanel={ this.state.showPanel }
+                        json1={ this.state.firstJSON }
+                        json2={ this.state.secondJSON }
+                        errorMess= { this.state.applyTemplateError }
+                        _fetchCompare={ this._fetchCompare.bind(this) }
+                        _closePanel={ this._closePanel.bind(this) }
+                        type = { this.state.panel.type }
+                        analyticsWeb= { this.props.analyticsWeb }
+                        analyticsList= { this.props.analyticsList }
+
+                    ></MyAddListTemplate>;
+                } //
             }
             /*https://developer.microsoft.com/en-us/fabric#/controls/web/searchbox*/
             let searchBox =
@@ -709,6 +738,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             panel = this.createStateRailsOffPanel( [listIndex.toFixed()], false, PanelType.medium );
 
         } else if ( rail === 'compareJSON' ) {
+            panel = this.createStateRailsOffPanel( [listIndex.toFixed()], false, PanelType.large );
+
+        } else if ( rail === 'AddTemplate' ) {
             panel = this.createStateRailsOffPanel( [listIndex.toFixed()], false, PanelType.large );
 
         }

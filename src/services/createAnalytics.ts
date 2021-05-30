@@ -16,21 +16,50 @@ export function getBrowser(validTypes,changeSiteIcon){
 
 }
 
-function getWebUrlFromLink( SiteLink: string ) {
+export function amIOnThisWeb( webUrl: string ) {
+
+    let result = false;
+    let ImOnThisWeb = getWebUrlFromLink( null , 'abs' );
+    webUrl = getWebUrlFromLink( webUrl , 'abs' );
+
+    if ( ImOnThisWeb == webUrl ) {
+        result = true;
+    }
+
+    return result;
+
+}
+
+function getWebUrlFromLink( SiteLink: string, absoluteOrRelative: 'abs' | 'rel' ) {
 
     if ( !SiteLink || SiteLink === '' ) {
-        SiteLink = window.location.origin + window.location.pathname ; }
+        SiteLink = window.location.pathname ; }
+    else { SiteLink = SiteLink + ''; }
 
-    if ( SiteLink.toLowerCase().indexOf('/sitepages/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/sitepages/')  );  }
-    if ( SiteLink.toLowerCase().indexOf('/documents/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/documents/')  );  }
-    if ( SiteLink.toLowerCase().indexOf('/siteassets/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/siteassets/')  );  }
-    if ( SiteLink.toLowerCase().indexOf('/lists/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/lists/')  );  }
-    if ( SiteLink.toLowerCase().indexOf('/_layouts/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/_layouts/')  );  }
+    //Remove all search parameters first
+    if ( SiteLink.toLowerCase().indexOf('?') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('?')  );  }
+
+    if ( SiteLink.toLowerCase().indexOf('/sitepages/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/sitepages/')  );  }
+    if ( SiteLink.toLowerCase().indexOf('/documents/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/documents/')  );  }
+    if ( SiteLink.toLowerCase().indexOf('/siteassets/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/siteassets/')  );  }
+    if ( SiteLink.toLowerCase().indexOf('/lists/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/lists/')  );  }
+    if ( SiteLink.toLowerCase().indexOf('/_layouts/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/_layouts/')  );  }
     if ( SiteLink.toLowerCase().indexOf('/forms/') > 0 ) { 
-        SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.indexOf('/forms/') );  
+        SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/forms/') );  
         //Need to take up one more notch
         SiteLink = SiteLink.substr( 0, SiteLink.lastIndexOf('/') );
     }
+
+    if ( absoluteOrRelative === 'abs' ) {
+        if ( SiteLink.toLowerCase().indexOf('/sites/') === 0 ) { SiteLink = window.location.origin + SiteLink; } 
+
+    } else if ( absoluteOrRelative === 'rel' ) {
+        if ( SiteLink.toLowerCase().indexOf(window.location.origin) === 0 ) { SiteLink = SiteLink.substring( window.location.origin.length ); } 
+
+    } else {
+        alert('whoops.... unexpected paramter in getWebUrlFromLink: absoluteOrRelative = ' + absoluteOrRelative );
+    }
+    
 
     return SiteLink;
 
@@ -128,7 +157,7 @@ export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, sa
     saveItem.SiteID = tempSite[3] ? tempSite[3] : null;
     saveItem.zzzText5 = saveItem.SiteID;
 
-    SiteLink = getWebUrlFromLink( SiteLink );
+    SiteLink = getWebUrlFromLink( SiteLink, 'abs' );
 
     if ( webTitle === '' || !webTitle ) {
         saveItem.SiteTitle = SiteLink.substring(SiteLink.lastIndexOf("/") + 1);
@@ -206,7 +235,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
     }
 
-    SiteLink = getWebUrlFromLink( SiteLink );
+    SiteLink = getWebUrlFromLink( SiteLink , 'abs');
 
     if ( webTitle === '' || !webTitle ) {
         saveItem.SiteTitle = SiteLink.substring(SiteLink.lastIndexOf("/") + 1);
