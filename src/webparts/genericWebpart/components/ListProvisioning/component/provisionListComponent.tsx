@@ -37,6 +37,9 @@ import { PageContext } from '@microsoft/sp-page-context';
  */
 
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Import view arrays for Time list
+import { queryValueCurrentUser, queryValueToday, IViewField } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
+
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
@@ -60,6 +63,8 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
  *                                                                                                                                 
  */
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
+
+import { fixTitleNameInViews  } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -864,17 +869,17 @@ public constructor(props:IProvisionListsProps){
 
             let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
             let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
+
             if ( parentList ) { theLists.push( parentList ); }
             if ( childList ) { theLists.push( childList ); }
 
         } else if ( defineThisList === 'Harmon.ie' ) {
-            
+
             if ( justReturnLists === false ) {  provisionListTitles.push('BUEmails');  provisionListTitles.push('Emails');  }
 
             let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
             let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
+
             if ( buEmails ) { theLists.push( buEmails ); }
             if ( justEmails ) { theLists.push( justEmails ); }
 
@@ -885,7 +890,7 @@ public constructor(props:IProvisionListsProps){
             let drillDown : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
             let carrotCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'CarrotCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
             let gridCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[2], 'GridCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
+
             if ( drillDown ) { theLists.push( drillDown ); }
             if ( carrotCharts ) { theLists.push( carrotCharts ); }
             if ( gridCharts ) { theLists.push( gridCharts ); }
@@ -896,7 +901,7 @@ public constructor(props:IProvisionListsProps){
 
             let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
             let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
+
             if ( progCustRequire ) { theLists.push( progCustRequire ); }
             if ( sorCustRequire ) { theLists.push( sorCustRequire ); }
 
@@ -932,6 +937,12 @@ public constructor(props:IProvisionListsProps){
 
         } 
 
+        /**
+         * Fix Title vs Name fields depending on list or library
+         */
+         theLists.map( list => {
+            list = fixTitleNameInViews( this.state.doList , list );
+         });
 
         //'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PreConfig' |  dFinT
 
@@ -1122,12 +1133,15 @@ public constructor(props:IProvisionListsProps){
         private updateTogggleDoList = (item): void => {
             //Similar to CreateThisList... just update existing list though
             let stateLists = this.state.lists;
-
             let newSetting = !this.state.doList;
+            // stateLists.map( list => {
+            //     list = fixTitleNameInViews( newSetting , list );
+            //  });
 
             stateLists.map( theList => {  // listURL, template
                 theList.template = newSetting === true ? 100 : 101;
                 theList.listURL = theList.webURL + ( newSetting === true ? 'lists/' : '' ) + theList.name;
+                theList = fixTitleNameInViews( newSetting , theList );
             });
 
             this.setState({ doList: !this.state.doList, lists: stateLists });

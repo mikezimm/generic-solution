@@ -23,6 +23,7 @@ import "@pnp/sp/lists";
 import "@pnp/sp/fields";
 import "@pnp/sp/views";
 import "@pnp/sp/fields/list";
+import { IMakeThisList } from '../../webparts/genericWebpart/components/ListProvisioning/component/provisionWebPartList';
 
 export interface IViewLog extends IServiceLog {
     view?: string;
@@ -562,6 +563,50 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
     //alert('Added views to list:' );
     //console.log('addTheseViews', statusLog);
     return(statusLog);
+
+}
+
+
+/**
+ * Swap Title Placeholder with either Name or Title
+ */
+const FilePrimaryColumnNames = ['FileLeafRef', 'LinkFilenameNoMenu', 'LinkFilename' ];
+const ItemPrimaryColumnNames = ['Title', 'LinkTitleNoMenu', 'LinkTitle' ];
+
+export function fixTitleNameInViews( doList: boolean , list: IMakeThisList ) {
+
+        list.createTheseViews.map( view => {
+            if ( view.iFields ) {
+                let correctedFields : IViewField[] = [];
+                view.iFields.map( field => {
+                    let isTitleField: any = -1;
+                    let isNameField: any = -1;
+
+                    if ( typeof field === 'object' ) {
+                        isTitleField = ItemPrimaryColumnNames.indexOf( field.name );
+                        isNameField = FilePrimaryColumnNames.indexOf( field.name );
+
+                    } else if ( typeof field === 'string' ) {
+                        isTitleField = ItemPrimaryColumnNames.indexOf( field );
+                        isNameField = FilePrimaryColumnNames.indexOf( field );
+                    }
+
+                    if ( doList === true && isNameField > -1 ) {
+                        correctedFields.push( ItemPrimaryColumnNames[ isNameField ] );
+                            
+                    } else if ( doList === false && isTitleField > -1 ) {
+                        correctedFields.push( FilePrimaryColumnNames[ isTitleField ] );
+
+                    } else {
+                        correctedFields.push( field );
+                    }
+
+                });
+                view.iFields = correctedFields;
+            }
+        });
+        
+    return list;
 
 }
 
