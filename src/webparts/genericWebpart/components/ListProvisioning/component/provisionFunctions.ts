@@ -4,6 +4,7 @@ import { Web, Lists, List } from "@pnp/sp/presets/all"; //const projectWeb = Web
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
 import { availLists, IDefinedLists, definedLists, dropDownWidth } from './provisionListComponent';
 import { IMakeThisList } from './provisionWebPartList';
@@ -28,6 +29,26 @@ import { fixTitleNameInViews  } from '../../../../../services/listServices/viewS
   //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
   import * as dPivT from '../PivotTiles/definePivotTiles';
 
+  
+    export interface IMyHistory {
+        count: number;
+        errors: IMyProgress[];
+        columns: IMyProgress[];
+        views: IMyProgress[];
+        items: IMyProgress[];
+    }
+
+  export function clearHistory() {
+    let history: IMyHistory = {
+        count: 0,
+        errors: [],
+        columns: [],
+        views: [],
+        items: [],
+    };
+    return history;
+
+  }
 
 export function getTheseDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean, provisionListTitles: string[], validUserIds: number[], pickedWebUrl: string, webAbsoluteUrl: string, doList: boolean, updateStateLists: any ) {
 

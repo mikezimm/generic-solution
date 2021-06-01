@@ -111,7 +111,7 @@ import MyLogList from './listView';
 
 import { IMakeThisList } from './provisionWebPartList';
 
-
+import { clearHistory, IMyHistory } from './provisionFunctions';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -198,14 +198,6 @@ export interface IProvisionListsProps {
 
 }
 
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    columns: IMyProgress[];
-    views: IMyProgress[];
-    items: IMyProgress[];
-}
-
 export interface IProvisionListsState {
 
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
@@ -280,17 +272,7 @@ export default class ProvisionLists extends React.Component<IProvisionListsProps
 
     }
 
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            columns: [],
-            views: [],
-            items: [],
-        };
-        return history;
 
-    }
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b.
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D
@@ -324,7 +306,7 @@ public constructor(props:IProvisionListsProps){
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
         progress: null,
-        history: this.clearHistory(),
+        history: clearHistory(),
 
         doMode: false,
         doList: true,
@@ -633,7 +615,7 @@ public constructor(props:IProvisionListsProps){
 
   private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
 
-    this.setState({ currentList: mapThisList.listDefinition + ' list: ' + mapThisList.title, history: this.clearHistory(), listNo: listNo });
+    this.setState({ currentList: mapThisList.listDefinition + ' list: ' + mapThisList.title, history: clearHistory(), listNo: listNo });
 
     let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
 

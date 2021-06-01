@@ -18,6 +18,7 @@ import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mi
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 import { WebPartContext } from '@microsoft/sp-webpart-base';
+import { PageContext } from '@microsoft/sp-page-context';
 
 import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
@@ -31,6 +32,8 @@ import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldSty
 import { DefaultButton, PrimaryButton, CompoundButton, elementContains } from 'office-ui-fabric-react';
 
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
+
+import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import ReactJson from "react-json-view";
 
@@ -51,6 +54,7 @@ import ReactJson from "react-json-view";
  import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
  import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
  import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
+ import { JSONEditorShort } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksDevDocs';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -63,7 +67,7 @@ import ReactJson from "react-json-view";
  *                                                                                                                                 
  */
 
-
+import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../../services/createAnalytics';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -75,12 +79,16 @@ import ReactJson from "react-json-view";
  *                                                                                                                       
  *                                                                                                                       
  */
-  
+
+  import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
   import { availLists, IDefinedLists, definedLists, dropDownWidth } from '../../../ListProvisioning/component/provisionListComponent';
-  import { getTheseDefinedLists } from '../../../ListProvisioning/component/provisionFunctions';
+  import { getTheseDefinedLists, clearHistory, IMyHistory } from '../../../ListProvisioning/component/provisionFunctions';
+
+  import { provisionTheList, IValidTemplate } from '../../../ListProvisioning/component/provisionWebPartList';
   import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
   import { fixTitleNameInViews  } from '../../../../../../services/listServices/viewServices'; //Import view arrays for Time list
+  import MyLogList from '../../../ListProvisioning/component/listView';
 
   /**
      * Steps to add new list def:
@@ -130,6 +138,7 @@ export interface IMyAddListTemplateProps {
     theList: IContentsListInfo;
     user: IUser;
     wpContext: WebPartContext;
+    pageContext: PageContext;
     railFunction: string;
     showPanel: boolean;
     _closePanel: any;
@@ -145,6 +154,9 @@ export interface IMyAddListTemplateProps {
 
     analyticsWeb: string;
     analyticsList: string;
+
+    allowOtherSites: boolean;
+    alwaysReadOnly: boolean;
 
     errorMess: string;
 
@@ -163,11 +175,23 @@ export interface IMyAddListTemplateState {
 
     // 2 - Source and destination list information
     makeThisList: IMakeThisList;
+    onCurrentSite: boolean;
+
+    progress: IMyProgress;
+    history: IMyHistory;
 
     lists: IMakeThisList[];
 
     definedList: IDefinedLists; 
+    applyThisVersion: string; //should tell us what version of the defined list is picked.
+    listNo: number; //should tell us what version of the defined list is picked.
+    status: string;
+
+    doMode: boolean;
     doList: boolean;
+    doFields: boolean;
+    doViews: boolean;
+    doItems: boolean;
 
 }
 
@@ -228,9 +252,19 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             otherList: '',
             otherProp: '',
             makeThisList: makeThisList,
+            onCurrentSite: makeThisList.onCurrentSite,
+            applyThisVersion: '',
+            listNo: 0,
+            progress: null,
+            status: null,
+            history: clearHistory(),
             lists: theLists,
             definedList: definedList,
+            doMode: false,
             doList: doList,
+            doFields: true,
+            doViews: true,
+            doItems: false,
         };
     }
         
@@ -285,6 +319,91 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
 
+            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } </div>;
+
+            let listDefinitionSelectPivot = 
+                <Pivot
+                    styles={ pivotStyles }
+                    linkFormat={PivotLinkFormat.tabs}
+                    linkSize={PivotLinkSize.normal}
+                    onLinkClick={this._selectedListDefIndex.bind(this)}
+                > 
+                    { this.state.lists.map ( ( thelist, index ) => {
+                        return <PivotItem headerText={ thelist.listDefinition } ariaLabel={thelist.listDefinition} title={thelist.listDefinition} itemKey={ thelist.listDefinition + '|' + index }></PivotItem>;
+                    }) }
+                </Pivot>;
+
+            let myProgress = this.state.progress == null ? null : <ProgressIndicator
+                label={this.state.progress.label}
+                description={this.state.progress.description}
+                percentComplete={this.state.progress.percentComplete}
+                progressHidden={this.state.progress.progressHidden}/>;
+
+
+            let errorList = <MyLogList
+                title={ 'Error'}           items={ this.state.history.errors }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let fieldList = <MyLogList
+                title={ 'Column'}           items={ this.state.history.columns }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let viewList = <MyLogList
+                title={ 'View'}           items={ this.state.history.views }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let itemList = <MyLogList
+                title={ 'Item'}           items={ this.state.history.items }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let listDefinitionJSON = null;
+
+            if ( this.state.doMode !== true && this.state.lists.length > 0) {
+                let listJSON = null; 
+                let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] )) ;
+                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
+                if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
+                if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
+
+                listJSON = <div style={{ overflowY: 'auto' }}>
+                    <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                </div>;
+
+                    listDefinitionJSON = <div style={{display: '', marginBottom: '30px' }}>
+                         <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
+                        { listJSON }
+                    </div>;
+
+            } 
+
+            const stackListTokens: IStackTokens = { childrenGap: 10 };
+
+            // let thisPage = <div><div>{ disclaimers }</div>
+            let thisPage = <div style={{ paddingTop: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '20px' }}>
+                    <div style={{ float: 'left' }}> { listDropdown } </div>
+                    <div style={{ paddingLeft: '60px' }}> { listDefinitionSelectPivot } </div>
+                </div>
+                <div> { toggles } </div>
+                <div style={{ height:30} }> {  } </div>
+
+                <div style={{display: this.state.doMode === true ? '': 'none' }}>
+                        <div> { myProgress } </div>
+                        <div> {  } </div>
+                        <div>
+                        <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
+                            { errorList }
+                            { fieldList }
+                            { viewList }
+                            { itemList }
+                        </Stack>
+                        </div>
+                </div>
+                <div style={{display: this.state.doMode === true ? 'none': '' }}>
+                    { listDefinitionJSON }
+                </div>
+            </div>;
+
             panelContent = <div>
                 <h3> { `${ this.props.theList.Title } ${ listOrLib }` }</h3>
                 <Pivot
@@ -300,19 +419,16 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                             { this.makeToggle( 'Read site', true, false, this.updateTogggle1.bind(this) ) }
                         </div> */}
 
-                        { this.makeGroupName( 'Enter compare web URL', 'def' , this._updateText1.bind(this) , false, '0px 0px ' + groupBottomPadding + '0px' )}
-                        { this.makeGroupName( 'Enter compare List Title', 'def' , this._updateText2.bind(this) , false, '0px 0px ' + groupBottomPadding + '0px' )}
-                        { this.makeGroupName( 'List, Fields, Views, Types', 'List' , this._updateText3.bind(this) , false, '0px 0px ' + groupBottomPadding + '0px' )}
+                        {/* { this.makeGroupName( 'Enter compare web URL', 'def' , this._updateText1.bind(this) , false, '0px 0px ' + groupBottomPadding + '0px' )} */}
+                        {/* { this.makeGroupName( 'Enter compare List Title', 'def' , this._updateText2.bind(this) , false, '0px 0px ' + groupBottomPadding + '0px' )} */}
+                        {/* { this.makeGroupName( 'List, Fields, Views, Types', 'List' , this._updateText3.bind(this) , false, '0px 0px ' + groupBottomPadding + '0px' )} */}
 
-                        { <div style={{display: this.state.errorMess !== '' ? 'none' : null, width: panelWidth, margin: '20px 0px' }}>
+                        { <div style={{display: this.state.errorMess !== '' ? null : 'none', width: panelWidth, margin: '20px 0px' }}>
                             <MessageBar messageBarType={MessageBarType.warning}>
                                 { this.state.errorMess }
                             </MessageBar>
                         </div> }
 
-                        <div style={{ overflowY: 'auto' }}>
-                            <ReactJson src={ this.state.makeThisList } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                        </div>;
 
                     </PivotItem>
                     <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ ''}>
@@ -326,6 +442,8 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                         </div>
                     </PivotItem>
                 </Pivot>
+                { thisPage }
+
             </div>;
 
             let panelHeader = 'Compare Properties' ;
@@ -369,20 +487,175 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
     } 
 
+    private async _selectedListDefIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
+        //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));
+        let itemKey = item.props.itemKey;
+        let itemKeys = itemKey.split('|');
+        
+        if ( itemKey === pivotHeading1 ) {
+            if (ev.ctrlKey) {
+                // window.open( this.props.theList.ParentWebUrl + "/_layouts/15/user.aspx?obj={" + this.props.theList.Id + "},doclib&List={" + this.props.theList.Id + "}", '_blank' );
+            }
 
-    private makeGroupName( placeholder: string, def: string, onChanged: any, disabled: boolean, margin: any ) {
-        return <div style={{ width: panelWidth, margin: margin }}>
-             <TextField
-                 defaultValue={ def }
-                 placeholder={ placeholder }
-                 autoComplete='off'
-                 onChanged={ onChanged }
-                 required={ true }
-                 disabled={ disabled }
-                 style={{ width: panelWidth }}
-             />
-         </div>;
- }
+        } else if ( itemKey === pivotHeading2 ) {
+
+        }
+
+        console.log('picked:  _selectedListDefIndex : ', itemKey );
+        this.setState({
+            applyThisVersion: itemKeys[0],
+            listNo: parseInt( itemKeys[1] ),
+        });
+
+      }
+
+    private CreateListNo(oldVal: any): any {
+        let idx = parseInt(oldVal);
+        let mapThisList: IMakeThisList = this.state.lists[ idx ];
+        this.CreateThisList(mapThisList, idx );
+      }
+
+    private CreateThisList( mapThisList: IMakeThisList, listNo: number, confirm: boolean = false ): any {
+
+        this.setState({ history: clearHistory(), listNo: listNo });
+    
+        let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
+    
+        let readOnly: boolean  = this.isListReadOnly(mapThisList);
+    
+        if ( this.state.doMode === true && confirm === true ) {
+            
+            this.captureAnalytics('Update List', 'Updating', mapThisList);
+    
+            let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems );
+    
+            let stateLists = this.state.lists;
+            stateLists[listNo].listExists = true;
+    
+            let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
+    
+            if ( listCreated ) {
+                this.setState({
+                    status: workingMessage + listName,
+                    lists: stateLists,
+                });
+            }
+        } else {
+            console.log( 'listNo, mapThisList', listNo, mapThisList );
+    
+            //Pass this list back up to parent and down to Fields functionality
+    
+        }
+    
+        // this.props.updateMakeThisList( mapThisList );
+            
+        return "Finished";
+      }
+
+      private isListReadOnly (mapThisList) {
+
+        let readOnly = true;
+        if ( this.props.alwaysReadOnly === false ) {                //First test, only allow updates if the state is explicitly set so alwaysReadOnly === false
+            if  ( this.state.onCurrentSite === true ) {
+                readOnly = false;                                   //If list is on current site, then allow writing (readonly = false)
+            } else if ( this.props.allowOtherSites === true ) {
+                readOnly = false;                                   //Else If you explicitly tell it to allowOtherSites, then allow writing (readonly = false)
+            }
+        }
+    
+        return readOnly;
+    
+      }
+      
+      private captureAnalytics(itemInfo2, result, ActionJSON ){
+        let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
+
+        let TargetList = '';
+        let TargetSite = '';
+
+        if ( this.state && this.state.lists && this.state.lists[0] ) {
+            TargetList = this.state.lists[0] ? this.state.lists[0].listURL : '';
+            TargetSite = this.state.lists[0] ? this.state.lists[0].webURL : '';  
+
+        } else {
+            TargetList = this.props.theList ? this.props.theList.listURL : '';
+            TargetSite = this.props.theList ? this.props.theList.listURL : ''; 
+
+        }
+
+        //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
+        saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
+            currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
+            'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
+            'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
+            ActionJSON, 'ProvisionList' ); //richText
+
+    }
+      
+  private markComplete() {
+
+    this.setState({
+        status: 'Finished ' + this.state.status,
+    });
+
+  }
+
+   /**
+    *
+    * @param progressHidden
+    * @param list : list you want to add this to 'E' | 'C' | 'V' | 'I'
+    * @param current : current index of progress
+    * @param ofThese : total count of items in progress
+    * @param color : color of label like red, yellow, green, null
+    * @param icon : Fabric Icon name if desired
+    * @param logLabel : short label of item used for displaying in list
+    * @param label : longer label used in Progress Indicator and hover card
+    * @param description
+    */
+  private setProgress(progressHidden: boolean, list: 'E' | 'C' | 'V' | 'I', current: number , ofThese: number, color: string, icon: string, logLabel: string, label: string, description: string, ref: string = null ){
+    let thisTime = new Date().toLocaleTimeString();
+    const percentComplete = ofThese !== 0 ? current/ofThese : 0;
+
+    logLabel = current > 0 ? current + '/' + ofThese + ' - ' + logLabel : logLabel ;
+    let progress: IMyProgress = {
+        ref: ref,
+        time: thisTime,
+        logLabel: logLabel,
+        label: label + '- at ' + thisTime,
+        description: description,
+        percentComplete: percentComplete,
+        progressHidden: progressHidden,
+        color: color,
+        icon: icon,
+      };
+
+    //console.log('setting Progress:', progress);
+
+    let history: IMyHistory = this.state.history;
+    //let newHistory = null;
+
+
+    if ( history === null ){
+
+    } else {
+        history.count ++;
+        if ( list === 'E') {
+            history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
+        } else if ( list === 'C') {
+            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+        } else if ( list === 'V') {
+            history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
+        } else if ( list === 'I') {
+            history.items = history.items.length === 0 ? [progress] : [progress].concat(history.items);
+        }
+    }
+
+    this.setState({
+        progress: progress,
+        history: history,
+    });
+
+  }
 
  private getDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean ) {
 
@@ -394,6 +667,22 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
     if ( defineThisList !== availLists[0] ) { //Update to get available lists to build
         theLists = getTheseDefinedLists( defineThisList, true, [ this.state.makeThisList.title ], [], this.state.makeThisList.webURL, this.state.makeThisList.webURL, this.state.doList, null );
+
+        //Go through and re-map props that might not get set correctly
+        theLists.map( list => {
+            list.name = this.props.theList.EntityTypeName;
+            list.title = this.props.theList.Title;
+            list.title = this.props.theList.Title;
+            list.desc = this.props.theList.Description;
+            list.listURL = this.props.theList.listURL;
+            list.listExists = true;
+            list.listExistedB4 = true;
+            list.webExists = true;
+            list.existingTemplate = this.props.theList.BaseTemplate;
+            list.onCurrentSite = this.state.onCurrentSite;
+            list.autoItemCreate = false;
+
+        });
     }
 
     //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.props.currentUser, this.props.pageContext.web.absoluteUrl );
@@ -431,7 +720,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         let keyVal = this.state.definedList;
 
         let thisDropdown = sOptions == null ? null : <div
-            //style={{  paddingTop: 10  }}
+            style={{  display: 'inline-flex'  }}
                 ><Dropdown 
                 label={ label }
                 //selectedKey={ getChoiceKey(keyVal) }
@@ -462,26 +751,103 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
      */
     //            let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
-    private makeToggle( label: string, checked: boolean, disabled: boolean, _onChange: any ) {
-        return <div style={{ width: panelWidth, paddingBottom: toggleBottomPadding }}>
-            <h3>{ label } </h3>
-            <Toggle 
-            onText={ 'Include' } 
-            offText={ 'Skip' } 
-            onChange={ _onChange } 
-            checked={ checked }
-            disabled= { disabled }
-            styles={ toggleStyles }
-            />
-        </div>;
+        private getPageToggles() {
 
-    }
-    
-    private updateTogggle1() {  
-        this.setState({  
+            let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Mode</span>;
+            let togDoMode = {
+                label: toggleLabel,
+                key: 'togDoMode',
+                _onChange: () => this.updateGenericToggle('togDoMode'),
+                checked: this.state.doMode,
+                onText: 'Build',
+                offText: 'Design',
+                className: '',
+                styles: '',
+            };
 
-         }); 
-    }
+            let togDoFields = {
+                label: `Fields (${this.state.lists.length > 0 ? this.state.lists[0].createTheseFields.length : 0 })`,
+                key: 'togDoFields',
+                _onChange: () => this.updateGenericToggle('togDoFields'),
+                checked: this.state.doFields,
+                onText: 'Include',
+                offText: 'Skip',
+                className: '',
+                styles: '',
+            };
+
+            let togDoViews = {
+                label: `Views (${this.state.lists.length > 0 ? this.state.lists[0].createTheseViews.length : 0 })`,
+                key: 'togDoViews',
+                _onChange: () => this.updateGenericToggle('togDoViews'),
+                checked: this.state.doViews,
+                onText: 'Include',
+                offText: 'Skip',
+                className: '',
+                styles: '',
+            };
+
+            
+            // let togDoItems = {
+            //     label: 'Items ' + ( this.state.lists && this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseItems.length})` : '' ),
+            //     key: 'togDoItems',
+            //     _onChange: this.updateTogggleDoItems.bind(this),
+            //     checked: this.state.doItems,
+            //     onText: 'Include',
+            //     offText: 'Skip',
+            //     className: '',
+            //     styles: '',
+            // };
+
+            let theseToggles = [togDoMode, togDoFields, togDoViews, ];
+
+            let pageToggles : IContentsToggles = {
+                toggles: theseToggles,
+                childGap: 20,
+                vertical: false,
+                hAlign: 'end',
+                vAlign: 'start',
+                rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
+            };
+
+            return pageToggles;
+
+        }
+        
+        private updateGenericToggle = (item): void => {
+            console.log('updateGenericToggle: ', item );
+            this.setState({
+                doMode: item === 'togDoMode' ? !this.state.doMode : this.state.doMode,
+                doFields: item === 'togDoFields' ? !this.state.doFields : this.state.doFields,
+                doViews: item === 'togDoViews' ? !this.state.doViews : this.state.doViews,
+                doItems: item === 'togDoItems' ? !this.state.doItems : this.state.doItems,
+            });
+        }
+
+        private updateTogggleDoMode = (item): void => {
+            this.setState({
+                doMode: !this.state.doMode,
+            });
+        }
+
+        private updateTogggleDoFields = (item): void => {
+            this.setState({
+                doFields: !this.state.doFields,
+            });
+        }
+
+        private updateTogggleDoViews = (item): void => {
+            this.setState({
+                doViews: !this.state.doViews,
+            });
+        }
+
+
+        private updateTogggleDoItems = (item): void => {
+            this.setState({
+                doItems: !this.state.doItems,
+            });
+        }
 
     private async _selectedIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
         //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));

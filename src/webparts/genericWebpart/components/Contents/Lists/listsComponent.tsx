@@ -396,6 +396,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                      */
                     railsPanel = <MyAddListTemplate
                         wpContext={  this.props.wpContext }
+                        pageContext={ this.props.pageContext }
+                        allowOtherSites={ this.state.allowOtherSites }
+                        alwaysReadOnly={ false }
                         railFunction={ this.state.railFunction }
                         theList={ this.state.selectedEntity }
                         pickedWeb= { this.props.pickedWeb }

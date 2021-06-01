@@ -65,6 +65,7 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
  *                                                                                                                       
  */
 
+  import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   import { IDefinedLists } from '../../../ListProvisioning/component/provisionListComponent';
   import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
   import { amIOnThisWeb } from '../../../../../../services/createAnalytics';
@@ -131,24 +132,3 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
     return makeThisList;
 
  }
-
- export async function doThisRailFunction( theList: IContentsListInfo, updateState: any ) {
-
-  let currentStep = null;
-  let listOrLib = theList.BaseType === 0 ? 'List' : 'Library' ;
-  let thisWebInstance = null;
-  let listInstance = null;
-  let webUrl: string = theList['odata.id'];
-  webUrl = webUrl.substr( 0, webUrl.indexOf('_api'));
-  let errMessage = '';
-
-  try {
-      thisWebInstance = Web( webUrl );
-  } catch (e) {
-      errMessage = getHelpfullError(e, true, true);
-  }
-
-  updateState( );
-
- }
-

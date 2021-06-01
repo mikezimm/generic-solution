@@ -224,6 +224,7 @@ export interface IProvisionListsState {
 
     // 2 - Source and destination list information
     definedList: IDefinedLists;
+    applyThisVersion: string; //should tell us what version of the defined list is picked.
     provisionListTitles: string[];
 
     // 2 - Source and destination list information
@@ -410,7 +411,6 @@ public constructor(props:IProvisionListsProps){
  *
  *
  */
-
 
             let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } </div>;
 
