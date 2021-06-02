@@ -207,8 +207,7 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
     console.log('arrFieldFilter:', arrFieldFilter);
 
-
-    const thisWeb = Web(makeThisList.webURL);
+    const thisWeb = await Web(makeThisList.webURL);
 
     let ensuredList = null;
     let listFields = null;
@@ -217,7 +216,8 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     let currentViews = null;
 
     if ( readOnly === false ) {
-        if (makeThisList.template === 100 ) {
+        //2021-06-02:  No idea why I would be checking for template === 100... but it causes uncaught promise when calling from AddTemplate Rail.
+        if (makeThisList.template === 100 && makeThisList.listExists !== true ) {
             ensuredList = await thisWeb.lists.ensure(makeThisList.title, makeThisList.desc, makeThisList.template, true, makeThisList.additionalSettings );
             listFields = ensuredList.list.fields;   //Get the fields object from the list
             listViews = ensuredList.list.views;     //Get the views object from the list

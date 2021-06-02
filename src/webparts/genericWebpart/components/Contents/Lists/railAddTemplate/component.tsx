@@ -576,10 +576,11 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
         let TargetList = '';
         let TargetSite = '';
+        let listNo = this.state.listNo;
 
-        if ( this.state && this.state.lists && this.state.lists[0] ) {
-            TargetList = this.state.lists[0] ? this.state.lists[0].listURL : '';
-            TargetSite = this.state.lists[0] ? this.state.lists[0].webURL : '';  
+        if ( this.state && this.state.lists && this.state.lists[listNo] ) {
+            TargetList = this.state.lists[listNo] ? this.state.lists[listNo].listURL : '';
+            TargetSite = this.state.lists[listNo] ? this.state.lists[listNo].webURL : '';  
 
         } else {
             TargetList = this.props.theList ? this.props.theList.listURL : '';
@@ -685,7 +686,6 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             list.existingTemplate = this.props.theList.BaseTemplate;
             list.onCurrentSite = this.state.onCurrentSite;
             list.autoItemCreate = false;
-
         });
     }
 
@@ -767,7 +767,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             };
 
             let togDoFields = {
-                label: `Fields (${this.state.lists.length > 0 ? this.state.lists[0].createTheseFields.length : 0 })`,
+                label: `Fields (${this.state.lists.length > 0 ? this.state.lists[this.state.listNo].createTheseFields.length : 0 })`,
                 key: 'togDoFields',
                 _onChange: () => this.updateGenericToggle('togDoFields'),
                 checked: this.state.doFields,
@@ -778,7 +778,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             };
 
             let togDoViews = {
-                label: `Views (${this.state.lists.length > 0 ? this.state.lists[0].createTheseViews.length : 0 })`,
+                label: `Views (${this.state.lists.length > 0 ? this.state.lists[this.state.listNo].createTheseViews.length : 0 })`,
                 key: 'togDoViews',
                 _onChange: () => this.updateGenericToggle('togDoViews'),
                 checked: this.state.doViews,
