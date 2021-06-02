@@ -26,6 +26,7 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
 
+import ButtonCompound from '../../../createButtons/ICreateButtons';
 
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
@@ -319,7 +320,9 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
 
-            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } </div>;
+            let createButton = null; // <PrimaryButton text={ 'Apply Template' } onClick={ this.CreateList.bind(this) } allowDisabledFocus disabled={ this.state.doMode !== true ? true : false } checked={ false } />;
+            let cancelButton = null; //<DefaultButton text={ 'Cancel' } onClick={ this.props._closePanel } allowDisabledFocus disabled={ false } checked={ false } />;
+            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
 
             let listDefinitionSelectPivot = 
                 <Pivot
@@ -366,7 +369,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
 
                 listJSON = <div style={{ overflowY: 'auto' }}>
-                    <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                    <ReactJson src={ tempJSON } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
                 </div>;
 
                     listDefinitionJSON = <div style={{display: '', marginBottom: '30px' }}>
@@ -509,13 +512,13 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
       }
 
-    private CreateListNo(oldVal: any): any {
-        let idx = parseInt(oldVal);
+    private CreateList(oldVal: any): any {
+        let idx = this.state.listNo;
         let mapThisList: IMakeThisList = this.state.lists[ idx ];
         this.CreateThisList(mapThisList, idx );
       }
 
-    private CreateThisList( mapThisList: IMakeThisList, listNo: number, confirm: boolean = false ): any {
+    private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
 
         this.setState({ history: clearHistory(), listNo: listNo });
     
@@ -523,7 +526,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     
         let readOnly: boolean  = this.isListReadOnly(mapThisList);
     
-        if ( this.state.doMode === true && confirm === true ) {
+        if ( this.state.doMode === true ) {
             
             this.captureAnalytics('Update List', 'Updating', mapThisList);
     
@@ -735,10 +738,6 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
     }
 
- private _updateText1(oldVal: any): any {  this.setState({  otherWeb: oldVal  }); }
- private _updateText2(oldVal: any): any {  this.setState({  otherList: oldVal  }); }
- private _updateText3(oldVal: any): any {  this.setState({  otherProp: oldVal  }); }
-
     /***
      *         d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
      *         `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'     88'  YP 
@@ -756,6 +755,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Mode</span>;
             let togDoMode = {
                 label: toggleLabel,
+                disabled: this.state.definedList === availLists[0] ? true : false,
                 key: 'togDoMode',
                 _onChange: () => this.updateGenericToggle('togDoMode'),
                 checked: this.state.doMode,
@@ -821,31 +821,6 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 doFields: item === 'togDoFields' ? !this.state.doFields : this.state.doFields,
                 doViews: item === 'togDoViews' ? !this.state.doViews : this.state.doViews,
                 doItems: item === 'togDoItems' ? !this.state.doItems : this.state.doItems,
-            });
-        }
-
-        private updateTogggleDoMode = (item): void => {
-            this.setState({
-                doMode: !this.state.doMode,
-            });
-        }
-
-        private updateTogggleDoFields = (item): void => {
-            this.setState({
-                doFields: !this.state.doFields,
-            });
-        }
-
-        private updateTogggleDoViews = (item): void => {
-            this.setState({
-                doViews: !this.state.doViews,
-            });
-        }
-
-
-        private updateTogggleDoItems = (item): void => {
-            this.setState({
-                doItems: !this.state.doItems,
             });
         }
 
