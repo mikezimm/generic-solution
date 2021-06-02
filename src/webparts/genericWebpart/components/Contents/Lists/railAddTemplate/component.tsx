@@ -321,9 +321,8 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
 
-            //2021-06-02:  Turn these 2 lines back on when the performance issue is solved.
-            let createButton = null; // <PrimaryButton text={ 'Apply Template' } onClick={ this.CreateList.bind(this) } allowDisabledFocus disabled={ this.state.doMode !== true ? true : false } checked={ false } />;
-            let cancelButton = null; //<DefaultButton text={ 'Cancel' } onClick={ this.props._closePanel } allowDisabledFocus disabled={ false } checked={ false } />;
+            let createButton = <PrimaryButton text={ 'Apply Template' } onClick={ this.CreateList.bind(this) } allowDisabledFocus disabled={ this.state.doMode !== true ? true : false } checked={ false } />;
+            let cancelButton = <DefaultButton text={ 'Cancel' } onClick={ this.props._closePanel } allowDisabledFocus disabled={ false } checked={ false } />;
             let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
 
             let listDefinitionSelectPivot = 
@@ -371,7 +370,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
 
                 listJSON = <div style={{ overflowY: 'auto' }}>
-                    <ReactJson src={ tempJSON } collapsed={ false } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                    <ReactJson src={ tempJSON } collapsed={ 1 } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
                 </div>;
 
                     listDefinitionJSON = <div style={{display: '', marginBottom: '30px' }}>
