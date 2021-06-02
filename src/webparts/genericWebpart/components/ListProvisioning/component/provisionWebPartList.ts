@@ -28,6 +28,8 @@ import { changes, IMyFieldTypes } from '@mikezimm/npmfunctions/dist/Lists/column
 
 import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Import view arrays for Time list
 
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -206,8 +208,11 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     });
 
     console.log('arrFieldFilter:', arrFieldFilter);
+    console.log('makeThisList.listExists1:', makeThisList.listExists);
 
-    const thisWeb = await Web(makeThisList.webURL);
+    const thisWeb = await Web( getFullUrlFromSlashSitesUrl( makeThisList.webURL ) );
+
+    console.log('makeThisList.listExists2:', makeThisList.listExists.toString() );
 
     let ensuredList = null;
     let listFields = null;
@@ -217,7 +222,13 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
     if ( readOnly === false ) {
         //2021-06-02:  No idea why I would be checking for template === 100... but it causes uncaught promise when calling from AddTemplate Rail.
-        if (makeThisList.template === 100 && makeThisList.listExists !== true ) {
+        console.log('makeThisList.template', makeThisList.template.toString() );
+        console.log('makeThisList.listExists3:', makeThisList.listExists.toString() );
+
+        let template = makeThisList.template.toString();
+        let listExists = makeThisList.listExists.toString();
+
+        if ( makeThisList.template === 100 && makeThisList.listExists !== true ) {
             ensuredList = await thisWeb.lists.ensure(makeThisList.title, makeThisList.desc, makeThisList.template, true, makeThisList.additionalSettings );
             listFields = ensuredList.list.fields;   //Get the fields object from the list
             listViews = ensuredList.list.views;     //Get the views object from the list
@@ -266,16 +277,21 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 */
 
 //        currentFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[0] ).get() ;
+        console.log('arrFieldFilter[i1]:', arrFieldFilter[0] );
+        
+        currentFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').get() ;
+        console.log('theseFields', currentFields ) ;
 
-        for (var i1=0; i1 < arrFieldFilter.length; i1 ++ ) {
-            let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[i1] ).get() ;
-            console.log('currentFields:', currentFields );
-            console.log('theseFields:', theseFields );     
+
+        // for (var i1=0; i1 < arrFieldFilter.length; i1 ++ ) {
+        //     let theseFields = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[i1] ).get() ;
+        //     console.log('currentFields:', currentFields );
+        //     console.log('theseFields:', theseFields );     
             
-            theseFields.map( f=>{ currentFields.push( f ) ; });
-            //let prevFields = currentFields;
-            //currentFields = prevFields.concat(theseFields);
-        }
+        //     theseFields.map( f=>{ currentFields.push( f ) ; });
+        //     //let prevFields = currentFields;
+        //     //currentFields = prevFields.concat(theseFields);
+        // }
 
         currentViews = await listViews.get();
         
