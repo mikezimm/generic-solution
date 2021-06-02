@@ -294,6 +294,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
  */
 
     public componentDidUpdate(prevProps: IMyAddListTemplateProps): void {
+        console.log( 'componentDidUpdate' );
         // this.setState({ refreshId: makeid(5) })
     //this._updateWebPart(prevProps);
     }
@@ -313,13 +314,14 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     public render(): React.ReactElement<IMyAddListTemplateProps> {
 
         if ( this.props.theList ) {
-          
+            console.log( 'render' );
             let listOrLib = this.props.theList.BaseType === 0 ? 'List' : 'Library' ;
 
             let panelContent = null;
 
             let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
 
+            //2021-06-02:  Turn these 2 lines back on when the performance issue is solved.
             let createButton = null; // <PrimaryButton text={ 'Apply Template' } onClick={ this.CreateList.bind(this) } allowDisabledFocus disabled={ this.state.doMode !== true ? true : false } checked={ false } />;
             let cancelButton = null; //<DefaultButton text={ 'Cancel' } onClick={ this.props._closePanel } allowDisabledFocus disabled={ false } checked={ false } />;
             let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
@@ -519,7 +521,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
       }
 
     private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
-
+        console.log( 'CreateThisList' );
         this.setState({ history: clearHistory(), listNo: listNo });
     
         let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
@@ -661,7 +663,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
   }
 
  private getDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean ) {
-
+    console.log( 'getDefinedLists' );
     let theLists : IMakeThisList[] = [];
 
     let provisionListTitles =  [ this.props.theList.Title ];
