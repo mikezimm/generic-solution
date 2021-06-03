@@ -23,7 +23,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     //'Program' | 'SORInfo' | 'WithStatus';
 //    if ( listDefinition !== 'Program' ) {
         makeThisList.createTheseFields = TurnoverFields(listDefinition);
-        // makeThisList.createTheseViews = TurnoverViews;
+        makeThisList.createTheseViews = []; //TurnoverViews;
         makeThisList.createTheseItems = TurnoverItems(currentUser) ; // = TMTDefaultProjectItems;
         makeThisList.autoItemCreate = false;
 //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';

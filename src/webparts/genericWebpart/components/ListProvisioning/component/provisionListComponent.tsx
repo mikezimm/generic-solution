@@ -292,7 +292,7 @@ public constructor(props:IProvisionListsProps){
 
     let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
 
-    let theLists = getTheseDefinedLists( definedList, true, this.props.provisionListTitles, [], this.props.pickedWeb.url, getFullURLFromRelative(this.props.pickedWeb.url), this.state.doList, this.updateStateLists );
+    let theLists = getTheseDefinedLists( definedList, true, this.props.provisionListTitles, [], this.props.pickedWeb.url, getFullURLFromRelative(this.props.pickedWeb.url), true, this.updateStateLists.bind(this) );
 
     let allowOtherSites = this.props.allowOtherSites === true ? true : false;
     let alwaysReadOnly = this.props.alwaysReadOnly === true ? true : false;
@@ -772,7 +772,7 @@ public constructor(props:IProvisionListsProps){
         }
         if ( testLists.length > 0 ) {
             for ( let i in testLists ) {
-                checkThisWeb(parseInt(i,10), testLists, definedList, this.updateStateLists, getFullURLFromRelative( this.props.pickedWeb.url ) );
+                checkThisWeb(parseInt(i,10), testLists, definedList, this.updateStateLists.bind(this), getFullURLFromRelative( this.props.pickedWeb.url ) );
             }
         }
     }
@@ -799,12 +799,12 @@ public constructor(props:IProvisionListsProps){
     //             testLists[index].onCurrentSite = testLists[index].webURL.toLowerCase() === this.props.pageContext.web.absoluteUrl.toLowerCase() + '/' ? true : false; 
     //         }
 
-    //         this.updateStateLists(index, testLists, definedList, );
+    //         this.updateStateLists.bind(this)(index, testLists, definedList, );
 
     //     }).catch((e) => {
     //         let errMessage = getHelpfullError(e, true, true);
     //         console.log('checkThisWeb', errMessage);
-    //         this.updateStateLists(index, testLists, definedList, );
+    //         this.updateStateLists.bind(this)(index, testLists, definedList, );
 
     //     });
     // }
@@ -814,12 +814,12 @@ public constructor(props:IProvisionListsProps){
         thisWeb.lists.getByTitle(testLists[index].title).get().then((response) => {
             testLists[index].listExists = true;
             testLists[index].listExistedB4 = true;
-            this.updateStateLists(index, testLists, definedList);
+            this.updateStateLists.bind(this)(index, testLists, definedList);
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisList', errMessage);
-            this.updateStateLists(index, testLists, definedList);
+            this.updateStateLists.bind(this)(index, testLists, definedList);
         });
     }
 */
@@ -843,7 +843,7 @@ public constructor(props:IProvisionListsProps){
         if ( justReturnLists === false ) { provisionListTitles = [] ; }
     
         if ( defineThisList !== availLists[0] ) { //Update to get available lists to build
-            theLists = getTheseDefinedLists( defineThisList, true, [ this.state.makeThisList.title ], [], this.state.makeThisList.webURL, this.state.makeThisList.webURL, this.state.doList, this.updateStateLists );
+            theLists = getTheseDefinedLists( defineThisList, true, [ this.state.makeThisList.title ], [], this.state.makeThisList.webURL, this.state.makeThisList.webURL, this.state.doList, this.updateStateLists.bind(this) );
     
             // //Go through and re-map props that might not get set correctly
             // theLists.map( list => {
@@ -971,7 +971,7 @@ public constructor(props:IProvisionListsProps){
 
         } else {
             for ( let i in theLists ) {
-                checkThisWeb(parseInt(i,10), theLists, defineThisList, this.updateStateLists, getFullURLFromRelative( this.props.pickedWeb.url )  );
+                checkThisWeb(parseInt(i,10), theLists, defineThisList, this.updateStateLists.bind(this), getFullURLFromRelative( this.props.pickedWeb.url )  );
             }
         }
         return theLists;
@@ -1015,11 +1015,15 @@ public constructor(props:IProvisionListsProps){
         let thisValue : any = getChoiceText(item.text);
 
         let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
-        let theLists = getTheseDefinedLists( thisValue , false, provisionListTitles, this.state.validUserIds, this.props.pickedWeb.url, this.props.pageContext.web.absoluteUrl, this.state.doList, this.updateStateLists );
+        let theLists = getTheseDefinedLists( thisValue , false, provisionListTitles, this.state.validUserIds, this.props.pickedWeb.url, this.props.pageContext.web.absoluteUrl, this.state.doList, this.updateStateLists.bind(this) );
 
         let doList: boolean = theLists.length === 0 ? null : theLists[0].template === 100 ? true : theLists[0].template === 101 ? false : null;
 
-        this.setState({ lists: theLists, doList: doList });
+        provisionListTitles = theLists.map( list => {
+            return list.listDefinition;
+        });
+
+        this.setState({ lists: theLists, doList: doList, provisionListTitles: provisionListTitles });
 
     }
 
@@ -1047,7 +1051,7 @@ public constructor(props:IProvisionListsProps){
 
         // let reDefinedLists = this.getDefinedLists(definedList, true);
 
-        let reDefinedLists = getTheseDefinedLists( definedList , false, provisionListTitles, this.state.validUserIds, this.props.pickedWeb.url, this.props.pageContext.web.absoluteUrl, this.state.doList, this.updateStateLists );
+        let reDefinedLists = getTheseDefinedLists( definedList , false, provisionListTitles, this.state.validUserIds, this.props.pickedWeb.url, this.props.pageContext.web.absoluteUrl, this.state.doList, this.updateStateLists.bind(this) );
 
         reDefinedLists[index].name = listName;
         reDefinedLists[index].title = oldVal;
@@ -1057,7 +1061,7 @@ public constructor(props:IProvisionListsProps){
             theList.listURL =  ( this.props.pickedWeb.url ) + '/' + ( theList.template === 100 ? 'lists/' : '') + listName;
         });
 
-        checkThisWeb(index, reDefinedLists, definedList, this.updateStateLists, getFullURLFromRelative( this.props.pickedWeb.url ));
+        checkThisWeb(index, reDefinedLists, definedList, this.updateStateLists.bind(this), getFullURLFromRelative( this.props.pickedWeb.url ));
 
       }
 
