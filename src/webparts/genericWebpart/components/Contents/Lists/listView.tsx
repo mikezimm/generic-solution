@@ -130,16 +130,23 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
       let thisLog = null;
 
+      let styleRails = this.props.railsOff  ? styles.showMe : styles.hideMe;
+      let styleRailsRev = this.props.railsOff ? styles.hideMe : null;
+
       if ( this.props.items.lists != null && this.props.items.count > 0 ) { 
 
         let logItems : IContentsListInfo[] = this.props.items.lists;
 
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
-        let styleRails = this.props.railsOff ? styles.showMe : styles.hideMe;
-        let styleRailsRev = this.props.railsOff ? styles.hideMe : null;
+
         let styleDesc = this.props.showDesc ? styles.showMe : styles.hideMe;
 
+
+
         let itemRows = logItems.length === 0 ? null : logItems.map( ( Lst, index)  => { 
+
+          styleRails = this.props.railsOff && Lst.meta.indexOf('9. System') === -1 && Lst.Hidden !== true ? styles.showMe : styles.hideMe;
+          styleRailsRev = this.props.railsOff && Lst.meta.indexOf('9. System') === -1&& Lst.Hidden !== true ? styles.hideMe : null;
 
           let defButtonStyles = {
             root: {padding:'0px !important', height: 26, width: 26, backgroundColor: 'white'},//color: 'green' works here
@@ -292,9 +299,9 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             <td className={ styleRailsRev }> { Lst.NoCrawl } </td>
             <td className={ styleRailsRev }> { listAdvancedCT } </td>
             <td className={ styleRailsRev }> { listAdvancedURL } </td>
-            <td className={ styleRailsRev }> { Lst.BaseTemplate } </td>
+            <td className={ '' }> { Lst.BaseTemplate } </td>
             <td className={ styleRails }> { rails }</td>
-            <td style={{ backgroundColor: 'white' }} className={ [styles.listButtons, styleRailsRev].join(' ') }> { other } </td>
+            <td style={{ backgroundColor: 'white' }} className={ [styles.listButtons].join(' ') }> { other } </td>
             <td style={{ backgroundColor: 'white' }} className={ styles.listButtons }>  { detailsCard }</td>
 
           </tr>;
@@ -312,6 +319,8 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
  *                                                                      
  *                                                                      
  */
+        styleRails = this.props.railsOff  ? styles.showMe : styles.hideMe;
+        styleRailsRev = this.props.railsOff ? styles.hideMe : null;
 
         let logTable = <table style={{ display: '', borderCollapse: 'collapse', width: '100%' }} className={stylesInfo.infoTable}>
             <tr>
@@ -326,9 +335,9 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               <th className={ styleRailsRev }>Search</th>
               <th className={ styleRailsRev }>CT</th>  
               <th className={ styleRailsRev }>Exceptions</th>
-              <th className={ styleRailsRev }>Base</th>
+              <th className={ '' }>Base</th>
               <th className={ styleRails }>RailsOff</th>
-              <th className={ styleRailsRev }>Other</th>
+              <th className={ '' }>Other</th>
               <th>More</th>
 
             </tr>
