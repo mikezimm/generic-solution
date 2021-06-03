@@ -62,7 +62,7 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
  *                                                                                                                                 
  *                                                                                                                                 
  */
-import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics,  } from '../../../../../services/createAnalytics';
 
 import { fixTitleNameInViews  } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
@@ -98,9 +98,12 @@ import { JSONEditorShort } from '../../HelpInfo/AllLinks';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-
+//
 
 import { provisionTheList, IValidTemplate } from './provisionWebPartList';
+
+import { getTheseDefinedLists, checkThisWeb } from './provisionFunctions';
+import { getFullURLFromRelative } from '../../Contents/Permissions/Services/Permissions';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
@@ -287,9 +290,9 @@ export default class ProvisionLists extends React.Component<IProvisionListsProps
 public constructor(props:IProvisionListsProps){
     super(props);
 
-
     let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
-    let theLists = this.getDefinedLists(definedList, true) ;
+
+    let theLists = getTheseDefinedLists( definedList, true, this.props.provisionListTitles, [], this.props.pickedWeb.url, getFullURLFromRelative(this.props.pickedWeb.url), this.state.doList, this.updateStateLists );
 
     let allowOtherSites = this.props.allowOtherSites === true ? true : false;
     let alwaysReadOnly = this.props.alwaysReadOnly === true ? true : false;
@@ -769,42 +772,42 @@ public constructor(props:IProvisionListsProps){
         }
         if ( testLists.length > 0 ) {
             for ( let i in testLists ) {
-                this.checkThisWeb(parseInt(i,10), testLists, definedList);
+                checkThisWeb(parseInt(i,10), testLists, definedList, this.updateStateLists, getFullURLFromRelative( this.props.pickedWeb.url ) );
             }
         }
     }
 
-    private checkThisWeb(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ){
-        const thisWeb = Web(testLists[index].webURL);
-        testLists[index].webExists = false;
-        testLists[index].listExists = false;
-        testLists[index].existingTemplate = null;
-        testLists[index].sameTemplate = false;
+    // private checkThisWeb(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ){
+    //     const thisWeb = Web(testLists[index].webURL);
+    //     testLists[index].webExists = false;
+    //     testLists[index].listExists = false;
+    //     testLists[index].existingTemplate = null;
+    //     testLists[index].sameTemplate = false;
 
-        thisWeb.lists.get().then((response) => {
-            testLists[index].webExists = true;
-            //this.checkThisList(index, testLists, thisWeb, definedList);
-            let responseIdx = doesObjectExistInArray(response, 'Title', testLists[index].title ); //Check existing lists for the new list
+    //     thisWeb.lists.get().then((response) => {
+    //         testLists[index].webExists = true;
+    //         //this.checkThisList(index, testLists, thisWeb, definedList);
+    //         let responseIdx = doesObjectExistInArray(response, 'Title', testLists[index].title ); //Check existing lists for the new list
 
-            if ( responseIdx === false ) {
+    //         if ( responseIdx === false ) {
 
-            } else {
-                testLists[index].listExists = true;     //Copied in from checkThisList
-                testLists[index].listExistedB4 = true;  //Copied in from checkThisList
-                testLists[index].existingTemplate = response[responseIdx].BaseTemplate;
-                testLists[index].sameTemplate = testLists[index].existingTemplate === testLists[index].template ? true : false;    
-                testLists[index].onCurrentSite = testLists[index].webURL.toLowerCase() === this.props.pageContext.web.absoluteUrl.toLowerCase() + '/' ? true : false; 
-            }
+    //         } else {
+    //             testLists[index].listExists = true;     //Copied in from checkThisList
+    //             testLists[index].listExistedB4 = true;  //Copied in from checkThisList
+    //             testLists[index].existingTemplate = response[responseIdx].BaseTemplate;
+    //             testLists[index].sameTemplate = testLists[index].existingTemplate === testLists[index].template ? true : false;    
+    //             testLists[index].onCurrentSite = testLists[index].webURL.toLowerCase() === this.props.pageContext.web.absoluteUrl.toLowerCase() + '/' ? true : false; 
+    //         }
 
-            this.updateStateLists(index, testLists, definedList, );
+    //         this.updateStateLists(index, testLists, definedList, );
 
-        }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
-            console.log('checkThisWeb', errMessage);
-            this.updateStateLists(index, testLists, definedList, );
+    //     }).catch((e) => {
+    //         let errMessage = getHelpfullError(e, true, true);
+    //         console.log('checkThisWeb', errMessage);
+    //         this.updateStateLists(index, testLists, definedList, );
 
-        });
-    }
+    //     });
+    // }
 /*
     private checkThisList(index: number, testLists : IMakeThisList[], thisWeb: any, definedList: IDefinedLists ){
         //const thisWeb = Web(testLists[index].webURL);
@@ -832,6 +835,41 @@ public constructor(props:IProvisionListsProps){
     }
 
     private getDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean ) {
+        console.log( 'getDefinedLists' );
+        let theLists : IMakeThisList[] = [];
+    
+        let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
+    
+        if ( justReturnLists === false ) { provisionListTitles = [] ; }
+    
+        if ( defineThisList !== availLists[0] ) { //Update to get available lists to build
+            theLists = getTheseDefinedLists( defineThisList, true, [ this.state.makeThisList.title ], [], this.state.makeThisList.webURL, this.state.makeThisList.webURL, this.state.doList, this.updateStateLists );
+    
+            // //Go through and re-map props that might not get set correctly
+            // theLists.map( list => {
+            //     list.name = this.props.theList.EntityTypeName;
+            //     list.title = this.props.theList.Title;
+            //     list.title = this.props.theList.Title;
+            //     list.desc = this.props.theList.Description;
+            //     list.listURL = this.props.theList.listURL;
+            //     list.listExists = true;
+            //     list.listExistedB4 = true;
+            //     list.webExists = true;
+            //     list.existingTemplate = this.props.theList.BaseTemplate;
+            //     list.onCurrentSite = this.state.onCurrentSite;
+            //     list.autoItemCreate = false;
+            // });
+        }
+    
+        //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+        this.setState({
+            lists: theLists,
+            definedList: defineThisList,
+        });
+    
+    }
+
+    private getDefinedListsOrig( defineThisList : IDefinedLists, justReturnLists : boolean ) {
 
         let theLists : IMakeThisList[] = [];
 
@@ -933,7 +971,7 @@ public constructor(props:IProvisionListsProps){
 
         } else {
             for ( let i in theLists ) {
-                this.checkThisWeb(parseInt(i,10), theLists, defineThisList );
+                checkThisWeb(parseInt(i,10), theLists, defineThisList, this.updateStateLists, getFullURLFromRelative( this.props.pickedWeb.url )  );
             }
         }
         return theLists;
@@ -976,7 +1014,8 @@ public constructor(props:IProvisionListsProps){
 
         let thisValue : any = getChoiceText(item.text);
 
-        let theLists = this.getDefinedLists(thisValue, false);
+        let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
+        let theLists = getTheseDefinedLists( thisValue , false, provisionListTitles, this.state.validUserIds, this.props.pickedWeb.url, this.props.pageContext.web.absoluteUrl, this.state.doList, this.updateStateLists );
 
         let doList: boolean = theLists.length === 0 ? null : theLists[0].template === 100 ? true : theLists[0].template === 101 ? false : null;
 
@@ -1006,7 +1045,10 @@ public constructor(props:IProvisionListsProps){
 
         let definedList = this.state.definedList;
 
-        let reDefinedLists = this.getDefinedLists(definedList, true);
+        // let reDefinedLists = this.getDefinedLists(definedList, true);
+
+        let reDefinedLists = getTheseDefinedLists( definedList , false, provisionListTitles, this.state.validUserIds, this.props.pickedWeb.url, this.props.pageContext.web.absoluteUrl, this.state.doList, this.updateStateLists );
+
         reDefinedLists[index].name = listName;
         reDefinedLists[index].title = oldVal;
         reDefinedLists[index].desc = oldVal + ' list for this Webpart';
@@ -1015,7 +1057,7 @@ public constructor(props:IProvisionListsProps){
             theList.listURL =  ( this.props.pickedWeb.url ) + '/' + ( theList.template === 100 ? 'lists/' : '') + listName;
         });
 
-        this.checkThisWeb(index, reDefinedLists, definedList);
+        checkThisWeb(index, reDefinedLists, definedList, this.updateStateLists, getFullURLFromRelative( this.props.pickedWeb.url ));
 
       }
 

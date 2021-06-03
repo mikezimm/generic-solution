@@ -225,6 +225,7 @@ export interface IProvisionListsState {
     // 2 - Source and destination list information
     definedList: IDefinedLists;
     applyThisVersion: string; //should tell us what version of the defined list is picked.
+
     provisionListTitles: string[];
 
     // 2 - Source and destination list information
@@ -678,6 +679,7 @@ public constructor(props:IProvisionListsProps){
     return readOnly;
 
   }
+  
   private markComplete() {
 
     this.setState({

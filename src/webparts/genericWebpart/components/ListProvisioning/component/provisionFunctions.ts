@@ -24,7 +24,7 @@ import { fixTitleNameInViews  } from '../../../../../services/listServices/viewS
 
   import * as dFinT from '../ListsFinTasks/defineFinTasks';
   import * as dReps from '../ListsReports/defineReports';
-  //import * as dTurn from '../ListsTurnover/defineTurnover';
+  import * as dTurn from '../ListsTurnover/defineTurnover';
   //import * as dOurG from '../ListsOurGroups/defineOurGroups';
   //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
   import * as dPivT from '../PivotTiles/definePivotTiles';
@@ -125,7 +125,19 @@ export function getTheseDefinedLists( defineThisList : IDefinedLists, justReturn
       if ( finTasks ) { theLists.push( finTasks ); }
       if ( ourTasks ) { theLists.push( ourTasks ); }
 
-  } 
+    } else if ( defineThisList === 'Turnover' ) {
+        //export type ITurnoverDefs = 'AOA' | 'IBC' | 'TBD';
+        if ( justReturnLists === false ) {  provisionListTitles.push('Turnover');  provisionListTitles.push('AOA');  }
+
+        let AOA : IMakeThisList = dTurn.defineTheList( 100 , provisionListTitles[0], 'AOA' , pickedWebUrl, validUserIds, webAbsoluteUrl );
+        let IBC : IMakeThisList = dTurn.defineTheList( 100 , provisionListTitles[1], 'IBC' , pickedWebUrl, validUserIds, webAbsoluteUrl );
+        let TBD : IMakeThisList = dTurn.defineTheList( 100 , provisionListTitles[2], 'TBD' , pickedWebUrl, validUserIds, webAbsoluteUrl );
+
+        if ( AOA ) { theLists.push( AOA ); }
+        if ( IBC ) { theLists.push( IBC ); }
+        if ( TBD ) { theLists.push( TBD ); }
+
+    }
 
   /**
    * Fix Title vs Name fields depending on list or library
@@ -141,7 +153,7 @@ export function getTheseDefinedLists( defineThisList : IDefinedLists, justReturn
 
   } else {
       for ( let i in theLists ) {
-          this.checkThisWeb(parseInt(i,10), theLists, defineThisList, updateStateLists, webAbsoluteUrl );
+          checkThisWeb(parseInt(i,10), theLists, defineThisList, updateStateLists, webAbsoluteUrl );
       }
   }
   return theLists;

@@ -109,6 +109,7 @@ import styles from './provisionList.module.scss';
 import MyLogList from './listView';
 
 import { IMakeThisList } from './provisionWebPartList';
+import { getTheseDefinedLists } from './provisionFunctions';
 
 import { JSONEditorShort } from '../../HelpInfo/AllLinks';
 
@@ -654,10 +655,7 @@ public constructor(props:IProvisionFieldsProps){
         }
     } else {
         console.log( 'listNo, mapThisList', listNo, mapThisList );
-    }
-
-
-        
+    } 
     return "Finished";
   }
 
@@ -843,70 +841,38 @@ public constructor(props:IProvisionFieldsProps){
     }
 
     private getDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean ) {
-
+        console.log( 'getDefinedLists' );
         let theLists : IMakeThisList[] = [];
-
+    
         let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
-
+    
         if ( justReturnLists === false ) { provisionListTitles = [] ; }
-
-        if ( defineThisList === availLists[0] ) {
-            //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            this.setState({
-                lists: theLists,
-                definedList: defineThisList,
-            });
-        } else if ( defineThisList === 'TrackMyTime' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Projects');  provisionListTitles.push('TrackMyTime');  }
-
-            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( parentList ) { theLists.push( parentList ); }
-            if ( childList ) { theLists.push( childList ); }
-
-        } else if ( defineThisList === 'Harmon.ie' ) {
-            
-            if ( justReturnLists === false ) {  provisionListTitles.push('BUEmails');  provisionListTitles.push('Emails');  }
-
-            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( buEmails ) { theLists.push( buEmails ); }
-            if ( justEmails ) { theLists.push( justEmails ); }
-
-        } else if ( defineThisList === 'Drilldown' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Drilldown');  provisionListTitles.push('Drilldown');  }
-
-            let buEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( buEmails ) { theLists.push( buEmails ); }
-            if ( justEmails ) { theLists.push( justEmails ); }
-
-        } else if ( defineThisList === 'Customer Requirements' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Program');  provisionListTitles.push('SORInfo');  }
-
-            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( progCustRequire ) { theLists.push( progCustRequire ); }
-            if ( sorCustRequire ) { theLists.push( sorCustRequire ); }
-
+    
+        if ( defineThisList !== availLists[0] ) { //Update to get available lists to build
+            theLists = getTheseDefinedLists( defineThisList, true, [ this.state.makeThisList.title ], [], this.state.makeThisList.webURL, this.state.makeThisList.webURL, this.state.doList, this.updateStateLists );
+    
+            // //Go through and re-map props that might not get set correctly
+            // theLists.map( list => {
+            //     list.name = this.props.theList.EntityTypeName;
+            //     list.title = this.props.theList.Title;
+            //     list.title = this.props.theList.Title;
+            //     list.desc = this.props.theList.Description;
+            //     list.listURL = this.props.theList.listURL;
+            //     list.listExists = true;
+            //     list.listExistedB4 = true;
+            //     list.webExists = true;
+            //     list.existingTemplate = this.props.theList.BaseTemplate;
+            //     list.onCurrentSite = this.state.onCurrentSite;
+            //     list.autoItemCreate = false;
+            // });
         }
-
-        if ( justReturnLists === true ) {
-            return theLists;
-
-        } else {
-            for ( let i in theLists ) {
-                this.checkThisWeb(parseInt(i,10), theLists, defineThisList );
-            }
-        }
-        return theLists;
+    
+        //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+        this.setState({
+            lists: theLists,
+            definedList: defineThisList,
+        });
+    
     }
 
     private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
@@ -946,7 +912,8 @@ public constructor(props:IProvisionFieldsProps){
 
         let thisValue : any = getChoiceText(item.text);
 
-        let theLists = this.getDefinedLists(thisValue, false);
+        let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
+        let theLists = getTheseDefinedLists( thisValue , false, provisionListTitles, this.state.validUserIds, this.props.pickedWeb.url, this.props.pageContext.web.absoluteUrl, this.state.doList, this.updateStateLists );
 
         let doList: boolean = theLists.length === 0 ? null : theLists[0].template === 100 ? true : theLists[0].template === 101 ? false : null;
 

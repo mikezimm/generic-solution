@@ -29,6 +29,7 @@ import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, }
  *
  */
 
+export type ITurnoverDefs = 'AOA' | 'IBC' | 'TBD';
 const thisColumnGroup = 'Used in Turnover list';
 const colPrefix = 'zzz';
 const thisDescription = 'Used in Turnover list';
@@ -546,17 +547,17 @@ export const KPI05TurnCalc : ICalculatedField = {
  */
 
 
-export function TurnOverFields(listName: 'TurnOver' | 'TurnOver') {
+export function TurnoverFields(listName: ITurnoverDefs ) {
     //return null;
 
-    let theseFields: IMyFieldTypes[] = BuildTurnOverFields(listName);
+    let theseFields: IMyFieldTypes[] = BuildTurnoverFields(listName);
 
-    console.log('HarmonieEmailFields', theseFields);
+    console.log('TurnoverFields', theseFields);
     return theseFields;
 }
 
 
-function BuildTurnOverFields(listName: 'TurnOver' | 'TurnOver') {
+function BuildTurnoverFields(listName: ITurnoverDefs) {
 
     let theseFields: IMyFieldTypes[] = [];
 
