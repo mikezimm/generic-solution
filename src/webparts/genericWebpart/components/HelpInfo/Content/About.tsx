@@ -11,6 +11,8 @@ export function aboutTable() {
         rows: [],
     };
 
+    table.rows.push( ['2021-06-04', '1.1.13.8',    <span>Update tricks page.</span>,                ''] );
+
     table.rows.push( ['2021-06-02', '1.1.13.7',    <span>Add rail AddTemplate to list... adds template columns and views to lists.</span>,                ''] );
 
     table.rows.push( ['2021-05-27', '1.1.13.6',    <span>Add Site info, changed ThisSite to Web info, fix Oh Snap error when clicking links.</span>,                ''] );
