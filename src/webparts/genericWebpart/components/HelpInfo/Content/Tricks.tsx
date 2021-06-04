@@ -11,8 +11,8 @@ export function tricksTable() {
         rows: [],
     };
 
-
-    let hasScenarioDev = window.location.search.indexOf('scenario=dev') > -1 ? makeCenteredBoldSpan( 'true' ) : makeCenteredBoldSpan (<a href={ window.location + '&scenario=dev' }>Activate!</a> ) ;
+    let hasSearchParams = window.location.search.length > 0 ? '&' : '?';
+    let hasScenarioDev = window.location.search.indexOf('scenario=dev') > -1 ? makeCenteredBoldSpan( 'true' ) : makeCenteredBoldSpan (<a href={ window.location + hasSearchParams + 'scenario=dev' }>Activate!</a> ) ;
     let hasAllowOther = window.location.search.indexOf('allowOtherSites=true') > -1 ?  makeCenteredBoldSpan('true') : '' ;
     let hasCrazy = window.location.search.indexOf('crazy=true') > -1 ?  makeCenteredBoldSpan('true') : '' ;
 
