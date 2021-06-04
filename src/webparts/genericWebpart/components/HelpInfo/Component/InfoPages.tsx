@@ -46,6 +46,9 @@ export interface IInfoPagesProps {
 export interface IInfoPagesState {
     selectedChoice: string;
     lastChoice: string;
+    hasScenarioDev: boolean;
+    hasAllowOther: boolean;
+    hasCrazy: boolean;
 
 }
 
@@ -88,11 +91,17 @@ public constructor(props:IInfoPagesProps){
 
     if ( this.about != null )            { this.options.push(  {key: 'about', text: 'About'  }); }
 
-
+    let hasScenarioDev = window.location.search.indexOf('scenario=dev') > -1 ? true : false;
+    let hasAllowOther = window.location.search.indexOf('scenario=dev') > -1 ? true : false;
+    let hasCrazy = window.location.search.indexOf('scenario=dev') > -1 ? true : false;
 
     this.state = { 
         selectedChoice: 'gettingStarted',
         lastChoice: '',
+
+        hasScenarioDev: hasScenarioDev,
+        hasAllowOther: hasAllowOther,
+        hasCrazy: hasCrazy,
 
     };
   }

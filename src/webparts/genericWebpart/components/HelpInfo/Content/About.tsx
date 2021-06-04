@@ -11,6 +11,10 @@ export function aboutTable() {
         rows: [],
     };
 
+    table.rows.push( ['2021-06-04', '1.1.13.9',    <span>Update tricks page.</span>,                ''] );
+
+    table.rows.push( ['2021-06-02', '1.1.13.7',    <span>Add rail AddTemplate to list... adds template columns and views to lists.</span>,                ''] );
+
     table.rows.push( ['2021-05-27', '1.1.13.6',    <span>Add Site info, changed ThisSite to Web info, fix Oh Snap error when clicking links.</span>,                ''] );
     table.rows.push( ['2021-05-27', '1.1.13.6',    <span>Add Associated Groups to Web info.  Add Security category to Site and Web Properties.</span>,                ''] );
     table.rows.push( ['2021-05-25', '1.1.13.5',    <span>Improve Compare List Fields, summary, accordion, styling.</span>,                ''] );

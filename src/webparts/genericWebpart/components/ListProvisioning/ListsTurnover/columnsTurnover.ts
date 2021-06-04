@@ -29,6 +29,7 @@ import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, }
  *
  */
 
+export type ITurnoverDefs = 'AOA' | 'IBC' | 'TBD';
 const thisColumnGroup = 'Used in Turnover list';
 const colPrefix = 'zzz';
 const thisDescription = 'Used in Turnover list';
@@ -91,6 +92,9 @@ export const Date01Turn : IDateTimeField = {
         Indexed: false,
         Required: false,
     },
+    onCreateChanges: {
+        Title: '1.0 - Date',
+    }
 };
 
 export const Date01TurnCalc : ICalculatedField = {
@@ -120,9 +124,9 @@ export const Choice01Turn : IChoiceField = {
         DefaultFormula:'="' + Choice1[Choice1.length-1] + '"',
         Indexed: true,
     },
-//    onCreateChanges: {
-//        Title: 'Status',
-//    }
+   onCreateChanges: {
+       Title: '1.1 - Shift',
+   }
 };
 
 export const Choice01TurnCalc : ICalculatedField = {
@@ -152,9 +156,9 @@ export const ItemCategoryTurn : IChoiceField = {
         DefaultFormula:'="' + Choice2[Choice2.length-1] + '"',
         Indexed: true,
     },
-//    onCreateChanges: {
-//        Title: 'Status',
-//    }
+   onCreateChanges: {
+       Title: '1.2 - Cell',
+   }
 };
 
 export const ItemCategoryTurnCalc : ICalculatedField = {
@@ -183,9 +187,9 @@ export const StatusTurn : IChoiceField = {
         DefaultFormula:'="' + Choice3[Choice3.length-1] + '"',
         Indexed: true,
     },
-//    onCreateChanges: {
-//        Title: 'Status',
-//    }
+   onCreateChanges: {
+       Title: 'Status',
+   }
 };
 
 export const StatusTurnCalc : ICalculatedField = {
@@ -220,6 +224,9 @@ export const Text01Turn : ITextField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
+    },
+    onCreateChanges: {
+        Title: '3.5 - Scrapped parts',
     }
 };
 
@@ -245,6 +252,9 @@ export const IdNumberTurn : ITextField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
+    },
+    onCreateChanges: {
+        Title: 'IdNo',
     }
 };
 
@@ -271,6 +281,9 @@ export const Number01Turn : INumberField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
+    },
+    onCreateChanges: {
+        Title: '2.1 - Demand',
     }
 };
 
@@ -297,6 +310,9 @@ export const Number02Turn : INumberField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
+    },
+    onCreateChanges: {
+        Title: '2.2 - Start',
     }
 };
 
@@ -323,6 +339,9 @@ export const Number03Turn : INumberField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
+    },
+    onCreateChanges: {
+        Title: '2.3 - Total Time',
     }
 };
 
@@ -349,6 +368,9 @@ export const Number04Turn : INumberField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
+    },
+    onCreateChanges: {
+        Title: '2.4 - Produced',
     }
 };
 
@@ -375,6 +397,9 @@ export const Number05Turn : INumberField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
+    },
+    onCreateChanges: {
+        Title: '2.5 - DT',
     }
 };
 
@@ -401,6 +426,9 @@ export const Number06Turn : INumberField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
+    },
+    onCreateChanges: {
+        Title: '2.6 - HC',
     }
 };
 
@@ -427,6 +455,9 @@ export const Number07Turn : INumberField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
+    },
+    onCreateChanges: {
+        Title: '2.8 - Scrapped',
     }
 };
 
@@ -546,17 +577,17 @@ export const KPI05TurnCalc : ICalculatedField = {
  */
 
 
-export function TurnOverFields(listName: 'TurnOver' | 'TurnOver') {
+export function TurnoverFields(listName: ITurnoverDefs ) {
     //return null;
 
-    let theseFields: IMyFieldTypes[] = BuildTurnOverFields(listName);
+    let theseFields: IMyFieldTypes[] = BuildTurnoverFields(listName);
 
-    console.log('HarmonieEmailFields', theseFields);
+    console.log('TurnoverFields', theseFields);
     return theseFields;
 }
 
 
-function BuildTurnOverFields(listName: 'TurnOver' | 'TurnOver') {
+function BuildTurnoverFields(listName: ITurnoverDefs) {
 
     let theseFields: IMyFieldTypes[] = [];
 

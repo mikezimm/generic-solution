@@ -9,6 +9,7 @@
  *                                                                                                                                  
  */
 
+
 import * as React from 'react';
 
 import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons } from 'office-ui-fabric-react';
@@ -16,10 +17,11 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 
 import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, Lists, List } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import ReactJson from "react-json-view";
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
+
 import { PageContext } from '@microsoft/sp-page-context';
 
 
@@ -35,14 +37,19 @@ import { PageContext } from '@microsoft/sp-page-context';
  */
 
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Import view arrays for Time list
+import { queryValueCurrentUser, queryValueToday, IViewField } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
+
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-import { cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
+import { cleanURL, cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { camelize } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
+import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
+
+import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
 
 /***
@@ -55,9 +62,9 @@ import { camelize } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCas
  *                                                                                                                                 
  *                                                                                                                                 
  */
+import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../../services/createAnalytics';
 
-import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
-
+import { fixTitleNameInViews  } from '../../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -70,14 +77,18 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../se
  *                                                                                                                       
  */
 
-import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
-import ButtonCompound from '../../createButtons/ICreateButtons';
-import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
-import { IFieldDef } from '../../fields/fieldDefinitions';
-import { createBasicTextField, createMultiLineTextField } from  '../../fields/textFieldBuilder';
+import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
+import ButtonCompound from '../../../createButtons/ICreateButtons';
+import { IButtonProps, ISingleButtonProps, IButtonState } from "../../../createButtons/ICreateButtons";
 
-/***
+import { IFieldDef } from '../../../fields/fieldDefinitions';
+import { createBasicTextField } from  '../../../fields/textFieldBuilder';
+
+import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
+
+import { JSONEditorShort } from '../../../HelpInfo/AllLinks';
+
+ /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
  *       88    88  88  88 88oodD' 88    88 88oobY'    88         8P      88    88 88  88  88 88oodD' 88    88 88V8o 88 88ooooo 88V8o 88    88    
@@ -87,6 +98,16 @@ import { createBasicTextField, createMultiLineTextField } from  '../../fields/te
  *                                                                                                                                               
  *                                                                                                                                               
  */
+
+
+import { provisionTheList, IValidTemplate } from '../../../ListProvisioning/component/provisionWebPartList';
+
+import styles from '../../../ListProvisioning/component/provisionList.module.scss';
+
+import MyLogList from '../../../ListProvisioning/component/listView';
+
+import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
+
 
 
 /***
@@ -100,48 +121,45 @@ import { createBasicTextField, createMultiLineTextField } from  '../../fields/te
  *                                                                                                                                               
  */
 
-import { provisionTheList, IValidTemplate } from './provisionWebPartList';
-
-import { IGenericWebpartProps } from '../../IGenericWebpartProps';
-import { IGenericWebpartState } from '../../IGenericWebpartState';
-import styles from './provisionList.module.scss';
-
-import MyLogList from './listView';
-
-import { IMakeThisList } from './provisionWebPartList';
-import { getTheseDefinedLists } from './provisionFunctions';
-
-import { JSONEditorShort } from '../../HelpInfo/AllLinks';
 
 /**
  * Steps to add new list def:
  * 1. Create folder and columns, define and view files
- * 2. Make sure the list def is in the availLists array
+ * 2. Make sure the list def is in the availLists array and definedLists array
  * 3. Add logic to getDefinedLists to fetch the list definition
  * Rinse and repeat
  */
-import * as dHarm from '../Harmonie/defineHarmonie';
-import * as dTMT from '../ListsTMT/defineThisList';
-import * as dCust from '../ListsCustReq/defineCustReq';
-import * as dPCP from '../PreConfig/definePreConfig';
+import * as dHarm from '../../../ListProvisioning/Harmonie/defineHarmonie';
+import * as dTMT from '../../../ListProvisioning/ListsTMT/defineThisList';
+import * as dCust from '../../../ListProvisioning/ListsCustReq/defineCustReq';
+import * as dPCP from '../../../ListProvisioning/PreConfig/definePreConfig';
 
-import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
-//import * as dFinT from '../ListsFinTasks/defineFinTasks';
-//import * as dReps from '../ListsReports/defineReports';
+import * as dFinT from '../../../ListProvisioning/ListsFinTasks/defineFinTasks';
+import * as dReps from '../../../ListProvisioning/ListsReports/defineReports';
 //import * as dTurn from '../ListsTurnover/defineTurnover';
 //import * as dOurG from '../ListsOurGroups/defineOurGroups';
 //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
-//import * as dPivT from '../PivotTiles/definePivotTiles';
+import * as dPivT from '../../../ListProvisioning/PivotTiles/definePivotTiles';
+
 
 
 /**
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
+ * 
  */
+export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | '';
 
-import { IDefinedLists, availLists, definedLists, dropDownWidth } from './provisionListComponent';
+//Add here to make available in dropdown (but does not work unless they are in the definedLists array )
+export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' ,  'OurGroups' ,  'Socialiis' , 'PivotTiles' , 'PreConfig'];
 
-export interface IProvisionFieldsProps {
+export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles', 'PreConfig' ];
+
+export const dropDownWidth = 200;
+
+// IDefinedLists, availLists, definedLists, dropDownWidth
+
+export interface IProvisionListsProps {
     // 0 - Context
 
     pageContext: PageContext;
@@ -165,6 +183,7 @@ export interface IProvisionFieldsProps {
     definedList: IDefinedLists; 
     pickedWeb : IPickedWebBasic;
     isCurrentWeb: boolean;
+
     provisionListTitles: string[];
 
     // 2 - Source and destination list information
@@ -184,7 +203,7 @@ export interface IMyHistory {
     items: IMyProgress[];
 }
 
-export interface IProvisionFieldsState {
+export interface IProvisionListsState {
 
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
 
@@ -198,8 +217,6 @@ export interface IProvisionFieldsState {
     doFields: boolean;
     doViews: boolean;
     doItems: boolean;
-    doEditMain: boolean;
-    doEditFields: boolean;
 
     listNo: number;
 
@@ -207,17 +224,20 @@ export interface IProvisionFieldsState {
 
     // 2 - Source and destination list information
     definedList: IDefinedLists;
+    applyThisVersion: string; //should tell us what version of the defined list is picked.
+
     provisionListTitles: string[];
 
     // 2 - Source and destination list information
     makeThisList: IMakeThisList;
 
     lists: IMakeThisList[];
+
     validUserIds: number[];
 
 }
 
-export default class ProvisionFields extends React.Component<IProvisionFieldsProps, IProvisionFieldsState> {
+export default class ProvisionLists extends React.Component<IProvisionListsProps, IProvisionListsState> {
 
     private createTitleField( title ) {
         let thisField : IFieldDef = {
@@ -255,7 +275,7 @@ export default class ProvisionFields extends React.Component<IProvisionFieldsPro
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionField' ); //richText
+            ActionJSON, 'ProvisionList' ); //richText
 
     }
 
@@ -270,7 +290,6 @@ export default class ProvisionFields extends React.Component<IProvisionFieldsPro
         return history;
 
     }
-
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b.
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D
@@ -282,11 +301,11 @@ export default class ProvisionFields extends React.Component<IProvisionFieldsPro
  *
  */
 
-public constructor(props:IProvisionFieldsProps){
+public constructor(props:IProvisionListsProps){
     super(props);
 
     let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
-    let theLists = this.props.makeThisList ? [ this.props.makeThisList ] : [] ;
+    let theLists = this.getDefinedLists(definedList, true) ;
 
     let allowOtherSites = this.props.allowOtherSites === true ? true : false;
     let alwaysReadOnly = this.props.alwaysReadOnly === true ? true : false;
@@ -297,10 +316,6 @@ public constructor(props:IProvisionFieldsProps){
 
     let makeThisList : IMakeThisList = this.props.makeThisList ? this.props.makeThisList : null ;
 
-    let provisionListTitles : string[] = this.props.provisionListTitles[0] && this.props.provisionListTitles[0].length > 0 ? [this.props.provisionListTitles[0]] : [ makeThisList ? makeThisList.title : 'Enter List Title' ];
-
-    let doList = makeThisList && makeThisList.template === 100 ? true : false;
-
     this.state = {
 
         alwaysReadOnly: alwaysReadOnly,
@@ -310,20 +325,17 @@ public constructor(props:IProvisionFieldsProps){
         history: this.clearHistory(),
 
         doMode: false,
-        doList: doList,
+        doList: true,
         doFields: true,
-        doViews: true,
+        doViews: false,
         doItems: false,
-        doEditMain: makeThisList ? false : true ,
-        doEditFields: false,
 
-        listNo: makeThisList ? 0 : null,
+        listNo: null,
 
         // 2 - Source and destination list information
 
-
         definedList: definedList,
-        provisionListTitles: provisionListTitles,
+        provisionListTitles: this.props.provisionListTitles,
 
         //parentListURL: parentWeb + 'lists/' + this.props.parentListTitle, //Get from list item
         //childListURL: childWeb + 'lists/' + this.props.childListTitle, //Get from list item
@@ -334,8 +346,8 @@ public constructor(props:IProvisionFieldsProps){
         //parentListTitle: this.props.parentListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
         //childListTitle: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
 
-        lists: theLists,
         makeThisList: makeThisList,
+        lists: theLists,
 
         validUserIds: [],
 
@@ -385,7 +397,7 @@ public constructor(props:IProvisionFieldsProps){
  *
  */
 
-    public render(): React.ReactElement<IProvisionFieldsProps> {
+    public render(): React.ReactElement<IProvisionListsProps> {
 
         if ( this.state.definedList === availLists[0] || ( this.state.lists && this.state.lists.length > 0 ) ) {
             //console.log('provisionList.tsx', this.props, this.state);
@@ -401,21 +413,28 @@ public constructor(props:IProvisionFieldsProps){
  *
  */
 
-
             let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } </div>;
+
+            let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
 
             let thisPage = null;
             let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
 
             let createButtonOnClicks = [
                 this.CreateList_0.bind(this),
+                this.CreateList_1.bind(this),
+                this.CreateList_2.bind(this),
             ];
 
             const buttons: ISingleButtonProps[] = this.state.lists.map (( thelist, index ) => {
                 let theLabel = null;
                 let isDisabled = !thelist.webExists;
 
-                if ( thelist.webExists ) {
+                if ( this.state.definedList === availLists[0] ) {
+                    isDisabled = true;
+                    theLabel = availLists[0];
+
+                } else if ( thelist.webExists ) {
                     if ( thelist.title === '' ) {
                         theLabel = "Update Title";
                         isDisabled = true;
@@ -453,10 +472,8 @@ public constructor(props:IProvisionFieldsProps){
                     label: theLabel, buttonOnClick: createButtonOnClicks[index], };
             });
 
-        
-
             //let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
-            let updateTitleFunctions = [this.UpdateTitle_0.bind(this)];
+            let updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
             let provisionButtons = buttons.map ( ( theButton, index ) => {
                 let thisTitle = this.state.provisionListTitles[index];
                 let titleBox = createBasicTextField(this.createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], styles.listProvTextField1 );
@@ -465,7 +482,7 @@ public constructor(props:IProvisionFieldsProps){
 
 
             let listLinks = this.state.lists.map( mapThisList => (
-                mapThisList.listExists ? links.createLink( mapThisList.listURL, '_none',  'Go to: ' + mapThisList.title ) : null ));
+                mapThisList.listExists ? links.createLink( mapThisList.listURL.replace('_layouts/15/undefined',''), '_none',  'Go to: ' + mapThisList.title ) : null ));
 
             const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
 
@@ -500,58 +517,33 @@ public constructor(props:IProvisionFieldsProps){
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
-                <span style={{ fontSize : 'xx-large'}}><mark>THIS PAGE IS CAN BREAK LISTS</mark></span>
-                <p>Every click is tracked :)</p>
+                <span style={{ fontSize : 'x-large'}}><mark>THIS PAGE IS BROKEN AND CAN RUIN LISTS... DO NOT USE</mark></span>
                 <p>When selecting list type, it should set default list titles per list type.</p>
                 <ul>
-                    <li>Set Title in onCreate</li>
-                    <li>Create columns fields and views for other common lists</li>
+                    <li>Pick List definition</li>
+                    <li>Pick List type (if more than one option is available)</li>
+                    <li>Set Title above button (or leave blank for default)</li>
+                    <li>Set Mode (1st Toggle).  Design just creates the json object you can look at.  Toggle to build.</li>
                 </ul>
             </div>;
 
-
             let listDetails = null;
-            let editToggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getEditToggles()) } </div>;
 
             if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true ) {
+                let listJSON = null; 
                        
                 let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] ));
                 if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
                 if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
                 if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
 
-                let JSONString = JSON.stringify(this.state.lists[0]);
-                let listDefInputField = this.state.doEditMain === true ? 
-                    createMultiLineTextField( 'Paste List JSON', JSONString, this.UpdateJSON.bind(this), styles.listProvTextField1 ) :
-                    <div style={{ overflowY: 'auto' }}>
-                        <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                    </div>;
+                listJSON = <div style={{ overflowY: 'auto' }}>
+                    <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                </div>;
 
                 listDetails = <div style={{display: '', marginBottom: '30px' }}>
-                        <div><h2>Details for list: <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
-                        { listDefInputField }
-                    </div>;
-
-            } 
-
-
-            let fieldDetails = null;
-
-            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true  ) {
- 
-                let tempJSON = this.state.lists[ this.state.listNo ].createTheseFields ? JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ].createTheseFields )) : [];
-                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
-    
-                let JSONString = JSON.stringify(this.state.lists[0].createTheseFields);
-                let fieldDefInputField = this.state.doEditFields === true ? 
-                        createMultiLineTextField( 'Paste fields JSON', JSONString, this.UpdateJSONFields.bind(this), styles.listProvTextField1 ) :
-                        <div style={{ overflowY: 'auto' }}>
-                            <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                        </div>;
-
-                fieldDetails = <div style={{display: '', marginBottom: '30px' }}>
-                        <div><h2>Details for fields:  <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
-                        { fieldDefInputField }
+                         <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
+                        { listJSON }
                     </div>;
 
             } 
@@ -560,6 +552,7 @@ public constructor(props:IProvisionFieldsProps){
 
             thisPage = <div><div>{ disclaimers }</div>
 
+                <div style={{ float: 'left' }}> { listDropdown } </div>
                 <div> { toggles } </div>
                 <div> { provisionButtonRow } </div>
                 <div style={{ height:30} }> {  } </div>
@@ -578,10 +571,7 @@ public constructor(props:IProvisionFieldsProps){
                         </div>
                 </div>
                 <div style={{display: this.state.doMode === true ? 'none': '' }}>
-                    { editToggles }
-                    { fieldDetails }
                     { listDetails }
-
                 </div>
             </div>;
 
@@ -628,6 +618,16 @@ public constructor(props:IProvisionFieldsProps){
     this.CreateThisList(mapThisList, 0 );
   }
 
+  private CreateList_1(oldVal: any): any {
+    let mapThisList: IMakeThisList = this.state.lists[1];
+    this.CreateThisList(mapThisList, 1 );
+  }
+
+  private CreateList_2(oldVal: any): any {
+    let mapThisList: IMakeThisList = this.state.lists[2];
+    this.CreateThisList(mapThisList, 2 );
+  }
+
   private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
 
     this.setState({ currentList: mapThisList.listDefinition + ' list: ' + mapThisList.title, history: this.clearHistory(), listNo: listNo });
@@ -637,10 +637,10 @@ public constructor(props:IProvisionFieldsProps){
     let readOnly: boolean  = this.isListReadOnly(mapThisList);
 
     if ( this.state.doMode === true ) {
-
+        
         this.captureAnalytics('Update List', 'Updating', mapThisList);
 
-        let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems, false );
+        let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems );
 
         let stateLists = this.state.lists;
         stateLists[listNo].listExists = true;
@@ -655,7 +655,13 @@ public constructor(props:IProvisionFieldsProps){
         }
     } else {
         console.log( 'listNo, mapThisList', listNo, mapThisList );
-    } 
+
+        //Pass this list back up to parent and down to Fields functionality
+
+    }
+
+    this.props.updateMakeThisList( mapThisList );
+        
     return "Finished";
   }
 
@@ -673,6 +679,7 @@ public constructor(props:IProvisionFieldsProps){
     return readOnly;
 
   }
+  
   private markComplete() {
 
     this.setState({
@@ -754,6 +761,7 @@ public constructor(props:IProvisionFieldsProps){
         console.log('_updateStateOnPropsChange:', doThis, this.props );
         let testLists : IMakeThisList[] = [];
         let definedList : IDefinedLists = null;
+
         if ( doThis === 'props' ) {
             if ( this.props.lists ) { testLists = JSON.parse(JSON.stringify(this.props.lists)) ; definedList = this.props.definedList; }
 
@@ -775,7 +783,6 @@ public constructor(props:IProvisionFieldsProps){
                 console.log('Not able to get SiteUsers', errMessage);
             });
         }
-
         if ( testLists.length > 0 ) {
             for ( let i in testLists ) {
                 this.checkThisWeb(parseInt(i,10), testLists, definedList);
@@ -805,12 +812,12 @@ public constructor(props:IProvisionFieldsProps){
                 testLists[index].onCurrentSite = testLists[index].webURL.toLowerCase() === this.props.pageContext.web.absoluteUrl.toLowerCase() + '/' ? true : false; 
             }
 
-            this.updateStateLists(index, testLists, definedList);
+            this.updateStateLists(index, testLists, definedList, );
 
         }).catch((e) => {
             let errMessage = getHelpfullError(e, true, true);
             console.log('checkThisWeb', errMessage);
-            this.updateStateLists(index, testLists, definedList);
+            this.updateStateLists(index, testLists, definedList, );
 
         });
     }
@@ -830,7 +837,7 @@ public constructor(props:IProvisionFieldsProps){
     }
 */
 
-    private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ) {
+    private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists) {
         let stateLists = this.state.lists;
         if (stateLists === undefined ) { stateLists = this.props.lists ; }
         stateLists[index] = testLists[index];
@@ -841,38 +848,111 @@ public constructor(props:IProvisionFieldsProps){
     }
 
     private getDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean ) {
-        console.log( 'getDefinedLists' );
+
         let theLists : IMakeThisList[] = [];
-    
+
         let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
-    
+
         if ( justReturnLists === false ) { provisionListTitles = [] ; }
-    
-        if ( defineThisList !== availLists[0] ) { //Update to get available lists to build
-            theLists = getTheseDefinedLists( defineThisList, true, [ this.state.makeThisList.title ], [], this.state.makeThisList.webURL, this.state.makeThisList.webURL, this.state.doList, this.updateStateLists );
-    
-            // //Go through and re-map props that might not get set correctly
-            // theLists.map( list => {
-            //     list.name = this.props.theList.EntityTypeName;
-            //     list.title = this.props.theList.Title;
-            //     list.title = this.props.theList.Title;
-            //     list.desc = this.props.theList.Description;
-            //     list.listURL = this.props.theList.listURL;
-            //     list.listExists = true;
-            //     list.listExistedB4 = true;
-            //     list.webExists = true;
-            //     list.existingTemplate = this.props.theList.BaseTemplate;
-            //     list.onCurrentSite = this.state.onCurrentSite;
-            //     list.autoItemCreate = false;
-            // });
+
+        if ( defineThisList === availLists[0] ) {
+            //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.props.currentUser, this.props.pageContext.web.absoluteUrl );
+            this.setState({
+                lists: theLists,
+                definedList: defineThisList,
+            });
+        } else if ( defineThisList === 'TrackMyTime' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Projects');  provisionListTitles.push('TrackMyTime');  }
+
+            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+
+            if ( parentList ) { theLists.push( parentList ); }
+            if ( childList ) { theLists.push( childList ); }
+
+        } else if ( defineThisList === 'Harmon.ie' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('BUEmails');  provisionListTitles.push('Emails');  }
+
+            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+
+            if ( buEmails ) { theLists.push( buEmails ); }
+            if ( justEmails ) { theLists.push( justEmails ); }
+
+        } else if ( defineThisList === 'PreConfig' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Drilldown');  provisionListTitles.push('CarrotCharts');  provisionListTitles.push('GridCharts');}
+
+            let drillDown : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let carrotCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'CarrotCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let gridCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[2], 'GridCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+
+            if ( drillDown ) { theLists.push( drillDown ); }
+            if ( carrotCharts ) { theLists.push( carrotCharts ); }
+            if ( gridCharts ) { theLists.push( gridCharts ); }
+
+        } else if ( defineThisList === 'Customer Requirements' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Program');  provisionListTitles.push('SORInfo');  }
+
+            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+
+            if ( progCustRequire ) { theLists.push( progCustRequire ); }
+            if ( sorCustRequire ) { theLists.push( sorCustRequire ); }
+
+        } else if ( defineThisList === 'PivotTiles' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('PivotTiles');  provisionListTitles.push('OurTiles');  }
+
+            let pivotTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[0], 'PivotTiles' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let ourTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[1], 'OurTiles' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+        
+            if ( pivotTiles ) { theLists.push( pivotTiles ); }
+            if ( ourTiles ) { theLists.push( ourTiles ); }
+
+        } else if ( defineThisList === 'Reports' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Reports1');  provisionListTitles.push('Reports2');  }
+
+            let reports1 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[0], 'Reports1' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let reports2 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[1], 'Reports2' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+        
+            if ( reports1 ) { theLists.push( reports1 ); }
+            if ( reports2 ) { theLists.push( reports2 ); }
+
+        } else if ( defineThisList === 'Finance Tasks' ) {
+
+            if ( justReturnLists === false ) {  provisionListTitles.push('Finance Tasks');  provisionListTitles.push('OurTasks');  }
+
+            let finTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[0], 'Finance Tasks' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+            let ourTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[1], 'OurTasks' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
+        
+            if ( finTasks ) { theLists.push( finTasks ); }
+            if ( ourTasks ) { theLists.push( ourTasks ); }
+
+        } 
+
+        /**
+         * Fix Title vs Name fields depending on list or library
+         */
+         theLists.map( list => {
+            list = fixTitleNameInViews( this.state.doList , list );
+         });
+
+        //'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PreConfig' |  dFinT
+
+        if ( justReturnLists === true ) {
+            return theLists;
+
+        } else {
+            for ( let i in theLists ) {
+                this.checkThisWeb(parseInt(i,10), theLists, defineThisList );
+            }
         }
-    
-        //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-        this.setState({
-            lists: theLists,
-            definedList: defineThisList,
-        });
-    
+        return theLists;
     }
 
     private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
@@ -912,8 +992,7 @@ public constructor(props:IProvisionFieldsProps){
 
         let thisValue : any = getChoiceText(item.text);
 
-        let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
-        let theLists = getTheseDefinedLists( thisValue , false, provisionListTitles, this.state.validUserIds, this.props.pickedWeb.url, this.props.pageContext.web.absoluteUrl, this.state.doList, this.updateStateLists );
+        let theLists = this.getDefinedLists(thisValue, false);
 
         let doList: boolean = theLists.length === 0 ? null : theLists[0].template === 100 ? true : theLists[0].template === 101 ? false : null;
 
@@ -925,78 +1004,13 @@ public constructor(props:IProvisionFieldsProps){
         this.UpdateTitles(oldVal,0);
       }
 
-      private UpdateJSON(oldVal: any): any {
-        let newMapThisList = null;
-
-        try {
-            let doFields = this.state.doFields;
-            let doViews = this.state.doViews;
-            let doItems = this.state.doItems;
-
-            //oldVal = oldVal.replace('doubleQuotes','\"');
-            newMapThisList = JSON.parse(oldVal);
-
-            if ( this.state.lists.length === 0 ) {
-                if (  newMapThisList.createTheseFields && newMapThisList.createTheseFields.length > 0 ) { } else { doFields = false ; }
-                if (  newMapThisList.createTheseViews && newMapThisList.createTheseViews.length > 0 ) { } else { doViews = false ; }
-                if (  newMapThisList.createTheseItems && newMapThisList.createTheseItems.length > 0 ) { } else { doItems = false ; }
-            }
-
-            let definedList = newMapThisList.definedList;
-
-            this.setState({ 
-                lists: [newMapThisList],
-                doFields: doFields,
-                doViews: doViews,
-                doItems: doItems,
-                definedList: definedList,
-                listNo: 0,
-            });
-
-        } catch (e) {
-            alert('Opps! Invalid List JSON!' + e );
-        }
-
+      private UpdateTitle_1(oldVal: any): any {
+        this.UpdateTitles(oldVal,1);
       }
 
-      private UpdateJSONFields(oldVal: any): any {
-        let newMapThisList : IMakeThisList = null;
-
-        try {
-            let doFields = this.state.doFields;
-
-            //oldVal = oldVal.replace('doubleQuotes','\"');
-            newMapThisList  = this.state.lists[0];
-
-            let firstBrace =oldVal.indexOf('{');
-            let closingBrace =  oldVal.lastIndexOf('}');
-            if ( firstBrace === 0 && closingBrace === ( oldVal.length - 1 ) ) {
-                oldVal= '[' + oldVal + ']';
-            }
-
-            let newFields = JSON.parse(oldVal);
-
-            if ( this.state.lists.length === 0 ) {
-                if (  newMapThisList.createTheseFields && newMapThisList.createTheseFields.length > 0 ) { } else { doFields = false ; }
-            }
-
-            newMapThisList.createTheseFields = newFields;
-
-            let definedList = newMapThisList.definedList;
-
-            this.setState({ 
-                lists: [newMapThisList],
-                doFields: doFields,
-                definedList: definedList,
-                listNo: 0,
-            });
-
-        } catch (e) {
-            alert('Opps! Invalid Field JSON!' + e );
-        }
-
+      private UpdateTitle_2(oldVal: any): any {
+        this.UpdateTitles(oldVal,2);
       }
-
 
       private UpdateTitles( oldVal: any, index: number ) {
         let provisionListTitles = this.state.provisionListTitles;
@@ -1008,14 +1022,16 @@ public constructor(props:IProvisionFieldsProps){
 
         let definedList = this.state.definedList;
 
-        let reDefinedList :  IMakeThisList = stateLists[0];
-        reDefinedList.name = listName;
-        reDefinedList.title = oldVal;
-        reDefinedList.desc = oldVal + ' list for this Webpart';
+        let reDefinedLists = this.getDefinedLists(definedList, true);
+        reDefinedLists[index].name = listName;
+        reDefinedLists[index].title = oldVal;
+        reDefinedLists[index].desc = oldVal + ' list for this Webpart';
+        reDefinedLists.map( theList => {
+            theList.template = this.state.doList === true ? 100 : 101 ;
+            theList.listURL =  ( this.props.pickedWeb.url ) + '/' + ( theList.template === 100 ? 'lists/' : '') + listName;
+        });
 
-        reDefinedList.listURL = this.props.pickedWeb.url + '/' + ( reDefinedList.template === 100 ? 'lists/' : '') + listName;
-
-        this.checkThisWeb(index, [ reDefinedList ], definedList);
+        this.checkThisWeb(index, reDefinedLists, definedList);
 
       }
 
@@ -1030,46 +1046,6 @@ public constructor(props:IProvisionFieldsProps){
          *                                                                   
          *                                                                   
          */
-        private getEditToggles() {
-
-            let toggleLabelMain = <span style={{ color: '', fontWeight: 700, whiteSpace: 'nowrap'}}>Edit or View entire list</span>;
-            let togDoEditMain = {
-                label: toggleLabelMain,
-                key: 'togDoEdit',
-                _onChange: this.updateTogggleDoEditMain.bind(this),
-                checked: this.state.doEditMain,
-                onText: 'Edit',
-                offText: 'View',
-                className: '',
-                styles: '',
-            };
-
-            let toggleLabel = <span style={{ color: '', fontWeight: 700, whiteSpace: 'nowrap'}}>Edit or View columns</span>;
-            let togDoEditFields = {
-                label: toggleLabel,
-                key: 'togDoEdit',
-                _onChange: this.updateTogggleDoEditFields.bind(this),
-                checked: this.state.doEditFields,
-                onText: 'Edit',
-                offText: 'View',
-                className: '',
-                styles: '',
-            };
-
-            let theseToggles = [ togDoEditFields, togDoEditMain ];
-
-            let pageToggles : IContentsToggles = {
-                toggles: theseToggles,
-                childGap: 20,
-                vertical: false,
-                hAlign: 'end',
-                vAlign: 'start',
-                rootStyle: { width: 200, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
-            };
-
-            return pageToggles;
-
-        }
 
         private getPageToggles() {
 
@@ -1096,10 +1072,9 @@ public constructor(props:IProvisionFieldsProps){
                 styles: '',
             };
 
-            let listNo = this.state.listNo;
-
+            let listNo = this.state.listNo; 
             let togDoFields = {
-                label: 'Fields ' + ( this.state.lists.length > 0 && listNo !== null ? `(${this.state.lists[listNo].createTheseFields.length})` : '' ),
+                label: 'Fields ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseFields.length})` : '' ),
                 key: 'togDoFields',
                 _onChange: this.updateTogggleDoFields.bind(this),
                 checked: this.state.doFields,
@@ -1110,7 +1085,7 @@ public constructor(props:IProvisionFieldsProps){
             };
 
             let togDoViews = {
-                label: 'Views ' + ( this.state.lists.length > 0 && listNo !== null ? `(${this.state.lists[listNo].createTheseViews.length})` : '' ),
+                label: 'Views ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseViews.length})` : '' ),
                 key: 'togDoViews',
                 _onChange: this.updateTogggleDoViews.bind(this),
                 checked: this.state.doViews,
@@ -1122,7 +1097,7 @@ public constructor(props:IProvisionFieldsProps){
 
             
             let togDoItems = {
-                label: 'Items ' + ( this.state.lists.length > 0 && listNo !== null ? `(${this.state.lists[listNo].createTheseItems.length})` : '' ),
+                label: 'Items ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseItems.length})` : '' ),
                 key: 'togDoItems',
                 _onChange: this.updateTogggleDoItems.bind(this),
                 checked: this.state.doItems,
@@ -1147,18 +1122,6 @@ public constructor(props:IProvisionFieldsProps){
 
         }
 
-        private updateTogggleDoEditMain = (item): void => {
-            this.setState({
-                doEditMain: !this.state.doEditMain,
-            });
-        }
-
-        private updateTogggleDoEditFields = (item): void => {
-            this.setState({
-                doEditFields: !this.state.doEditFields,
-            });
-        }
-
         private updateTogggleDoMode = (item): void => {
             this.setState({
                 doMode: !this.state.doMode,
@@ -1168,12 +1131,15 @@ public constructor(props:IProvisionFieldsProps){
         private updateTogggleDoList = (item): void => {
             //Similar to CreateThisList... just update existing list though
             let stateLists = this.state.lists;
-
             let newSetting = !this.state.doList;
+            // stateLists.map( list => {
+            //     list = fixTitleNameInViews( newSetting , list );
+            //  });
 
             stateLists.map( theList => {  // listURL, template
                 theList.template = newSetting === true ? 100 : 101;
                 theList.listURL = theList.webURL + ( newSetting === true ? 'lists/' : '' ) + theList.name;
+                theList = fixTitleNameInViews( newSetting , theList );
             });
 
             this.setState({ doList: !this.state.doList, lists: stateLists });
@@ -1198,5 +1164,7 @@ public constructor(props:IProvisionFieldsProps){
                 doItems: !this.state.doItems,
             });
         }
+
+        
 
 }

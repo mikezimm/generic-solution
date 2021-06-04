@@ -10,6 +10,7 @@ import styles from '../GenericWebpart.module.scss';
 export interface IToggleItem {
     label?: any;
     key: string;
+    disabled?: boolean;
     _onChange: any;
     checked: boolean;
     onText: string;
@@ -17,6 +18,7 @@ export interface IToggleItem {
     className?: any;
     styles?: any;
 }
+
 export interface IContentsToggles {
     toggles: IToggleItem[];
     className?: any;
@@ -26,7 +28,6 @@ export interface IContentsToggles {
     vAlign: Alignment;
     hAlign: Alignment;
     childGap: number;
-
 }
 
 export function makeToggles( makeTheseToggles: IContentsToggles ){
@@ -53,6 +54,7 @@ export function makeToggles( makeTheseToggles: IContentsToggles ){
                 onChange={ toggle._onChange } 
                 checked={ toggle.checked }
                 styles={ toggle.styles ? toggle.styles : defStyles }
+                disabled={ toggle.disabled === true ? true : false }
             />;
             return thisToggle;
         });
