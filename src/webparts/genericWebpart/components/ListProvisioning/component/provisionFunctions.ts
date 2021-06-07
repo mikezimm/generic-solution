@@ -27,19 +27,34 @@ import { fixTitleNameInViews  } from '../../../../../services/listServices/viewS
   //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
   import * as dPivT from '../PivotTiles/definePivotTiles';
 
-  
+
+  import { IListDefintionHarmonie } from '../Harmonie/defineHarmonie';
+  import { IListDefintionCustReq } from '../ListsCustReq/defineCustReq';
+  import { IListDefintionFinTasks } from '../ListsFinTasks/defineFinTasks';
+  import { IListDefintionReports } from '../ListsReports/defineReports';
+  import { IListDefintionTMT } from '../ListsTMT/defineThisList';
+  import { IListDefintionTurnOver } from '../ListsTurnover/defineTurnover';
+  import { IListDefintionPivot } from '../PivotTiles/definePivotTiles';
+  import { IListDefintionPreConfig } from '../PreConfig/definePreConfig';
 
 /**
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
  * 
  */
-export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | '';
+export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | 'Components';
+export type IDefinedChoice = 'Pick component Type' | IListDefintionTMT | IListDefintionHarmonie | IListDefintionCustReq | IListDefintionFinTasks |  IListDefintionReports |  IListDefintionTurnOver | IListDefintionPivot | IListDefintionPreConfig | '';
+
+export type IDefinedComponent = 'Pick component Type' | 'Status' | 'Year-Period' | 'Steps Done' | '';
+
 
 //Add here to make available in dropdown (but does not work unless they are in the definedLists array )
-export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' ,  'OurGroups' ,  'Socialiis' , 'PivotTiles' , 'PreConfig'];
+export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' , 'PivotTiles' , 'PreConfig'];
 
-export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles', 'PreConfig' ];
+export const availComponents : IDefinedComponent[] =  [ 'Pick component Type' , 'Status' , 'Year-Period' , 'Steps Done' ]; 
+
+//Currently Not beeing used
+export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'Socialiis', 'PivotTiles', 'PreConfig' ];
   
 export function getTheseDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean, provisionListTitles: string[], validUserIds: number[], pickedWebUrl: string, webAbsoluteUrl: string, doList: boolean, updateStateLists: any ) {
 
@@ -118,11 +133,11 @@ export function getTheseDefinedLists( defineThisList : IDefinedLists, justReturn
 
     } else if ( defineThisList === 'Turnover' ) {
         //export type ITurnoverDefs = 'AOA' | 'IBC' | 'TBD';
-        if ( justReturnLists === false ) {  provisionListTitles.push('Turnover');  provisionListTitles.push('AOA');  }
+        if ( justReturnLists === false ) {  provisionListTitles.push('AOA Turnover');  provisionListTitles.push('IBC Turnover');  }
 
-        let AOA : IMakeThisList = dTurn.defineTheList( 100 , provisionListTitles[0], 'AOA' , pickedWebUrl, validUserIds, webAbsoluteUrl );
-        let IBC : IMakeThisList = dTurn.defineTheList( 100 , provisionListTitles[1], 'IBC' , pickedWebUrl, validUserIds, webAbsoluteUrl );
-        let TBD : IMakeThisList = dTurn.defineTheList( 100 , provisionListTitles[2], 'TBD' , pickedWebUrl, validUserIds, webAbsoluteUrl );
+        let AOA : IMakeThisList = dTurn.defineTheList( 100 , provisionListTitles[0], 'AOA Turnover' , pickedWebUrl, validUserIds, webAbsoluteUrl );
+        let IBC : IMakeThisList = dTurn.defineTheList( 100 , provisionListTitles[1], 'IBC Turnover' , pickedWebUrl, validUserIds, webAbsoluteUrl );
+        let TBD : IMakeThisList = dTurn.defineTheList( 100 , provisionListTitles[2], 'TBD Turnover' , pickedWebUrl, validUserIds, webAbsoluteUrl );
 
         if ( AOA ) { theLists.push( AOA ); }
         if ( IBC ) { theLists.push( IBC ); }

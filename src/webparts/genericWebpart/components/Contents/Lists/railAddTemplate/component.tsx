@@ -655,6 +655,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     if ( justReturnLists === false ) { provisionListTitles = [] ; }
 
     if ( defineThisList !== availLists[0] ) { //Update to get available lists to build
+        
         theLists = getTheseDefinedLists( defineThisList, true, [ this.state.makeThisList.title ], [], this.state.makeThisList.webURL, this.state.makeThisList.webURL, this.state.doList, null );
 
         //Go through and re-map props that might not get set correctly

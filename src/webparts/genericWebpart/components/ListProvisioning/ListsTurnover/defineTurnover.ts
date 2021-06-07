@@ -14,7 +14,7 @@ export type IValidTemplate = 100 | 101;
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 
-export type IListDefintionTurnOver = 'AOA' | 'IBC' | 'TBD';
+export type IListDefintionTurnOver = 'AOA Turnover' | 'IBC Turnover' | 'TBD Turnover';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionTurnOver , webURL: string, currentUser: number[], pageURL: string ) {
