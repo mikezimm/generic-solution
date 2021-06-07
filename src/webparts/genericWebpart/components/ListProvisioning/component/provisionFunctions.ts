@@ -6,7 +6,7 @@ import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
-import { availLists, IDefinedLists, definedLists, dropDownWidth } from './provisionListComponent';
+import { dropDownWidth } from './provisionListComponent';
 import { IMakeThisList } from './provisionWebPartList';
 import { fixTitleNameInViews  } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
@@ -29,6 +29,19 @@ import { fixTitleNameInViews  } from '../../../../../services/listServices/viewS
   //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
   import * as dPivT from '../PivotTiles/definePivotTiles';
 
+  
+
+/**
+ * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
+ * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
+ * 
+ */
+export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | '';
+
+//Add here to make available in dropdown (but does not work unless they are in the definedLists array )
+export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' ,  'OurGroups' ,  'Socialiis' , 'PivotTiles' , 'PreConfig'];
+
+export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles', 'PreConfig' ];
   
     export interface IMyHistory {
         count: number;

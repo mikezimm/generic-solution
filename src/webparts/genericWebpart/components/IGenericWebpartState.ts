@@ -15,7 +15,6 @@ import { ISelectedUser, } from './Charts/charts';
 import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
 
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
-import { IDefinedLists } from './ListProvisioning/component/provisionListComponent';
 
   export interface IUserSummary { 
     title: string; 

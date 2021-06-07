@@ -147,19 +147,7 @@ import * as dReps from '../ListsReports/defineReports';
 //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
 import * as dPivT from '../PivotTiles/definePivotTiles';
 
-
-
-/**
- * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
- * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
- * 
- */
-export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | '';
-
-//Add here to make available in dropdown (but does not work unless they are in the definedLists array )
-export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' ,  'OurGroups' ,  'Socialiis' , 'PivotTiles' , 'PreConfig'];
-
-export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles', 'PreConfig' ];
+import { IDefinedLists, availLists, definedLists, } from './provisionFunctions';
 
 export const dropDownWidth = 200;
 

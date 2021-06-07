@@ -9,15 +9,15 @@ import { TMTDefaultProjectItems, TMTTestTimeItems, } from './ItemsWebPart'; // I
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
-import { IDefinedLists } from '../component/provisionListComponent';
 // definedList: 'PreConfig',
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 
 export type IValidTemplate = 100 | 101;
 
+export type IListDefintionTMT = 'Projects' | 'TrackMyTime';
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'Projects' | 'TrackMyTime' , webURL: string, currentUser: number[], pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionTMT , webURL: string, currentUser: number[], pageURL: string ) {
 
     let makeThisList:  IMakeThisList = defineTheListMaster(template, listTitle,listDefinition,webURL,pageURL, 'TrackMyTime');
 

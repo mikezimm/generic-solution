@@ -83,32 +83,14 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../..
 
   import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
-  import { availLists, IDefinedLists, definedLists, dropDownWidth } from '../../../ListProvisioning/component/provisionListComponent';
-  import { getTheseDefinedLists, clearHistory, IMyHistory } from '../../../ListProvisioning/component/provisionFunctions';
+  import { dropDownWidth } from '../../../ListProvisioning/component/provisionListComponent';  //IDefinedLists, availLists, definedLists,
+  import { IDefinedLists, availLists, definedLists, getTheseDefinedLists, clearHistory, IMyHistory } from '../../../ListProvisioning/component/provisionFunctions';
 
   import { provisionTheList, IValidTemplate } from '../../../ListProvisioning/component/provisionWebPartList';
   import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
   import { fixTitleNameInViews  } from '../../../../../../services/listServices/viewServices'; //Import view arrays for Time list
   import MyLogList from '../../../ListProvisioning/component/listView';
 
-  /**
-     * Steps to add new list def:
-     * 1. Create folder and columns, define and view files
-     * 2. Make sure the list def is in the availLists array and definedLists array
-     * 3. Add logic to getDefinedLists to fetch the list definition
-     * Rinse and repeat
-     */
-    import * as dHarm from '../../../ListProvisioning/Harmonie/defineHarmonie';
-    import * as dTMT from '../../../ListProvisioning/ListsTMT/defineThisList';
-    import * as dCust from '../../../ListProvisioning/ListsCustReq/defineCustReq';
-    import * as dPCP from '../../../ListProvisioning/PreConfig/definePreConfig';
-
-    import * as dFinT from '../../../ListProvisioning/ListsFinTasks/defineFinTasks';
-    import * as dReps from '../../../ListProvisioning/ListsReports/defineReports';
-    //import * as dTurn from '../ListsTurnover/defineTurnover';
-    //import * as dOurG from '../ListsOurGroups/defineOurGroups';
-    //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
-    import * as dPivT from '../../../ListProvisioning/PivotTiles/definePivotTiles';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 

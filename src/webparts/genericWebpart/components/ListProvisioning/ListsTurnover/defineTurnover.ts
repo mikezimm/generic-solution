@@ -1,6 +1,6 @@
 
 
-import { TurnoverFields, ITurnoverDefs } from './columnsTurnover'; //Import column arrays (one file because both lists use many of same columns)
+import { TurnoverFields, } from './columnsTurnover'; //Import column arrays (one file because both lists use many of same columns)
 
 // import { TurnoverViews, } from './viewsTurnover';  //Import view arrays for Project list
 
@@ -8,15 +8,16 @@ import { IMakeThisList, provisionTheList } from '../component/provisionWebPartLi
 
 import { TurnoverItems } from './ItemsWebPart';
 
-import { IDefinedLists } from '../component/provisionListComponent';
 // definedList: 'PreConfig',
 
 export type IValidTemplate = 100 | 101;
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 
+export type IListDefintionTurnOver = 'AOA' | 'IBC' | 'TBD';
+
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: ITurnoverDefs , webURL: string, currentUser: number[], pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionTurnOver , webURL: string, currentUser: number[], pageURL: string ) {
 
     let makeThisList:  IMakeThisList = defineTheListMaster(template, listTitle,listDefinition,webURL,pageURL, 'Turnover');
     

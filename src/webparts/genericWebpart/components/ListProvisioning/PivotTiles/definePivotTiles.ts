@@ -6,12 +6,13 @@ import { pivotViews} from './viewsPivotTiles';  //Import view arrays for Project
 import { IMakeThisList, provisionTheList,  } from '../component/provisionWebPartList';
 
 export type IValidTemplate = 100 | 101;
-import { IDefinedLists } from '../component/provisionListComponent';
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 
+export type IListDefintionPivot = 'OurTiles' | 'PivotTiles';
+
 //export async function provisionTheListLoader( template: IValidTemplate , listTitle : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'OurTiles' | 'PivotTiles' , webURL: string, currentUser:  number[], pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionPivot , webURL: string, currentUser:  number[], pageURL: string ) {
 
     let makeThisList:  IMakeThisList = defineTheListMaster(template, listTitle,listDefinition,webURL,pageURL, 'PivotTiles');
 

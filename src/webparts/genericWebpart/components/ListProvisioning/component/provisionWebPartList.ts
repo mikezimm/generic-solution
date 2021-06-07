@@ -72,7 +72,7 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
  */
 
 
-import { IDefinedLists } from './provisionListComponent';
+import { IDefinedLists } from './provisionFunctions';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 

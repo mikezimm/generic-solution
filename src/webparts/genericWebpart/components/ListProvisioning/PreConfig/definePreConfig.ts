@@ -7,7 +7,6 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
-import { IDefinedLists } from '../component/provisionListComponent';
 // definedList: 'PreConfig',
 export type IValidTemplate = 100 | 101;
 
@@ -17,8 +16,10 @@ import { CarrotItems } from './Items/CarrotItems';
 
 import { GridItems } from './Items/GridItems';
 
+export type IListDefintionPreConfig = 'Drilldown' | 'CarrotCharts' | 'GridCharts';
+
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'Drilldown' | 'CarrotCharts' | 'GridCharts', webURL: string, currentUser:  number[], pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionPreConfig, webURL: string, currentUser:  number[], pageURL: string ) {
 
     let makeThisList:  IMakeThisList = defineTheListMaster(template, listTitle,listDefinition,webURL,pageURL, 'PreConfig');
 

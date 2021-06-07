@@ -169,8 +169,8 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
  */
-
-import { IDefinedLists, availLists, definedLists, dropDownWidth } from './provisionListComponent';
+import { IDefinedLists, availLists, definedLists, } from './provisionFunctions';
+import { dropDownWidth } from './provisionListComponent';
 
 export interface IProvisionItemsProps {
     // 0 - Context

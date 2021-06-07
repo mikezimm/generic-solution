@@ -21,6 +21,8 @@ import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, 
 //Imported but not used so that intellisense can prevent duplicate named columns.
 import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
+import { IListDefintionFinTasks } from './defineFinTasks';
+
 /***
  *     .d8b.  d8888b. d8888b.       d888b  d8888b.  .d88b.  db    db d8888b.      d8b   db  .d8b.  .88b  d88. d88888b
  *    d8' `8b 88  `8D 88  `8D      88' Y8b 88  `8D .8P  Y8. 88    88 88  `8D      888o  88 d8' `8b 88'YbdP`88 88'
@@ -35,8 +37,6 @@ import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, }
 const thisColumnGroup = 'Used in SocialiiS list';
 const colPrefix = 'zzz';
 const thisDescription = 'Used in SocialiiS list';
-
-export type IFinTasksDefs = 'Finance Tasks' | 'OurTasks' ;
 
 
 /***
@@ -442,7 +442,7 @@ export const IsCurrentVerFin : IBooleanField = {
  */
 
 
-export function FinTasksFields(listName: IFinTasksDefs ) {
+export function FinTasksFields(listName: IListDefintionFinTasks ) {
     //return null;
 
     let theseFields: IMyFieldTypes[] = BuildFinTasksFields(listName);
@@ -450,7 +450,7 @@ export function FinTasksFields(listName: IFinTasksDefs ) {
 }
 
 
-function BuildFinTasksFields(listName: IFinTasksDefs ) {
+function BuildFinTasksFields(listName: IListDefintionFinTasks ) {
 
     let theseFields: IMyFieldTypes[] = [];
 

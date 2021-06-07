@@ -5,15 +5,16 @@ import { HarmonieViews, BUHarmonieViews } from './viewsHarmonie';  //Import view
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
-import { IDefinedLists } from '../component/provisionListComponent';
 // definedList: 'PreConfig',
 
 export type IValidTemplate = 100 | 101;
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 
+export type IListDefintionHarmonie = 'Emails' | 'BUEmails' ;
+
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'Emails' | 'BUEmails' , webURL: string, currentUser: number[], pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionHarmonie , webURL: string, currentUser: number[], pageURL: string ) {
 
     //import { defineTheListMaster } from '../component/provisionWebPartList';
     let makeThisList:  IMakeThisList = defineTheListMaster(template, listTitle,listDefinition,webURL,pageURL, 'Harmon.ie');
