@@ -25,6 +25,8 @@ import { IMyProgress, } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMy
 import { IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import { IPickedList, IPickedWebBasic, } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
 import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
@@ -116,15 +118,6 @@ export interface IInspectColumnsProps {
 
 }
 
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    fields: IMyProgress[];
-    views: IMyProgress[];
-    items: IMyProgress[];
-
-
-}
 
 export interface IFieldBucketInfo {
     fields: IContentsFieldInfo[];
@@ -180,18 +173,6 @@ export interface IInspectColumnsState {
 export default class InspectColumns extends React.Component<IInspectColumnsProps, IInspectColumnsState> {
 
 
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            fields: [],
-            views: [],
-            items: [],
-        };
-        return history;
-
-    }
-
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D 
@@ -211,7 +192,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             allowOtherSites: this.props.allowOtherSites === true ? true : false,
             currentPage: 'Click Button to start',
             progress: null,
-            history: this.clearHistory(),
+            history: clearHistory(),
             allLoaded: false,
 
             allFields: [],

@@ -33,6 +33,8 @@ import { IPickedList, IPickedWebBasic, } from '@mikezimm/npmfunctions/dist/Lists
 import {  IMyPivots, IPivot,  ILink,  IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import {  IUser,  } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionPage.module.scss';
@@ -90,14 +92,6 @@ export interface IProvisionPatternsProps {
 
     currentUser: IUser;
 
-}
-
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    columns: IMyProgress[];
-    views: IMyProgress[];
-    items: IMyProgress[];
 }
 
 export interface IFetchListInfo {
@@ -223,18 +217,6 @@ private buildFilterPivot(pivCat: IMyPivCat) {
     return p;
 }
 
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            columns: [],
-            views: [],
-            items: [],
-        };
-        return history;
-
-    }
-
     private buildFetchList( location: ILocation ) {
 
         //Copied from GridCharts for createFetchList
@@ -310,7 +292,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             currentLoaded: false,
 
             progress: null,
-            history: this.clearHistory(),
+            history: clearHistory(),
 
             webURL: this.props.webURL,
 
@@ -472,7 +454,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
                     descending={false}          titles={null}            ></MyLogList>;
 
                 let copiedList = <MyLogList 
-                    title={ 'Copie'}           items={ this.state.history.columns }
+                    title={ 'Copie'}           items={ this.state.history.fields }
                     descending={false}          titles={null}            ></MyLogList>;
 
                 thisPage = <div>
@@ -648,7 +630,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             if ( page === 'E') {
                 history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
             } else if ( page === 'C') {
-                history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+                history.fields = history.fields.length === 0 ? [progress] : [progress].concat(history.fields);
             } else if ( page === 'V') {
                 history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
             } else if ( page === 'I') {

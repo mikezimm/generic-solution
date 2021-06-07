@@ -41,26 +41,6 @@ export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','H
 
 export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'OurGroups', 'Socialiis', 'PivotTiles', 'PreConfig' ];
   
-    export interface IMyHistory {
-        count: number;
-        errors: IMyProgress[];
-        columns: IMyProgress[];
-        views: IMyProgress[];
-        items: IMyProgress[];
-    }
-
-  export function clearHistory() {
-    let history: IMyHistory = {
-        count: 0,
-        errors: [],
-        columns: [],
-        views: [],
-        items: [],
-    };
-    return history;
-
-  }
-
 export function getTheseDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean, provisionListTitles: string[], validUserIds: number[], pickedWebUrl: string, webAbsoluteUrl: string, doList: boolean, updateStateLists: any ) {
 
   let theLists : IMakeThisList[] = [];

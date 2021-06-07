@@ -51,6 +51,7 @@ import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Service
 
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -114,7 +115,6 @@ import MyLogList from './listView';
 
 import { IMakeThisList } from './provisionWebPartList';
 
-import { clearHistory, IMyHistory } from './provisionFunctions';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -480,7 +480,7 @@ public constructor(props:IProvisionListsProps){
                 descending={false}          titles={null}            ></MyLogList>;
 
             let fieldList = <MyLogList
-                title={ 'Column'}           items={ this.state.history.columns }
+                title={ 'Column'}           items={ this.state.history.fields }
                 descending={false}          titles={null}            ></MyLogList>;
 
             let viewList = <MyLogList
@@ -705,7 +705,7 @@ public constructor(props:IProvisionListsProps){
         if ( list === 'E') {
             history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
         } else if ( list === 'C') {
-            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+            history.fields = history.fields.length === 0 ? [progress] : [progress].concat(history.fields);
         } else if ( list === 'V') {
             history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
         } else if ( list === 'I') {

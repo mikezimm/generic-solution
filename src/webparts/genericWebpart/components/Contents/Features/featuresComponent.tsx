@@ -19,6 +19,8 @@ import { IMyProgress,} from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyI
 import { IPickedWebBasic } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser, } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
@@ -85,12 +87,6 @@ export interface IInspectFeaturesProps {
 
 }
 
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    features: IMyProgress[];
-
-}
 
 export interface IFeatureBucketInfo {
     features: IContentsFeatureInfo[];
@@ -154,15 +150,6 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
         ];
         return result;
     }
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            features: [],
-        };
-        return history;
-
-    }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -183,7 +170,7 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
             allowOtherSites: this.props.allowOtherSites === true ? true : false,
             currentPage: 'Click Button to start',
             progress: null,
-            history: this.clearHistory(),
+            history: clearHistory(),
             allLoaded: false,
 
             allFeatures: [],

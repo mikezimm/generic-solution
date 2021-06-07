@@ -23,6 +23,8 @@ import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IM
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { ITheTime } from '@mikezimm/npmfunctions/dist/Services/Time/Interfaces';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
@@ -96,13 +98,6 @@ export interface IInspectUsersProps {
 
 }
 
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    users: IMyProgress[];
-
-}
-
 export interface IUserBucketInfo {
     users: IContentsUserInfo[];
     count: number;
@@ -165,15 +160,6 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
         ];
         return result;
     }
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            users: [],
-        };
-        return history;
-
-    }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -194,7 +180,7 @@ export default class InspectUsers extends React.Component<IInspectUsersProps, II
             allowOtherSites: this.props.allowOtherSites === true ? true : false,
             currentPage: 'Click Button to start',
             progress: null,
-            history: this.clearHistory(),
+            history: clearHistory(),
             allLoaded: false,
 
             allUsers: [],

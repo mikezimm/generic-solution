@@ -57,6 +57,8 @@ import ReactJson from "react-json-view";
  import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
  import { JSONEditorShort } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksDevDocs';
 
+ import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -84,7 +86,7 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../..
   import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
   import { dropDownWidth } from '../../../ListProvisioning/component/provisionListComponent';  //IDefinedLists, availLists, definedLists,
-  import { IDefinedLists, availLists, definedLists, getTheseDefinedLists, clearHistory, IMyHistory } from '../../../ListProvisioning/component/provisionFunctions';
+  import { IDefinedLists, availLists, definedLists, getTheseDefinedLists } from '../../../ListProvisioning/component/provisionFunctions';
 
   import { provisionTheList, IValidTemplate } from '../../../ListProvisioning/component/provisionWebPartList';
   import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
@@ -331,7 +333,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 descending={false}          titles={null}            ></MyLogList>;
 
             let fieldList = <MyLogList
-                title={ 'Column'}           items={ this.state.history.columns }
+                title={ 'Column'}           items={ this.state.history.fields }
                 descending={false}          titles={null}            ></MyLogList>;
 
             let viewList = <MyLogList
@@ -629,7 +631,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         if ( list === 'E') {
             history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
         } else if ( list === 'C') {
-            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+            history.fields = history.fields.length === 0 ? [progress] : [progress].concat(history.fields);
         } else if ( list === 'V') {
             history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
         } else if ( list === 'I') {

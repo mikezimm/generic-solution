@@ -67,6 +67,8 @@ import { isGuid, makeid, } from '@mikezimm/npmfunctions/dist/Services/Strings/st
 import { IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -139,9 +141,6 @@ import { IMakeThisList } from './provisionWebPartList';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 
-import { createGridDates } from '../../../../../services/sampleData';
-
-import { IFieldDef } from '../../fields/fieldDefinitions';
 import { createBasicTextField, createMultiLineTextField } from  '../../fields/textFieldBuilder';
 
 /**
@@ -205,14 +204,6 @@ export interface IProvisionItemsProps {
 
     lists: IMakeThisList[];
 
-}
-
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    columns: IMyProgress[];
-    views: IMyProgress[];
-    items: IMyProgress[];
 }
 
 //export type IItemMode = 'Define' | 'Create' | 'Status' | 'History';
@@ -354,18 +345,6 @@ public createPivotObject(setPivot, display){
         return p;
     }
 
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            columns: [],
-            views: [],
-            items: [],
-        };
-        return history;
-
-    }
-
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b.
  *         d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' 88  `8D 88    88 d8P  Y8 `~~88~~' .8P  Y8. 88  `8D
@@ -402,7 +381,7 @@ public constructor(props:IProvisionItemsProps){
         currentList: '',
         allLoaded: this.props.allLoaded,
         progress: null,
-        history: this.clearHistory(),
+        history: clearHistory(),
 
         doMode: false,
         doItems: false,

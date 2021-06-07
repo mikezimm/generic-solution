@@ -44,6 +44,7 @@ import { cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/url
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 import { camelize } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
@@ -178,14 +179,6 @@ export interface IProvisionFieldsProps {
 
 }
 
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    columns: IMyProgress[];
-    views: IMyProgress[];
-    items: IMyProgress[];
-}
-
 export interface IProvisionFieldsState {
 
     alwaysReadOnly?: boolean;  // default is to be false so you can update at least local lists
@@ -261,17 +254,6 @@ export default class ProvisionFields extends React.Component<IProvisionFieldsPro
 
     }
 
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            columns: [],
-            views: [],
-            items: [],
-        };
-        return history;
-
-    }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b.
@@ -309,7 +291,7 @@ public constructor(props:IProvisionFieldsProps){
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
         progress: null,
-        history: this.clearHistory(),
+        history: clearHistory(),
 
         doMode: false,
         doList: doList,
@@ -489,7 +471,7 @@ public constructor(props:IProvisionFieldsProps){
                 descending={false}          titles={null}            ></MyLogList>;
 
             let fieldList = <MyLogList
-                title={ 'Column'}           items={ this.state.history.columns }
+                title={ 'Column'}           items={ this.state.history.fields }
                 descending={false}          titles={null}            ></MyLogList>;
 
             let viewList = <MyLogList
@@ -632,7 +614,7 @@ public constructor(props:IProvisionFieldsProps){
 
   private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
 
-    this.setState({ currentList: mapThisList.listDefinition + ' list: ' + mapThisList.title, history: this.clearHistory(), listNo: listNo });
+    this.setState({ currentList: mapThisList.listDefinition + ' list: ' + mapThisList.title, history: clearHistory(), listNo: listNo });
 
     let listName = mapThisList.title ? mapThisList.title : mapThisList.title;
 
@@ -725,7 +707,7 @@ public constructor(props:IProvisionFieldsProps){
         if ( list === 'E') {
             history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
         } else if ( list === 'C') {
-            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+            history.fields = history.fields.length === 0 ? [progress] : [progress].concat(history.fields);
         } else if ( list === 'V') {
             history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
         } else if ( list === 'I') {

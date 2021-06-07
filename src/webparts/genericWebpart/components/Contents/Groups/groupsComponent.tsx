@@ -28,6 +28,8 @@ import { IPickedWebBasic } from '@mikezimm/npmfunctions/dist/Lists/IListInterfac
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
@@ -102,13 +104,6 @@ export interface IInspectGroupsProps {
 
 }
 
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    groups: IMyProgress[];
-
-}
-
 export interface IGroupBucketInfo {
     groups: IContentsGroupInfo[];
     count: number;
@@ -171,15 +166,6 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
         ];
         return result;
     }
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            groups: [],
-        };
-        return history;
-
-    }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -200,7 +186,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
             allowOtherSites: this.props.allowOtherSites === true ? true : false,
             currentPage: 'Click Button to start',
             progress: null,
-            history: this.clearHistory(),
+            history: clearHistory(),
             allLoaded: false,
 
             allGroups: [],

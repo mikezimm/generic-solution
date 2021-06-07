@@ -15,6 +15,8 @@ import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, 
 import { IPickedWebBasic, IPickedList, }  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 import { provisionThePage, IValidTemplate, provisionTestPage, provisionDrilldownPage } from './provisionWebPartPages';
 
 import styles from './provisionPage.module.scss';
@@ -70,14 +72,6 @@ export interface IProvisionPagesProps {
 
 }
 
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    columns: IMyProgress[];
-    views: IMyProgress[];
-    items: IMyProgress[];
-}
-
 export interface IProvisionPagesState {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning pages on other sites.
@@ -100,19 +94,6 @@ export interface IProvisionPagesState {
 }
 
 export default class ProvisionPages extends React.Component<IProvisionPagesProps, IProvisionPagesState> {
-
-
-private clearHistory() {
-    let history: IMyHistory = {
-        count: 0,
-        errors: [],
-        columns: [],
-        views: [],
-        items: [],
-    };
-    return history;
-
-}
 
 private createRandom(str: string, webURL: string) {
 
@@ -199,7 +180,7 @@ public constructor(props:IProvisionPagesProps){
         currentPage: 'Click Button to start',
         allLoaded: this.props.allLoaded,
         progress: null,
-        history: this.clearHistory(),
+        history: clearHistory(),
 
         webURL: this.props.webURL,
 
@@ -338,7 +319,7 @@ public constructor(props:IProvisionPagesProps){
                 descending={false}          titles={null}            ></MyLogList>;
 
             let fieldList = <MyLogList 
-                title={ 'Webpart'}           items={ this.state.history.columns }
+                title={ 'Webpart'}           items={ this.state.history.fields }
                 descending={false}          titles={null}            ></MyLogList>;
 
             let viewList = <MyLogList 
@@ -435,7 +416,7 @@ public constructor(props:IProvisionPagesProps){
 
     return "Finished";
 
-    this.setState({ currentPage: mapThisPage + ' page: ' + mapThisPage.title, history: this.clearHistory(), });
+    this.setState({ currentPage: mapThisPage + ' page: ' + mapThisPage.title, history: clearHistory(), });
 
     let pageName = mapThisPage.title ? mapThisPage.title : mapThisPage.title;
 
@@ -521,7 +502,7 @@ public constructor(props:IProvisionPagesProps){
         if ( page === 'E') {
             history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
         } else if ( page === 'C') {
-            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+            history.fields = history.fields.length === 0 ? [progress] : [progress].concat(history.fields);
         } else if ( page === 'V') {
             history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
         } else if ( page === 'I') {
