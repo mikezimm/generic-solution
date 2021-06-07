@@ -30,11 +30,6 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
-import ButtonCompound from '../../createButtons/ICreateButtons';
-import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
-
-import { createAdvancedContentChoices } from '../../fields/choiceFieldBuilder';
-
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
 import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
@@ -44,11 +39,6 @@ import { IMyPivots, IPivot, IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogGroup from './groupsListView';
-
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
-
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},

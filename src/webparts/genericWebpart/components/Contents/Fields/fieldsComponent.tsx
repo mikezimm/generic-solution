@@ -25,13 +25,6 @@ import { IMyProgress, } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMy
 import { IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import { IPickedList, IPickedWebBasic, } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
-import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
-
-import ButtonCompound from '../../createButtons/ICreateButtons';
-import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
-
-import { createAdvancedContentChoices } from '../../fields/choiceFieldBuilder';
-
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
 import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
@@ -41,10 +34,8 @@ import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogField from './fieldsListView';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 export const pivCats = {
     visible: {title: 'Visible', desc: '', order: 1, count: null },

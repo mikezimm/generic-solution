@@ -4,12 +4,12 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 
 import { IMakeThisPage, provisionThePage  } from '../component/provisionWebPartPages';
 
-import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType } from "@pnp/sp/clientside-pages";
+import { IPageDefDrillDown } from '../DrilldownPages/defineThisPage';
 
 export type IValidTemplate = 100 | 101;
 
 //export async function provisionThePageLoader( template: IValidTemplate , pageName : string, pageDefinition: 'ParentPageTitle' | 'ChildPageTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineThePage ( template: IValidTemplate , pageName : string, pageDefinition: 'SitePages' | 'Pages' | 'News' , webURL: string, currentUser: IUser, pageURL: string ) {
+export function defineThePage ( template: IValidTemplate , pageName : string, pageDefinition: IPageDefDrillDown , webURL: string, currentUser: IUser, pageURL: string ) {
 
     //Sometimes the webURL is undefined  (when props are empty)
     pageURL = pageURL.toLowerCase();

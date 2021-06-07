@@ -4,9 +4,6 @@ import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons }
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
 
-import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
-
 import {  IViewInfo, } from "@pnp/sp/views/types";
 
 import "@pnp/sp/webs";
@@ -30,10 +27,7 @@ import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogView from './viewsListView';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
-
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 
 export const pivCats = {

@@ -59,7 +59,8 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../se
 
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
+import { getRandomInt, getRandomChance, getRandomFromArray, randomDate, generateVals, generateTitles }
+    from '@mikezimm/npmfunctions/dist/Services/randomServices';
 
 import {  getAllItems, ISitePagesList, IPatternItemInfo } from './GetPatternPages';
 

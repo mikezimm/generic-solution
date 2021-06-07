@@ -47,10 +47,7 @@ import MyAddListTemplate from './railAddTemplate/component';
 
 import MyLogList from './listView';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
-
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 import { IFieldBucketInfo, IContentsFieldInfo } from '../Fields/fieldsComponent';
 import * as ECFields from '../Fields/fieldsFunctions';

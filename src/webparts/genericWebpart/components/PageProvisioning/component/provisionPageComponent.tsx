@@ -37,7 +37,8 @@ import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
+import { getRandomInt, getRandomChance, getRandomFromArray, randomDate, generateVals, generateTitles }
+    from '@mikezimm/npmfunctions/dist/Services/randomServices';
 
 import {  getAllItems, ISitePagesList,  } from './GetPatternPages';
 

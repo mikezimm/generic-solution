@@ -4,9 +4,6 @@ import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons }
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
 
-import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
-
 import { IValidTemplate, allAvailableWebParts } from './partsFunction';
 
 import styles from '../contents.module.scss';
@@ -29,15 +26,9 @@ import { PageContext } from '@microsoft/sp-page-context';
 
 import MyLogList from './partsListView';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
-
 import { IWPart,  } from './partsFunction';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-
 import { addItemToArrayIfItDoesNotExist, } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
-
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 
 export const pivCats = {

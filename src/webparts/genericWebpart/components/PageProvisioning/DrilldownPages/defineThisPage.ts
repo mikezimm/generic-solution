@@ -8,10 +8,12 @@ import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType } from "@
 
 export type IValidTemplate = 100 | 101;
 
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
+import { getRandomInt, getRandomChance, getRandomFromArray, randomDate, generateVals, generateTitles }
+    from '@mikezimm/npmfunctions/dist/Services/randomServices';
 
+export type IPageDefDrillDown = 'SitePages' | 'Pages' | 'News';
 //export async function provisionThePageLoader( template: IValidTemplate , pageName : string, pageDefinition: 'ParentPageTitle' | 'ChildPageTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineDrilldownPage ( template: IValidTemplate , pageName : string, pageDefinition: 'SitePages' | 'Pages' | 'News' , webURL: string, currentUser: IUser, pageURL: string ) {
+export function defineDrilldownPage ( template: IValidTemplate , pageName : string, pageDefinition: IPageDefDrillDown , webURL: string, currentUser: IUser, pageURL: string ) {
 
     //Sometimes the webURL is undefined  (when props are empty)
     pageURL = pageURL.toLowerCase();
