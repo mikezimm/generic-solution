@@ -86,7 +86,7 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../..
   import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
   import { dropDownWidth } from '../../../ListProvisioning/component/provisionListComponent';  //IDefinedLists, availLists, definedLists,
-  import { IDefinedLists, availLists, definedLists, getTheseDefinedLists } from '../../../ListProvisioning/component/provisionFunctions';
+  import { IDefinedLists, availLists, definedLists, getTheseDefinedLists, availComponents } from '../../../ListProvisioning/component/provisionFunctions';
 
   import { provisionTheList, IValidTemplate } from '../../../ListProvisioning/component/provisionWebPartList';
   import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
@@ -105,6 +105,7 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../..
  *                                                                                                                                               
  */
 
+ import stylesC from './component.module.scss';
  import { makeIMakeThisListFromExisting } from './functions';
 
 /***
@@ -130,10 +131,10 @@ export interface IMyAddListTemplateProps {
 
     type: PanelType;
 
-    json1: any;
-    json2?: any;
+    // json1: any;
+    // json2?: any;
 
-    _fetchCompare: any; //Function that will get json2 from inputs in this component
+    // _fetchCompare: any; //Function that will get json2 from inputs in this component
 
     pickedWeb : IPickedWebBasic;
 
@@ -147,12 +148,29 @@ export interface IMyAddListTemplateProps {
 
   }
 
+  export type IMainPivot = 'FullList' | 'Components' | 'History';
+
+  const pivotHeading1 : IMainPivot = 'FullList';  //Templates
+  const pivotHeading2 : IMainPivot = 'Components';  //Templates
+  const pivotHeading3 : IMainPivot = 'History';  //Templates
+
+export function buildMainPivotDescriptions() {
+    let result : any = {};
+    result[ pivotHeading1 ] = 'Apply Full List Template to existing list';
+    result[ pivotHeading2 ] = 'Apply groups of columns and views to existing list';
+    result[ pivotHeading3 ] = 'See history of what has already been done';
+
+    return result;
+}
+
 export interface IMyAddListTemplateState {
 
     disableDo: boolean;
     finished: boolean;
     refreshId: string;
     errorMess: string;
+
+    mainPivot: IMainPivot;
 
     otherWeb: string;
     otherList: string;
@@ -193,12 +211,10 @@ const panelWidth = '90%';
 const groupBottomPadding = '25px';
 const toggleBottomPadding = '5px';
 
-const pivotHeading1 = 'FullList';  //Templates
-const pivotHeading2 = 'Components';  //Templates
-const pivotHeading3 = 'History';  //Templates
 
 export default class MyAddListTemplate extends React.Component<IMyAddListTemplateProps, IMyAddListTemplateState> {
 
+    private headingDesc = buildMainPivotDescriptions();
 
     /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -250,6 +266,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             doFields: true,
             doViews: true,
             doItems: false,
+            mainPivot: pivotHeading1,
         };
     }
         
@@ -303,11 +320,14 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             let panelContent = null;
 
-            let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
+            let listDropdown = null;
+            if ( this.state.mainPivot === 'FullList' ) {
+                listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
+            }
 
             let createButton = <PrimaryButton text={ 'Apply Template' } onClick={ this.CreateList.bind(this) } allowDisabledFocus disabled={ this.state.doMode !== true ? true : false } checked={ false } />;
             let cancelButton = <DefaultButton text={ 'Cancel' } onClick={ this.props._closePanel } allowDisabledFocus disabled={ false } checked={ false } />;
-            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
+            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 0 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
 
             let listDefinitionSelectPivot = 
                 <Pivot
@@ -366,14 +386,21 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             const stackListTokens: IStackTokens = { childrenGap: 10 };
 
+            let pickedDesc = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDesc : 'Nothing selected yet' ;
+            let pickedDetails = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDetails : null ;
+            
             // let thisPage = <div><div>{ disclaimers }</div>
             let thisPage = <div style={{ paddingTop: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '20px' }}>
                     <div style={{ float: 'left' }}> { listDropdown } </div>
-                    <div style={{ paddingLeft: '60px' }}> { listDefinitionSelectPivot } </div>
+                    <div style={{ paddingLeft: listDropdown === null ? '0px' : '60px' }}> { listDefinitionSelectPivot } </div>
                 </div>
+
                 <div> { toggles } </div>
-                <div style={{ height:30} }> {  } </div>
+                <div className={ stylesC.description }>
+                    <div style={{ paddingTop: '10px', }}> <span style={{ fontSize: 'larger' }}> { pickedDesc } </span></div>
+                    <div style={{ paddingTop: '10px', display: pickedDetails === null ? 'none' : '' }}> <span style={{ }}> { pickedDetails } </span></div>
+                </div>
 
                 <div style={{display: this.state.doMode === true ? '': 'none' }}>
                         <div> { myProgress } </div>
@@ -400,7 +427,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                     linkSize={PivotLinkSize.normal}
                     onLinkClick={this._selectedIndex.bind(this)}
                 >
-                    <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ ''}>
+                    <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }>
 
                         {/* <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
                             { this.makeToggle( 'Create Contributors', true, false, this.updateTogggle1.bind(this) ) }
@@ -419,12 +446,12 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
 
                     </PivotItem>
-                    <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ ''}>
+                    <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ null }>
                         <div style={{marginTop: '20px'}}>
                             {/* { permissions } */}
                         </div>
                     </PivotItem>
-                    <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ ''}>
+                    <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }>
                         <div style={{marginTop: '20px'}}>
                             {/* { history } */}
                         </div>
@@ -434,7 +461,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             </div>;
 
-            let panelHeader = 'Compare Properties' ;
+            let panelHeader = this.headingDesc[ this.state.mainPivot ] ;
             return (
                 <div><Panel
                         isOpen={ this.props.showPanel }
@@ -682,12 +709,21 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
 }
 
- private _updateDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
-    console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
+ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+    console.log(`_updateListDropdownChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
 
     let thisValue : any = getChoiceText(item.text);
 
     this.getDefinedLists(thisValue, true);
+
+}
+
+private _updateCompDropdownChange  = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+    console.log(`_updateCompDropdownChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
+
+    let thisValue : any = getChoiceText(item.text);
+
+    this.getDefinedLists(availLists[0], true);
 
 }
 
@@ -812,16 +848,25 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
     private async _selectedIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
         //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));
-        let itemKey = item.props.itemKey;
+        let itemKey: any = item.props.itemKey;
         if ( itemKey === pivotHeading1 ) {
             if (ev.ctrlKey) {
                 // window.open( this.props.theList.ParentWebUrl + "/_layouts/15/user.aspx?obj={" + this.props.theList.Id + "},doclib&List={" + this.props.theList.Id + "}", '_blank' );
             }
-
         } else if ( itemKey === pivotHeading2 ) {
-
         }
+        //makeIMakeThisListFromExisting( definedList: IDefinedLists, listDefinition: string, theList: IContentsListInfo, consoleLog: boolean = false ) {
 
+        this.setState( {
+            mainPivot: itemKey,
+        });
+
+        //Do this only after updating state
+        if ( itemKey === pivotHeading1 ) {
+            this.getDefinedLists(availLists[0], true);
+        } else if ( itemKey === pivotHeading2 ) {
+            this.getDefinedLists('Components', true);
+        }
       }
 
 }

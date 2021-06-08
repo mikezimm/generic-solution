@@ -116,6 +116,8 @@ export interface IMakeThisList {
     listDefinition: string;
     definedList: IDefinedLists;
     validUserIds?: number[];
+    templateDesc: any;
+    templateDetails: any;
 
 }
 export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean, requireAll: boolean = true ): Promise<IServiceLog[]>{
@@ -430,6 +432,9 @@ export function defineTheListMaster ( template: IValidTemplate , listTitle : str
         existingTemplate: null,
         sameTemplate: false,
         listDefinition: listDefinition,
+
+        templateDesc: null,
+        templateDetails: null,
 
     };
 

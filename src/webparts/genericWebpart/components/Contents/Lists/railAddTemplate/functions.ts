@@ -124,6 +124,8 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
         existingTemplate: null,
         sameTemplate: false,
         listDefinition: listDefinition,
+        templateDesc: null,
+        templateDetails: null,
 
     };
 

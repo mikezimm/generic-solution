@@ -380,10 +380,10 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         pickedWeb= { this.props.pickedWeb }
                         user={ this.props.currentUser }
                         showPanel={ this.state.showPanel }
-                        json1={ this.state.firstJSON }
-                        json2={ this.state.secondJSON }
+                        // json1={ this.state.firstJSON }
+                        // json2={ this.state.secondJSON }
                         errorMess= { this.state.applyTemplateError }
-                        _fetchCompare={ this._fetchCompare.bind(this) }
+                        // _fetchCompare={ this._fetchCompare.bind(this) }
                         _closePanel={ this._closePanel.bind(this) }
                         type = { this.state.panel.type }
                         analyticsWeb= { this.props.analyticsWeb }

@@ -15,6 +15,8 @@ import { fixTitleNameInViews  } from '../../../../../services/listServices/viewS
    * 3. Add logic to getDefinedLists to fetch the list definition
    * Rinse and repeat
    */
+
+  import * as dComp from '../DefinedComponents/defineComponents';
   import * as dHarm from '../Harmonie/defineHarmonie';
   import * as dTMT from '../ListsTMT/defineThisList';
   import * as dCust from '../ListsCustReq/defineCustReq';
@@ -28,6 +30,8 @@ import { fixTitleNameInViews  } from '../../../../../services/listServices/viewS
   import * as dPivT from '../PivotTiles/definePivotTiles';
 
 
+
+  import { IDefinedComponent } from '../DefinedComponents/defineComponents';
   import { IListDefintionHarmonie } from '../Harmonie/defineHarmonie';
   import { IListDefintionCustReq } from '../ListsCustReq/defineCustReq';
   import { IListDefintionFinTasks } from '../ListsFinTasks/defineFinTasks';
@@ -36,6 +40,7 @@ import { fixTitleNameInViews  } from '../../../../../services/listServices/viewS
   import { IListDefintionTurnOver } from '../ListsTurnover/defineTurnover';
   import { IListDefintionPivot } from '../PivotTiles/definePivotTiles';
   import { IListDefintionPreConfig } from '../PreConfig/definePreConfig';
+import { IMyFieldTypes } from "@mikezimm/npmfunctions/dist/Lists/columnTypes";
 
 /**
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
@@ -45,21 +50,48 @@ import { fixTitleNameInViews  } from '../../../../../services/listServices/viewS
 export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | 'Components';
 export type IDefinedChoice = 'Pick component Type' | IListDefintionTMT | IListDefintionHarmonie | IListDefintionCustReq | IListDefintionFinTasks |  IListDefintionReports |  IListDefintionTurnOver | IListDefintionPivot | IListDefintionPreConfig | '';
 
-export type IDefinedComponent = 'Pick component Type' | 'Status' | 'Year-Period' | 'Steps Done' | '';
-
-
 //Add here to make available in dropdown (but does not work unless they are in the definedLists array )
 export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' , 'PivotTiles' , 'PreConfig'];
 
-export const availComponents : IDefinedComponent[] =  [ 'Pick component Type' , 'Status' , 'Year-Period' , 'Steps Done' ]; 
+export const availComponents : IDefinedComponent[] =  [ 'Status' , 'Effective Status', 'Year-Period' , 'Steps Done' ]; 
 
 //Currently Not beeing used
 export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'Socialiis', 'PivotTiles', 'PreConfig' ];
-  
+
+export const IDescObject = {
+    Components: {
+        'Status': '',
+        'Effective Status': '',
+        'Year-Period': '' ,
+        'Steps Done': ''
+    },
+    TrackMyTime: {
+        Projects: '',
+        TrackMyTime: ''
+    }
+};
+
+export function getFieldNamesFromArray ( arr:  IMyFieldTypes[] ) {
+    let result = [];
+    arr.map( field => {
+        let fieldName = typeof field  === 'object' ? field.name : field;
+        result.push( fieldName);
+    });
+    return result;
+}
+
 export function getTheseDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean, provisionListTitles: string[], validUserIds: number[], pickedWebUrl: string, webAbsoluteUrl: string, doList: boolean, updateStateLists: any ) {
 
   let theLists : IMakeThisList[] = [];
-  if ( defineThisList === 'TrackMyTime' ) {
+
+  if ( defineThisList === 'Components' ) {
+    if ( justReturnLists === false ) { availComponents.map( comp => {  provisionListTitles.push( comp );  } ); }
+
+    availComponents.map( comp => {
+        theLists.push( dComp.defineTheList( 100 , provisionListTitles[0], comp , pickedWebUrl, validUserIds, webAbsoluteUrl ) );
+    } );
+
+  } else if ( defineThisList === 'TrackMyTime' ) {
 
       if ( justReturnLists === false ) {  provisionListTitles.push('Projects');  provisionListTitles.push('TrackMyTime');  }
 
