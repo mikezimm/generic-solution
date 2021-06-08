@@ -27,7 +27,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         makeThisList.createTheseViews = addViews;
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
-        makeThisList.templateDesc = 'Good for adding a basic status process to your list.';
+        makeThisList.templateDesc = 'Good for adding a basic status process to your list... ';
 //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 
     } else if ( listDefinition === 'Year-Period' ) {
@@ -35,7 +35,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         makeThisList.createTheseViews = createYearPeriodViews();
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
-        makeThisList.templateDesc = 'Good for when you want to group or categorize by time buckets.';
+        makeThisList.templateDesc = 'Good for when you want to group or categorize by time buckets... ';
 //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
 
     } else if ( listDefinition === 'Effective Status' ) {
@@ -43,7 +43,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         makeThisList.createTheseViews = createStepsDoneViews();
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
-        makeThisList.templateDesc = 'Enhances basic status flow by giving the option to conditionally set a status.';
+        makeThisList.templateDesc = 'Enhances basic status flow by giving the option to conditionally set a status... ';
     //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
 
     } else if ( listDefinition === 'Steps Done' ) {
@@ -51,12 +51,11 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         makeThisList.createTheseViews = createStepsDoneViews();
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
-        makeThisList.templateDesc = 'Enhances Effective status flow by adding dates for each status number.';
+        makeThisList.templateDesc = 'Enhances Effective status flow by adding dates for each status number... ';
 //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
     }
 
-    if ( makeThisList.templateDesc === null ) { 
-        makeThisList.templateDesc = ( makeThisList.templateDesc != null ? makeThisList.templateDesc : '') + `Adds related views (${makeThisList.createTheseViews.length}) and fields (${makeThisList.createTheseFields.length}) to your list.`;}
+    makeThisList.templateDesc = ( makeThisList.templateDesc != null ? makeThisList.templateDesc : '') + `Adds related views (${makeThisList.createTheseViews.length}) and fields (${makeThisList.createTheseFields.length}) to your list.`;
 
     makeThisList.templateDetails = `Fields include: ${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }` ;
 
