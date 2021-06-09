@@ -386,9 +386,10 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         // _fetchCompare={ this._fetchCompare.bind(this) }
                         _closePanel={ this._closePanel.bind(this) }
                         type = { this.state.panel.type }
+                        currentPage= { this.props.pageContext.web.absoluteUrl }
                         analyticsWeb= { this.props.analyticsWeb }
                         analyticsList= { this.props.analyticsList }
-
+                        theSite={ this.state.theSite }
                     ></MyAddListTemplate>;
                 } //
             }

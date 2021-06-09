@@ -13,6 +13,8 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
+import { Web, IList, Site, ISite } from "@pnp/sp/presets/all";
+
 import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
@@ -145,6 +147,9 @@ export interface IMyAddListTemplateProps {
     alwaysReadOnly: boolean;
 
     errorMess: string;
+
+    theSite: ISite;
+    currentPage: string; //this.context.pageContext.web.absoluteUrl;
 
   }
 
@@ -614,6 +619,16 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         status: 'Finished ' + this.state.status,
     });
 
+    let theSite: any = this.props.theSite;
+    let ServerRelativeUrl = this.props.currentPage;
+    let pickedWeb = this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid + '|' + theSite.Url + '|' + theSite.Id ;
+    
+    saveAnalytics( this.props.analyticsWeb, this.props.analyticsList , //analyticsWeb, analyticsList,
+        ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+        'Add Template', pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+        this.props.theList.Title, null , 'Complete', //itemInfo1, itemInfo2, result, 
+        JSON.stringify( this.state.history ), this.props.railFunction ); //richText
+
   }
 
    /**
@@ -717,16 +732,6 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     this.getDefinedLists(thisValue, true);
 
 }
-
-private _updateCompDropdownChange  = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
-    console.log(`_updateCompDropdownChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
-
-    let thisValue : any = getChoiceText(item.text);
-
-    this.getDefinedLists(availLists[0], true);
-
-}
-
 
     private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
         const dropdownStyles: Partial<IDropdownStyles> = {

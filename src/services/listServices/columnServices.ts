@@ -320,7 +320,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             foundField = true;
                             // if any of the fields does not get created, raise an exception in the console log
                             let errMessage = getHelpfullError(e, alertMe, consoleLog);
-                            if (errMessage.indexOf('The formula refers to a column that does not exist.') > -1 || errMessage.indexOf('Check the formula') > -1 ) {
+                            if (errMessage.indexOf('The formula refers to a column that does not exist.') > -1 || errMessage.indexOf('Check the formula') > -1 || errMessage.indexOf('circular reference') > -1 ) {
                                 let errField: any = f;
                                 let err = `Here's the formula you have for ${f.name} \n\n ${ errField.formula}`;
                                 statusLog = notify(statusLog, 'Create Field', err, step, f, null);

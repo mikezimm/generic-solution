@@ -112,16 +112,17 @@ export function createStatusCalc( title: string = 'Status' ) {
 }
 
 export function createStatusNumber( title: string = 'Status' ) {
+    let sourceFieldName = `${title}`.replace("[^a-zA-Z0-9]", '');
     title += 'Number';
     let name = title.replace("[^a-zA-Z0-9]", '');
     const DefaultStatusCalc : ICalculatedField = {
         fieldType: cCalcN,
-        name: name + 'Calc',
-        formula: `=VALUE(LEFT(${title},1))`,
+        name: name, // + 'Calc',
+        formula: `=VALUE(LEFT(${sourceFieldName},1))`,
         dateFormat: DateTimeFieldFormatType.DateOnly,
         onCreateProps: {
             Group: thisColumnGroup,
-            Description: `Number of the ${title} column`,
+            Description: `Number of the ${sourceFieldName} column`,
         },
         onCreateChanges: {
             Title: title + '^',
@@ -132,16 +133,17 @@ export function createStatusNumber( title: string = 'Status' ) {
 }
 
 export function createStatusLabel( title: string = 'Status' ) {
+    let sourceFieldName = `${title}`.replace("[^a-zA-Z0-9]", '');
     title += 'Label';
     let name = title.replace("[^a-zA-Z0-9]", '');
     const DefaultStatusCalc : ICalculatedField = {
         fieldType: cCalcT,
-        name: name + 'Calc',
-        formula: `=TRIM(MID(${title},FIND(".",${title})+1,100)) `,
+        name: name, // + 'Calc',
+        formula: `=TRIM(MID(${sourceFieldName},FIND(".",${sourceFieldName})+1,100)) `,
         dateFormat: DateTimeFieldFormatType.DateOnly,
         onCreateProps: {
             Group: thisColumnGroup,
-            Description: `Text portion of the ${title} column`,
+            Description: `Text portion of the ${sourceFieldName} column`,
         },
         onCreateChanges: {
             Title: title + '^',
@@ -151,14 +153,12 @@ export function createStatusLabel( title: string = 'Status' ) {
     return DefaultStatusCalc;
 }
 
-
 export function StepChecks( title: string = 'Status', min: number, max: number) {
-    title = 'Effective' + title;
-    let titleNumber = title + 'Number';
+    let titleNumber = title + 'Number^';
     let checkFields: IMyFieldTypes[] = [];
     for (let i = min; i <= max; i++) {
         let thisCheck = i === 0 ? `=IF(AND([${titleNumber}]>${i},[${titleNumber}]>${i}),"Yes","No")`
-        : `=IF(AND(Step${i-1}Check="Yes",[StatusNumber]>${i}),"Yes","No")`;
+        : `=IF(AND(Step${i-1}Check="Yes",[${titleNumber}]>${i}),"Yes","No")`;
 
         const thisField : ICalculatedField = {
             fieldType: cCalcN,
@@ -170,20 +170,95 @@ export function StepChecks( title: string = 'Status', min: number, max: number) 
                 Description: 'Can be used to have checks at different status to impact Effective Status instead of just a number.',
             },
         };
-        checkFields.push(thisField);  //Project
+        checkFields.push(thisField);
     }
     return checkFields;
 }
 
+export function StepsDone( suffix: string = "Done", min: number, max: number) {
+
+    let stepFields: IMyFieldTypes[] = [];
+    for (let i = min; i <= max; i++) {
+        let name = `Step${i}${suffix}`;
+        const thisField : IDateTimeField = {    
+            fieldType: cDate,
+            name: name,
+            title: name,
+            displayFormat:  DateTimeFieldFormatType.DateTime,
+            onCreateProps: {
+                Group: thisColumnGroup,
+                Description: `Used by calculated columns to estimate time between Created Date and steps in the process.  Step Number coordiates with the Status`,
+                Indexed: false,
+                Required: false,
+            },
+        };
+
+        stepFields.push(thisField);
+    }
+    return stepFields;
+}
+
+export function StepsDoneCalc( suffix: string = "Done", min: number, max: number) {
+    let stepFields: IMyFieldTypes[] = [];
+    for (let i = min; i <= max; i++) {
+
+        let sourceFieldName = `Step${i}${suffix}`;
+        let name = `Step${i}${suffix}Calc`;
+        let title = `Step${i}${suffix}^`;
+        let thisCheck =`=IF(ISNUMBER(${sourceFieldName}),TEXT(${sourceFieldName},"YYYY-MM-DD"),"")`;
+
+        const thisField : ICalculatedField = {
+            fieldType: cCalcN,
+            name: name,
+            title: title,
+            dateFormat: DateTimeFieldFormatType.DateOnly,
+            formula: thisCheck,
+            onCreateProps: {
+                Group: thisColumnGroup,
+                Description: `Read Only version of column: ${name}`,
+            },
+            onCreateChanges: {
+                Title: title,
+            }
+        };
+        stepFields.push(thisField);
+    }
+    return stepFields;
+}
+
+export function DaysToStepCalc( suffix: string = "Done", min: number, max: number) {
+    let stepFields: IMyFieldTypes[] = [];
+    for (let i = min; i <= max; i++) {
+        let name = `DaysToStep${i}`;
+        let sourceFieldName = `Step${i}${suffix}`;
+
+        let thisCheck =`=IF(AND(Step0Check="Yes",ISNUMBER(${sourceFieldName})),${sourceFieldName}-ROUNDDOWN(Created,0),"")`;
+
+        const thisField : ICalculatedField = {
+            fieldType: cCalcN,
+            name: name,
+            dateFormat: DateTimeFieldFormatType.DateOnly,
+            formula: thisCheck,
+            onCreateProps: {
+                Group: thisColumnGroup,
+                Description: `Calculated days from Created Date until: ${sourceFieldName}`,
+            },
+        };
+        stepFields.push(thisField);
+    }
+    return stepFields;
+}
+
 export function createEffectiveStatus( title: string = 'Status') {
+    let sourceFieldName = `${title}Number`.replace("[^a-zA-Z0-9]", '') + '^';
     title = 'Effective' + title;
-    let titleNumber = title + 'Number';
     let name = title.replace("[^a-zA-Z0-9]", '');
     const EffectiveStatus : ICalculatedField = {
         fieldType: cCalcN,
-        name: 'EffectiveStatus',
+        name: name,
         dateFormat: DateTimeFieldFormatType.DateOnly,
-        formula: `=(IF([${titleNumber}]=9,9,IF([${titleNumber}]=8,8,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0))))))))`,
+        formula: `=(IF([${sourceFieldName}]=9,9,IF([${sourceFieldName}]=8,8,IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0))))))))`,
+        // formula: `=IF(Step4Check="Yes",5,IF(Step3Check="Yes",4,IF(Step2Check="Yes",3,IF(Step1Check="Yes",2,IF(Step0Check="Yes",1,0)))))`,
         onCreateProps: {
             Group: thisColumnGroup,
             Description: 'Can be used to have checks at different status to impact Effective Status instead of just a number.',
@@ -193,32 +268,34 @@ export function createEffectiveStatus( title: string = 'Status') {
     return EffectiveStatus;
 }
 
-export function DefaultStatusFields( statusColumnTitle: string = 'Status') {
-
-    return [
-        createStatus( [], statusColumnTitle ),
-        createStatusCalc( statusColumnTitle ),
-        createStatusNumber( statusColumnTitle ),
-        createStatusLabel( statusColumnTitle ),
-    ];
-}
-
-export function EffectiveStatusFields( statusColumnTitle: string = 'Status') {
+export function BuildStatusFields( listName: IDefinedComponent, statusColumnTitle: string = 'Status') {
 
     let columns: IMyFieldTypes[] = [
         createStatus( [], statusColumnTitle ),
         createStatusCalc( statusColumnTitle ),
         createStatusNumber( statusColumnTitle ),
         createStatusLabel( statusColumnTitle ),
-        createEffectiveStatus( statusColumnTitle ),
     ];
 
-    let checks = StepChecks(statusColumnTitle, 0,5);  //Project
-    columns.push(...checks);  //Project
+    if ( listName === 'Effective Status' || listName === 'Steps Done' ) { 
+        let checks = StepChecks(statusColumnTitle, 0,5);
+        columns.push(...checks);
+        columns.push( createEffectiveStatus( statusColumnTitle ) );
+    }
+
+    if ( listName === 'Steps Done' ) { 
+        let done = StepsDone( undefined, 0,5);
+        columns.push(...done);
+    
+        let doneC = StepsDoneCalc( undefined, 0,5);
+        columns.push(...doneC);
+    
+        let daysToStep = DaysToStepCalc( undefined, 0,5);
+        columns.push(...daysToStep);
+    }
 
     return columns;
 }
-
 
 /***
  *     .o88b.  .d88b.  db      db    db .88b  d88. d8b   db       .d8b.  d8888b. d8888b.  .d8b.  db    db .d8888.
@@ -236,28 +313,17 @@ export function EffectiveStatusFields( statusColumnTitle: string = 'Status') {
  * Each list would have an array of field objects like this.
  */
 
-export function ComponentFields(listName: IDefinedComponent ) {
+export function ComponentFields( listName: IDefinedComponent ) {
 
     let theseFields: IMyFieldTypes[] = [];
 
-    if (listName === 'Status' ) { 
-        theseFields = DefaultStatusFields( 'Status') ; // from '../ListsReports/columnsReports'
-    }
+    if ( [ 'Status' , 'Effective Status', 'Steps Done' ].indexOf( listName ) > -1 ) { 
+        theseFields = BuildStatusFields( listName, 'Status' ) ; // from '../ListsReports/columnsReports'
 
-    if (listName === 'Effective Status' ) { 
-        theseFields = EffectiveStatusFields( 'Status') ; // from '../ListsReports/columnsReports'
-    }
-
-    if (listName === 'Steps Done' ) { 
-        theseFields.push();
-    }
-
-    if (listName === 'Year-Period' ) { 
+    } else if (listName === 'Year-Period' ) { 
         theseFields = [ YearRep , PeriodRep, SectionRep, ScopeRep, YearPerRepCalc ] ; // from '../ListsReports/columnsReports'
 
     }
-
-
 
     return theseFields;
 
