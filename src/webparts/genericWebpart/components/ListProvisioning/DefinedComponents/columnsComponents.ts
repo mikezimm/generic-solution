@@ -20,7 +20,7 @@ import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, }
 import { IDefinedComponent } from './defineComponents';
 
 import {
-    YearRep , PeriodRep, SectionRep, ScopeRep, YearPerRepCalc,
+    YearRep , PeriodRep, ScopeRep, YearPerRepCalc,
 } from '../ListsReports/columnsReports';
 
 /***
@@ -268,7 +268,7 @@ export function createEffectiveStatus( title: string = 'Status') {
     return EffectiveStatus;
 }
 
-export function BuildStatusFields( listName: IDefinedComponent, statusColumnTitle: string = 'Status') {
+export function BuildStatusFields( listName: IDefinedComponent, statusColumnTitle: string = 'Status', min: number, max: number ) {
 
     let columns: IMyFieldTypes[] = [
         createStatus( [], statusColumnTitle ),
@@ -278,19 +278,19 @@ export function BuildStatusFields( listName: IDefinedComponent, statusColumnTitl
     ];
 
     if ( listName === 'Effective Status' || listName === 'Steps Done' ) { 
-        let checks = StepChecks(statusColumnTitle, 0,5);
+        let checks = StepChecks(statusColumnTitle, min, max);
         columns.push(...checks);
         columns.push( createEffectiveStatus( statusColumnTitle ) );
     }
 
     if ( listName === 'Steps Done' ) { 
-        let done = StepsDone( undefined, 0,5);
+        let done = StepsDone( undefined, min, max);
         columns.push(...done);
     
-        let doneC = StepsDoneCalc( undefined, 0,5);
+        let doneC = StepsDoneCalc( undefined, min, max);
         columns.push(...doneC);
     
-        let daysToStep = DaysToStepCalc( undefined, 0,5);
+        let daysToStep = DaysToStepCalc( undefined, min, max);
         columns.push(...daysToStep);
     }
 
@@ -312,17 +312,18 @@ export function BuildStatusFields( listName: IDefinedComponent, statusColumnTitl
  * This just creates an array of fields for the build/test sequence
  * Each list would have an array of field objects like this.
  */
+// This should be of type IMyFieldTypes[]
+export const YearPerComponentViewFields: IMyFieldTypes[] = [ ootbID, ootbTitle, YearRep , PeriodRep, ScopeRep, ootbModified ];
 
-export function ComponentFields( listName: IDefinedComponent ) {
+export function ComponentFields( listName: IDefinedComponent, min: number, max: number ) {
 
     let theseFields: IMyFieldTypes[] = [];
 
-    if ( [ 'Status' , 'Effective Status', 'Steps Done' ].indexOf( listName ) > -1 ) { 
-        theseFields = BuildStatusFields( listName, 'Status' ) ; // from '../ListsReports/columnsReports'
+    if ( [ 'Status', 'Effective Status', 'Steps Done' ].indexOf( listName ) > -1 ) { 
+        theseFields = BuildStatusFields( listName, 'Status', min, max ) ; // from '../ListsReports/columnsReports'
 
     } else if (listName === 'Year-Period' ) { 
-        theseFields = [ YearRep , PeriodRep, SectionRep, ScopeRep, YearPerRepCalc ] ; // from '../ListsReports/columnsReports'
-
+        theseFields = [ YearRep, PeriodRep, ScopeRep, YearPerRepCalc ] ; // from '../ListsReports/columnsReports'
     }
 
     return theseFields;

@@ -244,7 +244,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
         //makeIMakeThisListFromExisting( definedList: IDefinedLists, listDefinition: string, theList: IContentsListInfo, consoleLog: boolean = false ) {
         let makeThisList : IMakeThisList = makeIMakeThisListFromExisting( definedList , '' , this.props.theList, true ) ;
-        let doList = this.props.theList.BaseType === 100 ? true : false;
+        let doList = this.props.theList.BaseType === 0 || this.props.theList.BaseTemplate === 100 ? true : false;
 
         let theLists = getTheseDefinedLists( definedList, true, [ makeThisList.title ], [], makeThisList.webURL, makeThisList.webURL, doList, null );
         console.log( 'theLists in railAddTemplate props: ', theLists );
@@ -276,15 +276,15 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     }
         
     public componentDidMount() {
-        this._doCheck();
+        // this._doCheck();
         //this._getListItems();
     }
 
-    private async _doCheck() {
-        this.setState({
+    // private async _doCheck() {
+    //     this.setState({
 
-        });
-    }
+    //     });
+    // }
 
     
 
@@ -300,7 +300,27 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
  */
 
     public componentDidUpdate(prevProps: IMyAddListTemplateProps): void {
-        console.log( 'componentDidUpdate' );
+        
+        if ( prevProps.theList.Id !== this.props.theList.Id ) {
+            let definedList = availLists[0];
+
+            //makeIMakeThisListFromExisting( definedList: IDefinedLists, listDefinition: string, theList: IContentsListInfo, consoleLog: boolean = false ) {
+            let makeThisList : IMakeThisList = makeIMakeThisListFromExisting( definedList , '' , this.props.theList, true ) ;
+            let doList = this.props.theList.BaseType === 0 || this.props.theList.BaseTemplate === 100 ? true : false;
+    
+            let theLists = getTheseDefinedLists( definedList, true, [ makeThisList.title ], [], makeThisList.webURL, makeThisList.webURL, doList, null );
+            console.log( 'theLists in railAddTemplate props: ', theLists );
+            this.setState({ 
+                doList: doList,
+                lists: theLists,
+                definedList: definedList,
+            });
+            console.log( 'componentDidUpdate: TRUE' );
+
+        } else {
+            console.log( 'componentDidUpdate: FALSE' ); 
+        }
+
         // this.setState({ refreshId: makeid(5) })
     //this._updateWebPart(prevProps);
     }

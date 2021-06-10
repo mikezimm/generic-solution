@@ -1160,7 +1160,7 @@ public constructor(props:IProvisionFieldsProps){
                 theList.listURL = theList.webURL + ( newSetting === true ? 'lists/' : '' ) + theList.name;
             });
 
-            this.setState({ doList: !this.state.doList, lists: stateLists });
+            this.setState({ doList: newSetting, lists: stateLists });
 
         }
 

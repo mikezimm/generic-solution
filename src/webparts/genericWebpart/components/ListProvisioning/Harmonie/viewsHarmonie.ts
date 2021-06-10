@@ -14,7 +14,7 @@ import { MyFieldDef, } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
 	cMText, cText, cNumb, cURL, cUser, cMUser, minInfinity, maxInfinity } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 
-import { IMyView, } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
+import { IMyView, IViewField } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
 import { Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
 
 import { spliceCopyArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';

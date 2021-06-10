@@ -20,35 +20,38 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     //import { defineTheListMaster } from '../component/provisionWebPartList';
     let makeThisList:  IMakeThisList = defineTheListMaster(template, listTitle,listDefinition,webURL,pageURL, 'Components');
 
+    let minStep = 0;
+    let maxStep = 5;
+
     if ( listDefinition === 'Status' ) {
-        let addFields = ComponentFields(listDefinition);
+        let addFields = ComponentFields(listDefinition, minStep, maxStep );
         let addViews = createStatusViews();
         makeThisList.createTheseFields = addFields;
         makeThisList.createTheseViews = addViews;
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
         makeThisList.templateDesc = 'Good for adding a basic status process to your list... ';
-//        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
+    //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
+
+    } else if ( listDefinition === 'Effective Status' ) {
+        makeThisList.createTheseFields = ComponentFields(listDefinition, minStep, maxStep );
+        makeThisList.createTheseViews = createStepsDoneViews( minStep, maxStep );
+        makeThisList.createTheseItems = [];
+        makeThisList.autoItemCreate = false;
+        makeThisList.templateDesc = 'Enhances basic status flow by giving the option to conditionally set a status... ';
+    //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
 
     } else if ( listDefinition === 'Year-Period' ) {
-        makeThisList.createTheseFields = ComponentFields(listDefinition);
+        makeThisList.createTheseFields = ComponentFields(listDefinition, minStep, maxStep );
         makeThisList.createTheseViews = createYearPeriodViews();
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
         makeThisList.templateDesc = 'Good for when you want to group or categorize by time buckets... ';
 //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
 
-    } else if ( listDefinition === 'Effective Status' ) {
-        makeThisList.createTheseFields = ComponentFields(listDefinition);
-        makeThisList.createTheseViews = createStepsDoneViews();
-        makeThisList.createTheseItems = [];
-        makeThisList.autoItemCreate = false;
-        makeThisList.templateDesc = 'Enhances basic status flow by giving the option to conditionally set a status... ';
-    //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
-
     } else if ( listDefinition === 'Steps Done' ) {
-        makeThisList.createTheseFields = ComponentFields(listDefinition);
-        makeThisList.createTheseViews = createStepsDoneViews();
+        makeThisList.createTheseFields = ComponentFields(listDefinition, minStep, maxStep );
+        makeThisList.createTheseViews = createStepsDoneViews( minStep, maxStep );
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
         makeThisList.templateDesc = 'Enhances Effective status flow by adding dates for each status number... ';
