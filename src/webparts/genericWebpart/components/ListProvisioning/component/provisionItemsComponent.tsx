@@ -323,7 +323,7 @@ public createPivotObject(setPivot, display){
 
     private getFieldPivots() {
 
-        //export type IItemMode = 'Define' | 'Create' | 'Status' | 'History';
+        //export type IItemMode = 'Define' | 'Create' | typeof DefStatusField | 'History';
         let Define = this.buildFilterPivot( pivCats.Define );
         let Create = this.buildFilterPivot( pivCats.Create );
         let Status = this.buildFilterPivot(pivCats.Status);

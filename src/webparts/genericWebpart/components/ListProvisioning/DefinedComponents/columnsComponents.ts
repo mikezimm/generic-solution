@@ -46,6 +46,7 @@ const colPrefix = '';
  *
  *
  */
+import { DefStatusField, DefEffStatusField } from '../../ListProvisioning/component/provisionFunctions';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b
@@ -67,7 +68,7 @@ export const DefaultStatusChoices = ["0. Not Started", "1. Under Review", "2. In
  * @param title 
  */
 
-export function createStatus( choices: string[] = DefaultStatusChoices, title: string = 'Status' ) {
+export function createStatus( choices: string[] = DefaultStatusChoices, title: string = DefStatusField ) {
 
     if ( choices && choices.length === 0 ) { choices = DefaultStatusChoices ; }
     let name = title.replace("[^a-zA-Z0-9]", '');
@@ -91,7 +92,7 @@ export function createStatus( choices: string[] = DefaultStatusChoices, title: s
     return DefaultStatus;
 }
 
-export function createStatusCalc( title: string = 'Status' ) {
+export function createStatusCalc( title: string = DefStatusField ) {
 
     let name = title.replace("[^a-zA-Z0-9]", '');
     const DefaultStatusCalc : ICalculatedField = {
@@ -111,7 +112,7 @@ export function createStatusCalc( title: string = 'Status' ) {
     return DefaultStatusCalc;
 }
 
-export function createStatusNumber( title: string = 'Status' ) {
+export function createStatusNumber( title: string = DefStatusField ) {
     let sourceFieldName = `${title}`.replace("[^a-zA-Z0-9]", '');
     title += 'Number';
     let name = title.replace("[^a-zA-Z0-9]", '');
@@ -132,7 +133,7 @@ export function createStatusNumber( title: string = 'Status' ) {
     return DefaultStatusCalc;
 }
 
-export function createStatusLabel( title: string = 'Status' ) {
+export function createStatusLabel( title: string = DefStatusField ) {
     let sourceFieldName = `${title}`.replace("[^a-zA-Z0-9]", '');
     title += 'Label';
     let name = title.replace("[^a-zA-Z0-9]", '');
@@ -153,7 +154,13 @@ export function createStatusLabel( title: string = 'Status' ) {
     return DefaultStatusCalc;
 }
 
-export function StepChecks( title: string = 'Status', min: number, max: number) {
+/**
+ * NOTE there is a duplicate of this function in columnsWebPart
+ * @param title 
+ * @param min 
+ * @param max 
+ */
+export function StepChecks( title: string = DefStatusField, min: number, max: number) {
     let titleNumber = title + 'Number^';
     let checkFields: IMyFieldTypes[] = [];
     for (let i = min; i <= max; i++) {
@@ -249,7 +256,7 @@ export function DaysToStepCalc( suffix: string = "Done", min: number, max: numbe
     return stepFields;
 }
 
-export function createEffectiveStatus( title: string = 'Status') {
+export function createEffectiveStatus( title: string = DefStatusField) {
     let sourceFieldName = `${title}Number`.replace("[^a-zA-Z0-9]", '') + '^';
     title = 'Effective' + title;
     let name = title.replace("[^a-zA-Z0-9]", '');
@@ -268,7 +275,7 @@ export function createEffectiveStatus( title: string = 'Status') {
     return EffectiveStatus;
 }
 
-export function BuildStatusFields( listName: IDefinedComponent, statusColumnTitle: string = 'Status', min: number, max: number ) {
+export function BuildStatusFields( listName: IDefinedComponent, statusColumnTitle: string = DefStatusField, min: number, max: number ) {
 
     let columns: IMyFieldTypes[] = [
         createStatus( [], statusColumnTitle ),
@@ -277,7 +284,7 @@ export function BuildStatusFields( listName: IDefinedComponent, statusColumnTitl
         createStatusLabel( statusColumnTitle ),
     ];
 
-    if ( listName === 'Effective Status' || listName === 'Steps Done' ) { 
+    if ( listName === DefEffStatusField || listName === 'Steps Done' ) { 
         let checks = StepChecks(statusColumnTitle, min, max);
         columns.push(...checks);
         columns.push( createEffectiveStatus( statusColumnTitle ) );
@@ -319,8 +326,8 @@ export function ComponentFields( listName: IDefinedComponent, min: number, max: 
 
     let theseFields: IMyFieldTypes[] = [];
 
-    if ( [ 'Status', 'Effective Status', 'Steps Done' ].indexOf( listName ) > -1 ) { 
-        theseFields = BuildStatusFields( listName, 'Status', min, max ) ; // from '../ListsReports/columnsReports'
+    if ( [ DefStatusField, DefEffStatusField, 'Steps Done' ].indexOf( listName ) > -1 ) { 
+        theseFields = BuildStatusFields( listName, DefStatusField, min, max ) ; // from '../ListsReports/columnsReports'
 
     } else if (listName === 'Year-Period' ) { 
         theseFields = [ YearRep, PeriodRep, ScopeRep, YearPerRepCalc ] ; // from '../ListsReports/columnsReports'

@@ -12,7 +12,9 @@ export type IValidTemplate = 100 | 101;
 import { defineTheListMaster } from '../component/provisionWebPartList';
 import { getFieldNamesFromArray } from '../component/provisionFunctions';
 
-export type IDefinedComponent = 'Pick component Type' | 'Status' | 'Effective Status' | 'Year-Period' | 'Steps Done' | '';
+import { DefStatusField, DefEffStatusField } from '../../ListProvisioning/component/provisionFunctions';
+
+export type IDefinedComponent = 'Pick component Type' | typeof DefStatusField | typeof DefEffStatusField | 'Year-Period' | 'Steps Done' | '';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IDefinedComponent , webURL: string, currentUser: number[], pageURL: string ) {
@@ -23,7 +25,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     let minStep = 0;
     let maxStep = 5;
 
-    if ( listDefinition === 'Status' ) {
+    if ( listDefinition === DefStatusField ) {
         let addFields = ComponentFields(listDefinition, minStep, maxStep );
         let addViews = createStatusViews();
         makeThisList.createTheseFields = addFields;
@@ -33,9 +35,9 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
         makeThisList.templateDesc = 'Good for adding a basic status process to your list... ';
     //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 
-    } else if ( listDefinition === 'Effective Status' ) {
+    } else if ( listDefinition === DefEffStatusField ) {
         makeThisList.createTheseFields = ComponentFields(listDefinition, minStep, maxStep );
-        makeThisList.createTheseViews = createStepsDoneViews( listDefinition, 'Status', minStep, maxStep );
+        makeThisList.createTheseViews = createStepsDoneViews( listDefinition, DefStatusField, minStep, maxStep );
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
         makeThisList.templateDesc = 'Enhances basic status flow by giving the option to conditionally set a status... ';
@@ -51,7 +53,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 
     } else if ( listDefinition === 'Steps Done' ) {
         makeThisList.createTheseFields = ComponentFields(listDefinition, minStep, maxStep );
-        makeThisList.createTheseViews = createStepsDoneViews( listDefinition, 'Status', minStep, maxStep );
+        makeThisList.createTheseViews = createStepsDoneViews( listDefinition, DefStatusField, minStep, maxStep );
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
         makeThisList.templateDesc = 'Enhances Effective status flow by adding dates for each status number... ';

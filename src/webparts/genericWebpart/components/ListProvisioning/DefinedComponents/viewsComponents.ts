@@ -15,7 +15,7 @@ import { MyFieldDef, } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, cDLook,
 	cMText, cText, cNumb, cURL, cUser, cMUser, minInfinity, maxInfinity } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
 
-import { IMyView, IViewField } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
+import { IMyView, IViewField, IViewWhere } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
 import { Eq, Ne, Lt, Gt, Leq, Geq, IsNull, IsNotNull, Contains, BeginsWith } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
 
 import { spliceCopyArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
@@ -30,6 +30,7 @@ import {
 //Standard Queries
 import { queryValueCurrentUser, queryValueToday } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
 
+import { DefStatusField, DefEffStatusField } from '../../ListProvisioning/component/provisionFunctions';
 
 import { testAlertsView, createRecentUpdatesView } from '../../../../../services/listServices/viewsGeneric';
 
@@ -41,7 +42,7 @@ import { testAlertsView, createRecentUpdatesView } from '../../../../../services
 import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
 import { IDefinedComponent,  } from './defineComponents';
-import { DefaultStatusChoices, StepsDone, DaysToStepCalc, StepsDoneCalc, StepChecks } from './columnsComponents';
+import { DefaultStatusChoices, StepsDone, DaysToStepCalc, StepsDoneCalc, StepChecks, createEffectiveStatus } from './columnsComponents';
 
 //Harmonie columns
 import {
@@ -71,7 +72,7 @@ export function createGroupByStatusView( title: string ) {
 }
 
 
-export function createStatusViews( choices: string[] = DefaultStatusChoices, statusColumnTitle: string = 'Status' ) {
+export function createStatusViews( choices: string[] = DefaultStatusChoices, statusColumnTitle: string = DefStatusField ) {
 
     if ( choices && choices.length === 0 ) { choices = DefaultStatusChoices ; }
 
@@ -107,7 +108,7 @@ export const ByYearPer : IMyView = {
 	},
 };
 
-export function createYearPeriodViews( choices: string[] = DefaultStatusChoices, statusColumnTitle: string = 'Status' ) {
+export function createYearPeriodViews( choices: string[] = DefaultStatusChoices, statusColumnTitle: string = DefStatusField ) {
     let TheseViews: IMyView[] = [
         ByYear,
         ByYearPer,
@@ -115,52 +116,90 @@ export function createYearPeriodViews( choices: string[] = DefaultStatusChoices,
     return TheseViews;
 }
 
-export function createStepChecksView( listName: IDefinedComponent, iFields : IViewField[], min: number, max: number ) {
+export function createStepXView( iFields : IViewField[] , effStatus : IViewField, step: number, filter: 'All' | 'User' ) {
 
+    let wheres: IViewWhere[] = [ ];
+    if ( filter === 'User' ) {
+        wheres.push(  {field: ootbAuthor, 	clause:'Or', 	oper: Eq, 		val: queryValueCurrentUser } );
+        //Have to make this an And because I want the next clause to be an And
+        wheres.push(  {field: ootbEditor, 	clause:'Or', 	oper: Eq, 		val: queryValueCurrentUser } );
+    }
+    //Add filter for effective status
+    wheres.push( {field: effStatus, 	clause:'And', 	oper: Eq, 		val: step.toString() } );
 
     const GroupByStepsView : IMyView = {
-        Title: `All Step Columns`,
+        Title: `Step${step}.${filter}`,
+        iFields: iFields,
+        orders: [ {field: ootbID, asc: false} ],
+        wheres: wheres,
+    };
+
+    return GroupByStepsView;
+}
+
+export function createStepChecksView( iFields : IViewField[] ) {
+    const GroupByStepsView : IMyView = {
+        Title: `All Check Columns`,
         iFields: iFields,
         orders: [ {field: ootbID, asc: false} ],
     };
     return GroupByStepsView;
-
 }
 
 export function createAllStepsView( iFields : IViewField[] ) {
-
     const GroupByStepsView : IMyView = {
         Title: `All Step Columns`,
         iFields: iFields,
         orders: [ {field: ootbID, asc: false} ],
     };
     return GroupByStepsView;
-
 }
 
-export function createStepsDoneViews( listName: IDefinedComponent, statusColumnTitle: string = 'Status', min: number, max: number ) {
+export function createStepsDoneViews( listName: IDefinedComponent, statusColumnTitle: string = DefStatusField, min: number, max: number ) {
     let TheseViews: IMyView[] = [
         // createGroupByStatusView( statusColumnTitle ),
     ] ;
 
     let columns: IMyFieldTypes[] = [ ootbID, ootbTitle, ootbModified ];
+    let stepsDoneCols: IMyFieldTypes[] = StepsDone( undefined, min, max);
+    let stepsDoneCalcCols: IMyFieldTypes[] = StepsDoneCalc( undefined, min, max);
+    let daysToStepCols: IMyFieldTypes[] = DaysToStepCalc( undefined, min, max);
+    let stepCheckCols: IMyFieldTypes[] = StepChecks(statusColumnTitle, min, max);
+    let effStatusCols: IMyFieldTypes[] = [ createEffectiveStatus( statusColumnTitle ) ] ;
+    // let stepsDoneCols: IMyFieldTypes[] = StepsDone( undefined, i,i);
 
     //Instead of putting all Done columns together, this puts all columns of a particular step together
-    for (var i=min; i < max; i ++ ) {
-        columns.push(...StepsDone( undefined, i,i));
-        columns.push(...StepsDoneCalc( undefined, i,i));
-        columns.push(...DaysToStepCalc( undefined, i,i));
+    for (let i=min; i < max; i ++ ) {
+        columns.push(...stepsDoneCols );
+        columns.push(...stepsDoneCalcCols );
+        columns.push(...daysToStepCols );
     }
     TheseViews.push(  createAllStepsView( columns ) ) ;
 
     //Add Effective Status views
-    if ( listName === 'Effective Status' || listName === 'Steps Done' ) { 
+    if ( listName === DefEffStatusField || listName === 'Steps Done' ) { 
 
 
     }
-    
+
     //Add Effective Status views
     if ( listName === 'Steps Done' ) { 
+        columns = [ ootbID, ootbTitle, ootbModified ];
+        columns.push( ...effStatusCols );
+        columns.push(...stepCheckCols);
+        TheseViews.push( createStepChecksView( columns ) );
+
+        for (let i=min; i < max; i ++ ) {
+            columns = [ ootbID, ootbTitle, ootbModified ];
+            columns.push( ...effStatusCols );
+            columns.push(...StepChecks(statusColumnTitle, i, i));
+            columns.push(...StepsDone(undefined, i, i));
+            //Add StepsToDo when it's available.
+            // columns.push(...StepsToDo(statusColumnTitle, i, i));
+
+            TheseViews.push( createStepXView(columns, effStatusCols[0], i, 'All' ) ) ;
+            TheseViews.push( createStepXView(columns, effStatusCols[0], i, 'User' ) ) ;
+        }   
 
     }
 

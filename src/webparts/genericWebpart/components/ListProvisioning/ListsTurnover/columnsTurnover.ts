@@ -20,6 +20,8 @@ import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, }
 
 import { IListDefintionTurnOver } from './defineTurnover';
 
+import { DefStatusField, DefEffStatusField } from '../../ListProvisioning/component/provisionFunctions';
+
 /***
  *     .d8b.  d8888b. d8888b.       d888b  d8888b.  .d88b.  db    db d8888b.      d8b   db  .d8b.  .88b  d88. d88888b
  *    d8' `8b 88  `8D 88  `8D      88' Y8b 88  `8D .8P  Y8. 88    88 88  `8D      888o  88 d8' `8b 88'YbdP`88 88'
@@ -180,8 +182,8 @@ export const ItemCategoryTurnCalc : ICalculatedField = {
 let Choice3 = ["0. Not Started", "1. Under Review", "2. In Process", "3. Verify", "4. Complete", "5. Rejected", "9. Cancelled"];
 export const StatusTurn : IChoiceField = {
     fieldType: cChoice,
-    name: colPrefix + 'Status',
-    title: 'Status',
+    name: colPrefix + DefStatusField,
+    title: DefStatusField,
     choices: Choice3,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -190,7 +192,7 @@ export const StatusTurn : IChoiceField = {
         Indexed: true,
     },
    onCreateChanges: {
-       Title: 'Status',
+       Title: DefStatusField,
    }
 };
 

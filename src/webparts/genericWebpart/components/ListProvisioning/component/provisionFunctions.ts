@@ -62,8 +62,8 @@ export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Custom
 
 export const IDescObject = {
     Components: {
-        'Status': '',
-        'Effective Status': '',
+        [ DefStatusField ]: '',
+        [ DefEffStatusField ]: '',
         'Year-Period': '' ,
         'Steps Done': ''
     },

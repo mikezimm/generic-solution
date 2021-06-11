@@ -383,7 +383,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
                             viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
                         }
 
-                    } else if ( i === '0' && thisFieldWhere != '' && viewWhereArray.length === 2 ) {
+                        //2021-06-11:  added where viewWhereArray.length === 3 for more complex views where there were 2 or's before the and
+                    } else if ( i === '0' && thisFieldWhere != '' && ( viewWhereArray.length === 2 || viewWhereArray.length === 3) ) {
                         //Had to add this while testing TMTView:  VerifyNoStoryOrChapterView
                         viewWhereXML = thisFieldWhere;
 
