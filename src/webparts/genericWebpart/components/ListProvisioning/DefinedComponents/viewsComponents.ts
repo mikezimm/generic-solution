@@ -115,6 +115,17 @@ export function createYearPeriodViews( choices: string[] = DefaultStatusChoices,
     return TheseViews;
 }
 
+export function createStepChecksView( listName: IDefinedComponent, iFields : IViewField[], min: number, max: number ) {
+
+
+    const GroupByStepsView : IMyView = {
+        Title: `All Step Columns`,
+        iFields: iFields,
+        orders: [ {field: ootbID, asc: false} ],
+    };
+    return GroupByStepsView;
+
+}
 
 export function createAllStepsView( iFields : IViewField[] ) {
 
@@ -127,12 +138,12 @@ export function createAllStepsView( iFields : IViewField[] ) {
 
 }
 
-export function createStepsDoneViews( min: number, max: number ) {
+export function createStepsDoneViews( listName: IDefinedComponent, statusColumnTitle: string = 'Status', min: number, max: number ) {
     let TheseViews: IMyView[] = [
         // createGroupByStatusView( statusColumnTitle ),
     ] ;
 
-    let columns: IMyFieldTypes[] = [ ];
+    let columns: IMyFieldTypes[] = [ ootbID, ootbTitle, ootbModified ];
 
     //Instead of putting all Done columns together, this puts all columns of a particular step together
     for (var i=min; i < max; i ++ ) {
@@ -140,7 +151,18 @@ export function createStepsDoneViews( min: number, max: number ) {
         columns.push(...StepsDoneCalc( undefined, i,i));
         columns.push(...DaysToStepCalc( undefined, i,i));
     }
-    createAllStepsView( columns );
+    TheseViews.push(  createAllStepsView( columns ) ) ;
+
+    //Add Effective Status views
+    if ( listName === 'Effective Status' || listName === 'Steps Done' ) { 
+
+
+    }
+    
+    //Add Effective Status views
+    if ( listName === 'Steps Done' ) { 
+
+    }
 
     return TheseViews;
 }

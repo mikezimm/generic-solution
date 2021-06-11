@@ -35,7 +35,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 
     } else if ( listDefinition === 'Effective Status' ) {
         makeThisList.createTheseFields = ComponentFields(listDefinition, minStep, maxStep );
-        makeThisList.createTheseViews = createStepsDoneViews( minStep, maxStep );
+        makeThisList.createTheseViews = createStepsDoneViews( listDefinition, 'Status', minStep, maxStep );
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
         makeThisList.templateDesc = 'Enhances basic status flow by giving the option to conditionally set a status... ';
@@ -51,7 +51,7 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 
     } else if ( listDefinition === 'Steps Done' ) {
         makeThisList.createTheseFields = ComponentFields(listDefinition, minStep, maxStep );
-        makeThisList.createTheseViews = createStepsDoneViews( minStep, maxStep );
+        makeThisList.createTheseViews = createStepsDoneViews( listDefinition, 'Status', minStep, maxStep );
         makeThisList.createTheseItems = [];
         makeThisList.autoItemCreate = false;
         makeThisList.templateDesc = 'Enhances Effective status flow by adding dates for each status number... ';

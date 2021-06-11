@@ -104,6 +104,8 @@ import { createIconButton } from '../../createButtons/IconButton';
 
 import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
+import { DefStatusField, DefEffStatusField } from './provisionFunctions';
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
@@ -206,7 +208,7 @@ export interface IProvisionItemsProps {
 
 }
 
-//export type IItemMode = 'Define' | 'Create' | 'Status' | 'History';
+//export type IItemMode = 'Define' | 'Create' | DefStatusField | 'History';
 
 export interface IProvisionItemsState {
 
@@ -249,12 +251,12 @@ export interface IProvisionItemsState {
 
 }
 
-export type IItemMode = 'Define' | 'Create' | 'Status' | 'History';
+export type IItemMode = 'Define' | 'Create' | typeof DefStatusField | 'History';
 
 export const pivCats = {
     Define: {title: 'Define', desc: '', order: 1, count: null, icon: null },
     Create: {title: 'Create', desc: '', order: 1, count: null, icon: null },
-    Status: {title: 'Status', desc: '', order: 100, count: null, icon: null },
+    Status: {title: DefStatusField, desc: '', order: 100, count: null, icon: null },
     History: {title: 'History', desc: '', order: 1, count: null, icon: null },
 
 };

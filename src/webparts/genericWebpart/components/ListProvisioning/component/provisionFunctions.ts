@@ -52,8 +52,10 @@ export type IDefinedChoice = 'Pick component Type' | IListDefintionTMT | IListDe
 
 //Add here to make available in dropdown (but does not work unless they are in the definedLists array )
 export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' , 'PivotTiles' , 'PreConfig'];
+export const DefStatusField = 'Status';
+export const DefEffStatusField = 'Effective Status';
 
-export const availComponents : IDefinedComponent[] =  [ 'Status' , 'Effective Status', 'Year-Period' , 'Steps Done' ]; 
+export const availComponents : IDefinedComponent[] =  [ DefStatusField , DefEffStatusField, 'Year-Period' , 'Steps Done' ]; 
 
 //Currently Not beeing used
 export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'Socialiis', 'PivotTiles', 'PreConfig' ];
