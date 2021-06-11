@@ -72,7 +72,7 @@ import ReactJson from "react-json-view";
  *                                                                                                                                 
  */
 
-import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, AddTemplateSaveTitle, ProvisionListsSaveTitle } from '../../../../../../services/createAnalytics';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -109,6 +109,12 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../..
 
  import stylesC from './component.module.scss';
  import { makeIMakeThisListFromExisting } from './functions';
+
+//  "analyticsListRailsApply": "EasyContentsRailsApply",
+//  "analyticsListRailsGroups": "EasyContentsRailsGroups",
+//  "analyticsListPermissionsHistory": "PermissionsHistory",
+ import * as strings from 'GenericWebpartWebPartStrings';
+
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -608,6 +614,10 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
       }
       
       private captureAnalytics(itemInfo2, result, ActionJSON ){
+
+        console.log('captureAnalytics itemInfo2, result:',itemInfo2, result );
+        console.log('captureAnalytics JSON:',ActionJSON );
+        
         let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
 
         let TargetList = '';
@@ -625,9 +635,9 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         }
 
         //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
-        saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
+        saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply, //analyticsWeb, analyticsList,
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
-            'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
+            ProvisionListsSaveTitle, TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
             ActionJSON, 'ProvisionList' ); //richText
 
@@ -642,12 +652,12 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     let theSite: any = this.props.theSite;
     let ServerRelativeUrl = this.props.currentPage;
     let pickedWeb = this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid + '|' + theSite.Url + '|' + theSite.Id ;
-    
-    saveAnalytics( this.props.analyticsWeb, this.props.analyticsList , //analyticsWeb, analyticsList,
+
+    saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply , //analyticsWeb, analyticsList,
         ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
-        'Add Template', pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+        AddTemplateSaveTitle, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
         this.props.theList.Title, null , 'Complete', //itemInfo1, itemInfo2, result, 
-        JSON.stringify( this.state.history ), this.props.railFunction ); //richText
+        this.state.history, this.props.railFunction ); //richText
 
   }
 

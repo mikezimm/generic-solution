@@ -15,6 +15,10 @@ declare interface IGenericWebpartWebPartStrings {
   analyticsList: string;
   analyticsListRails: string;
   analyticsListListery: string;
+  analyticsListRailsApply: string;
+  analyticsListRailsGroups: string;
+  analyticsListPermissionsHistory: string;
+
   patternsWeb: string;
   minClickWeb: string;
 

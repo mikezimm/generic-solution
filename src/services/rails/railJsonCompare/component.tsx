@@ -85,7 +85,24 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                               
  */
 
-import * as strings from './node_modules/GenericWebpartWebPartStrings';
+import { IListRailFunction } from '../../../webparts/genericWebpart/components/Contents/Lists/listsComponent';
+
+import { IProcessStep, StatusIcons, StatusColors } from '../../railsCommon/railsSetup';
+
+import { createProcessSteps, IProcessSteps, } from '../../../webparts/genericWebpart/components/Contents/Lists/railCreateGroups/setup';
+import { getSiteInfoIncludingUnique, fUpdateGroup, doThisRailFunction } from '../../../webparts/genericWebpart/components/Contents/Lists/railCreateGroups/functions';
+
+import RailsHistory from '../../../services/railsCommon/RailsHistoryPane';
+import SelectedRails from '../../../services/railsCommon/RailsSelectedPane';
+
+import { saveAnalytics } from '../../../services/createAnalytics';
+
+
+import { IFetchInfoSettingsMin } from '../../../webparts/genericWebpart/components/Contents/Permissions/IWebPermissionsProps';
+import MyPermissions from '../../../webparts/genericWebpart/components/Contents/Permissions/MyPermissions';
+
+import * as strings from 'GenericWebpartWebPartStrings';
+// import * as strings from '../../../webparts/genericWebpart/loc/mystrings';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
