@@ -368,6 +368,11 @@ export const OptionsTMTCalc : ICalculatedField = {
     }
 };
 
+/**
+ * NOTE there is a duplicate of this function in DefinedComponents\columnsComponents
+ * @param min
+ * @param max 
+ */
 export function StepChecks(min: number, max: number) {
     let checkFields: IMyFieldTypes[] = [];
     for (let i = min; i <= max; i++) {

@@ -205,6 +205,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
     saveItem.getParams = getUrlVars().join(' & ');
     saveItem.Setting = Setting;
 
+    console.log('saveAnalytics StringifyActionJson: ', ActionJSON );
     saveItem.zzzRichText1 = ActionJSON ? JSON.stringify(ActionJSON) : null;
 
     if ( analyticsList === strings.analyticsListRailsGroups || saveTitle === AddTemplateSaveTitle ) { //Rails Off
