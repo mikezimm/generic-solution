@@ -127,7 +127,7 @@ function getUrlVars() {
  * @param theProps 
  * @param theState 
  */
-export const AddTemplateSaveTitle = 'Add Template';
+
 export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, listory, fields, views, types, info, Setting ) {
 
     //Do nothing if either of these strings is blank
@@ -184,6 +184,7 @@ export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, sa
  * @param theProps 
  * @param theState 
  */
+export const AddTemplateSaveTitle = 'Add Template';
 export const ProvisionListsSaveTitle = 'Provision Lists';
 export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, ActionJSON, Setting ) {
 
@@ -206,7 +207,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
     saveItem.zzzRichText1 = ActionJSON ? JSON.stringify(ActionJSON) : null;
 
-    if ( analyticsList === strings.analyticsListRails || saveTitle === AddTemplateSaveTitle ) { //Rails Off
+    if ( analyticsList === strings.analyticsListRailsGroups || saveTitle === AddTemplateSaveTitle ) { //Rails Off
         saveItem.ListTitle = itemInfo1;
         let infos2 = itemInfo2.split('|');
 

@@ -68,7 +68,6 @@ export function createGroupByStatusView( title: string ) {
         },
     };
     return GroupByStatusView;
-
 }
 
 
