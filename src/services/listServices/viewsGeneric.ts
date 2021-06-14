@@ -28,13 +28,16 @@ import { queryValueCurrentUser, queryValueToday } from '@mikezimm/npmfunctions/d
 import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
 //SHARED Columns
-import {Leader, Team, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, StatusTMT, StatusNumber, StatusText,
-    DueDateTMT, CompletedDateTMT, CompletedByTMT, CCList, CCEmail} from '../../webparts/genericWebpart/components/ListProvisioning/ListsTMT/columnsWebPart';
+import {Leader, Team, CCList, CCEmail } from '../../webparts/genericWebpart/components/ListProvisioning/ListsTMT/columnsTMT';
+import {Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Everyone, Active,  } from '../../webparts/genericWebpart/components/ListProvisioning/ListsTMT/columnsLabels';
+
+import {  } from '../../webparts/genericWebpart/components/ListProvisioning/ListsTMT/columnsWebPart';
+import { StatusTMT, StatusNumber, StatusText, DueDateTMT, CompletedDateTMT, CompletedByTMT, EffectiveStatus, IsOpen,} from '../../webparts/genericWebpart/components/ListProvisioning/ListsTMT/columnsStatus';
 
 //PROJECT columns
-import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc, OptionsTMT, OptionsTMTCalc,
-    EffectiveStatus, IsOpen,
-    ProjectEditOptions, HistoryTMT, TimeTarget} from '../../webparts/genericWebpart/components/ListProvisioning/ListsTMT/columnsWebPart';
+import { SortOrder, ActivityType, ActivityTMT, ActivtyURLCalc, OptionsTMT, OptionsTMTCalc,
+    
+    ProjectEditOptions, HistoryTMT, TimeTarget} from '../../webparts/genericWebpart/components/ListProvisioning/ListsTMT/columnsAdvanced';
 //let checks = StepChecks(0,5);  //Project
 
 /**
