@@ -18,7 +18,14 @@ export function getXMLObjectFromString(str, tag, toText, removeTag = false) {
       var IndexOf1 = str.indexOf(tag1);
       var IndexOf2 = str.indexOf(tag2);
   
-      if (IndexOf1 > -1 && IndexOf1 > -1) {
+    /**   
+     * 2021-06-14:  Update to fix:  https://github.com/mikezimm/generic-solution/issues/101
+     * updated second check to IndexOf2 since it seemed to be a duplicate of the first value.
+     * This was updated due to Finance Tasks template which would give error when trying to update views.  
+     * So if the tag was <Query />, tag2 would be negative since it does not have a closing tag.
+     * The result will be that fullTag will return "" which is what would be expected.
+    */
+      if (IndexOf1 > -1 && IndexOf2 > -1) {
         fullTag = str.substring(IndexOf1, IndexOf2 + tagLength + 3);
   
       }
