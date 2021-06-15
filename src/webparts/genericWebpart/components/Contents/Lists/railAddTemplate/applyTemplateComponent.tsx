@@ -268,7 +268,7 @@ export default class ProvisionLists extends React.Component<IProvisionListsProps
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionList' ); //richText
+            ActionJSON, 'ProvisionList', null ); //richText, Setting, richText2
 
     }
 

@@ -639,7 +639,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             ProvisionListsSaveTitle, TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionList' ); //richText
+            ActionJSON, 'ProvisionList', null ); //richText, Setting, richText2
 
     }
       
@@ -657,7 +657,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
         AddTemplateSaveTitle, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
         this.props.theList.Title, null , 'Complete', //itemInfo1, itemInfo2, result, 
-        this.state.history, this.props.railFunction ); //richText
+        this.state.history, this.props.railFunction, null ); //richText, Setting, richText2
 
   }
 

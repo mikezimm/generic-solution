@@ -285,7 +285,7 @@ export default class ProvisionItems extends React.Component<IProvisionItemsProps
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             'Provision Items', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Items', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionItem' ); //richText
+            ActionJSON, 'ProvisionItem', null ); //richText, Setting, richText2
 
     }
 
