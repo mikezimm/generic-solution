@@ -10,7 +10,7 @@ import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartL
 export type IValidTemplate = 100 | 101;
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
-import { getFieldNamesFromArray } from '../component/provisionFunctions';
+import { getFieldNamesFromArray, getViewTitlesFromArray } from '../component/provisionFunctions';
 
 import { DefStatusField, DefEffStatusField } from '../../ListProvisioning/component/provisionFunctions';
 

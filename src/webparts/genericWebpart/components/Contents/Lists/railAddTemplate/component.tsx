@@ -34,7 +34,7 @@ import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 import { DefaultButton, PrimaryButton, CompoundButton, elementContains } from 'office-ui-fabric-react';
 
-import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
+import { mergeStyles, noWrap } from 'office-ui-fabric-react/lib/Styling';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -418,7 +418,31 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             const stackListTokens: IStackTokens = { childrenGap: 10 };
 
             let pickedDesc = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDesc : 'Nothing selected yet' ;
+
+            /**
+             * This builds the Fields and Views details which are visible when you hover over the pickedDesc
+             */
             let pickedDetails = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDetails : null ;
+            if ( pickedDetails && pickedDetails.indexOf('\n') > 0 ) {
+                let details = pickedDetails.split('\n');
+                pickedDetails = [];
+                details.map( detail => {
+                    let detailSet = detail.split(':');
+                    if ( detailSet.length > 1 ) {
+                        let itemCount = detailSet[1].split(',').length;
+                        detailSet[0] = `${detailSet[0]} ( ${ itemCount })`;
+                        pickedDetails.push( <h3> { detailSet[0] } </h3>);
+
+                        let detailItems = itemCount < 2 ? detailSet[1] :
+                            detailSet[1].split(',').map( item => {
+                                return <span style={{ whiteSpace: 'nowrap', paddingRight: '30px', minWidth: '180px' }}>{ item }</span>;
+                            });
+                        pickedDetails.push( <div style={{paddingTop: '15px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}> { detailItems } </div>);
+                    } else {
+                        pickedDetails.push( <p> { detailSet[0] } </p>);
+                    }
+                });
+            }
             
             // let thisPage = <div><div>{ disclaimers }</div>
             let thisPage = <div style={{ paddingTop: '20px' }}>
@@ -430,7 +454,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 <div> { toggles } </div>
                 <div className={ stylesC.description }>
                     <div style={{ paddingTop: '10px', }}> <span style={{ fontSize: 'larger' }}> { pickedDesc } </span></div>
-                    <div style={{ paddingTop: '10px', display: pickedDetails === null ? 'none' : '' }}> <span style={{ }}> { pickedDetails } </span></div>
+                    <div style={{ paddingTop: '10px', display: pickedDetails === null ? 'none' : '' }}> { pickedDetails }</div>
                 </div>
 
                 <div style={{display: this.state.doMode === true ? '': 'none' }}>
@@ -872,7 +896,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         }
         
         private updateGenericToggle = (item): void => {
-            console.log('updateGenericToggle: ', item );
+            // console.log('updateGenericToggle: ', item );
             this.setState({
                 doMode: item === 'togDoMode' ? !this.state.doMode : this.state.doMode,
                 doFields: item === 'togDoFields' ? !this.state.doFields : this.state.doFields,
