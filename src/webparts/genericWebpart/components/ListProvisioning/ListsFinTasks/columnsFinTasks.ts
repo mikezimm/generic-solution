@@ -94,7 +94,7 @@ export const PeriodFin : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice1Periods[Choice1Periods.length-1] + '"',
+        DefaultValue: Choice1Periods[Choice1Periods.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -111,7 +111,7 @@ export const YearFin : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice2Years[Choice2Years.length-1] + '"',
+        DefaultValue: Choice2Years[Choice2Years.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -203,7 +203,7 @@ export const FrequencyFin : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + FinTasksFrequencyChoices[FinTasksFrequencyChoices.length-1] + '"',
+        DefaultValue: FinTasksFrequencyChoices[FinTasksFrequencyChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -220,7 +220,7 @@ export const PriorityFin : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + OOTBTaskPriorityChoices[OOTBTaskPriorityChoices.length-1] + '"',
+        DefaultValue: OOTBTaskPriorityChoices[OOTBTaskPriorityChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -237,7 +237,7 @@ export const StageFin : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + FinanceStageChoices[FinanceStageChoices.length-1] + '"',
+        DefaultValue: FinanceStageChoices[FinanceStageChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -254,7 +254,7 @@ export const StatusFin : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + OOTBTaskStatus[OOTBTaskStatus.length-1] + '"',
+        DefaultValue: OOTBTaskStatus[OOTBTaskStatus.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {

@@ -53,7 +53,7 @@ export const StatusTMT : IChoiceField = {
   onCreateProps: {
       Group: thisColumnGroup,
       Description: 'Used as rule to apply to Project Activy Text to build Activity URL.',
-      DefaultFormula:'="' + defStatus + '"',
+      DefaultValue: defStatus,
       Indexed: true,
   },
   onCreateChanges: {

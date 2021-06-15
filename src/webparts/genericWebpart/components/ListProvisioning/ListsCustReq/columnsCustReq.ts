@@ -92,7 +92,7 @@ export const DocSubjectCReq : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDefaultDescription,
-        DefaultFormula:'="' + theseDSubjectChoices[theseDSubjectChoices.length-1] + '"', // put the name you chose in the first line of the choice column, the one starting with let
+        DefaultValue: theseDSubjectChoices[theseDSubjectChoices.length-1], // put the name you chose in the first line of the choice column, the one starting with let
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -107,7 +107,7 @@ export const zzzFileStatusCReq : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDefaultDescription,
-        DefaultFormula:'="Yes"' ,
+        DefaultValue:"Yes",
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -135,7 +135,7 @@ export const QuotePhaseCReq : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDefaultDescription,
-        DefaultFormula:'="' + theseDSubjectChoices[theseDSubjectChoices.length-1] + '"',
+        DefaultValue: theseDSubjectChoices[theseDSubjectChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -160,7 +160,7 @@ export const MYCReq : IChoiceField = {
     choices: myChoices,
     onCreateProps: {
         Group: thisColumnGroup,
-        DefaultFormula:'="' + myChoices[myChoices.length-1] + '"',
+        DefaultValue: myChoices[myChoices.length-1],
         Description: thisDefaultDescription,
     }
 };
@@ -172,7 +172,7 @@ export const ProductItemCReq : IChoiceField = {
     choices: prodChoices,
     onCreateProps: {
         Group: thisColumnGroup,
-        DefaultFormula:'="' + prodChoices[prodChoices.length-1] + '"',
+        DefaultValue: prodChoices[prodChoices.length-1],
         Description: thisDefaultDescription,
     }
 };
@@ -184,7 +184,7 @@ export const ProgramCReq : IChoiceField = {
     choices: progChoices,
     onCreateProps: {
         Group: thisColumnGroup,
-        DefaultFormula:'="' + progChoices[progChoices.length-1] + '"',
+        DefaultValue: progChoices[progChoices.length-1],
         Description: thisDefaultDescription,
     }
 };

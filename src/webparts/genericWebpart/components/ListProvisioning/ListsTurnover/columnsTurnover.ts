@@ -125,7 +125,7 @@ export const Choice01Turn : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice1[Choice1.length-1] + '"',
+        DefaultValue: Choice1[Choice1.length-1],
         Indexed: true,
     },
    onCreateChanges: {
@@ -157,7 +157,7 @@ export const ItemCategoryTurn : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice2[Choice2.length-1] + '"',
+        DefaultValue: Choice2[Choice2.length-1],
         Indexed: true,
     },
    onCreateChanges: {
@@ -188,7 +188,7 @@ export const StatusTurn : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice3[Choice3.length-1] + '"',
+        DefaultValue: Choice3[Choice3.length-1],
         Indexed: true,
     },
    onCreateChanges: {

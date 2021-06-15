@@ -324,7 +324,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             console.log( 'componentDidUpdate: TRUE' );
 
         } else {
-            console.log( 'componentDidUpdate: FALSE' ); 
+            // console.log( 'componentDidUpdate: FALSE' ); 
         }
 
         // this.setState({ refreshId: makeid(5) })
@@ -346,7 +346,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     public render(): React.ReactElement<IMyAddListTemplateProps> {
 
         if ( this.props.theList ) {
-            console.log( 'render' );
+            // console.log( 'render' );
             let listOrLib = this.props.theList.BaseType === 0 ? 'List' : 'Library' ;
 
             let panelContent = null;

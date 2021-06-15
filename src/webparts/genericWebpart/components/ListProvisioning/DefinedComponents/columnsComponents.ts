@@ -81,7 +81,7 @@ export function createStatus( choices: string[] = DefaultStatusChoices, title: s
         onCreateProps: {
             Group: thisColumnGroup,
             Description: 'Used to set the status of an item',
-            DefaultFormula:'="' + choices[choices.length-1] + '"',
+            DefaultValue: choices[choices.length-1],
             Indexed: true,
         },
        onCreateChanges: {

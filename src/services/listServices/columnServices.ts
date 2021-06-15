@@ -325,6 +325,14 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                                 let err = `Here's the formula you have for ${f.name} \n\n ${ errField.formula}`;
                                 statusLog = notify(statusLog, 'Create Field', err, step, f, null);
                                 errMessage = err + '\n\n' + errMessage;
+
+                            } else if ( thisFieldType['type'] === cMChoice.type ) {
+                                if ( thisField.onCreateProps && thisField.onCreateProps.Indexed ) {
+                                    let err = `You are trying to Index a MultiChoice column ( ${f.name} ) which is NOT allowed :).\n\nGo to column settings and make sure choices are set by hand.`;
+                                    statusLog = notify(statusLog, 'Create Field', err, step, f, null);
+                                    errMessage = err + '\n\n' + errMessage;
+                                }
+
                             } else {
                                 let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
                                 statusLog = notify(statusLog, 'Create Field', err, step, f, null);

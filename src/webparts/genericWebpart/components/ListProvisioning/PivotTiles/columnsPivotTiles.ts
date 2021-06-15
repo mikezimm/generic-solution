@@ -179,7 +179,7 @@ export const zzzShowAllPivot : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisColumnDescription,
-        DefaultFormula:'="' + "Yes" + '"',
+        DefaultValue: "Yes",
         Indexed: true,
     },
 //    onCreateChanges: {
