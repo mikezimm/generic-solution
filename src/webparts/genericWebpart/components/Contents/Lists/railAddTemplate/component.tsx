@@ -419,7 +419,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             let pickedDesc = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDesc : 'Nothing selected yet' ;
             let pickedDetails = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDetails : null ;
-            if ( pickedDetails.indexOf('\n') > 0 ) {
+            if ( pickedDetails && pickedDetails.indexOf('\n') > 0 ) {
                 pickedDetails = [];
                 let details = pickedDetails.split('\n');
                 details.map( detail => {
