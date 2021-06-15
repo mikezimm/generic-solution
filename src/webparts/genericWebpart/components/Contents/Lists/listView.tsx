@@ -195,11 +195,11 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
           const UniquePermIcon: JSX.Element = <div id={ index.toString() } > { fpsAppIcons.UniquePerms } </div>;
 
-          const CreateGroupsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.CreateGroups } </div>;
-          const ApplyTemplateIcon: JSX.Element = <div id={ index.toString() } data-railFunction='AddTemplate' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { AddTemplateIcon } </div>;
-          const CompareJSONIcon: JSX.Element = <div id={ index.toString() } data-railFunction='compareJSON' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { CreateJSONIcon } </div>;
-          const ResetPermissionsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.ResetPermissions } </div>;
-          const RemoveItemsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.RemoveItems } </div>;
+          const CreateGroupsIcon: JSX.Element = <div style={{cursor: 'pointer'}}  id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.CreateGroups } </div>;
+          const ApplyTemplateIcon: JSX.Element = <div style={{cursor: 'pointer'}} id={ index.toString() } data-railFunction='AddTemplate' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { AddTemplateIcon } </div>;
+          const CompareJSONIcon: JSX.Element = <div style={{cursor: 'pointer'}}  id={ index.toString() } data-railFunction='compareJSON' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { CreateJSONIcon } </div>;
+          const ResetPermissionsIcon: JSX.Element = <div style={{cursor: 'pointer'}}  id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.ResetPermissions } </div>;
+          const RemoveItemsIcon: JSX.Element = <div style={{cursor: 'pointer'}}  id={ index.toString() } data-railFunction='ListPermissions' data-listTitle={ Lst.Title } onClick={ this.props._openRailsOffPanel}> { fpsAppIcons.RemoveItems } </div>;
          
           let listTitleRUL : any = Lst.Title;
           let listSettingsURL : any = Lst.EntityTypeName;
