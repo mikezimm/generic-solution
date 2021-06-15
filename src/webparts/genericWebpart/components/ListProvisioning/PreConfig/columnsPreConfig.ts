@@ -166,7 +166,7 @@ export function TemplateChoice ( theseChoices: string[] ) {
         onCreateProps: {
             Group: thisColumnGroup,
             Description: thisColumnDesc,
-            DefaultFormula:'="' + theseChoices[theseChoices.length-1] + '"',
+    DefaultValue: theseChoices[theseChoices.length-1],
             Indexed: true,
         },
     //    onCreateChanges: {
@@ -177,6 +177,18 @@ export function TemplateChoice ( theseChoices: string[] ) {
     return field;
 }
 
+export function deleteMe() {
+    const Category2 : IMultiChoiceField = {
+        fieldType: cMChoice,
+        name: 'Category2',
+        choices: ['EU','NA','SA','Asia'],
+        onCreateProps: {
+            Group: 'TMT Project Columns',
+            Description: 'Project level choice category in entry form.',
+        }
+      };
+}
+
 export function ScenarioChoice ( theseChoices: string[] ) {
     let field : IMultiChoiceField = {
         fieldType: cMChoice,
@@ -185,8 +197,8 @@ export function ScenarioChoice ( theseChoices: string[] ) {
         onCreateProps: {
             Group: thisColumnGroup,
             Description: thisColumnDesc,
-            DefaultFormula:'="' + theseChoices[theseChoices.length-1] + '"',
-            Indexed: true,
+            DefaultValue: theseChoices[theseChoices.length-1],
+            // Indexed: true,
         },
     //    onCreateChanges: {
     //        Title: 'Status',

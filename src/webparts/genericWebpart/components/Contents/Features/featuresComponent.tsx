@@ -4,12 +4,9 @@ import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons }
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
 
-import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteUserProps, ISiteUser, IFeatures, Features, IFeatureInfo } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { IFeatures, Features, IFeatureInfo } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import "@pnp/sp/site-users";
-import { ISiteUserInfo } from '@pnp/sp/site-users/types';
-
-import { IWebAddResult, IWebInfo, IWeb, } from "@pnp/sp/webs/types";
 
 import "@pnp/sp/webs";
 
@@ -22,12 +19,9 @@ import { IMyProgress,} from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyI
 import { IPickedWebBasic } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser, } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
-
-import ButtonCompound from '../../createButtons/ICreateButtons';
-import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
-
-import { createAdvancedContentChoices } from '../../fields/choiceFieldBuilder';
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
@@ -38,12 +32,6 @@ import { IMyPivots, IPivot, IMyPivCat  } from '@mikezimm/npmfunctions/dist/Pivot
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogFeature from './featuresListView';
-
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
-
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
-
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},
@@ -99,12 +87,6 @@ export interface IInspectFeaturesProps {
 
 }
 
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    features: IMyProgress[];
-
-}
 
 export interface IFeatureBucketInfo {
     features: IContentsFeatureInfo[];
@@ -168,15 +150,6 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
         ];
         return result;
     }
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            features: [],
-        };
-        return history;
-
-    }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -197,7 +170,7 @@ export default class InspectFeatures extends React.Component<IInspectFeaturesPro
             allowOtherSites: this.props.allowOtherSites === true ? true : false,
             currentPage: 'Click Button to start',
             progress: null,
-            history: this.clearHistory(),
+            history: clearHistory(),
             allLoaded: false,
 
             allFeatures: [],

@@ -22,13 +22,16 @@ import { queryValueCurrentUser, queryValueToday } from '@mikezimm/npmfunctions/d
 import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
 //SHARED Columns
-import {Leader, Team, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, StatusTMT, StatusNumber, StatusText,
-    DueDateTMT, CompletedDateTMT, CompletedByTMT, CCList, CCEmail} from './columnsWebPart';
+import {Leader, Team, CCList, CCEmail } from './columnsTMT';
+import {Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Everyone, Active,  } from './columnsLabels';
+
+    //SHARED Columns
+import { DueDateTMT, CompletedDateTMT, CompletedByTMT} from './columnsStatus';
+import { StatusTMT, StatusNumber, StatusText, EffectiveStatus, IsOpen } from './columnsStatus';
 
 //PROJECT columns
-import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc, OptionsTMT, OptionsTMTCalc,
-    EffectiveStatus, IsOpen,
-	ProjectEditOptions, HistoryTMT, TimeTarget} from './columnsWebPart';
+import { SortOrder, ActivityType, ActivityTMT, ActivtyURLCalc, OptionsTMT, OptionsTMTCalc,
+	ProjectEditOptions, HistoryTMT, TimeTarget} from './columnsAdvanced';
 
 //TIME columns
 import { Activity, DeltaT, Comments, User, StartTime, EndTime, OriginalStart, OriginalEnd, OriginalHours, MinutesChanged,

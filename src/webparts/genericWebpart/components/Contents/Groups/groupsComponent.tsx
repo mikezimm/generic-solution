@@ -28,12 +28,9 @@ import { IPickedWebBasic } from '@mikezimm/npmfunctions/dist/Lists/IListInterfac
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
-
-import ButtonCompound from '../../createButtons/ICreateButtons';
-import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
-
-import { createAdvancedContentChoices } from '../../fields/choiceFieldBuilder';
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
@@ -44,11 +41,6 @@ import { IMyPivots, IPivot, IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots
 import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogGroup from './groupsListView';
-
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
-
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},
@@ -109,13 +101,6 @@ export interface IInspectGroupsProps {
     pickedWeb? : IPickedWebBasic;
 
     // 2 - Source and destination list information
-
-}
-
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    groups: IMyProgress[];
 
 }
 
@@ -181,15 +166,6 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
         ];
         return result;
     }
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            groups: [],
-        };
-        return history;
-
-    }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -210,7 +186,7 @@ export default class InspectGroups extends React.Component<IInspectGroupsProps, 
             allowOtherSites: this.props.allowOtherSites === true ? true : false,
             currentPage: 'Click Button to start',
             progress: null,
-            history: this.clearHistory(),
+            history: clearHistory(),
             allLoaded: false,
 
             allGroups: [],

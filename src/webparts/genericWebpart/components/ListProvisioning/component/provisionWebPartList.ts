@@ -72,7 +72,7 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
  */
 
 
-import { IDefinedLists } from './provisionListComponent';
+import { IDefinedLists } from './provisionFunctions';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -116,6 +116,8 @@ export interface IMakeThisList {
     listDefinition: string;
     definedList: IDefinedLists;
     validUserIds?: number[];
+    templateDesc: any;
+    templateDetails: any;
 
 }
 export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean, requireAll: boolean = true ): Promise<IServiceLog[]>{
@@ -321,7 +323,6 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         console.log('currentViews:', readOnly, currentViews );
     }
 
-
     console.log(makeThisList.title + ' list fields and views', currentFields, currentViews);
 
     if ( doFields === true ) {
@@ -331,7 +332,6 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     if ( doViews === true ) {
         let result2 = await addTheseViews( makeThisList.listExistedB4 , readOnly, makeThisList, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
     } else { console.log('Skipping doViews') ; }
-
 
     let result3 = null;
 
@@ -430,6 +430,9 @@ export function defineTheListMaster ( template: IValidTemplate , listTitle : str
         existingTemplate: null,
         sameTemplate: false,
         listDefinition: listDefinition,
+
+        templateDesc: null,
+        templateDetails: null,
 
     };
 

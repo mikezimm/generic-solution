@@ -67,6 +67,8 @@ import { isGuid, makeid, } from '@mikezimm/npmfunctions/dist/Services/Strings/st
 import { IMyPivCat } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -101,6 +103,8 @@ import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButt
 import { createIconButton } from '../../createButtons/IconButton';
 
 import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
+
+import { DefStatusField, DefEffStatusField } from './provisionFunctions';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -139,9 +143,6 @@ import { IMakeThisList } from './provisionWebPartList';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 
-import { createGridDates } from '../../../../../services/sampleData';
-
-import { IFieldDef } from '../../fields/fieldDefinitions';
 import { createBasicTextField, createMultiLineTextField } from  '../../fields/textFieldBuilder';
 
 /**
@@ -169,8 +170,8 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
  */
-
-import { IDefinedLists, availLists, definedLists, dropDownWidth } from './provisionListComponent';
+import { IDefinedLists, availLists, definedLists, } from './provisionFunctions';
+import { dropDownWidth } from './provisionListComponent';
 
 export interface IProvisionItemsProps {
     // 0 - Context
@@ -207,15 +208,7 @@ export interface IProvisionItemsProps {
 
 }
 
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    columns: IMyProgress[];
-    views: IMyProgress[];
-    items: IMyProgress[];
-}
-
-//export type IItemMode = 'Define' | 'Create' | 'Status' | 'History';
+//export type IItemMode = 'Define' | 'Create' | DefStatusField | 'History';
 
 export interface IProvisionItemsState {
 
@@ -258,12 +251,12 @@ export interface IProvisionItemsState {
 
 }
 
-export type IItemMode = 'Define' | 'Create' | 'Status' | 'History';
+export type IItemMode = 'Define' | 'Create' | typeof DefStatusField | 'History';
 
 export const pivCats = {
     Define: {title: 'Define', desc: '', order: 1, count: null, icon: null },
     Create: {title: 'Create', desc: '', order: 1, count: null, icon: null },
-    Status: {title: 'Status', desc: '', order: 100, count: null, icon: null },
+    Status: {title: DefStatusField, desc: '', order: 100, count: null, icon: null },
     History: {title: 'History', desc: '', order: 1, count: null, icon: null },
 
 };
@@ -292,7 +285,7 @@ export default class ProvisionItems extends React.Component<IProvisionItemsProps
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             'Provision Items', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Items', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionItem' ); //richText
+            ActionJSON, 'ProvisionItem', null ); //richText, Setting, richText2
 
     }
 
@@ -330,7 +323,7 @@ public createPivotObject(setPivot, display){
 
     private getFieldPivots() {
 
-        //export type IItemMode = 'Define' | 'Create' | 'Status' | 'History';
+        //export type IItemMode = 'Define' | 'Create' | typeof DefStatusField | 'History';
         let Define = this.buildFilterPivot( pivCats.Define );
         let Create = this.buildFilterPivot( pivCats.Create );
         let Status = this.buildFilterPivot(pivCats.Status);
@@ -352,18 +345,6 @@ public createPivotObject(setPivot, display){
         </PivotItem>;
 
         return p;
-    }
-
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            columns: [],
-            views: [],
-            items: [],
-        };
-        return history;
-
     }
 
 /***
@@ -402,7 +383,7 @@ public constructor(props:IProvisionItemsProps){
         currentList: '',
         allLoaded: this.props.allLoaded,
         progress: null,
-        history: this.clearHistory(),
+        history: clearHistory(),
 
         doMode: false,
         doItems: false,

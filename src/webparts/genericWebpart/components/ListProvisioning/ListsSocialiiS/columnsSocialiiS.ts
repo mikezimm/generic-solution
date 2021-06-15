@@ -155,7 +155,7 @@ export const mediaObjectSiiS : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice1[Choice1.length-1] + '"',
+        DefaultValue: Choice1[Choice1.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {

@@ -18,6 +18,8 @@ import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, 
 //Imported but not used so that intellisense can prevent duplicate named columns.
 import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
+import { IListDefintionCustReq } from './defineCustReq';
+
 /***
  *     .d8b.  d8888b. d8888b.       d888b  d8888b.  .d88b.  db    db d8888b.      d8b   db  .d8b.  .88b  d88. d88888b
  *    d8' `8b 88  `8D 88  `8D      88' Y8b 88  `8D .8P  Y8. 88    88 88  `8D      888o  88 d8' `8b 88'YbdP`88 88'
@@ -90,7 +92,7 @@ export const DocSubjectCReq : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDefaultDescription,
-        DefaultFormula:'="' + theseDSubjectChoices[theseDSubjectChoices.length-1] + '"', // put the name you chose in the first line of the choice column, the one starting with let
+        DefaultValue: theseDSubjectChoices[theseDSubjectChoices.length-1], // put the name you chose in the first line of the choice column, the one starting with let
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -105,7 +107,7 @@ export const zzzFileStatusCReq : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDefaultDescription,
-        DefaultFormula:'="Yes"' ,
+        DefaultValue:"Yes",
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -133,7 +135,7 @@ export const QuotePhaseCReq : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDefaultDescription,
-        DefaultFormula:'="' + theseDSubjectChoices[theseDSubjectChoices.length-1] + '"',
+        DefaultValue: theseDSubjectChoices[theseDSubjectChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -158,7 +160,7 @@ export const MYCReq : IChoiceField = {
     choices: myChoices,
     onCreateProps: {
         Group: thisColumnGroup,
-        DefaultFormula:'="' + myChoices[myChoices.length-1] + '"',
+        DefaultValue: myChoices[myChoices.length-1],
         Description: thisDefaultDescription,
     }
 };
@@ -170,7 +172,7 @@ export const ProductItemCReq : IChoiceField = {
     choices: prodChoices,
     onCreateProps: {
         Group: thisColumnGroup,
-        DefaultFormula:'="' + prodChoices[prodChoices.length-1] + '"',
+        DefaultValue: prodChoices[prodChoices.length-1],
         Description: thisDefaultDescription,
     }
 };
@@ -182,7 +184,7 @@ export const ProgramCReq : IChoiceField = {
     choices: progChoices,
     onCreateProps: {
         Group: thisColumnGroup,
-        DefaultFormula:'="' + progChoices[progChoices.length-1] + '"',
+        DefaultValue: progChoices[progChoices.length-1],
         Description: thisDefaultDescription,
     }
 };
@@ -247,8 +249,8 @@ export const RequirementDatePhaseCReq : ICalculatedField = {
  * Each list would have an array of field objects like this.
  */
 
-export type ICustReqDefs = 'Program' | 'SORInfo' ;
-export function CustReqFields(listName: ICustReqDefs ) {
+
+export function CustReqFields(listName: IListDefintionCustReq ) {
     //return null;
 
     let theseFields: IMyFieldTypes[] = CustReqFieldsBuilder(listName);
@@ -258,7 +260,7 @@ export function CustReqFields(listName: ICustReqDefs ) {
 }
 
 
-export function CustReqFieldsBuilder(listName: ICustReqDefs ) {
+export function CustReqFieldsBuilder(listName: IListDefintionCustReq ) {
 
     let includeStatus = listName === 'SORInfo' ? true : false ;
 

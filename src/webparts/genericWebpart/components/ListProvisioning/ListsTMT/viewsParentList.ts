@@ -32,13 +32,16 @@ import { testAlertsView, createRecentUpdatesView } from '../../../../../services
 import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
 //SHARED Columns
-import {Leader, Team, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, StatusTMT, StatusNumber, StatusText,
-    DueDateTMT, CompletedDateTMT, CompletedByTMT, CCList, CCEmail} from '../ListsTMT/columnsWebPart';
+import {Leader, Team, CCList, CCEmail } from './columnsTMT';
+import {Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Everyone, Active,  } from './columnsLabels';
+
+    //SHARED Columns
+import { DueDateTMT, CompletedDateTMT, CompletedByTMT} from './columnsStatus';
+import { StatusTMT, StatusNumber, StatusText, EffectiveStatus, IsOpen } from './columnsStatus';
 
 //PROJECT columns
-import { SortOrder, Everyone, Active, ActivityType, ActivityTMT, ActivtyURLCalc, OptionsTMT, OptionsTMTCalc,
-    EffectiveStatus, IsOpen,
-    ProjectEditOptions, HistoryTMT, TimeTarget} from '../ListsTMT/columnsWebPart';
+import { SortOrder, ActivityType, ActivityTMT, ActivtyURLCalc, OptionsTMT, OptionsTMTCalc,
+	ProjectEditOptions, HistoryTMT, TimeTarget} from './columnsAdvanced';
 //let checks = StepChecks(0,5);  //Project
 
 export const stdViewFields = [ootbID, Active, StatusTMT, SortOrder, ootbTitle, Everyone, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team];
@@ -46,13 +49,20 @@ export const stdViewFields = [ootbID, Active, StatusTMT, SortOrder, ootbTitle, E
 export const stdProjectViewFields = ['Edit', ootbID, ootbTitle, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, Leader, Team, Everyone];
 export const ProjectRecentUpdatesFields = spliceCopyArray ( stdProjectViewFields, null, null, 2, [ootbModified, ootbEditor ] );
 
-export const ProjAllItemsView : IMyView = {
-    Title: 'All Items',
-    iFields: 	stdProjectViewFields,
-    wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
-            ],
-    orders: [ {field: ootbModified, asc: false} ],
-};
+export function buildProjAllItemsView() {
+
+    const ProjAllItemsView : IMyView = {
+        Title: 'All Items',
+        iFields: 	stdProjectViewFields,
+        wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
+                ],
+        orders: [ {field: ootbModified, asc: false} ],
+    };
+    return ProjAllItemsView;
+
+}
+
+
 
 let OptionsFields = [ootbID, ootbTitle, OptionsTMT, OptionsTMTCalc, Category1, Category2, ProjectID1, ProjectID2, Story, Chapter, ProjectEditOptions];
 
@@ -111,7 +121,7 @@ export function ProjStepsViews(prefix : string, min: number, max: number, skip: 
 }
 
 export const projectViews : IMyView[] = [ 
-    ProjAllItemsView, createRecentUpdatesView(ProjectRecentUpdatesFields), 
+    buildProjAllItemsView(), createRecentUpdatesView(ProjectRecentUpdatesFields),
     ProjOptionsView, ProjActivityGroupView, ProjActivityFlatView,
     ProjTaskColumnsView
 

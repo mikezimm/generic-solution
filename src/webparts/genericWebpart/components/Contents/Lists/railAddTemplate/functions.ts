@@ -66,7 +66,7 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
  */
 
   import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
-  import { IDefinedLists } from '../../../ListProvisioning/component/provisionListComponent';
+  import { IDefinedLists } from '../../../ListProvisioning/component/provisionFunctions';
   import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
   import { amIOnThisWeb } from '../../../../../../services/createAnalytics';
 
@@ -124,6 +124,8 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
         existingTemplate: null,
         sameTemplate: false,
         listDefinition: listDefinition,
+        templateDesc: null,
+        templateDetails: null,
 
     };
 

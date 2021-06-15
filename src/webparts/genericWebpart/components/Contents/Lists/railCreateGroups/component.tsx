@@ -387,7 +387,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                 pickedWeb = { this.props.pickedWeb }
             
                 analyticsWeb = { strings.analyticsWeb }
-                analyticsListRails = { strings.analyticsListRails }
+                analyticsListRails = { strings.analyticsListRailsGroups }
             ></RailsHistory>;
 
             panelContent = <div>
@@ -545,11 +545,11 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             extraInfo,
         ].join('|');
 
-        saveAnalytics( this.props.analyticsWeb, strings.analyticsListRails , //analyticsWeb, analyticsList,
+        saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsGroups , //analyticsWeb, analyticsList,
             ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
             currentStep.label, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
             currentStep.value1, value2, currentStep.current.key, //itemInfo1, itemInfo2, result, 
-            JSON.stringify(currentStep), this.props.railFunction ); //richText
+            JSON.stringify(currentStep), this.props.railFunction, null ); //richText, Setting, richText2
         
     }
 

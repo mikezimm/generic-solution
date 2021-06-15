@@ -383,7 +383,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
                             viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
                         }
 
-                    } else if ( i === '0' && thisFieldWhere != '' && viewWhereArray.length === 2 ) {
+                        //2021-06-11:  added where viewWhereArray.length === 3 for more complex views where there were 2 or's before the and
+                    } else if ( i === '0' && thisFieldWhere != '' && ( viewWhereArray.length === 2 || viewWhereArray.length === 3) ) {
                         //Had to add this while testing TMTView:  VerifyNoStoryOrChapterView
                         viewWhereXML = thisFieldWhere;
 
@@ -534,8 +535,30 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
                     let actualViewFieldsXML = getXMLObjectFromString(actualViewSchema,'ViewFields',false, true);
                     let actualQueryXML = getXMLObjectFromString(actualViewSchema,'Query',false, true);
 
-                    // replace portions that need replacing
-                    newViewXML = newViewXML.replace(actualQueryXML, viewQueryXML);
+
+                    /**
+                     * 2021-06-14:
+                     * This section of if/then was added to address: https://github.com/mikezimm/generic-solution/issues/101
+                     * Issue was that if there was an empty query <Query /> it was replacing the text before that string due to bug.
+                     * Now it should get the correct actualQueryXML and then handle it depending on what is required.
+                     */
+                    if ( actualQueryXML === "" && newViewXML.indexOf('<Query />' ) > -1 && viewQueryXML.length > 0 ) {
+                        //Current = empty and has a value to replace
+                        newViewXML = newViewXML.replace('<Query />', viewQueryXML);
+
+                    } else if ( actualQueryXML === "" && newViewXML.indexOf('<Query />' ) > -1 && viewQueryXML.length === 0 ) {
+                        //Current = empty and new xml is also empty so do not make a change
+
+                    } else if ( viewQueryXML.length === 0 && actualQueryXML.length > 0 ) {
+                        //Current = has value and new xml is empty so we need to replace with single tag
+                        newViewXML = newViewXML.replace(actualQueryXML, '').replace('<Query></Query>','<Query />');
+
+                    } else {
+                        //There is an old Query paramter and a new Query paramter to replace it with
+                        newViewXML = newViewXML.replace(actualQueryXML, viewQueryXML);
+
+                    }
+                    
                     newViewXML = newViewXML.replace(actualViewFieldsXML,viewFieldsSchemaString);
 
                     //Update view schema

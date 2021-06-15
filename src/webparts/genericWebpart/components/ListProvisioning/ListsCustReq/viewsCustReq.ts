@@ -33,11 +33,13 @@ import { testAlertsView, createRecentUpdatesView } from '../../../../../services
 import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
 //CustReq columns
-import {ICustReqDefs,
+import {
     DocSubjectCReq , zzzFileStatusCReq , IssueDateCReq , QuotePhaseCReq ,
     RequirementNoCReq , MYCReq , ProductItemCReq , ProgramCReq , DateRequirementPhaseCReq ,
     PhaseDateRequirementCReq , RequirementDatePhaseCReq
 } from './columnsCustReq';
+
+import { IListDefintionCustReq } from './defineCustReq';
 
 export const stdViewFieldsProg = [ootbID, DocSubjectCReq, ProgramCReq, ProductItemCReq, MYCReq, ootbCreated, ootbVersion ];
 export const stdViewFieldsStat = [ootbID, DocSubjectCReq, ProgramCReq, ProductItemCReq, MYCReq, IssueDateCReq, QuotePhaseCReq, RequirementNoCReq, ootbVersion ];
@@ -55,7 +57,7 @@ export interface IViewFields {
     all?: IViewField[];
 }
 
-export function getStdFields( listName: ICustReqDefs ) {
+export function getStdFields( listName: IListDefintionCustReq ) {
     let fields : IViewFields = null;
     if (listName === 'Program') {
         fields = { 
@@ -149,7 +151,7 @@ export function ItemsByDocSubjectView ( viewFields, sortField ) {
     return view;
 }
 
-export function CustReqViews (listName: ICustReqDefs ) : IMyView[]  {
+export function CustReqViews (listName: IListDefintionCustReq ) : IMyView[]  {
 
     let thisView : IMyView[] = [];
     let viewFields = getStdFields(listName);

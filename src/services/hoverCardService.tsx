@@ -52,7 +52,8 @@ export function buildPropsHoverCard (item: any, highlightKeys: string[], special
 
         let missingProp = "Error:  prop not available";
         highlightKeys.map( prop => {
-            if ( prop === 'refElement') { showTheseProps.push(  item[prop] );
+            if ( prop === 'refElement') { showTheseProps.push(  buildRefElement( item['ref']) );
+
             } else  {
                 let propType = typeof item[prop];
                 let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(item[prop]) : item[prop];
@@ -66,7 +67,8 @@ export function buildPropsHoverCard (item: any, highlightKeys: string[], special
         //showTheseProps.push( <div><ColoredLine color='black' height='1px'></ColoredLine></div> );
         if ( specialKeys.length > 0 ) { showTheseProps.push( <div><h2>Special Props</h2></div> ); }
         specialKeys.map( prop => {
-            if ( prop === 'refElement') { showTheseProps.push(  item[prop] );
+            if ( prop === 'refElement') { showTheseProps.push(  buildRefElement( item['ref']) );
+
             } else  {
                 let propType = typeof item[prop];
                 let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(item[prop]) : item[prop];
@@ -82,7 +84,8 @@ export function buildPropsHoverCard (item: any, highlightKeys: string[], special
 
             Object.keys(item).map( prop => {
 
-                if ( prop === 'refElement') { showTheseProps.push(  item[prop] );
+                if ( prop === 'refElement') { showTheseProps.push( buildRefElement( item['ref']) );
+
                 } else if (highlightKeys.indexOf(prop) < 0 && specialKeys.indexOf(prop) < 0) {
                     let propType = typeof item[prop];
                     let propVal = propType === 'object' || propType === 'boolean' ? JSON.stringify(item[prop]) : item[prop];
@@ -118,5 +121,17 @@ export function buildPropsHoverCard (item: any, highlightKeys: string[], special
 
 }
 
+export function buildRefElement( ref: any ) {
+
+  if  ( ref != null && ref.indexOf('\n') > 0 ) {
+    //Remove left padding:  https://stackoverflow.com/a/13939142
+    ref = <ul style={{paddingLeft:15}}>{
+      ref.replace('-- FULL ERROR', '\n-- FULL ERROR').split('\n').map( x => { return <li style={{paddingLeft:0}}>{x}</li>; } )
+      }</ul>;
+  }
+  
+  return ref;
+
+}
 
 

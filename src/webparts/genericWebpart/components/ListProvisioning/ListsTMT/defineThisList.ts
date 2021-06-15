@@ -9,15 +9,17 @@ import { TMTDefaultProjectItems, TMTTestTimeItems, } from './ItemsWebPart'; // I
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
-import { IDefinedLists } from '../component/provisionListComponent';
 // definedList: 'PreConfig',
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
+import { getFieldNamesFromArray } from '../component/provisionFunctions';
 
 export type IValidTemplate = 100 | 101;
 
+export type IListDefintionTMT = 'Projects' | 'TrackMyTime';
+
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: 'Projects' | 'TrackMyTime' , webURL: string, currentUser: number[], pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionTMT , webURL: string, currentUser: number[], pageURL: string ) {
 
     let makeThisList:  IMakeThisList = defineTheListMaster(template, listTitle,listDefinition,webURL,pageURL, 'TrackMyTime');
 
@@ -38,7 +40,10 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
     }
 
     //let listResult = await provisionTheList( makeThisList, setProgress );
+    if ( makeThisList.templateDesc === null ) { 
+        makeThisList.templateDesc = `Adds ${listDefinition} related views(${makeThisList.createTheseViews.length} and fields(${makeThisList.createTheseFields.length}) to your list.`;}
 
+    makeThisList.templateDetails = `Adds ${makeThisList.createTheseViews.length} views and ${makeThisList.createTheseFields.length} fields to your list.  Fields include:${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }` ;
     return makeThisList;
 
 }

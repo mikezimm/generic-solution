@@ -13,6 +13,8 @@
 import * as React from 'react';
 import { Icon  } from 'office-ui-fabric-react/lib/Icon';
 
+import { Web, IList, Site, ISite } from "@pnp/sp/presets/all";
+
 import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
 
 import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'office-ui-fabric-react/lib/Panel';
@@ -57,6 +59,8 @@ import ReactJson from "react-json-view";
  import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
  import { JSONEditorShort } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksDevDocs';
 
+ import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -68,7 +72,7 @@ import ReactJson from "react-json-view";
  *                                                                                                                                 
  */
 
-import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, AddTemplateSaveTitle, ProvisionListsSaveTitle } from '../../../../../../services/createAnalytics';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -83,32 +87,14 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../..
 
   import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
-  import { availLists, IDefinedLists, definedLists, dropDownWidth } from '../../../ListProvisioning/component/provisionListComponent';
-  import { getTheseDefinedLists, clearHistory, IMyHistory } from '../../../ListProvisioning/component/provisionFunctions';
+  import { dropDownWidth } from '../../../ListProvisioning/component/provisionListComponent';  //IDefinedLists, availLists, definedLists,
+  import { IDefinedLists, availLists, definedLists, getTheseDefinedLists, availComponents } from '../../../ListProvisioning/component/provisionFunctions';
 
   import { provisionTheList, IValidTemplate } from '../../../ListProvisioning/component/provisionWebPartList';
   import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
   import { fixTitleNameInViews  } from '../../../../../../services/listServices/viewServices'; //Import view arrays for Time list
   import MyLogList from '../../../ListProvisioning/component/listView';
 
-  /**
-     * Steps to add new list def:
-     * 1. Create folder and columns, define and view files
-     * 2. Make sure the list def is in the availLists array and definedLists array
-     * 3. Add logic to getDefinedLists to fetch the list definition
-     * Rinse and repeat
-     */
-    import * as dHarm from '../../../ListProvisioning/Harmonie/defineHarmonie';
-    import * as dTMT from '../../../ListProvisioning/ListsTMT/defineThisList';
-    import * as dCust from '../../../ListProvisioning/ListsCustReq/defineCustReq';
-    import * as dPCP from '../../../ListProvisioning/PreConfig/definePreConfig';
-
-    import * as dFinT from '../../../ListProvisioning/ListsFinTasks/defineFinTasks';
-    import * as dReps from '../../../ListProvisioning/ListsReports/defineReports';
-    //import * as dTurn from '../ListsTurnover/defineTurnover';
-    //import * as dOurG from '../ListsOurGroups/defineOurGroups';
-    //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
-    import * as dPivT from '../../../ListProvisioning/PivotTiles/definePivotTiles';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -121,7 +107,14 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../..
  *                                                                                                                                               
  */
 
+ import stylesC from './component.module.scss';
  import { makeIMakeThisListFromExisting } from './functions';
+
+//  "analyticsListRailsApply": "EasyContentsRailsApply",
+//  "analyticsListRailsGroups": "EasyContentsRailsGroups",
+//  "analyticsListPermissionsHistory": "PermissionsHistory",
+ import * as strings from 'GenericWebpartWebPartStrings';
+
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -146,10 +139,10 @@ export interface IMyAddListTemplateProps {
 
     type: PanelType;
 
-    json1: any;
-    json2?: any;
+    // json1: any;
+    // json2?: any;
 
-    _fetchCompare: any; //Function that will get json2 from inputs in this component
+    // _fetchCompare: any; //Function that will get json2 from inputs in this component
 
     pickedWeb : IPickedWebBasic;
 
@@ -161,7 +154,25 @@ export interface IMyAddListTemplateProps {
 
     errorMess: string;
 
+    theSite: ISite;
+    currentPage: string; //this.context.pageContext.web.absoluteUrl;
+
   }
+
+  export type IMainPivot = 'FullList' | 'Components' | 'History';
+
+  const pivotHeading1 : IMainPivot = 'FullList';  //Templates
+  const pivotHeading2 : IMainPivot = 'Components';  //Templates
+  const pivotHeading3 : IMainPivot = 'History';  //Templates
+
+export function buildMainPivotDescriptions() {
+    let result : any = {};
+    result[ pivotHeading1 ] = 'Apply Full List Template to existing list';
+    result[ pivotHeading2 ] = 'Apply groups of columns and views to existing list';
+    result[ pivotHeading3 ] = 'See history of what has already been done';
+
+    return result;
+}
 
 export interface IMyAddListTemplateState {
 
@@ -169,6 +180,8 @@ export interface IMyAddListTemplateState {
     finished: boolean;
     refreshId: string;
     errorMess: string;
+
+    mainPivot: IMainPivot;
 
     otherWeb: string;
     otherList: string;
@@ -209,12 +222,10 @@ const panelWidth = '90%';
 const groupBottomPadding = '25px';
 const toggleBottomPadding = '5px';
 
-const pivotHeading1 = 'FullList';  //Templates
-const pivotHeading2 = 'Components';  //Templates
-const pivotHeading3 = 'History';  //Templates
 
 export default class MyAddListTemplate extends React.Component<IMyAddListTemplateProps, IMyAddListTemplateState> {
 
+    private headingDesc = buildMainPivotDescriptions();
 
     /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -239,7 +250,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
         //makeIMakeThisListFromExisting( definedList: IDefinedLists, listDefinition: string, theList: IContentsListInfo, consoleLog: boolean = false ) {
         let makeThisList : IMakeThisList = makeIMakeThisListFromExisting( definedList , '' , this.props.theList, true ) ;
-        let doList = this.props.theList.BaseType === 100 ? true : false;
+        let doList = this.props.theList.BaseType === 0 || this.props.theList.BaseTemplate === 100 ? true : false;
 
         let theLists = getTheseDefinedLists( definedList, true, [ makeThisList.title ], [], makeThisList.webURL, makeThisList.webURL, doList, null );
         console.log( 'theLists in railAddTemplate props: ', theLists );
@@ -266,19 +277,20 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             doFields: true,
             doViews: true,
             doItems: false,
+            mainPivot: pivotHeading1,
         };
     }
         
     public componentDidMount() {
-        this._doCheck();
+        // this._doCheck();
         //this._getListItems();
     }
 
-    private async _doCheck() {
-        this.setState({
+    // private async _doCheck() {
+    //     this.setState({
 
-        });
-    }
+    //     });
+    // }
 
     
 
@@ -294,7 +306,27 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
  */
 
     public componentDidUpdate(prevProps: IMyAddListTemplateProps): void {
-        console.log( 'componentDidUpdate' );
+        
+        if ( prevProps.theList.Id !== this.props.theList.Id ) {
+            let definedList = availLists[0];
+
+            //makeIMakeThisListFromExisting( definedList: IDefinedLists, listDefinition: string, theList: IContentsListInfo, consoleLog: boolean = false ) {
+            let makeThisList : IMakeThisList = makeIMakeThisListFromExisting( definedList , '' , this.props.theList, true ) ;
+            let doList = this.props.theList.BaseType === 0 || this.props.theList.BaseTemplate === 100 ? true : false;
+    
+            let theLists = getTheseDefinedLists( definedList, true, [ makeThisList.title ], [], makeThisList.webURL, makeThisList.webURL, doList, null );
+            console.log( 'theLists in railAddTemplate props: ', theLists );
+            this.setState({ 
+                doList: doList,
+                lists: theLists,
+                definedList: definedList,
+            });
+            console.log( 'componentDidUpdate: TRUE' );
+
+        } else {
+            // console.log( 'componentDidUpdate: FALSE' ); 
+        }
+
         // this.setState({ refreshId: makeid(5) })
     //this._updateWebPart(prevProps);
     }
@@ -314,16 +346,19 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     public render(): React.ReactElement<IMyAddListTemplateProps> {
 
         if ( this.props.theList ) {
-            console.log( 'render' );
+            // console.log( 'render' );
             let listOrLib = this.props.theList.BaseType === 0 ? 'List' : 'Library' ;
 
             let panelContent = null;
 
-            let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateDropdownChange.bind(this) , null );
+            let listDropdown = null;
+            if ( this.state.mainPivot === 'FullList' ) {
+                listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
+            }
 
             let createButton = <PrimaryButton text={ 'Apply Template' } onClick={ this.CreateList.bind(this) } allowDisabledFocus disabled={ this.state.doMode !== true ? true : false } checked={ false } />;
             let cancelButton = <DefaultButton text={ 'Cancel' } onClick={ this.props._closePanel } allowDisabledFocus disabled={ false } checked={ false } />;
-            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 20 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
+            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 0 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
 
             let listDefinitionSelectPivot = 
                 <Pivot
@@ -349,7 +384,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 descending={false}          titles={null}            ></MyLogList>;
 
             let fieldList = <MyLogList
-                title={ 'Column'}           items={ this.state.history.columns }
+                title={ 'Column'}           items={ this.state.history.fields }
                 descending={false}          titles={null}            ></MyLogList>;
 
             let viewList = <MyLogList
@@ -382,14 +417,21 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             const stackListTokens: IStackTokens = { childrenGap: 10 };
 
+            let pickedDesc = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDesc : 'Nothing selected yet' ;
+            let pickedDetails = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDetails : null ;
+            
             // let thisPage = <div><div>{ disclaimers }</div>
             let thisPage = <div style={{ paddingTop: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '20px' }}>
                     <div style={{ float: 'left' }}> { listDropdown } </div>
-                    <div style={{ paddingLeft: '60px' }}> { listDefinitionSelectPivot } </div>
+                    <div style={{ paddingLeft: listDropdown === null ? '0px' : '60px' }}> { listDefinitionSelectPivot } </div>
                 </div>
+
                 <div> { toggles } </div>
-                <div style={{ height:30} }> {  } </div>
+                <div className={ stylesC.description }>
+                    <div style={{ paddingTop: '10px', }}> <span style={{ fontSize: 'larger' }}> { pickedDesc } </span></div>
+                    <div style={{ paddingTop: '10px', display: pickedDetails === null ? 'none' : '' }}> <span style={{ }}> { pickedDetails } </span></div>
+                </div>
 
                 <div style={{display: this.state.doMode === true ? '': 'none' }}>
                         <div> { myProgress } </div>
@@ -416,7 +458,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                     linkSize={PivotLinkSize.normal}
                     onLinkClick={this._selectedIndex.bind(this)}
                 >
-                    <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ ''}>
+                    <PivotItem headerText={pivotHeading1} ariaLabel={pivotHeading1} title={pivotHeading1} itemKey={pivotHeading1} itemIcon={ null }>
 
                         {/* <div style={{display: '-webkit-inline-box', paddingBottom: '10px' }}>
                             { this.makeToggle( 'Create Contributors', true, false, this.updateTogggle1.bind(this) ) }
@@ -435,12 +477,12 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
 
                     </PivotItem>
-                    <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ ''}>
+                    <PivotItem headerText={pivotHeading2} ariaLabel={pivotHeading2} title={pivotHeading2} itemKey={pivotHeading2} itemIcon={ null }>
                         <div style={{marginTop: '20px'}}>
                             {/* { permissions } */}
                         </div>
                     </PivotItem>
-                    <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ ''}>
+                    <PivotItem headerText={pivotHeading3} ariaLabel={pivotHeading3} title={pivotHeading3} itemKey={pivotHeading3} itemIcon={ null }>
                         <div style={{marginTop: '20px'}}>
                             {/* { history } */}
                         </div>
@@ -450,7 +492,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             </div>;
 
-            let panelHeader = 'Compare Properties' ;
+            let panelHeader = this.headingDesc[ this.state.mainPivot ] ;
             return (
                 <div><Panel
                         isOpen={ this.props.showPanel }
@@ -572,6 +614,10 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
       }
       
       private captureAnalytics(itemInfo2, result, ActionJSON ){
+
+        console.log('captureAnalytics itemInfo2, result:',itemInfo2, result );
+        console.log('captureAnalytics JSON:',ActionJSON );
+        
         let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
 
         let TargetList = '';
@@ -589,11 +635,11 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         }
 
         //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
-        saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
+        saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply, //analyticsWeb, analyticsList,
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
-            'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
+            ProvisionListsSaveTitle, TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionList' ); //richText
+            ActionJSON, 'ProvisionList', null ); //richText, Setting, richText2
 
     }
       
@@ -602,6 +648,16 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     this.setState({
         status: 'Finished ' + this.state.status,
     });
+
+    let theSite: any = this.props.theSite;
+    let ServerRelativeUrl = this.props.currentPage;
+    let pickedWeb = this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid + '|' + theSite.Url + '|' + theSite.Id ;
+
+    saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply , //analyticsWeb, analyticsList,
+        ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+        AddTemplateSaveTitle, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+        this.props.theList.Title, null , 'Complete', //itemInfo1, itemInfo2, result, 
+        this.state.history, this.props.railFunction, null ); //richText, Setting, richText2
 
   }
 
@@ -647,7 +703,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         if ( list === 'E') {
             history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
         } else if ( list === 'C') {
-            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+            history.fields = history.fields.length === 0 ? [progress] : [progress].concat(history.fields);
         } else if ( list === 'V') {
             history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
         } else if ( list === 'I') {
@@ -671,6 +727,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     if ( justReturnLists === false ) { provisionListTitles = [] ; }
 
     if ( defineThisList !== availLists[0] ) { //Update to get available lists to build
+        
         theLists = getTheseDefinedLists( defineThisList, true, [ this.state.makeThisList.title ], [], this.state.makeThisList.webURL, this.state.makeThisList.webURL, this.state.doList, null );
 
         //Go through and re-map props that might not get set correctly
@@ -697,15 +754,14 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
 }
 
- private _updateDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
-    console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
+ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+    console.log(`_updateListDropdownChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
 
     let thisValue : any = getChoiceText(item.text);
 
     this.getDefinedLists(thisValue, true);
 
 }
-
 
     private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
         const dropdownStyles: Partial<IDropdownStyles> = {
@@ -827,16 +883,25 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
     private async _selectedIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
         //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));
-        let itemKey = item.props.itemKey;
+        let itemKey: any = item.props.itemKey;
         if ( itemKey === pivotHeading1 ) {
             if (ev.ctrlKey) {
                 // window.open( this.props.theList.ParentWebUrl + "/_layouts/15/user.aspx?obj={" + this.props.theList.Id + "},doclib&List={" + this.props.theList.Id + "}", '_blank' );
             }
-
         } else if ( itemKey === pivotHeading2 ) {
-
         }
+        //makeIMakeThisListFromExisting( definedList: IDefinedLists, listDefinition: string, theList: IContentsListInfo, consoleLog: boolean = false ) {
 
+        this.setState( {
+            mainPivot: itemKey,
+        });
+
+        //Do this only after updating state
+        if ( itemKey === pivotHeading1 ) {
+            this.getDefinedLists(availLists[0], true);
+        } else if ( itemKey === pivotHeading2 ) {
+            this.getDefinedLists('Components', true);
+        }
       }
 
 }

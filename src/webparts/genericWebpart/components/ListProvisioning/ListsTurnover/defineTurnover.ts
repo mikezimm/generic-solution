@@ -1,6 +1,6 @@
 
 
-import { TurnoverFields, ITurnoverDefs } from './columnsTurnover'; //Import column arrays (one file because both lists use many of same columns)
+import { TurnoverFields, } from './columnsTurnover'; //Import column arrays (one file because both lists use many of same columns)
 
 // import { TurnoverViews, } from './viewsTurnover';  //Import view arrays for Project list
 
@@ -8,15 +8,17 @@ import { IMakeThisList, provisionTheList } from '../component/provisionWebPartLi
 
 import { TurnoverItems } from './ItemsWebPart';
 
-import { IDefinedLists } from '../component/provisionListComponent';
 // definedList: 'PreConfig',
 
 export type IValidTemplate = 100 | 101;
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
+import { getFieldNamesFromArray } from '../component/provisionFunctions';
+
+export type IListDefintionTurnOver = 'AOA Turnover' | 'IBC Turnover' | 'TBD Turnover';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: ITurnoverDefs , webURL: string, currentUser: number[], pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionTurnOver , webURL: string, currentUser: number[], pageURL: string ) {
 
     let makeThisList:  IMakeThisList = defineTheListMaster(template, listTitle,listDefinition,webURL,pageURL, 'Turnover');
     
@@ -38,7 +40,10 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 //    }
 
     //let listResult = await provisionTheList( makeThisList, setProgress );
+    if ( makeThisList.templateDesc === null ) { 
+        makeThisList.templateDesc = `Adds ${listDefinition} related views(${makeThisList.createTheseViews.length} and fields(${makeThisList.createTheseFields.length}) to your list.`;}
 
+    makeThisList.templateDetails = `Adds ${makeThisList.createTheseViews.length} views and ${makeThisList.createTheseFields.length} fields to your list.  Fields include:${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }` ;
     return makeThisList;
 
 }

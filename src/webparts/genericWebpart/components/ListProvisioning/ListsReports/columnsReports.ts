@@ -91,7 +91,7 @@ export const PeriodRep : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice1[Choice1.length-1] + '"',
+        DefaultValue: Choice1[Choice1.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -108,7 +108,7 @@ export const YearRep : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice2[Choice2.length-1] + '"',
+        DefaultValue: Choice2[Choice2.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -125,7 +125,7 @@ export const ScopeRep : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice3[Choice3.length-1] + '"',
+        DefaultValue: Choice3[Choice3.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -142,7 +142,7 @@ export const SectionRep : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: thisDescription,
-        DefaultFormula:'="' + Choice4[Choice4.length-1] + '"',
+        DefaultValue: Choice4[Choice4.length-1],
         Indexed: true,
     },
 };

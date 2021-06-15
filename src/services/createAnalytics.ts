@@ -127,6 +127,7 @@ function getUrlVars() {
  * @param theProps 
  * @param theState 
  */
+
 export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, listory, fields, views, types, info, Setting ) {
 
     //Do nothing if either of these strings is blank
@@ -183,7 +184,9 @@ export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, sa
  * @param theProps 
  * @param theState 
  */
-export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, ActionJSON, Setting ) {
+export const AddTemplateSaveTitle = 'Add Template';
+export const ProvisionListsSaveTitle = 'Provision Lists';
+export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, RichTextJSON1, Setting, RichTextJSON2 ) {
 
     //Do nothing if either of these strings is blank
     if (!analyticsList) { return ; }
@@ -202,11 +205,14 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
     saveItem.getParams = getUrlVars().join(' & ');
     saveItem.Setting = Setting;
 
-    saveItem.zzzRichText1 = ActionJSON ? JSON.stringify(ActionJSON) : null;
+    console.log('saveAnalytics StringifyActionJson: ', RichTextJSON1, RichTextJSON2 );
+    saveItem.zzzRichText1 = RichTextJSON1 ? JSON.stringify(RichTextJSON1) : null;
+    saveItem.zzzRichText2 = RichTextJSON2 ? JSON.stringify(RichTextJSON2) : null;
 
-    if ( analyticsList === strings.analyticsListRails ) { //Rails Off
+    if ( analyticsList === strings.analyticsListRailsGroups || analyticsList === strings.analyticsListRailsApply ) { //Rails Off
         saveItem.ListTitle = itemInfo1;
-        let infos2 = itemInfo2.split('|');
+
+        let infos2 = itemInfo2 ? itemInfo2.split('|') : [ ];
 
         saveItem.zzzText3 = infos2[0];
 
@@ -218,8 +224,8 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
         saveItem.zzzText1 = infos2[4] ? infos2[4] : null ;
         saveItem.zzzText4 = infos2[5] ? infos2[5] : null;
 
-        let tempSite = TargetSite.split('|');
-        TargetSite = tempSite[0];
+        let tempSite = TargetSite ? TargetSite.split('|') : [];
+        TargetSite = tempSite[0] ? tempSite[0] : null;
         saveItem.WebID = tempSite[1] ? tempSite[1] : null;
         saveItem.CollectionUrl = tempSite[2] ? tempSite[2] : null;
         saveItem.SiteID = tempSite[3] ? tempSite[3] : null;
@@ -246,9 +252,9 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
         'Description': saveItem.SiteTitle ,
     };
     
-    saveItem.TargetSite = makeSiteLink( TargetSite, saveItem.SiteTitle );
+    saveItem.TargetSite = TargetSite ? makeSiteLink( TargetSite, saveItem.SiteTitle ) : null ;
 
-    saveItem.TargetList = makeListLink( TargetList, webTitle );
+    saveItem.TargetList = TargetList ? makeListLink( TargetList, webTitle ) : null;
 
     saveThisItem( analyticsWeb, analyticsList, saveItem );
 

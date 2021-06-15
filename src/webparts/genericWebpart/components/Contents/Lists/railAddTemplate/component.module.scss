@@ -1,0 +1,16 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+//Copied to chartsPage.module.scss so it can be more stand alone.
+.description {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 40px;
+  margin-bottom: 30px;
+}
+
+.description:hover {
+  height: 100%;
+  transition: all, .3s ease;
+  transition-delay: .7s;
+}

@@ -1,19 +1,21 @@
 
-import { CustReqFields, ICustReqDefs } from './columnsCustReq'; //Import column arrays (one file because both lists use many of same columns)
+import { CustReqFields, } from './columnsCustReq'; //Import column arrays (one file because both lists use many of same columns)
 
 import { CustReqViews,  } from './viewsCustReq';  //Import view arrays for Project list
 
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
-import { IDefinedLists } from '../component/provisionListComponent';
 // definedList: 'PreConfig',
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
+import { getFieldNamesFromArray } from '../component/provisionFunctions';
 
 export type IValidTemplate = 100 | 101;
 
+export type IListDefintionCustReq = 'Program' | 'SORInfo' ;
+
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: ICustReqDefs , webURL: string, currentUser:  number[], pageURL: string ) {
+export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionCustReq , webURL: string, currentUser:  number[], pageURL: string ) {
 
 
     let makeThisList:  IMakeThisList = defineTheListMaster(template, listTitle,listDefinition,webURL,pageURL, 'Customer Requirements');
@@ -36,7 +38,10 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 //    }
 
     //let listResult = await provisionTheList( makeThisList, setProgress );
+    if ( makeThisList.templateDesc === null ) { 
+        makeThisList.templateDesc = `Adds ${listDefinition} related views(${makeThisList.createTheseViews.length} and fields(${makeThisList.createTheseFields.length}) to your list.`;}
 
+    makeThisList.templateDetails = `Adds ${makeThisList.createTheseViews.length} views and ${makeThisList.createTheseFields.length} fields to your list.  Fields include:${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }` ;
     return makeThisList;
 
 }

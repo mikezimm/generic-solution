@@ -43,6 +43,7 @@ import ProvisionLists from './ListProvisioning/component/provisionListComponent'
 import ProvisionFields from './ListProvisioning/component/provisionFieldComponent';
 import ProvisionItems from './ListProvisioning/component/provisionItemsComponent';
 
+import { IDefinedLists, availLists, definedLists, } from './ListProvisioning/component/provisionFunctions';
 
 import InspectContents from './Contents/contentsComponent';
 
@@ -427,7 +428,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               pickedWeb = { this.state.pickedWeb }
               isCurrentWeb = { this.state.isCurrentWeb }
               
-              definedList = { '' }
+              definedList = { availLists[0] }
               provisionListTitles = { [] }
 
             ></ProvisionLists>
@@ -457,7 +458,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           currentUser = {this.state.currentUser }
           lists = { [] }
 
-          definedList = { '' }
+          definedList = { availLists[0] }
           provisionListTitles = { [] }
 
         ></ProvisionFields>
@@ -588,7 +589,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           currentUser = {this.state.currentUser }
           lists = { [] }
 
-          definedList = { '' }
+          definedList = { availLists[0] }
           provisionListTitles = { [] }
 
         ></ProvisionItems>

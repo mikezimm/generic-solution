@@ -21,12 +21,7 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
-
-import ButtonCompound from '../../createButtons/ICreateButtons';
-import { IButtonProps, ISingleButtonProps, IButtonState } from "../../createButtons/ICreateButtons";
-
-import { createAdvancedContentChoices } from '../../fields/choiceFieldBuilder';
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
 import { IContentsToggles, makeToggles } from '../../fields/toggleFieldBuilder';
 
@@ -38,10 +33,7 @@ import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogWeb from './websListView';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
-
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 
 export const pivCats = {
@@ -91,15 +83,6 @@ export interface IInspectWebsProps {
     pickedWeb? : IPickedWebBasic;
 
     // 2 - Source and destination list information
-
-}
-
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    webs: IMyProgress[];
-    views: IMyProgress[];
-    items: IMyProgress[];
 
 }
 
@@ -167,17 +150,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
         ];
         return result;
     }
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            webs: [],
-            views: [],
-            items: [],
-        };
-        return history;
 
-    }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -198,7 +171,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
             allowOtherSites: this.props.allowOtherSites === true ? true : false,
             currentPage: 'Click Button to start',
             progress: null,
-            history: this.clearHistory(),
+            history: clearHistory(),
             allLoaded: false,
 
             allWebs: [],

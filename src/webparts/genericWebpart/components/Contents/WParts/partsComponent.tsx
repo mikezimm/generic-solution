@@ -4,9 +4,6 @@ import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons }
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
 
-import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
-
 import { IValidTemplate, allAvailableWebParts } from './partsFunction';
 
 import styles from '../contents.module.scss';
@@ -15,6 +12,8 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { IMyPivots, IPivot, IMyPivCat  } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
+
+import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -29,15 +28,9 @@ import { PageContext } from '@microsoft/sp-page-context';
 
 import MyLogList from './partsListView';
 
-import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
-
 import { IWPart,  } from './partsFunction';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-
 import { addItemToArrayIfItDoesNotExist, } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
-
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
 
 
 export const pivCats = {
@@ -75,16 +68,6 @@ export interface IInspectPartsProps {
     // 2 - Source and destination list information
 
 }
-
-export interface IMyHistory {
-    count: number;
-    errors: IMyProgress[];
-    columns: IMyProgress[];
-    views: IMyProgress[];
-    items: IMyProgress[];
-
-}
-
 
 export interface IPartsBucketInfo {
     parts: IWPart[];
@@ -140,17 +123,6 @@ export default class InspectParts extends React.Component<IInspectPartsProps, II
         ];
         return result;
     }
-    private clearHistory() {
-        let history: IMyHistory = {
-            count: 0,
-            errors: [],
-            columns: [],
-            views: [],
-            items: [],
-        };
-        return history;
-
-    }
 
 /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -171,7 +143,7 @@ public constructor(props:IInspectPartsProps){
         allowOtherSites: this.props.allowOtherSites === true ? true : false,
         currentPage: 'Click Button to start',
         progress: null,
-        history: this.clearHistory(),
+        history: clearHistory(),
         allLoaded: false,
 
         partBuckets : this.createSearchBuckets(),
@@ -466,7 +438,7 @@ public constructor(props:IInspectPartsProps){
         if ( page === 'E') {
             history.errors = history.errors.length === 0 ? [progress] : [progress].concat(history.errors);
         } else if ( page === 'C') {
-            history.columns = history.columns.length === 0 ? [progress] : [progress].concat(history.columns);
+            history.fields = history.fields.length === 0 ? [progress] : [progress].concat(history.fields);
         } else if ( page === 'V') {
             history.views = history.views.length === 0 ? [progress] : [progress].concat(history.views);
         } else if ( page === 'I') {

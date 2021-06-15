@@ -34,7 +34,7 @@ import { testAlertsView, createRecentUpdatesView } from '../../../../../services
 import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
 //FinTasks columns
-import {IFinTasksDefs,
+import {
     YearFin,   //BOTH
     PeriodFin,   //BOTH
     PercentCompleteFin,   //BOTH

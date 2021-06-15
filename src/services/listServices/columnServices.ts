@@ -320,11 +320,19 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             foundField = true;
                             // if any of the fields does not get created, raise an exception in the console log
                             let errMessage = getHelpfullError(e, alertMe, consoleLog);
-                            if (errMessage.indexOf('The formula refers to a column that does not exist.') > -1 || errMessage.indexOf('Check the formula') > -1 ) {
+                            if (errMessage.indexOf('The formula refers to a column that does not exist.') > -1 || errMessage.indexOf('Check the formula') > -1 || errMessage.indexOf('circular reference') > -1 ) {
                                 let errField: any = f;
                                 let err = `Here's the formula you have for ${f.name} \n\n ${ errField.formula}`;
                                 statusLog = notify(statusLog, 'Create Field', err, step, f, null);
                                 errMessage = err + '\n\n' + errMessage;
+
+                            } else if ( thisFieldType['type'] === cMChoice.type ) {
+                                if ( thisField.onCreateProps && thisField.onCreateProps.Indexed ) {
+                                    let err = `You are trying to Index a MultiChoice column ( ${f.name} ) which is NOT allowed :).\n\nGo to column settings and make sure choices are set by hand.`;
+                                    statusLog = notify(statusLog, 'Create Field', err, step, f, null);
+                                    errMessage = err + '\n\n' + errMessage;
+                                }
+
                             } else {
                                 let err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
                                 statusLog = notify(statusLog, 'Create Field', err, step, f, null);

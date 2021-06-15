@@ -123,7 +123,7 @@ export const EmailCategoriesHarm : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Mapped according to Harmon.ie',
-        DefaultFormula:'="' + theseChoices[theseChoices.length-1] + '"',
+        DefaultValue: theseChoices[theseChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -348,7 +348,7 @@ export const ProductsALV : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Generic Products',
-        DefaultFormula:'="' + theseChoices[theseChoices.length-1] + '"',
+DefaultValue: theseChoices[theseChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -364,7 +364,7 @@ export const ProgramsALV : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Generic Programs',
-        DefaultFormula:'="' + theseChoices[theseChoices.length-1] + '"',
+DefaultValue: theseChoices[theseChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -381,7 +381,7 @@ export const YearsALV : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Mapped according to Harmon.ie',
-        DefaultFormula:'="' + theseChoices[theseChoices.length-1] + '"',
+DefaultValue: theseChoices[theseChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {

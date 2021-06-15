@@ -21,7 +21,8 @@ import { IViewLog, addTheseViews } from '../../../../../services/listServices/vi
 
 import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
-import { getRandomInt } from '../../ListProvisioning/ListsTMT/ItemsWebPart';
+import { getRandomInt, getRandomChance, getRandomFromArray, randomDate, generateVals, generateTitles }
+    from '@mikezimm/npmfunctions/dist/Services/randomServices';
 
 import { createDrilldownDemoWebParts, IWebPartDef } from './provisionPageFunctions';
 
