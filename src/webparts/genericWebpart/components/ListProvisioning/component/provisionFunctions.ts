@@ -3,6 +3,7 @@ import { Web, Lists, List } from "@pnp/sp/presets/all"; //const projectWeb = Web
 import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Import view arrays for Time list
 
 import { dropDownWidth } from './provisionListComponent';
 import { IMakeThisList } from './provisionWebPartList';
@@ -78,6 +79,15 @@ export function getFieldNamesFromArray ( arr:  IMyFieldTypes[] ) {
     arr.map( field => {
         let fieldName = typeof field  === 'object' ? field.name : field;
         result.push( fieldName);
+    });
+    return result;
+}
+
+export function getViewTitlesFromArray ( arr:  IMyView[] ) {
+    let result = [];
+    arr.map( view => {
+        let viewTitle = typeof view  === 'object' ? view.Title : 'Unknown View';
+        result.push( viewTitle);
     });
     return result;
 }

@@ -419,6 +419,20 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             let pickedDesc = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDesc : 'Nothing selected yet' ;
             let pickedDetails = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDetails : null ;
+            if ( pickedDetails.indexOf('\n') > 0 ) {
+                pickedDetails = [];
+                let details = pickedDetails.split('\n');
+                details.map( detail => {
+                    let detailSet = detail.split(':');
+                    if ( detailSet.length > 1 ) {
+                        pickedDetails.push( <h3> { detailSet[0] } </h3>);
+                        pickedDetails.push( <p> { detailSet[1] } </p>);
+                    } else {
+                        pickedDetails.push( <p> { detailSet[0] } </p>);
+                    }
+                });
+                pickedDetails = pickedDetails;
+            }
             
             // let thisPage = <div><div>{ disclaimers }</div>
             let thisPage = <div style={{ paddingTop: '20px' }}>
@@ -430,7 +444,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 <div> { toggles } </div>
                 <div className={ stylesC.description }>
                     <div style={{ paddingTop: '10px', }}> <span style={{ fontSize: 'larger' }}> { pickedDesc } </span></div>
-                    <div style={{ paddingTop: '10px', display: pickedDetails === null ? 'none' : '' }}> <span style={{ }}> { pickedDetails } </span></div>
+                    <div style={{ paddingTop: '10px', display: pickedDetails === null ? 'none' : '' }}> { pickedDetails }</div>
                 </div>
 
                 <div style={{display: this.state.doMode === true ? '': 'none' }}>

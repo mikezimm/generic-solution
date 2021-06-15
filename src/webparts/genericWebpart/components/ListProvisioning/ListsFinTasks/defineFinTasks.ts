@@ -6,7 +6,7 @@ import { FinTasksViews,  } from './viewsFinTasks';  //Import view arrays for Pro
 import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
 
 import { FinanceTaskItems } from './ItemsWebPart';
-import { getFieldNamesFromArray } from '../component/provisionFunctions';
+import { getFieldNamesFromArray, getViewTitlesFromArray } from '../component/provisionFunctions';
 
 // definedList: 'PreConfig',
 
@@ -40,9 +40,9 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 
     //let listResult = await provisionTheList( makeThisList, setProgress );
     if ( makeThisList.templateDesc === null ) { 
-        makeThisList.templateDesc = `Adds ${listDefinition} related views(${makeThisList.createTheseViews.length} and fields(${makeThisList.createTheseFields.length}) to your list.`;}
+        makeThisList.templateDesc = `Adds ${listDefinition} related views (${makeThisList.createTheseViews.length}) and fields (${makeThisList.createTheseFields.length}) to your list.`;}
 
-    makeThisList.templateDetails = `Adds ${makeThisList.createTheseViews.length} views and ${makeThisList.createTheseFields.length} fields to your list.  Fields include:${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }` ;
+    makeThisList.templateDetails = `Fields include:${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }\nViews include:${ getViewTitlesFromArray(makeThisList.createTheseViews).join(', ') }` ;
     return makeThisList;
 
 }

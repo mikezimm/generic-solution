@@ -12,7 +12,7 @@ import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartL
 // definedList: 'PreConfig',
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
-import { getFieldNamesFromArray } from '../component/provisionFunctions';
+import { getFieldNamesFromArray, getViewTitlesFromArray } from '../component/provisionFunctions';
 
 export type IValidTemplate = 100 | 101;
 
@@ -41,9 +41,9 @@ export function defineTheList ( template: IValidTemplate , listTitle : string, l
 
     //let listResult = await provisionTheList( makeThisList, setProgress );
     if ( makeThisList.templateDesc === null ) { 
-        makeThisList.templateDesc = `Adds ${listDefinition} related views(${makeThisList.createTheseViews.length} and fields(${makeThisList.createTheseFields.length}) to your list.`;}
+        makeThisList.templateDesc = `Adds ${listDefinition} related views (${makeThisList.createTheseViews.length}) and fields (${makeThisList.createTheseFields.length}) to your list.`;}
 
-    makeThisList.templateDetails = `Adds ${makeThisList.createTheseViews.length} views and ${makeThisList.createTheseFields.length} fields to your list.  Fields include:${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }` ;
+    makeThisList.templateDetails = `Fields include:${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }\nViews include:${ getViewTitlesFromArray(makeThisList.createTheseViews).join(', ') }` ;
     return makeThisList;
 
 }
