@@ -177,16 +177,16 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               fontWeight: '700',
             }};
 
-            let ref: any = h.ref;
+            // let ref: any = h.ref;
 
-            if  ( ref != null && ref.indexOf('\n') > 0 ) {
-              //Remove left padding:  https://stackoverflow.com/a/13939142
-              ref = <ul style={{paddingLeft:15}}>{
-                ref.replace('-- FULL ERROR', '\n-- FULL ERROR').split('\n').map( x => { return <li style={{paddingLeft:0}}>{x}</li>; } )
-                }</ul>;
-            }
+            // if  ( ref != null && ref.indexOf('\n') > 0 ) {
+            //   //Remove left padding:  https://stackoverflow.com/a/13939142
+            //   ref = <ul style={{paddingLeft:15}}>{
+            //     ref.replace('-- FULL ERROR', '\n-- FULL ERROR').split('\n').map( x => { return <li style={{paddingLeft:0}}>{x}</li>; } )
+            //     }</ul>;
+            // }
 
-            h.refElement = ref;
+            // h.refElement = ref;
 
             let normalIcon = <Icon iconName={ h.icon ? h.icon : "Info"} className={iconClassInfo} styles = {iconStyles}/>;
 

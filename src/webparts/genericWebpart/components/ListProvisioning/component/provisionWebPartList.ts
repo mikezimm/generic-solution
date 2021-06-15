@@ -323,7 +323,6 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         console.log('currentViews:', readOnly, currentViews );
     }
 
-
     console.log(makeThisList.title + ' list fields and views', currentFields, currentViews);
 
     if ( doFields === true ) {
@@ -333,7 +332,6 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
     if ( doViews === true ) {
         let result2 = await addTheseViews( makeThisList.listExistedB4 , readOnly, makeThisList, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
     } else { console.log('Skipping doViews') ; }
-
 
     let result3 = null;
 

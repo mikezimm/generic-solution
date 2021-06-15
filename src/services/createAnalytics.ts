@@ -210,7 +210,8 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
     if ( analyticsList === strings.analyticsListRailsGroups || saveTitle === AddTemplateSaveTitle ) { //Rails Off
         saveItem.ListTitle = itemInfo1;
-        let infos2 = itemInfo2.split('|');
+
+        let infos2 = itemInfo2 ? itemInfo2.split('|') : [ ];
 
         saveItem.zzzText3 = infos2[0];
 
@@ -222,8 +223,8 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
         saveItem.zzzText1 = infos2[4] ? infos2[4] : null ;
         saveItem.zzzText4 = infos2[5] ? infos2[5] : null;
 
-        let tempSite = TargetSite.split('|');
-        TargetSite = tempSite[0];
+        let tempSite = TargetSite ? TargetSite.split('|') : [];
+        TargetSite = tempSite[0] ? tempSite[0] : null;
         saveItem.WebID = tempSite[1] ? tempSite[1] : null;
         saveItem.CollectionUrl = tempSite[2] ? tempSite[2] : null;
         saveItem.SiteID = tempSite[3] ? tempSite[3] : null;
@@ -250,9 +251,9 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
         'Description': saveItem.SiteTitle ,
     };
     
-    saveItem.TargetSite = makeSiteLink( TargetSite, saveItem.SiteTitle );
+    saveItem.TargetSite = TargetSite ? makeSiteLink( TargetSite, saveItem.SiteTitle ) : null ;
 
-    saveItem.TargetList = makeListLink( TargetList, webTitle );
+    saveItem.TargetList = TargetList ? makeListLink( TargetList, webTitle ) : null;
 
     saveThisItem( analyticsWeb, analyticsList, saveItem );
 
