@@ -168,7 +168,7 @@ export interface IMyAddListTemplateProps {
 export function buildMainPivotDescriptions() {
     let result : any = {};
     result[ pivotHeading1 ] = 'Apply Full List Template to existing list';
-    result[ pivotHeading2 ] = 'Apply groups of columns and views to existing list';
+    result[ pivotHeading2 ] = 'Apply sets of columns and views to existing list';
     result[ pivotHeading3 ] = 'See history of what has already been done';
 
     return result;
@@ -475,7 +475,34 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 </div>
             </div>;
 
+            let severeWarningStyles: any = { root: {
+                fontSize: 'larger',
+                fontWeight: 600,
+                color: 'darkred',
+                // paddingRight: '10px',
+            }};
+            let warning = <div style={{ width: panelWidth, margin: '20px 0px' }}>
+                    <MessageBar
+                        messageBarType={MessageBarType.severeWarning} 
+                        style={ severeWarningStyles }
+                        truncated={ true}
+                        overflowButtonAriaLabel="See more"
+                        dismissButtonAriaLabel="Close"
+                    >
+                        <h2>Applying changes will:</h2>
+                        <ul>
+                            <li>Add fields and views if they do not exist</li>
+                            <li>WILL Modify Views if they already exist</li>
+                        </ul>
+                        <h3>Applying changes will NOT:</h3>
+                        <ul>
+                            <li>Will NOT Modify fields if they already exist</li>
+                        </ul>
+                    </MessageBar>
+                </div>;
+
             panelContent = <div>
+                <div> { warning } </div>
                 <h3> { `${ this.props.theList.Title } ${ listOrLib }` }</h3>
                 <Pivot
                     styles={ pivotStyles }
