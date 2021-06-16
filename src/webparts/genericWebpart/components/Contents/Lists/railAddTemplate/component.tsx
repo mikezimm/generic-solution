@@ -481,7 +481,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 color: 'darkred',
                 // paddingRight: '10px',
             }};
-            let warning = <div style={{ width: panelWidth, margin: '20px 0px' }}>
+            let warning = <div style={{ width: panelWidth }}>
                     <MessageBar
                         messageBarType={MessageBarType.severeWarning} 
                         style={ severeWarningStyles }
@@ -489,7 +489,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                         overflowButtonAriaLabel="See more"
                         dismissButtonAriaLabel="Close"
                     >
-                        <h2>Applying changes will:</h2>
+                        <h2 style={{margin: '0px'}}>Applying changes will:</h2>
                         <ul>
                             <li>Add fields and views if they do not exist</li>
                             <li>WILL Modify Views if they already exist</li>
