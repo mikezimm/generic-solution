@@ -423,8 +423,9 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
              * This builds the Fields and Views details which are visible when you hover over the pickedDesc
              */
             let pickedDetails = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDetails : null ;
-            if ( pickedDetails && pickedDetails.indexOf('\n') > 0 ) {
-                let details = pickedDetails.split('\n');
+            let details = pickedDetails && pickedDetails.indexOf('\n') > 0 ? pickedDetails.split('\n') : [ pickedDetails ];
+
+            if ( pickedDetails !== null ) {
                 pickedDetails = [];
                 details.map( detail => {
                     let detailSet = detail.split(':');
@@ -432,7 +433,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                         let itemCount = detailSet[1].split(',').length;
                         detailSet[0] = `${detailSet[0]} ( ${ itemCount })`;
                         pickedDetails.push( <h3> { detailSet[0] } </h3>);
-
+    
                         let detailItems = itemCount < 2 ? detailSet[1] :
                             detailSet[1].split(',').map( item => {
                                 return <span style={{ whiteSpace: 'nowrap', paddingRight: '30px', minWidth: '180px' }}>{ item }</span>;
@@ -443,7 +444,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                     }
                 });
             }
-            
+
             // let thisPage = <div><div>{ disclaimers }</div>
             let thisPage = <div style={{ paddingTop: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '20px' }}>
