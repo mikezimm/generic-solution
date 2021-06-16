@@ -504,7 +504,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               showPane={true}
               allLoaded={false}
               webURL = { webUrl }
-              currentUser = {this.state.currentUser }
+              currentUser = { this.state.currentUser }
 
             ></ProvisionPatterns>
         </div>;
