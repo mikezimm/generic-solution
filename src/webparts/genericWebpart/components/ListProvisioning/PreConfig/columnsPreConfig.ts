@@ -228,6 +228,9 @@ export function ScenarioChoice ( theseChoices: string[] ) {
  *
  */
 
+ /**
+  * WARNING:  const are used also in the views and must be kept in sync with actual columns created.
+  */
 let templatesDrillDown = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Turnover","Standards","Policies","Other"];
 export const mapDrillDownProps: string[] = [
     'parentListWeb','parentListTitle',
@@ -237,13 +240,15 @@ export const mapDrillDownProps: string[] = [
     'updateRefinersOnTextSearch',
     'viewWidth1','viewWidth2','viewWidth3',
     'viewJSON1','viewJSON2','viewJSON3',
-    'includeDetails', 'includeAttach','includeListLink', 'showCatCounts','showSummary',
+    'includeDetails', 'includeAttach','includeListLink', 'showCatCounts','showSummary', 'showDisabled',
     'groupByFields','stats',
     'togCounts', 'togSummary', 'togStats', 'togOtherListview',
-    'fetchCount', 'fetchCountMobile', 'restFilter', 'quickCommands', 'includeListLink',
+    'fetchCount', 'fetchCountMobile', 'restFilter', 'quickCommands',
 ];
 
-
+ /**
+  * WARNING:  const are used also in the views and must be kept in sync with actual columns created.
+  */
 let templatesCarrotCharts = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Turnover","Standards","Policies","Other"];
 export const mapCarrotChartsProps: string[] = [
     'parentListWeb','parentListTitle', //Common
@@ -262,6 +267,9 @@ export const mapCarrotChartsProps: string[] = [
 
 ];
 
+ /**
+  * WARNING:  const are used also in the views and must be kept in sync with actual columns created.
+  */
 let templateGridCharts = ["SharedDocs","TrackMyTime","PivotTiles","Socialiis","Turnover","Standards","Policies","Other"];
 export const mapGridChartsProps: string[] = [
     'parentListWeb','parentListTitle', //Common
@@ -308,18 +316,31 @@ export function PreConfiguredListTemplates(listName: 'Drilldown' | 'CarrotCharts
     return theseFields;
 }
 
-
+/**
+ * 
+ * @param listName 
+ * @param mapTheseProps - these are only used for Drilldown for some reason... maybe the orignal function before Carrot and Gridcharts
+ * @param theseChoices 
+ */
 function PreConfiguredFields(listName, mapTheseProps: string[], theseChoices: string[] ) {
 
     let theseFields: IMyFieldTypes[] = [];
     theseFields.push(  TemplateChoice( theseChoices ) );
     theseFields.push(  ScenarioChoice( ['Dev','Team','Corp'] ) );
     if ( listName === 'Drilldown' ) {
+
+         /**
+         * WARNING:  Any columns added here need to be added to the const: mapDrillDownProps which is used to create views
+         */
         mapTheseProps.map( p => {
             theseFields.push(  createMultiLineField( p ) );
         });
 
     } else if ( listName === 'CarrotCharts' ) {
+
+        /**
+         * WARNING:  Any columns added here need to be added to the const: mapCarrotChartsProps which is used to create views
+         */
         let mTextFields = ['carrotProps', 'carrotStyles' ];
         let textFields = ['parentListWeb','parentListTitle',
             'restFilter',
@@ -338,6 +359,10 @@ function PreConfiguredFields(listName, mapTheseProps: string[], theseChoices: st
         booleanFields.map( p => { if ( p !== '') { theseFields.push(  createBooleanField( p ) ); }  }) ;
 
     } else if ( listName === 'GridCharts' ) {
+
+        /**
+         * WARNING:  Any columns added here need to be added to the const: mapGridChartsProps which is used to create views
+         */
         let mTextFields = ['', '' ];
         let textFields = ['parentListWeb','parentListTitle',
             'restFilter',
