@@ -145,7 +145,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
         'EasyContents', pickedWeb, null, //saveTitle, TargetSite, TargetList
         'Contents', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
-        '','Contents', null ); //richText, Setting, richText2
+        '','Contents', null, null ); //richText, Setting, richText2, richText3
 
     let railsMode = this.props.allowRailsOff && this.props.showRailsOff ? true : false ;
     this.state = {

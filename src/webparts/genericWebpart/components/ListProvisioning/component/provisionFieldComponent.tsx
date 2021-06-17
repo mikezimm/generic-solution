@@ -250,7 +250,7 @@ export default class ProvisionFields extends React.Component<IProvisionFieldsPro
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionField', null ); //richText, Setting, richText2
+            ActionJSON, 'ProvisionField', null, null ); //richText, Setting, richText2, richText3
 
     }
 

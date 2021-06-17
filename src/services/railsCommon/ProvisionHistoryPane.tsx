@@ -24,8 +24,8 @@ import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} fro
 import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
-
-
+import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
+import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 import { Toggle } from 'office-ui-fabric-react/lib/Toggle';
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 import { DefaultButton, PrimaryButton, CompoundButton, elementContains } from 'office-ui-fabric-react';
@@ -45,6 +45,7 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 
  import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
  import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
+ import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
  import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
  import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
  import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
@@ -60,7 +61,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                 
  */
 
-
+import MyLogList from '../../webparts/genericWebpart/components/ListProvisioning/component/listView';
+import { IMakeThisList } from '../../webparts/genericWebpart/components/ListProvisioning/component/provisionWebPartList';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -107,18 +109,36 @@ import { IProcessStep, StatusIcons, StatusColors } from './railsSetup';
  */
 
 
-export interface IRailsHistoryProps {
-    theList: IContentsListInfo;
+export interface IProvisionHistoryProps {
 
+    theList: IContentsListInfo;
     pickedWeb : IPickedWebBasic;
 
     analyticsWeb: string;
     analyticsListRails: string;
 
+    progress: IMyProgress;
+    history: IMyHistory;
+    mapThisList: IMakeThisList;
+
+    fetchHistory: boolean;
+
   }
 
-export interface IRailsHistoryState {
-  history: IArraySummary;
+export interface IProvisionHistoryState {
+  progress: IMyProgress;
+  history: IMyHistory;
+  
+  progressAll: IMyProgress[];
+  historyAll: IMyHistory[];
+
+  mapThisList: IMakeThisList;
+  mapThisListAll: IMakeThisList[];
+
+  dropDownLabels: any[];
+  dropDownIndex: number;
+  dropDownText: string;
+
 }
 
 const toggleStyles = { root: { width: 160, } };
@@ -126,7 +146,7 @@ const panelWidth = '90%';
 const groupBottomPadding = '25px';
 const toggleBottomPadding = '5px';
 
-export default class RailsHistory extends React.Component<IRailsHistoryProps, IRailsHistoryState> {
+export default class ProvisionHistory extends React.Component<IProvisionHistoryProps, IProvisionHistoryState> {
 
 
     /***
@@ -140,19 +160,29 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
  *                                                                                                       
  */ 
 
-    constructor(props: IRailsHistoryProps) {
+    constructor(props: IProvisionHistoryProps) {
         super(props);
         let listTitle = this.props.theList.Title;
 
         this.state = {
-          history: null,
+          history: this.props.history,
+          progress: this.props.progress,
+          mapThisList: this.props.mapThisList,
+          progressAll: [],
+          historyAll: [],
+          mapThisListAll: [],
+
+          dropDownLabels: [],
+          dropDownIndex: 0,
+          dropDownText: 'Oops!  No history was found'
 
         };
     }
     
     public componentDidMount() {
-      this.fetchHistory();
-
+      if ( this.props.fetchHistory === true ) {
+        this.fetchHistory();
+      }
     }
    
 
@@ -167,7 +197,7 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
  *                                                                                         
  */
 
-    public componentDidUpdate(prevProps: IRailsHistoryProps): void {
+    public componentDidUpdate(prevProps: IProvisionHistoryProps): void {
         // this.setState({ refreshId: makeid(5) })
     //this._updateWebPart(prevProps);
     }
@@ -184,39 +214,48 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
  */
 
 
-    public render(): React.ReactElement<IRailsHistoryProps> {
+    public render(): React.ReactElement<IProvisionHistoryProps> {
 
-        if ( this.props.theList ) {
+        if ( this.props.progress !== null ) {
           
-            let listOrLib = this.props.theList.BaseType === 0 ? 'List' : 'Library' ;
-            
-            let history = null;
+            let myProgress = this.state.progress == null ? null : <ProgressIndicator
+            label={this.state.progress.label}
+            description={this.state.progress.description}
+            percentComplete={this.state.progress.percentComplete}
+            progressHidden={this.state.progress.progressHidden}/>;
 
-            if ( this.state.history !== null ) {
-                history = <div>
-                    <div>Found { this.state.history.filteredKeys.length } tasks from this list: { this.props.theList.Title } </div>
-                    {/* { this.state.history.filteredKeys.map( key=> <div> { key } </div> ) } */}
-                    { this.state.history.filteredGroups.map( group=> 
-                        <div><div style={{ fontSize: 'x-large', fontWeight: 600, background: 'lightgray', padding: '5px 15px', marginTop: '15px', borderRadius: '5px' }}>
-                             { group.key.split('~')[0] } 
-                             <span style={{ paddingLeft: '10px', fontSize: 'small' }}> { 
-                                group.localTime
-                                // new Date( group.key.split('~')[0] ).toLocaleString() //This does not work... gives "Invalid Date"
-                              } </span>
-                        </div>
-                        <table>
-                            <tr><th> Step </th><th> Result </th><th> Info </th></tr>
-                            { group.items.map( item => {
-                                return this.buildHistoryStep( item );
-                            })
-                            }
-                        </table></div>
-                    ) }
-                </div>;
-            }
+            let errorList = <MyLogList
+                title={ 'Error'}           items={ this.state.history.errors }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let fieldList = <MyLogList
+                title={ 'Column'}           items={ this.state.history.fields }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let viewList = <MyLogList
+                title={ 'View'}           items={ this.state.history.views }
+                descending={false}          titles={null}            ></MyLogList>;
+
+            let itemList = <MyLogList
+                title={ 'Item'}           items={ this.state.history.items }
+                descending={false}          titles={null}            ></MyLogList>;
+                
+            const stackListTokens: IStackTokens = { childrenGap: 10 };
+            let historyStack = <div style={{ }}>
+                <div> { myProgress } </div>
+                <div> {  } </div>
+                <div>
+                <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
+                    { errorList }
+                    { fieldList }
+                    { viewList }
+                    { itemList }
+                </Stack>
+                </div>
+            </div>;
 
             return (
-              <div> { history }
+              <div> { historyStack }
                 </div>
 
             );
@@ -261,19 +300,49 @@ export default class RailsHistory extends React.Component<IRailsHistoryProps, IR
 
     let items: IRailAnalytics[] = await fetchAnalytics( this.props.analyticsWeb, this.props.analyticsListRails , this.props.pickedWeb.guid );
 
-    let history: IArraySummary = groupArrayItemsByField( items, ['zzzText1'], ' - ', 'TargetList.Url', 'zzzText7','asc' );
+    let history = null;
+    let progress = null;
+    let mapThisList = null;
 
-    let filterBy = this.props.theList.listURL.indexOf('http') === 0 ? this.props.theList.listURL : window.location.origin + this.props.theList.listURL;
-    history.filteredGroups = [];
-    history.filteredKeys = [];
-    history.groups.map( group => {
-        if ( group.groupFilter === filterBy ) { 
-            history.filteredGroups.push( group ) ;
-            history.filteredKeys.push( group.key ) ;
-        }
-    });
+    let progressAll = [];
+    let historyAll = [];
+    let mapThisListAll = [];
 
-    this.setState({ history: history });
+    let dropDownLabels = ['Have to update this text!'];
+    let dropDownIndex = 0;
+    let dropDownText = dropDownLabels[0];
+
+    if ( items.length > 0 ) {
+      // mapThisList, this.props.railFunction, this.state.progress, this.state.history ); //richText, Setting, richText2, richText3
+
+      dropDownLabels = [];
+      mapThisList = items[0].zzzRichText1 ? JSON.parse( items[0].zzzRichText1 ) : this.state.mapThisList;
+      progress = items[0].zzzRichText2 ? JSON.parse( items[0].zzzRichText2 ) : this.state.progress;
+      history = items[0].zzzRichText3 ? JSON.parse( items[0].zzzRichText3 ) : this.state.history;
+
+      items.map( item => {
+        mapThisListAll.push( item.zzzRichText1 );
+        progressAll.push( item.zzzRichText2 );
+        historyAll.push( item.zzzRichText3 );
+
+      });
+
+    }
+
+    this.setState({ 
+      mapThisList: mapThisList,
+      history: history,
+      progress: progress,
+
+      progressAll: progressAll,
+      historyAll: historyAll,
+      mapThisListAll: mapThisListAll,
+
+      dropDownLabels: dropDownLabels,
+      dropDownIndex: dropDownIndex,
+      dropDownText: dropDownText,
+
+     });
 
   }
 

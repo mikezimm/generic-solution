@@ -574,7 +574,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
             currentStep.label, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
             currentStep.value1, value2, currentStep.current.key, //itemInfo1, itemInfo2, result, 
-            JSON.stringify(currentStep), this.props.railFunction, null ); //richText, Setting, richText2
+            JSON.stringify(currentStep), this.props.railFunction, null, null ); //richText, Setting, richText2, richText3
         
     }
 
