@@ -25,7 +25,8 @@ import { PageContext } from '@microsoft/sp-page-context';
 import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
-import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
+import { MessageBar, MessageBarType,  } from 'office-ui-fabric-react/lib/MessageBar';
+import { MessageBarButton } from 'office-ui-fabric-react/lib/Button';
 import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
 
 import ButtonCompound from '../../../createButtons/ICreateButtons';
@@ -73,6 +74,8 @@ import ReactJson from "react-json-view";
  */
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics, AddTemplateSaveTitle, ProvisionListsSaveTitle } from '../../../../../../services/createAnalytics';
+
+import { createMainRailsWarningBar } from '../../../../../../services/railsCommon/RailsMainWarning';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -207,6 +210,8 @@ export interface IMyAddListTemplateState {
     doViews: boolean;
     doItems: boolean;
 
+    showMainWarning: boolean;
+
 }
 
 const pivotStyles = {
@@ -278,6 +283,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             doViews: true,
             doItems: false,
             mainPivot: pivotHeading1,
+            showMainWarning: true,
         };
     }
         
@@ -475,31 +481,21 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 </div>
             </div>;
 
-            let severeWarningStyles: any = { root: {
-                fontSize: 'larger',
-                fontWeight: 600,
-                color: 'darkred',
-                // paddingRight: '10px',
-            }};
-            let warning = <div style={{ width: panelWidth }}>
-                    <MessageBar
-                        messageBarType={MessageBarType.severeWarning} 
-                        style={ severeWarningStyles }
-                        truncated={ true}
-                        overflowButtonAriaLabel="See more"
-                        dismissButtonAriaLabel="Close"
-                    >
-                        <h2 style={{margin: '0px'}}>Applying changes will:</h2>
-                        <ul>
-                            <li>Add fields and views if they do not exist</li>
-                            <li>WILL Modify Views if they already exist</li>
-                        </ul>
-                        <h3>Applying changes will NOT:</h3>
-                        <ul>
-                            <li>Will NOT Modify fields if they already exist</li>
-                        </ul>
-                    </MessageBar>
-                </div>;
+
+            //This should be similar for all Rails
+            let mainWaringContent = <div>
+                <h2 style={{margin: '0px'}}>Applying changes will:</h2>
+                <ul>
+                    <li>Add fields and views if they do not exist</li>
+                    <li>WILL Modify Views if they already exist</li>
+                </ul>
+                <h3>Applying changes will NOT:</h3>
+                <ul>
+                    <li>Will NOT Modify fields if they already exist</li>
+                </ul>
+            </div>
+            let warning = createMainRailsWarningBar( panelWidth, this.state.showMainWarning , mainWaringContent, this.hideMainWarning.bind(this) );
+
 
             panelContent = <div>
                 <div> { warning } </div>
@@ -954,6 +950,11 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         } else if ( itemKey === pivotHeading2 ) {
             this.getDefinedLists('Components', true);
         }
+      }
+
+      private hideMainWarning(){
+          console.log('hideMainWarning');
+          this.setState({ showMainWarning: false });
       }
 
 }
