@@ -481,21 +481,19 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 </div>
             </div>;
 
-
             //This should be similar for all Rails
             let mainWaringContent = <div>
                 <h2 style={{margin: '0px'}}>Applying changes will:</h2>
                 <ul>
-                    <li>Add fields and views if they do not exist</li>
+                    <li>Add FIELDS and VIEWS if they do not exist</li>
                     <li>WILL Modify Views if they already exist</li>
                 </ul>
                 <h3>Applying changes will NOT:</h3>
                 <ul>
                     <li>Will NOT Modify fields if they already exist</li>
                 </ul>
-            </div>
+            </div>;
             let warning = createMainRailsWarningBar( panelWidth, this.state.showMainWarning , mainWaringContent, this.hideMainWarning.bind(this) );
-
 
             panelContent = <div>
                 <div> { warning } </div>
@@ -954,7 +952,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
       private hideMainWarning(){
           console.log('hideMainWarning');
-          this.setState({ showMainWarning: false });
+          this.setState({ showMainWarning: this.state.showMainWarning === true ? false : true });
       }
 
 }

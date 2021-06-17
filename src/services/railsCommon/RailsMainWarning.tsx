@@ -5,7 +5,6 @@ import { MessageBar, MessageBarType,  } from 'office-ui-fabric-react/lib/Message
 
 export function createMainRailsWarningBar( panelWidth: number | string, show: boolean, content: any, onClickClose: any ) {
 
-  
   let severeWarningStyles: any = { root: {
       fontSize: 'larger',
       fontWeight: 600,
@@ -13,9 +12,12 @@ export function createMainRailsWarningBar( panelWidth: number | string, show: bo
       // paddingRight: '10px',
   }};
 
-  let result = <div style={{ width: panelWidth, display: show !== true ? 'none' : null  }}>
+  let iconName = show === true ? 'ChevronUp' : 'ChevronDown';
+  let height = show === true ? '100%' :'3.4em';
+
+  let result = <div style={{ width: panelWidth, height: height, overflow: 'hidden'  }}>
     <div style={{ float: 'right', height: '0px', right: '100px', overflow: 'visible', cursor: 'pointer', zIndex: 10 , position: 'absolute', }}>
-        <Icon iconName={'ChromeClose'} style={{margin: '10px', padding: '10px' }} onClick={ onClickClose }></Icon>
+        <Icon iconName={iconName} style={{margin: '0px 10px 10px 10px', padding: '10px', fontWeight: 600 }} onClick={ onClickClose }></Icon>
     </div>
     <MessageBar
         messageBarType={MessageBarType.severeWarning} 
@@ -25,8 +27,8 @@ export function createMainRailsWarningBar( panelWidth: number | string, show: bo
         dismissButtonAriaLabel="Close"
     >
       { content }
-    </MessageBar>;
+    </MessageBar>
   </div>;
 
-  return result
+  return result;
 } 
