@@ -380,8 +380,8 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
             listDef = definedList + ' - ' + listDefinition;
           }
 
-          let thisLabel = `${item.Created} | ${local} | ID: ${ item.Id } | ` ;
-          if ( listOrWeb === 'list' ) { thisLabel += listDef ;  } else { thisLabel += ` Applied: ${ item.ListTitle } | ${listDef}` ; }
+          let thisLabel = `${item.Created}  |  ${local}  |  ID: ${ item.Id }  |  By: ${ item.Author.Title }  |  ` ;
+          if ( listOrWeb === 'list' ) { thisLabel += listDef ;  } else { thisLabel += ` Applied: ${ item.ListTitle }  |  ${listDef}` ; }
           // let thisLabel = <div> { item.Created } <span style={{fontSize: 'smaller'}}> { local } </span> { listDef } </div>;
           dropDownLabels.push( thisLabel );
 
@@ -462,6 +462,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
               return {
                   key: getChoiceKey(val),
                   text: val,
+                  selected: val === this.state.dropDownText ? true : false,
               };
           });
 
