@@ -238,7 +238,7 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
             let listDropdown = this.props.fetchHistory !== true || this.state.dropDownLabels.length === 0 ? null :
                 this._createDropdownField( 'History' , this.state.dropDownLabels , this._updateListDropdownChange.bind(this) , null );
 
-            let myProgress = this.state.progress == null ? 'No Progress was found' : <ProgressIndicator
+            let myProgress = this.state.progress == null ? <div style={{paddingTop: '15px', height: '60px', display: 'inline-flex'}} >No Progress was found</div> : <ProgressIndicator
             label={this.state.progress.label}
             description={this.state.progress.description}
             percentComplete={this.state.progress.percentComplete}
@@ -448,7 +448,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
 
   private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
       const dropdownStyles: Partial<IDropdownStyles> = {
-          dropdown: { width: '800px' }
+          dropdown: { width: '800px' ,marginRight: '40px' }
       };
 
       let sOptions: IDropdownOption[] = choices == null ? null : 
@@ -470,15 +470,16 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
       console.log(`_createDropdownField keyVal: ${ keyVal } `);
 
       let thisDropdown = sOptions == null ? null : <div
-          style={{  display: 'inline-flex'  }}
+          style={{  display: 'inline-flex', flexDirection: 'row', alignItems: 'center'   }}
               ><Dropdown 
-              label={ label }
-              //selectedKey={ getChoiceKey(keyVal) }
-              // selectedKey={ keyVal }
-              onChange={ _onChange }
-              options={ sOptions } 
-              styles={ dropdownStyles }
-          />
+                  label={ label }
+                  //selectedKey={ getChoiceKey(keyVal) }
+                  // selectedKey={ keyVal }
+                  onChange={ _onChange }
+                  options={ sOptions } 
+                  styles={ dropdownStyles }
+              />
+              <div style={{paddingTop: '25px' }}> Selected: { this.state.dropDownIndex + 1 } of { choices.length } </div>
           </div>;
 
       return thisDropdown;
