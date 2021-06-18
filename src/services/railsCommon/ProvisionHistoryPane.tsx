@@ -238,7 +238,7 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
             let listDropdown = this.props.fetchHistory !== true || this.state.dropDownLabels.length === 0 ? null :
                 this._createDropdownField( 'History' , this.state.dropDownLabels , this._updateListDropdownChange.bind(this) , null );
 
-            let myProgress = this.state.progress == null ? <div style={{paddingTop: '15px', height: '60px', display: 'inline-flex'}} >No Progress was found</div> : <ProgressIndicator
+            let myProgress = this.state.progress == null ? <div style={{ height: '60px', display: 'inline-flex'}} >No Progress was found</div> : <ProgressIndicator
             label={this.state.progress.label}
             description={this.state.progress.description}
             percentComplete={this.state.progress.percentComplete}
@@ -470,7 +470,7 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
       console.log(`_createDropdownField keyVal: ${ keyVal } `);
 
       let thisDropdown = sOptions == null ? null : <div
-          style={{  display: 'inline-flex', flexDirection: 'row', alignItems: 'center'   }}
+          style={{  display: 'inline-flex', flexDirection: 'row', alignItems: 'center', paddingBottom: '15px'   }}
               ><Dropdown 
                   label={ label }
                   //selectedKey={ getChoiceKey(keyVal) }
