@@ -269,8 +269,8 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
 
     let items: IRailAnalytics[] = [];
 
-    let allColumns : any = [ 'Created','Modified','Author/Title','Id',
-        'Title', 'zzzRichText1', 'zzzRichText2', 'getParams',
+    let allColumns : any = [ 'Created','Modified','Author/Name','Author/Id','Author/Title','Id',
+        'Title', 'zzzRichText1', 'zzzRichText2', 'zzzRichText3', 'getParams',
         'zzzNumber1', 'zzzNumber2', 'zzzNumber3', 'zzzNumber4', 'zzzNumber5',
         'zzzText1', 'zzzText2', 'zzzText3', 'zzzText4', 'zzzText5', 'zzzText6', 'zzzText7',
         'PageLink', 'SiteLink', 'SiteTitle', 'TargetSite', 'Result',

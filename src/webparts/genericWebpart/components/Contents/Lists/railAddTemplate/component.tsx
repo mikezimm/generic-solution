@@ -391,6 +391,8 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
                     fetchHistory = { this.state.mainPivot === 'History' ? true : false }
 
+                    refreshId = { makeid(6) }
+
                 ></ProvisionHistory>;
 
             } else { //this.state.doMode !== true

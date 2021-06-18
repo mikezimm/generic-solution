@@ -124,6 +124,8 @@ export interface IProvisionHistoryProps {
 
     fetchHistory: boolean;
 
+    refreshId: string;
+
   }
 
 export interface IProvisionHistoryState {
@@ -199,9 +201,22 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
  */
 
     public componentDidUpdate(prevProps: IProvisionHistoryProps): void {
-      console.log('ProvisionHistoryPane fetchHistory', this.props.fetchHistory );
-      if ( this.props.fetchHistory !== true ) {
-        this.render();
+      // console.log('ProvisionHistoryPane fetchHistory', this.props.fetchHistory );
+      if ( this.props.fetchHistory === true ) {
+        if ( this.props.refreshId !== prevProps.refreshId ) {
+          this.fetchHistory( 'list' );
+        }
+
+      } else if ( this.props.refreshId !== prevProps.refreshId ) {
+        this.setState({
+          history: this.props.history,
+          progress: this.props.progress,
+          mapThisList: this.props.mapThisList,
+          progressAll: [],
+          historyAll: [],
+          mapThisListAll: [],
+
+        });
       }
     }
 
@@ -220,7 +235,8 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
     public render(): React.ReactElement<IProvisionHistoryProps> {
 
         if ( this.state.progress !== null || this.state.history !== null || this.state.mapThisList !== null ) {
-            let listDropdown = this._createDropdownField( 'History' , this.state.dropDownLabels , this._updateListDropdownChange.bind(this) , null );
+            let listDropdown = this.props.fetchHistory !== true || this.state.dropDownLabels.length === 0 ? null :
+                this._createDropdownField( 'History' , this.state.dropDownLabels , this._updateListDropdownChange.bind(this) , null );
 
             let myProgress = this.state.progress == null ? 'No Progress was found' : <ProgressIndicator
             label={this.state.progress.label}
@@ -229,7 +245,7 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
             progressHidden={this.state.progress.progressHidden}/>;
 
             let historyStack : any = 'No history was found';
-            if ( this.state.history !== null ) {
+            if ( this.state.history !== null && this.state.history !== undefined ) {
                     
               let errorList = <MyLogList
               title={ 'Error'}           items={ this.state.history.errors }
@@ -308,7 +324,7 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
 
   private async fetchHistory( listOrWeb: 'list' | 'web' ) {
 
-    let items: IRailAnalytics[] = await fetchAnalytics( this.props.analyticsWeb, this.props.analyticsListRails , this.props.pickedWeb.guid );
+    let items: any[] = await fetchAnalytics( this.props.analyticsWeb, this.props.analyticsListRails , this.props.pickedWeb.guid );
     // let items: IRailAnalytics[] = await fetchAnalytics( this.props.analyticsWeb, this.props.analyticsListRails , this.props.pickedWeb.guid );
 
     let history = null;
@@ -364,7 +380,7 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
             listDef = definedList + ' - ' + listDefinition;
           }
 
-          let thisLabel = `${item.Created} | ${local} | ` ;
+          let thisLabel = `${item.Created} | ${local} | ID: ${ item.Id } | ` ;
           if ( listOrWeb === 'list' ) { thisLabel += listDef ;  } else { thisLabel += ` Applied: ${ item.ListTitle } | ${listDef}` ; }
           // let thisLabel = <div> { item.Created } <span style={{fontSize: 'smaller'}}> { local } </span> { listDef } </div>;
           dropDownLabels.push( thisLabel );
