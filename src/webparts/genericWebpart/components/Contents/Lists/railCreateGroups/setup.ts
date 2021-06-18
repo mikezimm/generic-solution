@@ -157,7 +157,7 @@ export function createProcessSteps( listTitle , contribGroup, readerGroup ){
     checkReaderGroup:  checkGroup('Readers', true, listTitle, readerGroup, 60, '' ),
     createReaderGroup:  createGroup('Readers', true, listTitle, readerGroup, 70, '' ),
 
-    updateReaderOwner: updateOwner('Readers', true, listTitle, contribGroup, 75, 'createReaderGroup' ),
+    updateReaderOwner: updateOwner('Readers', true, listTitle, readerGroup, 75, 'createReaderGroup' ),
 
     assignReaderListRole:  assignToList('Readers', true, listTitle, readerGroup, 80, 'createReaderGroup' ),
     assignReaderSiteRole:  assignToSite('Readers', true, listTitle, readerGroup, 90, 'createReaderGroup' ),
