@@ -231,7 +231,6 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
  *                                                          
  */
 
-
     public render(): React.ReactElement<IProvisionHistoryProps> {
 
         if ( this.state.progress !== null || this.state.history !== null || this.state.mapThisList !== null ) {
@@ -295,32 +294,6 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
         } 
 
     } 
-
-    
-    private buildHistoryStep( step: IRailAnalytics ) {
-      // if ( step.required !== true ) { return null; }
-      // let info = step.current.error !== '' ? step.current.error : step.current.info; 
-      let results = step.Result.split(' ');
-      let colors = results.map( key => {
-        return StatusColors[ key ];
-      });
-
-      let Icons = results.map( ( key, index ) => {
-        return <Icon iconName= { StatusIcons[ key ]} style={{ color: colors [ index ], padding: '0px 4px' }}></Icon>;
-      });
-          
-      let itemPadding = step.zzzText4 ? '7px 0px 3px 0px' : '0px';
-
-      return <tr  title={ step.Result + ' ' + step.Title }>
-          <td>{ step.zzzText7 } </td>
-          <td style={{ textAlign: 'center' }} ><div style={{ fontSize: 'larger', margin: itemPadding, whiteSpace: 'nowrap', padding: '0px 10px' }}> { Icons } </div></td>
-          <td>{ step.Title } 
-              <span style={{fontWeight: 700 }}>{ ( step.zzzText3 ? ' - ' + step.zzzText3 : '' ) } </span>
-              {  step.zzzText4 ? <div style={{color: 'red', fontSize: 'x-small', paddingBottom: '7px' }}>{ ( step.zzzText4 ? ' ' + step.zzzText4 : '' ) } </div> : null  }
-          </td>
-      </tr>;
-  }
-
 
   private async fetchHistory( listOrWeb: 'list' | 'web' ) {
 
@@ -414,11 +387,6 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
 
   }
 
-    private updateStateStatus( ) {
-        
-    }
-
-
 // let listDropdown = this.state.mainPivot !== 'FullList' ? null : 
 // this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
 
@@ -485,36 +453,5 @@ private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, ite
       return thisDropdown;
 
   }
-
-    /***
-     *         d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 
-     *         `~~88~~' .8P  Y8. 88' Y8b 88' Y8b 88      88'     88'  YP 
-     *            88    88    88 88      88      88      88ooooo `8bo.   
-     *            88    88    88 88  ooo 88  ooo 88      88~~~~~   `Y8b. 
-     *            88    `8b  d8' 88. ~8~ 88. ~8~ 88booo. 88.     db   8D 
-     *            YP     `Y88P'   Y888P   Y888P  Y88888P Y88888P `8888Y' 
-     *                                                                   
-     *                                                                   
-     */
-    //            let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
-
-    private makeToggle( label: string, checked: boolean, disabled: boolean, _onChange: any ) {
-        return <div style={{ width: panelWidth, paddingBottom: toggleBottomPadding }}>
-            <h3>{ label } </h3>
-            <Toggle 
-            onText={ 'Include' } 
-            offText={ 'Skip' } 
-            onChange={ _onChange } 
-            checked={ checked }
-            disabled= { disabled }
-            styles={ toggleStyles }
-            />
-        </div>;
-
-    }
-    
-    private updateTogggleReaders() {  
-
-    }
 
 }
