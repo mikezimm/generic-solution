@@ -280,7 +280,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle, PageURL,
             'Provision Patterns', TargetSite, null, //saveTitle, TargetSite, TargetList
             'Pages', 'Constructor', 'Loading', //itemInfo1, itemInfo2, result, 
-            '', 'ProvisionPattern', null ); //richText, Setting, richText2
+            '', 'ProvisionPattern', null, null ); //richText, Setting, richText2, richText3
 
         this.state = { 
 
@@ -671,7 +671,7 @@ private buildFilterPivot(pivCat: IMyPivCat) {
             ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle, PageURL,
             'Provision Patterns', TargetSite, null, //saveTitle, TargetSite, TargetList
             'Pages', 'Copied Pages', 'Complete' + ( hadErrors ? ' with some issues' : ' no issues!'), //itemInfo1, itemInfo2, result, 
-            saveHistoryStringified, 'GetCurrentPatterns', null ); //richText, Setting, richText2
+            saveHistoryStringified, 'GetCurrentPatterns', null, null ); //richText, Setting, richText2, richText3
 
     }
   

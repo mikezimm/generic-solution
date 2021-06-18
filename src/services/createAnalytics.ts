@@ -186,7 +186,7 @@ export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, sa
  */
 export const AddTemplateSaveTitle = 'Add Template';
 export const ProvisionListsSaveTitle = 'Provision Lists';
-export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, RichTextJSON1, Setting, RichTextJSON2 ) {
+export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, RichTextJSON1, Setting, RichTextJSON2, RichTextJSON3 ) {
 
     //Do nothing if either of these strings is blank
     if (!analyticsList) { return ; }
@@ -205,9 +205,10 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
     saveItem.getParams = getUrlVars().join(' & ');
     saveItem.Setting = Setting;
 
-    console.log('saveAnalytics StringifyActionJson: ', RichTextJSON1, RichTextJSON2 );
+    console.log('saveAnalytics StringifyActionJson: ', RichTextJSON1, RichTextJSON2, RichTextJSON3 );
     saveItem.zzzRichText1 = RichTextJSON1 ? JSON.stringify(RichTextJSON1) : null;
     saveItem.zzzRichText2 = RichTextJSON2 ? JSON.stringify(RichTextJSON2) : null;
+    saveItem.zzzRichText3 = RichTextJSON3 ? JSON.stringify(RichTextJSON3) : null;
 
     if ( analyticsList === strings.analyticsListRailsGroups || analyticsList === strings.analyticsListRailsApply ) { //Rails Off
         saveItem.ListTitle = itemInfo1;
@@ -268,8 +269,8 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
 
     let items: IRailAnalytics[] = [];
 
-    let allColumns : any = [ 'Created','Modified','Author/Title','Id',
-        'Title', 'zzzRichText1', 'zzzRichText2', 'getParams',
+    let allColumns : any = [ 'Created','Modified','Author/Name','Author/Id','Author/Title','Id',
+        'Title', 'zzzRichText1', 'zzzRichText2', 'zzzRichText3', 'getParams',
         'zzzNumber1', 'zzzNumber2', 'zzzNumber3', 'zzzNumber4', 'zzzNumber5',
         'zzzText1', 'zzzText2', 'zzzText3', 'zzzText4', 'zzzText5', 'zzzText6', 'zzzText7',
         'PageLink', 'SiteLink', 'SiteTitle', 'TargetSite', 'Result',

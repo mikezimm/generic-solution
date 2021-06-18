@@ -172,6 +172,10 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
 
     let statusLog : IViewLog[] = [];
     
+    /**
+     * listViews just gets the current list's view fetch handler which is used to actually add views to the list.
+     * currentViews should show the actual views on the list prior to getting to this point. 
+     */
     let listViews = null;
 
     if (readOnly === false ) {
@@ -184,7 +188,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
         listViews = ensuredList.views;
     }
 
-      /**
+    /**
     * @param progressHidden 
     * @param current : current index of progress
     * @param ofThese : total count of items in progress
@@ -413,10 +417,10 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
         let actualOrderBy = getXMLObjectFromString( actualViewSchema, 'OrderBy', false, true) ;
         let actualFields = getXMLObjectFromString( actualViewSchema, 'ViewFields',false, true) ;
 
-        if ( readOnly === true || listExistedB4 === true || iV === 1 ) {  //Only compare if in read only because if not, it will just over-write, exception is first list which should be the default one.
+        if ( foundView === true && ( readOnly === true || listExistedB4 === true ) ) {  //Only compare if in read only because if not, it will just over-write, exception is first list which should be the default one.
             if ( viewWhereXML !== actualWhere) {
                 errMess += '\n\nCurrent Where:\n' + actualWhere + '\n\nExpected Where:\n' + viewWhereXML;
-             }  
+             }
 
             if ( viewGroupByXML !== actualGroupBy) {
                 errMess += '\n\nCurrent GroupBy:\n' + actualGroupBy + '\n\nExpected GroupBy:\n' + viewGroupByXML;

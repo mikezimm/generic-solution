@@ -25,7 +25,8 @@ import { PageContext } from '@microsoft/sp-page-context';
 import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
 import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
-import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
+import { MessageBar, MessageBarType,  } from 'office-ui-fabric-react/lib/MessageBar';
+import { MessageBarButton } from 'office-ui-fabric-react/lib/Button';
 import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
 
 import ButtonCompound from '../../../createButtons/ICreateButtons';
@@ -73,6 +74,9 @@ import ReactJson from "react-json-view";
  */
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics, AddTemplateSaveTitle, ProvisionListsSaveTitle } from '../../../../../../services/createAnalytics';
+
+import { createMainRailsWarningBar } from '../../../../../../services/railsCommon/RailsMainWarning';
+import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHistoryPane';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -168,7 +172,7 @@ export interface IMyAddListTemplateProps {
 export function buildMainPivotDescriptions() {
     let result : any = {};
     result[ pivotHeading1 ] = 'Apply Full List Template to existing list';
-    result[ pivotHeading2 ] = 'Apply groups of columns and views to existing list';
+    result[ pivotHeading2 ] = 'Apply sets of columns and views to existing list';
     result[ pivotHeading3 ] = 'See history of what has already been done';
 
     return result;
@@ -194,6 +198,9 @@ export interface IMyAddListTemplateState {
     progress: IMyProgress;
     history: IMyHistory;
 
+    priorProgress: IMyProgress;
+    priorHistory: IMyHistory;
+
     lists: IMakeThisList[];
 
     definedList: IDefinedLists; 
@@ -206,6 +213,8 @@ export interface IMyAddListTemplateState {
     doFields: boolean;
     doViews: boolean;
     doItems: boolean;
+
+    showMainWarning: boolean;
 
 }
 
@@ -267,9 +276,15 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             onCurrentSite: makeThisList.onCurrentSite,
             applyThisVersion: '',
             listNo: 0,
-            progress: null,
+
             status: null,
+
+            progress: null,
             history: clearHistory(),
+
+            priorProgress: null,
+            priorHistory: clearHistory(),
+
             lists: theLists,
             definedList: definedList,
             doMode: false,
@@ -278,6 +293,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             doViews: true,
             doItems: false,
             mainPivot: pivotHeading1,
+            showMainWarning: true,
         };
     }
         
@@ -351,131 +367,150 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             let panelContent = null;
 
-            let listDropdown = null;
-            if ( this.state.mainPivot === 'FullList' ) {
-                listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
-            }
-
-            let createButton = <PrimaryButton text={ 'Apply Template' } onClick={ this.CreateList.bind(this) } allowDisabledFocus disabled={ this.state.doMode !== true ? true : false } checked={ false } />;
-            let cancelButton = <DefaultButton text={ 'Cancel' } onClick={ this.props._closePanel } allowDisabledFocus disabled={ false } checked={ false } />;
-            let toggles = <div style={ { display: 'inline-flex' , marginLeft: 0 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
-
-            let listDefinitionSelectPivot = 
-                <Pivot
-                    styles={ pivotStyles }
-                    linkFormat={PivotLinkFormat.tabs}
-                    linkSize={PivotLinkSize.normal}
-                    onLinkClick={this._selectedListDefIndex.bind(this)}
-                > 
-                    { this.state.lists.map ( ( thelist, index ) => {
-                        return <PivotItem headerText={ thelist.listDefinition } ariaLabel={thelist.listDefinition} title={thelist.listDefinition} itemKey={ thelist.listDefinition + '|' + index }></PivotItem>;
-                    }) }
-                </Pivot>;
-
-            let myProgress = this.state.progress == null ? null : <ProgressIndicator
-                label={this.state.progress.label}
-                description={this.state.progress.description}
-                percentComplete={this.state.progress.percentComplete}
-                progressHidden={this.state.progress.progressHidden}/>;
-
-
-            let errorList = <MyLogList
-                title={ 'Error'}           items={ this.state.history.errors }
-                descending={false}          titles={null}            ></MyLogList>;
-
-            let fieldList = <MyLogList
-                title={ 'Column'}           items={ this.state.history.fields }
-                descending={false}          titles={null}            ></MyLogList>;
-
-            let viewList = <MyLogList
-                title={ 'View'}           items={ this.state.history.views }
-                descending={false}          titles={null}            ></MyLogList>;
-
-            let itemList = <MyLogList
-                title={ 'Item'}           items={ this.state.history.items }
-                descending={false}          titles={null}            ></MyLogList>;
-
+             let doInputs = null;
+            let historyStack = null;
             let listDefinitionJSON = null;
 
-            if ( this.state.doMode !== true && this.state.lists.length > 0) {
-                let listJSON = null; 
-                let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] )) ;
-                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
-                if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
-                if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
+            if (  this.state.doMode === true || this.state.mainPivot === 'History' ) {
 
-                listJSON = <div style={{ overflowY: 'auto' }}>
-                    <ReactJson src={ tempJSON } collapsed={ 1 } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                </div>;
+                let whichProgress = this.state.mainPivot === 'History' ? null : this.state.progress;
+                let whichHistory = this.state.mainPivot === 'History' ? clearHistory() : this.state.history;
+                let mapThisList = this.state.mainPivot === 'History' ? null : this.state.lists[ this.state.listNo ];
 
-                    listDefinitionJSON = <div style={{display: '', marginBottom: '30px' }}>
-                         <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
+                historyStack = <ProvisionHistory
+                    theList = { this.props.theList }
+
+                    pickedWeb = { this.props.pickedWeb }
+                
+                    analyticsWeb = { strings.analyticsWeb }
+                    analyticsListRails = { strings.analyticsListRailsApply }
+
+                    progress = { whichProgress }
+                    history = { whichHistory }
+                    mapThisList = { mapThisList }
+
+                    fetchHistory = { this.state.mainPivot === 'History' ? true : false }
+
+                    refreshId = { makeid(6) }
+
+                ></ProvisionHistory>;
+
+            } else { //this.state.doMode !== true
+
+                if ( this.state.lists.length > 0) {
+                    let listJSON = null; 
+                    let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] )) ;
+                    if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
+                    if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
+                    if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
+    
+                    listJSON = <div style={{ overflowY: 'auto' }}>
+                        <ReactJson src={ tempJSON } collapsed={ 1 } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                    </div>;
+    
+                    listDefinitionJSON =
+                     <div style={{display: '', marginBottom: '30px' }}>
+                            <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
                         { listJSON }
                     </div>;
-
-            } 
-
-            const stackListTokens: IStackTokens = { childrenGap: 10 };
-
-            let pickedDesc = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDesc : 'Nothing selected yet' ;
-
-            /**
-             * This builds the Fields and Views details which are visible when you hover over the pickedDesc
-             */
-            let pickedDetails = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDetails : null ;
-            let details = pickedDetails && pickedDetails.indexOf('\n') > 0 ? pickedDetails.split('\n') : [ pickedDetails ];
-
-            if ( pickedDetails !== null ) {
-                pickedDetails = [];
-                details.map( detail => {
-                    let detailSet = detail.split(':');
-                    if ( detailSet.length > 1 ) {
-                        let itemCount = detailSet[1].split(',').length;
-                        detailSet[0] = `${detailSet[0]} ( ${ itemCount })`;
-                        pickedDetails.push( <h3> { detailSet[0] } </h3>);
     
-                        let detailItems = itemCount < 2 ? detailSet[1] :
-                            detailSet[1].split(',').map( item => {
-                                return <span style={{ whiteSpace: 'nowrap', paddingRight: '30px', minWidth: '180px' }}>{ item }</span>;
-                            });
-                        pickedDetails.push( <div style={{paddingTop: '15px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}> { detailItems } </div>);
-                    } else {
-                        pickedDetails.push( <p> { detailSet[0] } </p>);
-                    }
-                });
+                } 
+            }
+
+            if ( this.state.mainPivot === 'FullList' || this.state.mainPivot === 'Components' ) {
+                
+                let listDropdown = this.state.mainPivot !== 'FullList' ? null : 
+                    this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
+    
+                let createButton = <PrimaryButton text={ 'Apply Template' } onClick={ this.CreateList.bind(this) } allowDisabledFocus disabled={ this.state.doMode !== true ? true : false } checked={ false } />;
+                let cancelButton = <DefaultButton text={ 'Cancel' } onClick={ this.props._closePanel } allowDisabledFocus disabled={ false } checked={ false } />;
+                let toggles = <div style={ { display: 'inline-flex' , marginLeft: 0 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
+    
+                let listDefinitionSelectPivot = 
+                    <Pivot
+                        styles={ pivotStyles }
+                        linkFormat={PivotLinkFormat.tabs}
+                        linkSize={PivotLinkSize.normal}
+                        onLinkClick={this._selectedListDefIndex.bind(this)}
+                    > 
+                        { this.state.lists.map ( ( thelist, index ) => {
+                            return <PivotItem headerText={ thelist.listDefinition } ariaLabel={thelist.listDefinition} title={thelist.listDefinition} itemKey={ thelist.listDefinition + '|' + index }></PivotItem>;
+                        }) }
+                    </Pivot>;
+        
+                let pickedDesc = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDesc : 'Nothing selected yet' ;
+
+                /**
+                 * This builds the Fields and Views details which are visible when you hover over the pickedDesc
+                 */
+                let pickedDetails = this.state.lists && this.state.lists.length > 0 ? this.state.lists[ this.state.listNo].templateDetails : null ;
+                let details = pickedDetails && pickedDetails.indexOf('\n') > 0 ? pickedDetails.split('\n') : [ pickedDetails ];
+
+                if ( pickedDetails !== null ) {
+                    pickedDetails = [];
+                    details.map( detail => {
+                        let detailSet = detail.split(':');
+                        if ( detailSet.length > 1 ) {
+                            let itemCount = detailSet[1].split(',').length;
+                            detailSet[0] = `${detailSet[0]} ( ${ itemCount })`;
+                            pickedDetails.push( <h3> { detailSet[0] } </h3>);
+
+                            let detailItems = itemCount < 2 ? detailSet[1] :
+                                detailSet[1].split(',').map( item => {
+                                    return <span style={{ whiteSpace: 'nowrap', paddingRight: '30px', minWidth: '180px' }}>{ item }</span>;
+                                });
+                            pickedDetails.push( <div style={{paddingTop: '15px', display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}> { detailItems } </div>);
+                        } else {
+                            pickedDetails.push( <p> { detailSet[0] } </p>);
+                        }
+                    });
+                }
+
+                doInputs = <div>
+                    <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '20px' }}>
+                        <div style={{ float: 'left' }}> { listDropdown } </div>
+                        <div style={{ paddingLeft: listDropdown === null ? '0px' : '60px' }}> { listDefinitionSelectPivot } </div>
+                    </div>
+
+                    <div> { toggles } </div>
+                    <div className={ stylesC.description }>
+                        <div style={{ paddingTop: '10px', }}> <span style={{ fontSize: 'larger' }}> { pickedDesc } </span></div>
+                        <div style={{ paddingTop: '10px', display: pickedDetails === null ? 'none' : '' }}> { pickedDetails }</div>
+                    </div>
+                </div>;
+
+            } else if ( this.state.mainPivot === 'History' ) {
+                doInputs = null;
+
             }
 
             // let thisPage = <div><div>{ disclaimers }</div>
             let thisPage = <div style={{ paddingTop: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '20px' }}>
-                    <div style={{ float: 'left' }}> { listDropdown } </div>
-                    <div style={{ paddingLeft: listDropdown === null ? '0px' : '60px' }}> { listDefinitionSelectPivot } </div>
-                </div>
 
-                <div> { toggles } </div>
-                <div className={ stylesC.description }>
-                    <div style={{ paddingTop: '10px', }}> <span style={{ fontSize: 'larger' }}> { pickedDesc } </span></div>
-                    <div style={{ paddingTop: '10px', display: pickedDetails === null ? 'none' : '' }}> { pickedDetails }</div>
-                </div>
+                { doInputs }
 
-                <div style={{display: this.state.doMode === true ? '': 'none' }}>
-                        <div> { myProgress } </div>
-                        <div> {  } </div>
-                        <div>
-                        <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
-                            { errorList }
-                            { fieldList }
-                            { viewList }
-                            { itemList }
-                        </Stack>
-                        </div>
-                </div>
-                <div style={{display: this.state.doMode === true ? 'none': '' }}>
-                    { listDefinitionJSON }
-                </div>
+                { historyStack }
+
+                { listDefinitionJSON }
+
             </div>;
 
+            //This should be similar for all Rails
+            let mainWaringContent = <div>
+                <h2 style={{margin: '0px'}}>Applying changes will:</h2>
+                <ul>
+                    <li>Add FIELDS and VIEWS if they do not exist</li>
+                    <li>WILL Modify Views if they already exist</li>
+                </ul>
+                <h3>Applying changes will NOT:</h3>
+                <ul>
+                    <li>Will NOT Modify fields if they already exist</li>
+                </ul>
+            </div>;
+            let warning = createMainRailsWarningBar( panelWidth, this.state.showMainWarning , mainWaringContent, this.hideMainWarning.bind(this) );
+
             panelContent = <div>
+                <div> { warning } </div>
                 <h3> { `${ this.props.theList.Title } ${ listOrLib }` }</h3>
                 <Pivot
                     styles={ pivotStyles }
@@ -638,10 +673,10 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     
       }
       
-      private captureAnalytics(itemInfo2, result, ActionJSON ){
+      private captureAnalytics(itemInfo2, result, RichText1 ){
 
         console.log('captureAnalytics itemInfo2, result:',itemInfo2, result );
-        console.log('captureAnalytics JSON:',ActionJSON );
+        console.log('captureAnalytics JSON:',RichText1 );
         
         let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
 
@@ -664,7 +699,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             ProvisionListsSaveTitle, TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionList', null ); //richText, Setting, richText2
+            RichText1, 'ProvisionList', null, null ); //richText, Setting, richText2
 
     }
       
@@ -678,12 +713,14 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     let ServerRelativeUrl = this.props.currentPage;
     let pickedWeb = this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid + '|' + theSite.Url + '|' + theSite.Id ;
 
+    let idx = this.state.listNo;
+    let mapThisList: IMakeThisList = this.state.lists[ idx ];
+
     saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply , //analyticsWeb, analyticsList,
         ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
         AddTemplateSaveTitle, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
         this.props.theList.Title, null , 'Complete', //itemInfo1, itemInfo2, result, 
-        this.state.history, this.props.railFunction, null ); //richText, Setting, richText2
-
+        mapThisList, this.props.railFunction, this.state.progress, this.state.history ); //richText, Setting, richText2, richText3
   }
 
    /**
@@ -778,6 +815,10 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     });
 
 }
+
+
+// let listDropdown = this.state.mainPivot !== 'FullList' ? null : 
+// this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
 
  private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
     console.log(`_updateListDropdownChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
@@ -926,7 +967,14 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             this.getDefinedLists(availLists[0], true);
         } else if ( itemKey === pivotHeading2 ) {
             this.getDefinedLists('Components', true);
+        } else if ( itemKey === pivotHeading3 ) {
+            //fetch history and save to state.
         }
+      }
+
+      private hideMainWarning(){
+          console.log('hideMainWarning');
+          this.setState({ showMainWarning: this.state.showMainWarning === true ? false : true });
       }
 
 }

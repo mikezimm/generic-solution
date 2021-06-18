@@ -62,7 +62,7 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                                 
  */
 
-
+import { createMainRailsWarningBar } from '../../../../../../services/railsCommon/RailsMainWarning';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -170,6 +170,8 @@ export interface IMyCreateListPermissionsState {
 
     history: IArraySummary;
 
+    showMainWarning: boolean;
+
 }
 
 const pivotStyles = {
@@ -249,6 +251,8 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             finished: false,
 
             history: null,
+
+            showMainWarning: false,
 
         };
     }
@@ -390,7 +394,28 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
                 analyticsListRails = { strings.analyticsListRailsGroups }
             ></RailsHistory>;
 
+            
+            //This should be similar for all Rails
+            let mainWaringContent = <div>
+                <h2 style={{margin: '0px'}}>Applying changes will:</h2>
+                <ul>
+                    <li>Break List Permissions from site</li>
+                    <li>Carry Site Owner, Member, Visitor Groups down to list permissions based on FCR notation.</li>
+
+                    <li>Create Contributors and Readers Groups based on List Title</li>
+                    <li>Assign those Groups permissions on list</li>
+                    <li>Assign those Groups READ permissions on the site</li>
+                    <li>Power Automate will set Owner of site to be Owner of Group</li>
+                </ul>
+                <h3>Applying changes will NOT:</h3>
+                <ul>
+                    <li>If Group Name already exists, it will warn but do nothing with that group.  This is intended for creating groups.</li>
+                </ul>
+            </div>;
+            let warning = createMainRailsWarningBar( panelWidth, this.state.showMainWarning , mainWaringContent, this.hideMainWarning.bind(this) );
+
             panelContent = <div>
+                <div> { warning } </div>
                 <Pivot
                     styles={ pivotStyles }
                     linkFormat={PivotLinkFormat.links}
@@ -549,7 +574,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
             currentStep.label, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
             currentStep.value1, value2, currentStep.current.key, //itemInfo1, itemInfo2, result, 
-            JSON.stringify(currentStep), this.props.railFunction, null ); //richText, Setting, richText2
+            JSON.stringify(currentStep), this.props.railFunction, null, null ); //richText, Setting, richText2, richText3
         
     }
 
@@ -779,5 +804,10 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
         }
 
       }
+
+    private hideMainWarning(){
+        console.log('hideMainWarning');
+        this.setState({ showMainWarning: this.state.showMainWarning === true ? false : true });
+    }
 
 }
