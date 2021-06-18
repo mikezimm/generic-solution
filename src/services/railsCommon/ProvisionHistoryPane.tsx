@@ -21,7 +21,7 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
-import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
 import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
@@ -49,7 +49,8 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
  import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
  import { IArraySummary, IRailAnalytics, groupArrayItemsByField, } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
- 
+ import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -181,7 +182,7 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
     
     public componentDidMount() {
       if ( this.props.fetchHistory === true ) {
-        this.fetchHistory();
+        this.fetchHistory( 'list' );
       }
     }
    
@@ -198,8 +199,10 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
  */
 
     public componentDidUpdate(prevProps: IProvisionHistoryProps): void {
-        // this.setState({ refreshId: makeid(5) })
-    //this._updateWebPart(prevProps);
+      console.log('ProvisionHistoryPane fetchHistory', this.props.fetchHistory );
+      if ( this.props.fetchHistory !== true ) {
+        this.render();
+      }
     }
 
 /***
@@ -216,47 +219,54 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
 
     public render(): React.ReactElement<IProvisionHistoryProps> {
 
-        if ( this.props.progress !== null ) {
-          
-            let myProgress = this.state.progress == null ? null : <ProgressIndicator
+        if ( this.state.progress !== null || this.state.history !== null || this.state.mapThisList !== null ) {
+            let listDropdown = this._createDropdownField( 'History' , this.state.dropDownLabels , this._updateListDropdownChange.bind(this) , null );
+
+            let myProgress = this.state.progress == null ? 'No Progress was found' : <ProgressIndicator
             label={this.state.progress.label}
             description={this.state.progress.description}
             percentComplete={this.state.progress.percentComplete}
             progressHidden={this.state.progress.progressHidden}/>;
 
-            let errorList = <MyLogList
-                title={ 'Error'}           items={ this.state.history.errors }
-                descending={false}          titles={null}            ></MyLogList>;
+            let historyStack : any = 'No history was found';
+            if ( this.state.history !== null ) {
+                    
+              let errorList = <MyLogList
+              title={ 'Error'}           items={ this.state.history.errors }
+              descending={false}          titles={null}            ></MyLogList>;
 
-            let fieldList = <MyLogList
-                title={ 'Column'}           items={ this.state.history.fields }
-                descending={false}          titles={null}            ></MyLogList>;
+              let fieldList = <MyLogList
+                  title={ 'Column'}           items={ this.state.history.fields }
+                  descending={false}          titles={null}            ></MyLogList>;
 
-            let viewList = <MyLogList
-                title={ 'View'}           items={ this.state.history.views }
-                descending={false}          titles={null}            ></MyLogList>;
+              let viewList = <MyLogList
+                  title={ 'View'}           items={ this.state.history.views }
+                  descending={false}          titles={null}            ></MyLogList>;
 
-            let itemList = <MyLogList
-                title={ 'Item'}           items={ this.state.history.items }
-                descending={false}          titles={null}            ></MyLogList>;
-                
-            const stackListTokens: IStackTokens = { childrenGap: 10 };
-            let historyStack = <div style={{ }}>
-                <div> { myProgress } </div>
-                <div> {  } </div>
-                <div>
-                <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
-                    { errorList }
-                    { fieldList }
-                    { viewList }
-                    { itemList }
-                </Stack>
-                </div>
-            </div>;
+              let itemList = <MyLogList
+                  title={ 'Item'}           items={ this.state.history.items }
+                  descending={false}          titles={null}            ></MyLogList>;
+                  
+              const stackListTokens: IStackTokens = { childrenGap: 10 };
+              historyStack = <div style={{ }}>
+                  <div> { myProgress } </div>
+                  <div> {  } </div>
+                  <div>
+                    <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
+                        { errorList }
+                        { fieldList }
+                        { viewList }
+                        { itemList }
+                    </Stack>
+                  </div>
+              </div>;
+            }
 
             return (
-              <div> { historyStack }
-                </div>
+              <div> 
+                { listDropdown }
+                { historyStack }
+              </div>
 
             );
 
@@ -296,9 +306,10 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
   }
 
 
-  private async fetchHistory() {
+  private async fetchHistory( listOrWeb: 'list' | 'web' ) {
 
     let items: IRailAnalytics[] = await fetchAnalytics( this.props.analyticsWeb, this.props.analyticsListRails , this.props.pickedWeb.guid );
+    // let items: IRailAnalytics[] = await fetchAnalytics( this.props.analyticsWeb, this.props.analyticsListRails , this.props.pickedWeb.guid );
 
     let history = null;
     let progress = null;
@@ -308,26 +319,67 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
     let historyAll = [];
     let mapThisListAll = [];
 
-    let dropDownLabels = ['Have to update this text!'];
+    let dropDownLabels: any[] = ['Have to update this text!'];
     let dropDownIndex = 0;
-    let dropDownText = dropDownLabels[0];
 
     if ( items.length > 0 ) {
       // mapThisList, this.props.railFunction, this.state.progress, this.state.history ); //richText, Setting, richText2, richText3
 
       dropDownLabels = [];
-      mapThisList = items[0].zzzRichText1 ? JSON.parse( items[0].zzzRichText1 ) : this.state.mapThisList;
-      progress = items[0].zzzRichText2 ? JSON.parse( items[0].zzzRichText2 ) : this.state.progress;
-      history = items[0].zzzRichText3 ? JSON.parse( items[0].zzzRichText3 ) : this.state.history;
 
       items.map( item => {
-        mapThisListAll.push( item.zzzRichText1 );
-        progressAll.push( item.zzzRichText2 );
-        historyAll.push( item.zzzRichText3 );
+
+        let loadThisItem = item.Result === 'Complete' && ( listOrWeb === 'web' || item.TargetList.Url === this.props.theList.listURL) ? true : false ;
+        if ( loadThisItem === true ) {
+          let mapThisListX = null;
+          let itemProgress = null;
+          let itemHistory = null;
+  
+          let richText1 = item.zzzRichText1 ? JSON.parse( item.zzzRichText1 ) : null;
+          let richText2 = item.zzzRichText2 ? JSON.parse( item.zzzRichText2 ) : null;
+          let richText3 = item.zzzRichText3 ? JSON.parse( item.zzzRichText3 ) : null;
+  
+          /**
+           * Doing this map just because I changed what objects I stored in the rich text fields and want to still be able to read it
+           */
+          [ richText1, richText2, richText3 ].map( richText => {
+            if ( richText !== null && richText !== undefined && typeof richText === 'object' ) {
+              if ( richText.definedList ) { mapThisListX = richText ; }
+              else if ( richText.count ) { itemHistory = richText ; }
+              else if ( richText.percentComplete ) { itemProgress = richText ; }
+            }
+          });
+  
+          mapThisListAll.push( mapThisListX );
+          progressAll.push( itemProgress );
+          historyAll.push( itemHistory );
+  
+          let created = item.Created;
+          let realTime = new Date(created);
+          let local = realTime.toLocaleString();
+          let listDef = 'Not sure of list definition';
+          if ( mapThisListX !== null ) {
+            let definedList = mapThisListX.definedList ? mapThisListX.definedList : 'Unknown definedList';
+            let listDefinition = mapThisListX.listDefinition ? mapThisListX.listDefinition : 'Unknown listDefinition';
+            listDef = definedList + ' - ' + listDefinition;
+          }
+
+          let thisLabel = `${item.Created} | ${local} | ` ;
+          if ( listOrWeb === 'list' ) { thisLabel += listDef ;  } else { thisLabel += ` Applied: ${ item.ListTitle } | ${listDef}` ; }
+          // let thisLabel = <div> { item.Created } <span style={{fontSize: 'smaller'}}> { local } </span> { listDef } </div>;
+          dropDownLabels.push( thisLabel );
+
+        }
 
       });
 
+      mapThisList = mapThisListAll[0];
+      progress = progressAll[0];
+      history = historyAll[0];
+
     }
+
+    let dropDownText = dropDownLabels[0];
 
     this.setState({ 
       mapThisList: mapThisList,
@@ -349,6 +401,72 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
     private updateStateStatus( ) {
         
     }
+
+
+// let listDropdown = this.state.mainPivot !== 'FullList' ? null : 
+// this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
+
+private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
+
+
+  let thisValue : any = getChoiceText(item.text);
+
+  let idx = this.state.dropDownLabels.indexOf( thisValue );
+  console.log(`_updateListDropdownChange: ${ idx } ${thisValue} ${item.selected ? 'selected' : 'unselected'}`);
+
+  if ( idx > -1 ) {
+    // let mapThisList = this.state.mapThisListAll[ idx ];
+    // let history = this.state.historyAll[ idx ];
+    // let progress = this.state.progressAll[ idx ];
+
+    this.setState({
+      mapThisList : this.state.mapThisListAll[ idx ],
+      history : this.state.historyAll[ idx ],
+      progress : this.state.progressAll[ idx ],
+      dropDownIndex: idx,
+      dropDownText: thisValue,
+    });
+
+  }
+}
+
+  private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
+      const dropdownStyles: Partial<IDropdownStyles> = {
+          dropdown: { width: '800px' }
+      };
+
+      let sOptions: IDropdownOption[] = choices == null ? null : 
+          choices.map(val => {
+
+            if ( val === this.state.dropDownText ) { 
+              console.log(`_createDropdownField val MATCH: ${ val } `);
+            } else {
+              console.log(`_createDropdownField val: ${ val } `);
+            }
+              return {
+                  key: getChoiceKey(val),
+                  text: val,
+              };
+          });
+
+      let keyVal = this.state.dropDownText;
+      console.log(`_createDropdownField keyVal: ${ keyVal } `);
+
+      let thisDropdown = sOptions == null ? null : <div
+          style={{  display: 'inline-flex'  }}
+              ><Dropdown 
+              label={ label }
+              //selectedKey={ getChoiceKey(keyVal) }
+              // selectedKey={ keyVal }
+              onChange={ _onChange }
+              options={ sOptions } 
+              styles={ dropdownStyles }
+          />
+          </div>;
+
+      return thisDropdown;
+
+  }
 
     /***
      *         d888888b  .d88b.   d888b   d888b  db      d88888b .d8888. 

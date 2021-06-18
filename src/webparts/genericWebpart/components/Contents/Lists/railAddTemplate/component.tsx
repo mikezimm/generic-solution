@@ -814,6 +814,10 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
 }
 
+
+// let listDropdown = this.state.mainPivot !== 'FullList' ? null : 
+// this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
+
  private _updateListDropdownChange = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
     console.log(`_updateListDropdownChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
 
