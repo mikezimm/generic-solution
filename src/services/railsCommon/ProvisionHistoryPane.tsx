@@ -188,7 +188,6 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
       }
     }
    
-
 /***
  *         d8888b. d888888b d8888b.      db    db d8888b. d8888b.  .d8b.  d888888b d88888b 
  *         88  `8D   `88'   88  `8D      88    88 88  `8D 88  `8D d8' `8b `~~88~~' 88'     
@@ -245,7 +244,7 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
 
             let historyStack : any = 'No history was found';
             if ( this.state.history !== null && this.state.history !== undefined ) {
-                    
+              
               let errorList = <MyLogList
               title={ 'Error'}           items={ this.state.history.errors }
               descending={false}          titles={null}            ></MyLogList>;
