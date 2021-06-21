@@ -49,7 +49,9 @@ import MyAddListTemplate from './railAddTemplate/component';
 
 import MyLogList from './listView';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
 
 import { IFieldBucketInfo, IContentsFieldInfo } from '../Fields/fieldsComponent';
 import * as ECFields from '../Fields/fieldsFunctions';
@@ -851,7 +853,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             this.checkThisPage(index, testLists, thisWeb);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            let errMessage = getHelpfullErrorV2(e, true, true);
             console.log('checkThisWeb', errMessage);
             this.updateStatePages(index, testLists);
         });
@@ -867,7 +869,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             //this.updateStatePages(index,testLists);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            
+            let helpfulErrorEnd = [ thisWeb, '', '', index, testLists ].join('|');
+            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'checkThisPage ~ 874', helpfulErrorEnd ].join('|') );
             console.log('checkThisPage', errMessage);
             //this.updateStatePages(index, testLists);
         });

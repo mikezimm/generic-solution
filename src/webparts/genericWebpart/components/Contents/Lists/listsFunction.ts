@@ -42,7 +42,9 @@ import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames }
 
 import { encodeDecodeString } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
 
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';  //    webURL = getFullUrlFromSlashSitesUrl( webURL );
 
@@ -130,7 +132,9 @@ export async function getSiteInfo( webUrl: string ) {
     try {
       thisSiteInstance = await Site( webUrl );
     } catch (e) {
-      errMessage = getHelpfullError(e, true, true);
+    
+      let helpfulErrorEnd = [ webUrl, '', '', null, null ].join('|');
+      errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 137', helpfulErrorEnd ].join('|') );
     }
   
     const theSite = await thisSiteInstance.get();
@@ -220,7 +224,11 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
         return { allLists: allLists, errMessage: errMessage, theSite: theSite } ;
 
     } catch (e) {
-        errMessage = getHelpfullError(e, false, true);
+            
+        let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
+        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 229', helpfulErrorEnd ].join('|') );
+
+
         console.log('checkThisPage', errMessage);
         addTheseListsToState([], errMessage, theSite );
         return { allLists: allLists, errMessage: errMessage, theSite: theSite } ;

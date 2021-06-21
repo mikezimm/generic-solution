@@ -220,7 +220,8 @@ export async function addTheseItemsToListInBatch( myList: IMyListInfo, thisWeb, 
         //ONLY SEEMS TO CATCH FIRST ERROR IN BATCH.
         //OTHER BATCH ITEMS GET PROCESSED BUT ONLY FLAGS FIRST ONE.
         //CONFIRMED LATER ITEMS IN ARRAY AFTER ERROR STILL GET PROCESSED, JUST NOT ERRORED OUT
-        let errMessage = getHelpfullErrorV2(e, alertMe, consoleLog);
+        let helpfulErrorEnd = [ myList.title, '', '', 1, n ].join('|');
+        let errMessage = getHelpfullErrorV2(e, alertMe, consoleLog, [ BaseErrorTrace , 'Failed', 'Add batch items ~ 224', helpfulErrorEnd ].join('|') );
         if (errMessage.indexOf('missing a column') > -1) {
             let err = `The ${myList.title} list does not have XYZ or TBD yet:  ${'thisItem'}`;
             statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);

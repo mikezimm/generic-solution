@@ -14,9 +14,11 @@ import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Ser
 
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';  //    webURL = getFullUrlFromSlashSitesUrl( webURL );
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { isGuid, makeid, } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
 
 import { pivCats } from './fieldsComponent';
 
@@ -67,29 +69,41 @@ export async function allAvailableFields( webURL: string, listGUID: string, rest
     let errMessage = '';
 
     let isId = isGuid( listGUID );
-
+    let breakPoint = 'Start';
     try {
         if ( listGUID != '' ) {
             thisWebInstance = Web(webURL);
             if ( isId === true ) {
                 if ( restFilter && restFilter.length > 0 ) {
+                    breakPoint = '~78';
                     allFields = await thisWebInstance.lists.getById(listGUID).fields.filter( restFilter ).orderBy("Title", true).get();
-                } else { allFields = await thisWebInstance.lists.getById(listGUID).fields.orderBy("Title", true).get(); }
+                } else { 
+                    breakPoint = '~81';
+                    allFields = await thisWebInstance.lists.getById(listGUID).fields.orderBy("Title", true).get(); 
+                }
             } else {
                 if ( restFilter && restFilter.length > 0 ) {
+                    breakPoint = '~86';
                     allFields = await thisWebInstance.lists.getByTitle(listGUID).fields.filter( restFilter ).orderBy("Title", true).get();
-                } else { allFields = await thisWebInstance.lists.getByTitle(listGUID).fields.orderBy("Title", true).get(); }
+                } else { 
+                    breakPoint = '~89';
+                    allFields = await thisWebInstance.lists.getByTitle(listGUID).fields.orderBy("Title", true).get();
+                    
+                }
             }
 
             scope = 'List';
     
         } else {
+            breakPoint = '~98';
             allFields = await thisWebInstance.fields.orderBy("Title", true).get();
             scope = 'Web';
     
         }
     } catch (e) {
-        errMessage = getHelpfullError(e, false, true);
+
+        let helpfulErrorEnd = [ webURL, listGUID, breakPoint, null, null ].join('|');
+        errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'get allFields ~ 106', helpfulErrorEnd ].join('|') );
 
     }
 

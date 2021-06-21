@@ -20,9 +20,6 @@ import { PageContext } from '@microsoft/sp-page-context';
 import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../services/createAnalytics';
 
-import { BaseErrorTrace } from './BaseErrorTrace';
-
-
 import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
 
 require('../../services/GrayPropPaneAccordions.css');

@@ -37,7 +37,9 @@ import { pivotOptionsGroup, } from '../../../../../services/propPane';
 import MyLogField from './fieldsListView';
 
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
 
 export const pivCats = {
     visible: {title: 'Visible', desc: '', order: 1, count: null },
@@ -618,7 +620,7 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             this.checkThisPage(index, testFields, thisWeb);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            let errMessage = getHelpfullErrorV2(e, true, true);
             console.log('checkThisWeb', errMessage);
             this.updateStatePages(index, testFields);
         });
@@ -634,7 +636,8 @@ export default class InspectColumns extends React.Component<IInspectColumnsProps
             //this.updateStatePages(index,testFields);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            let helpfulErrorEnd = [ testFields[index].Title, '', '', index, testFields.length ].join('|');
+            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'checkThisPage ~ 640', helpfulErrorEnd ].join('|') );
             console.log('checkThisPage', errMessage);
             //this.updateStatePages(index, testFields);
         });

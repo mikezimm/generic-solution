@@ -7,7 +7,8 @@ import { IContentsFeatureInfo, IFeatureBucketInfo } from  './featuresComponent';
 import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
 
 export const systemFeatures = ["Approvers","Designers" ,"Excel Services Viewers" ,"External Editors" ,
 "External Readers" ,"Hierarchy Managers", "Quick Deploy Users", "Restricted Readers"];
@@ -105,7 +106,9 @@ export async function allAvailableFeatures( webURL: string, featureBuckets: IFea
         allFeatures = await thisFeatureObject.select("DisplayName", "DefinitionId").features.get();
 
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+
+        let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
+        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'get Feature Object ~ 111', helpfulErrorEnd ].join('|') );
 
     }
 
