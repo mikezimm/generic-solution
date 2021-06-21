@@ -15,7 +15,9 @@ import { IContentsUserInfo, IUserBucketInfo } from  './usersComponent';
 import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
@@ -82,7 +84,8 @@ export async function allAvailableUsers( webURL: string, showGroups: boolean, gr
         allUsers = await thisWebInstance.siteUsers();
 
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+        let helpfulErrorEnd = [ webURL, '', null, null ].join('|');
+        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'userFunctions Get All Users ~ 88', helpfulErrorEnd ].join('|') );
 
     }
 

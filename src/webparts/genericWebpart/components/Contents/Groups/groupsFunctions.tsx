@@ -15,7 +15,8 @@ import { IContentsGroupInfo, IGroupBucketInfo } from  './groupsComponent';
 import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 
@@ -53,7 +54,8 @@ export async function allAvailableGroups( webURL: string, showUsers: boolean, gr
         allGroups = await thisWebInstance.siteGroups();
 
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+        let helpfulErrorEnd = [ webURL, '', null, null ].join('|');
+        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'try groupFunctions ~ 59', helpfulErrorEnd ].join('|') );
 
     }
 

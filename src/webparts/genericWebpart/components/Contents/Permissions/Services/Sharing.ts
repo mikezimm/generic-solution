@@ -36,7 +36,7 @@ import { Web, IList, IItem } from "@pnp/sp/presets/all";
 
 import { getExpandColumns, getKeysLike, getSelectColumns } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { ISharingInformation } from '@pnp/sp/sharing';
 
 
@@ -52,6 +52,8 @@ import { ISharingInformation } from '@pnp/sp/sharing';
  */
 
 import { buildSharingRows, buildWasSharedRows } from './SharingElements';
+
+import { BaseErrorTrace } from '../../../../../../services/BaseErrorTrace';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -250,7 +252,8 @@ export async function allSharedItems( doThis: IShowPermissionPage ,webURL: strin
 
 
  } catch (e) {
-     errMessage = getHelpfullError(e, false, true);
+     let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
+     errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'Sharing ~ 254', helpfulErrorEnd ].join('|') );
 
  }
 
@@ -295,8 +298,9 @@ export async function getSharedFiles( webURL: string, listTitle: string, addThes
       elements = buildWasSharedRows( sharedFiles, width );
  
   } catch (e) {
-      errMessage = getHelpfullError(e, false, true);
- 
+
+     let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
+     errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'Sharing ~ 303', helpfulErrorEnd ].join('|') );
   }
  
   let thisSet : IMySharingInfoSet = {

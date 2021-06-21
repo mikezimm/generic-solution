@@ -14,7 +14,9 @@ import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Ser
 
 import { getXMLObjectFromString } from '../../../../../services/XMLServices';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
 
@@ -71,7 +73,8 @@ export async function allAvailableViews( webURL: string, listGUID: string, viewB
     
         }
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+        let helpfulErrorEnd = [ webURL, '', null, null ].join('|');
+        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'viewsFunctions Get All Views ~ 77', helpfulErrorEnd ].join('|') );
 
     }
 

@@ -39,7 +39,7 @@ import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterface
 import { doesObjectExistInArrayInt, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { sortObjectArrayByNumberKey } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 import { getSiteAdmins } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';   //groupUsers = await getSiteAdmins( webURL, false);
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 
@@ -56,7 +56,7 @@ import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Use
  */
 
 import { getSharedFiles } from './Sharing';
-
+import { BaseErrorTrace } from '../../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88   88 88'     88      88  `8D 88'     88  `8D 88'  YP 
@@ -137,7 +137,9 @@ export function getFullURLFromRelative( relUrl : string ) {
             }
 
         } catch (e) {
-            errMessage = getHelpfullError(e, false, true);
+            //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   
+            let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
+            errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'Permissions Get Roll Assignments ~ 142', helpfulErrorEnd ].join('|'));
 
         }
 
@@ -183,8 +185,10 @@ export function getFullURLFromRelative( relUrl : string ) {
                 let userFilter = 'Id eq ' + idsToGet.join(' or Id eq ');
                 theseUsers = await thisWebInstance.siteGroups.filter( userFilter ).select("Id,Title,Description,PrincipalType,IsSiteAdmin,UserPrincipalName").get();  
                 myPermissions.theseUsers = theseUsers;
+
             } catch (e) {
-                errMessage = getHelpfullError(e, false, true);
+                let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
+                errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'Permissions Get Groups ~ 191', helpfulErrorEnd ].join('|') );
 
             }
 
@@ -194,8 +198,10 @@ export function getFullURLFromRelative( relUrl : string ) {
                     let userFilter = 'Id eq ' + idsToGet.join(' or Id eq ');
                     theseUsers = theseUsers.concat(await thisWebInstance.siteUsers.filter( userFilter ).select("Id,Title,Description,PrincipalType,IsSiteAdmin,UserPrincipalName").get());  
                     myPermissions.theseUsers = theseUsers;
+
                 } catch (e) {
-                    errMessage = getHelpfullError(e, false, true);
+                    let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
+                    errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'Permissions Get SIte Users ~ 203', helpfulErrorEnd ].join('|') );
         
                 }
             }
@@ -225,7 +231,8 @@ export function getFullURLFromRelative( relUrl : string ) {
                         userPermissions = await thisWebInstance.roleAssignments.getById( thisUser ).bindings.select("Name,Description").get(); 
                     }
                 } catch (e) {
-                    errMessage = getHelpfullError(e, false, true);
+                    let helpfulErrorEnd = [ webURL, listTitle, null, null ].join('|');
+                    errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'Permissions Get List RollAssignments ~ 235', helpfulErrorEnd ].join('|') );
 
                 }
 
@@ -497,7 +504,8 @@ export function getFullURLFromRelative( relUrl : string ) {
         try {
             thisWebInstance = Web( webURL );
         } catch (e) {
-            errMessage = getHelpfullError(e, true, true);
+            let helpfulErrorEnd = [ webURL, '', null, null ].join('|');
+            errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'Permissions Get Web ~ 508', helpfulErrorEnd ].join('|') );
         }
 
         let permissions : IPermissionLists = JSON.parse(JSON.stringify( startPermissions ));
@@ -518,7 +526,8 @@ export function getFullURLFromRelative( relUrl : string ) {
         try {
             allLists = await thisWebInstance.lists.filter(permissions.restFilter).select(permissions.selectString).get();
         } catch (e) {
-            errMessage = getHelpfullError(e, false, true);
+            let helpfulErrorEnd = [ webURL, permissions.restFilter, null, null ].join('|');
+            errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'Permissions Get Lists ~ 530', helpfulErrorEnd ].join('|') );
         }
 
         permissions.isLoading = errMessage.length === 0 ? false : true ,
