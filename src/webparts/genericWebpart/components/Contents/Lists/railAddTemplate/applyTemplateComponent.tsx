@@ -43,7 +43,7 @@ import { queryValueCurrentUser, queryValueToday, IViewField } from '@mikezimm/np
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { cleanURL, cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { camelize } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
@@ -64,6 +64,8 @@ import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableIn
  *                                                                                                                                 
  */
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../../services/createAnalytics';
+
+import { BaseErrorTrace } from '../../../../../../services/BaseErrorTrace';
 
 import { fixTitleNameInViews  } from '../../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
@@ -761,7 +763,8 @@ public constructor(props:IProvisionListsProps){
                 console.log('validUserIds SiteUsers:', validUserIds );
                 this.setState({  validUserIds: validUserIds, });
             }).catch((e) => {
-                let errMessage = getHelpfullError(e, true, true);
+                let helpfulErrorEnd = [ this.props.pickedWeb.url, 'Getting Users', null, null ].join('|');
+                let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|') );
                 console.log('Not able to get SiteUsers', errMessage);
             });
         }
@@ -797,7 +800,8 @@ public constructor(props:IProvisionListsProps){
             this.updateStateLists(index, testLists, definedList, );
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            let helpfulErrorEnd = [ testLists[index].webURL, testLists[index].title, index, testLists.length ].join('|');
+            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|') );
             console.log('checkThisWeb', errMessage);
             this.updateStateLists(index, testLists, definedList, );
 

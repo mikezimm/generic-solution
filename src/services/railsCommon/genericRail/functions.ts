@@ -53,7 +53,7 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
  *                                                                                                                                 
  */
 
-import { BaseErrorTrace } from '../../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
+import { BaseErrorTrace } from '../../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -101,7 +101,7 @@ import { BaseErrorTrace } from '../../BaseErrorTrace';  //, [ BaseErrorTrace , '
   webUrl = webUrl.substr( 0, webUrl.indexOf('_api'));
   let errMessage = '';
 
-  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
+  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
   try {
       thisWebInstance = Web( webUrl );

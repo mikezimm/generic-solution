@@ -1,7 +1,7 @@
 import { sp } from '@pnp/sp';
 import { Web, Items, } from '@pnp/sp/presets/all';
 
-import { getHelpfullErrorV2, saveThisItem } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, saveThisLogItem } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
 import { sortObjectArrayByStringKey } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
@@ -68,7 +68,7 @@ export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, sa
 
     saveItem.PageLink = getCurrentPageLink();
 
-    saveThisItem( analyticsWeb, analyticsList, saveItem );
+    saveThisLogItem( analyticsWeb, analyticsList, saveItem );
 
 }
 
@@ -150,7 +150,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
     saveItem.TargetList = TargetList ? makeListLink( TargetList, webTitle ) : null;
 
-    saveThisItem( analyticsWeb, analyticsList, saveItem );
+    saveThisLogItem( analyticsWeb, analyticsList, saveItem );
 
 }
 

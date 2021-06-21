@@ -38,7 +38,8 @@ import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames }
 
 import { encodeDecodeString, getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
 /***
@@ -51,7 +52,7 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
  *                                                                                                                                 
  *                                                                                                                                 
  */
-
+import { BaseErrorTrace } from '../../../../../../services/BaseErrorTrace';
 
 
  /***

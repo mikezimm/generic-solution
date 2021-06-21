@@ -17,7 +17,7 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
 import { getXMLObjectFromString } from '../XMLServices';
 
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { BaseErrorTrace } from '../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
+import { BaseErrorTrace } from '../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
@@ -209,8 +209,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
 
     for (let v of viewsToAdd) {
         iV++;
-//, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
-        let helpfulErrorEnd = [ myList.title, v.Title, '', iV, nV ].join('|');
+        let helpfulErrorEnd = [ myList.title, v.Title,iV, nV ].join('|');
         setProgress(false, "V", iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Adding views to list: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 198' );
 
         /**

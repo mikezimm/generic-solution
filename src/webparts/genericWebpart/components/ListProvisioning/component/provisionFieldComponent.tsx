@@ -38,7 +38,7 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
@@ -59,6 +59,7 @@ import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableIn
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -755,7 +756,9 @@ public constructor(props:IProvisionFieldsProps){
                 console.log('validUserIds SiteUsers:', validUserIds );
                 this.setState({  validUserIds: validUserIds, });
             }).catch((e) => {
-                let errMessage = getHelpfullError(e, true, true);
+
+                let helpfulErrorEnd = [ 'Updating State', , null, null ].join('|');
+                let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'Provision Fields ~ 761', helpfulErrorEnd ].join('|') );
                 console.log('Not able to get SiteUsers', errMessage);
             });
         }
@@ -792,7 +795,9 @@ public constructor(props:IProvisionFieldsProps){
             this.updateStateLists(index, testLists, definedList);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+
+            let helpfulErrorEnd = [ testLists[index].webURL, testLists[index].title , index, testLists.length ].join('|');
+            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'provisionFields Getting Lists~ 800', helpfulErrorEnd ].join('|') );
             console.log('checkThisWeb', errMessage);
             this.updateStateLists(index, testLists, definedList);
 

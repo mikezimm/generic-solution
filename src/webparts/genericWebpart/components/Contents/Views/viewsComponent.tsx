@@ -29,8 +29,9 @@ import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogView from './viewsListView';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 export const pivCats = {
     visible: {title: 'Visible', desc: '', order: 1},
@@ -596,7 +597,7 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
             this.checkThisPage(index, testViews, thisWeb);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            let errMessage = getHelpfullErrorV2(e, true, true);
             console.log('checkThisWeb', errMessage);
             this.updateStatePages(index, testViews);
         });
@@ -612,7 +613,9 @@ export default class InspectViews extends React.Component<IInspectViewsProps, II
             //this.updateStatePages(index,testViews);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+
+            let helpfulErrorEnd = [ 'ThisWeb??', , index, testViews.length ].join('|');
+            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'viewsComponent ~ 618', helpfulErrorEnd ].join('|') );
             console.log('checkThisPage', errMessage);
             //this.updateStatePages(index, testViews);
         });

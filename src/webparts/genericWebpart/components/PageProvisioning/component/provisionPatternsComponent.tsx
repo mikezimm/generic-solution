@@ -55,7 +55,9 @@ import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
 import { copyPatterns } from './provisionPatternsFunctions';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
 

@@ -33,8 +33,9 @@ import { pivotOptionsGroup, } from '../../../../../services/propPane';
 
 import MyLogWeb from './websListView';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 export const pivCats = {
     all: {title: 'All', desc: '', order: 1},
@@ -601,7 +602,7 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
             this.checkThisPage(index, testWebs, thisWeb);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            let errMessage = getHelpfullErrorV2(e, true, true);
             console.log('checkThisWeb', errMessage);
             this.updateStatePages(index, testWebs);
         });
@@ -617,7 +618,8 @@ export default class InspectWebs extends React.Component<IInspectWebsProps, IIns
             //this.updateStatePages(index,testWebs);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            let helpfulErrorEnd = [ 'checkThisPage ??? ', , index, testWebs.length ].join('|');
+            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions Create Group ~ 194', helpfulErrorEnd ].join('|') );
             console.log('checkThisPage', errMessage);
             //this.updateStatePages(index, testWebs);
         });

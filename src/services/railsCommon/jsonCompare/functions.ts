@@ -53,7 +53,7 @@ import { getKeyChanges,  } from '@mikezimm/npmfunctions/dist/Services/Arrays/che
  *                                                                                                                                 
  *                                                                                                                                 
  */
-import { BaseErrorTrace } from '../../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
+import { BaseErrorTrace } from '../../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
 
  /***

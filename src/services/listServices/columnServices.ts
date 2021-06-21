@@ -21,7 +21,7 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
 import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { BaseErrorTrace } from '../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
+import { BaseErrorTrace } from '../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
@@ -104,7 +104,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
         }
 
         for (let f of fieldsToDo) {
-            let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
+            let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
             //console.log(step + ' trying adding column:', f);
             i++;
             let foundField = skipTry === true ? true : false;

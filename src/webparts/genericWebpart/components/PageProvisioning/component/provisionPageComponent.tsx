@@ -35,9 +35,11 @@ import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
 import { IMakeThisPage } from './provisionWebPartPages';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../services/createAnalytics';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 import { getRandomInt, getRandomChance, getRandomFromArray, randomDate, generateVals, generateTitles }
     from '@mikezimm/npmfunctions/dist/Services/randomServices';
@@ -557,7 +559,7 @@ public constructor(props:IProvisionPagesProps){
             this.checkThisPage(index, testPages, thisWeb);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            let errMessage = getHelpfullErrorV2(e, true, true);
             console.log('checkThisWeb', errMessage);
             this.updateStatePages(index, testPages);
         });
@@ -573,7 +575,8 @@ public constructor(props:IProvisionPagesProps){
             this.updateStatePages(index,testPages);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            let helpfulErrorEnd = [ 'checkThisPage', '', null, null ].join('|');
+            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'provisionPageComponent ~ 579', helpfulErrorEnd ].join('|') );
             console.log('checkThisPage', errMessage);
             this.updateStatePages(index, testPages);
         });

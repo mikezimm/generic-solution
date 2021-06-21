@@ -42,7 +42,7 @@ export async function createGridDates ( webUrl : string, listName : string, item
             });
 
         } catch (e) {
-            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'Get Grid Dates', item.Title, item.Code, '', i, totalItems].join('|') );
+            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'Get Grid Dates', item.Title, item.Code, i, totalItems].join('|') );
 
             let missingColumn = false;
             let userFieldMissingID = false;

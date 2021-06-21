@@ -230,7 +230,8 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         let template = makeThisList.template.toString();
         let listExists = makeThisList.listExists.toString();
 
-        if ( makeThisList.template === 100 && makeThisList.listExists !== true ) {
+        // if ( makeThisList.template === 100 && makeThisList.listExists !== true ) {
+        if ( makeThisList.listExists !== true ) {
             ensuredList = await thisWeb.lists.ensure(makeThisList.title, makeThisList.desc, makeThisList.template, true, makeThisList.additionalSettings );
             listFields = ensuredList.list.fields;   //Get the fields object from the list
             listViews = ensuredList.list.views;     //Get the views object from the list
@@ -367,7 +368,7 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         alert(`Your  list is all ready to go!`);
     }
 
-    markComplete();
+    markComplete( makeThisList );
 
     return statusLog;
 

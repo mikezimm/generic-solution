@@ -22,7 +22,7 @@ import { stringifyKeyValue } from '@mikezimm/npmfunctions/dist/Services/Arrays/s
 import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { BaseErrorTrace } from '../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
+import { BaseErrorTrace } from '../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
@@ -51,7 +51,6 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
         try {
             result3 = await addTheseItemsToListNoBatch(myList, thisWeb, ItemsToAdd, setProgress, true, true);
         } catch (e) {
-            //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
             let errMessage = getHelpfullErrorV2(e, alertMe, consoleLog, [ BaseErrorTrace , 'Failed', 'Add items <= 50 ~ 55', helpfulErrorEnd ].join('|') );
             let err = errMessage;
             statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);
@@ -111,8 +110,8 @@ export async function addTheseItemsToListNoBatch( myList: IMyListInfo, thisWeb, 
         let thisItem = stringifyKeyValue(item, 0, '===');
         i ++;
 
-        if ( !item.Title ) { item.Title = 'Unknown error'; }
-        let helpfulErrorEnd = [ myList.title, item.Title, '', i, totalItems ].join('|');
+        if ( !item.Title ) { item.Title = '--Unknown error--'; }
+        let helpfulErrorEnd = [ myList.title, item.Title, i, totalItems ].join('|');
 
         try {
             delete item.compareArrays;
