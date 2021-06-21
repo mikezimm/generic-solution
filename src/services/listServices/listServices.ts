@@ -21,7 +21,8 @@ import { stringifyKeyValue } from '@mikezimm/npmfunctions/dist/Services/Arrays/s
 
 import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { BaseErrorTrace } from '../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
@@ -43,12 +44,15 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
     let chunk = 10;
     let result3 = [];
 
+    let helpfulErrorEnd = [ myList.title, '', '', null, null ].join('|');
+
     if ( totalItems <= 50 ) {
 
         try {
             result3 = await addTheseItemsToListNoBatch(myList, thisWeb, ItemsToAdd, setProgress, true, true);
         } catch (e) {
-            let errMessage = getHelpfullError(e, alertMe, consoleLog);
+            //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
+            let errMessage = getHelpfullErrorV2(e, alertMe, consoleLog, [ BaseErrorTrace , 'Failed', 'Add items <= 50 ~ 55', helpfulErrorEnd ].join('|') );
             let err = errMessage;
             statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);
             setProgress(false, "E", 'i', totalItems , 'darkred', 'ErrorBadge', ItemsToAdd + ' Missing column', 'Items: ' + myList.title, 'Adding Item ' + 'i' + ' of ' + totalItems + ' item', 'Add item ~ 109\n' + err);
@@ -60,7 +64,7 @@ export async function addTheseItemsToList( myList: IMyListInfo, thisWeb, ItemsTo
             try {
                 result3 = await addTheseItemsToListInBatch(myList, thisWeb, createThisBatch, setProgress, true, true);
             } catch (e) {
-                let errMessage = getHelpfullError(e, alertMe, consoleLog);
+                let errMessage = getHelpfullErrorV2(e, alertMe, consoleLog, [ BaseErrorTrace , 'Failed', 'Add items > 50 ~ 55', helpfulErrorEnd ].join('|') );
                 let err = errMessage;
                 statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);
                 setProgress(false, "E", 'i', totalItems , 'darkred', 'ErrorBadge', ItemsToAdd + ' Missing column', 'Items: ' + myList.title, 'Adding Item ' + 'i' + ' of ' + totalItems + ' item', 'Add item ~ 109\n' + err);
@@ -106,7 +110,9 @@ export async function addTheseItemsToListNoBatch( myList: IMyListInfo, thisWeb, 
     //, Category1: { results: ['Training']}
         let thisItem = stringifyKeyValue(item, 0, '===');
         i ++;
+
         if ( !item.Title ) { item.Title = 'Unknown error'; }
+        let helpfulErrorEnd = [ myList.title, item.Title, '', i, totalItems ].join('|');
 
         try {
             delete item.compareArrays;
@@ -116,7 +122,7 @@ export async function addTheseItemsToListNoBatch( myList: IMyListInfo, thisWeb, 
             });
 
         } catch (e) {
-            let errMessage = getHelpfullError(e, alertMe, consoleLog);
+            let errMessage = getHelpfullErrorV2(e, alertMe, consoleLog, [ BaseErrorTrace , 'Failed', 'Add items ~ 125', helpfulErrorEnd ].join('|') );
 
             let missingColumn = false;
             let userFieldMissingID = false;
@@ -214,7 +220,7 @@ export async function addTheseItemsToListInBatch( myList: IMyListInfo, thisWeb, 
         //ONLY SEEMS TO CATCH FIRST ERROR IN BATCH.
         //OTHER BATCH ITEMS GET PROCESSED BUT ONLY FLAGS FIRST ONE.
         //CONFIRMED LATER ITEMS IN ARRAY AFTER ERROR STILL GET PROCESSED, JUST NOT ERRORED OUT
-        let errMessage = getHelpfullError(e, alertMe, consoleLog);
+        let errMessage = getHelpfullErrorV2(e, alertMe, consoleLog);
         if (errMessage.indexOf('missing a column') > -1) {
             let err = `The ${myList.title} list does not have XYZ or TBD yet:  ${'thisItem'}`;
             statusLog = notify(statusLog, 'Created Item', err, null, null, null, null);

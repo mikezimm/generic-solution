@@ -64,10 +64,9 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
 import { analyticsList } from 'GenericWebpartWebPartStrings';
 
 import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
-
-
+import { BaseErrorTrace } from '../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
 
 const emptyString = (value: string | Date) : string => { return "";};
 
@@ -737,7 +736,8 @@ public async getListDefinitions( doThis: 'props' | 'state') {
         };
 
       } catch (e) {
-        errMessage = getHelpfullError(e, false, true );
+        let helpfulErrorEnd = [ newValue, getMinProps, '', null, null ].join('|');
+        errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getWebbie ~ 740', helpfulErrorEnd ].join('|')  );
         stateError.push( <div style={{ padding: '15px', background: 'yellow' }}> <span style={{ fontSize: 'larger', fontWeight: 600 }}>Can't find the site</span> </div>);
         stateError.push( <div style={{ paddingLeft: '25px', paddingBottom: '30px', background: 'yellow' }}> <span style={{ fontSize: 'large', color: 'red'}}> { errMessage }</span> </div>);
         pickedWeb.error = errMessage;

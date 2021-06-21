@@ -16,7 +16,8 @@ import { IListInfo, IMyListInfo, IServiceLog, notify,  } from '@mikezimm/npmfunc
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { getXMLObjectFromString } from '../XMLServices';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { BaseErrorTrace } from '../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
@@ -208,7 +209,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
 
     for (let v of viewsToAdd) {
         iV++;
-
+//, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, '', i, n ].join('|');
+        let helpfulErrorEnd = [ myList.title, v.Title, '', iV, nV ].join('|');
         setProgress(false, "V", iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Adding views to list: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 198' );
 
         /**
@@ -508,7 +510,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
 
                 } catch (e) {
                     // if any of the fields does not exist, raise an exception in the console log
-                    let errMessage = getHelpfullError(e);
+                    let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'get Views ~ 513', helpfulErrorEnd ].join('|'));
                     if (errMessage.indexOf('missing a column') > -1) {
                         let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
                         statusLog = notify(statusLog,  v, 'Creating View', 'Create',err, null);
@@ -570,7 +572,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
                     setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Updated View: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Update view ~ 533' + errMess );
 
                 } catch (e) {
-                    let errMessage = getHelpfullError(e);
+                    let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'get List Views2 ~ 575', helpfulErrorEnd ].join('|'));
                     if (errMessage.indexOf('missing a column') > -1) {
                         let err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
                         statusLog = notify(statusLog,  v, 'Updating View', 'Create',err, null);

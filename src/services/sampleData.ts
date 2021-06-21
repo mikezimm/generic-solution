@@ -1,7 +1,7 @@
 import { sp } from '@pnp/sp';
 import { Web, } from '@pnp/sp/presets/all';
 
-import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { makeid } from  '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 
 import { arraysEqual } from 'office-ui-fabric-react';
@@ -10,6 +10,7 @@ import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfuncti
 
 import { IListLog } from './listServices/listServices';
 
+import { BaseErrorTrace } from './BaseErrorTrace';
 
 export async function createGridDates ( webUrl : string, listName : string, itemTitle : string, code: string, message1 : string, dates : string[], setProgress: any ): Promise<IListLog[]>{
 
@@ -41,7 +42,7 @@ export async function createGridDates ( webUrl : string, listName : string, item
             });
 
         } catch (e) {
-            let errMessage = getHelpfullError(e, true, true);
+            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'Get Grid Dates', item.Title, item.Code, '', i, totalItems].join('|') );
 
             let missingColumn = false;
             let userFieldMissingID = false;
