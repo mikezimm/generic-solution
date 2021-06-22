@@ -3,9 +3,11 @@ import { sp } from "@pnp/sp";
 import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation'; //Import view arrays for Time list
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { corpFeatures, openSourceFeatures }  from '../Features/featuresFunctions';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 import { IPartsBucketInfo }  from './partsComponent';
 
@@ -92,7 +94,9 @@ export async function allAvailableWebParts( partBuckets: IPartsBucketInfo[], add
     
         console.log('webPartDefs', webPartDefs);
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+
+        let helpfulErrorEnd = [ 'Getting Webparts', , null, null ].join('|');
+        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'Fetching Webparts ~ 99', helpfulErrorEnd ].join('|') );
 
     }
 

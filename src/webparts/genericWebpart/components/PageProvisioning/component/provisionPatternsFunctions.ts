@@ -9,7 +9,9 @@ import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, Clientsi
 
 import { IListInfo, IMyListInfo, IServiceLog } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
 
-import { getHelpfullError,  } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler'; //Import view arrays for Time list
+import { getHelpfullErrorV2,  } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler'; //Import view arrays for Time list
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 import * as strings from 'GenericWebpartWebPartStrings';
 
@@ -53,7 +55,9 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
 
         } catch (e){
             console.log( 'Failed pasting page ' + sourcePageName  );
-            let errMessage = getHelpfullError(e, false, true);
+            let helpfulErrorEnd = [ sourcePageName, '', null, null ].join('|');
+            let errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'provisionPatterns ~ 59', helpfulErrorEnd ].join('|') );
+
             if (errMessage.indexOf('missing a column') > -1) {
                 statusLog = notify(statusLog, 'Checked Field', 'err', 'step', 'f', null);
             }
@@ -63,7 +67,9 @@ export async function copyThisPage( destWeb: IWeb, sourcePage: IPatternItemInfo,
 
     } catch (e) {
         // if any of the fields does not exist, raise an exception in the console log
-        let errMessage = getHelpfullError(e, true, true);
+
+        let helpfulErrorEnd = [ strings.patternsWeb, '', null, null ].join('|');
+        let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'provisionPatterns ~ 72', helpfulErrorEnd ].join('|') );
         if (errMessage.indexOf('The file') > -1 && errMessage.indexOf('does not exist.') > -1 ) {
             let err = `The page ${sourcePageName} does not exist... was it deleted?`;
             statusLog = notify(statusLog, 'Checked Field', err, 'step', 'f', null);

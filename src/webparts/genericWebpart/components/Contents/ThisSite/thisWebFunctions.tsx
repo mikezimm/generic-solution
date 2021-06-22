@@ -16,7 +16,9 @@ import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Ser
 
 import { buildMLineDiv } from '../../../../../services/stringFormatService';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 import { SecurityProps, BasicProps, AdvProps, GraphProps, HubProps, NavProps, SPOProps, LegacyProps } from './thisSiteComponent';
 
@@ -92,7 +94,8 @@ export async function allWebProps( webURL: string, propBuckets: ISitePropsBucket
 
 
         } catch (e) {
-            errMessage = getHelpfullError(e, true, true);
+            let helpfulErrorEnd = [ webURL, '', null, null ].join('|');
+            errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'thisWebFunctions Get AGroups ~ 98', helpfulErrorEnd ].join('|') );
         }
 
         let allInfoKeys = actualReturnObj === null || actualReturnObj === undefined ? [] : Object.keys(actualReturnObj);

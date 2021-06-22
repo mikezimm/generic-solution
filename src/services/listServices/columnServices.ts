@@ -20,8 +20,8 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
 
 import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { BaseErrorTrace } from '../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
@@ -98,11 +98,13 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
         let i = 0;
         let n = fieldsToDo.length;
 
+
         if (n > 0 ) {
             setProgress(false, "C", 0, n , '', 'Next', '##### ' + step, 'Adding FIELDS to list: ' + myList.title, 'Checking for FIELDS', step + ' ~ 93' );
         }
 
         for (let f of fieldsToDo) {
+            let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
             //console.log(step + ' trying adding column:', f);
             i++;
             let foundField = skipTry === true ? true : false;
@@ -143,7 +145,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
 
                 } catch (e) {
                     // if any of the fields does not exist, raise an exception in the console log
-                    let errMessage = getHelpfullError(e, alertMe, consoleLog);
+                    let errMessage = getHelpfullErrorV2(e, alertMe, consoleLog, [ BaseErrorTrace , 'Failed', 'skipTryField ~ 146', helpfulErrorEnd ].join('|') );
                     if (errMessage.indexOf('missing a column') > -1) {
                         let err = `The ${myList.title} list does not have this column yet:  ${f.name}`;
                         statusLog = notify(statusLog, 'Checked Field', err, step, f, null);
@@ -189,7 +191,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             actualField = await listFields.createFieldAsXml(thisField.xml);
                         } catch (e) {
                             // if any of the fields does not get created, raise an exception in the console log
-                            let errMessage = getHelpfullError(e, alertMe, consoleLog);
+                            let errMessage = getHelpfullErrorV2(e, alertMe, consoleLog, [ BaseErrorTrace , 'Failed', 'try actualField ~ 194', helpfulErrorEnd ].join('|') );
                             if (errMessage.indexOf('missing a column') > -1) {
                                 let err = `The ${myList.title} list does not have this column yet:  ${f.name}`;
                                 statusLog = notify(statusLog, 'Create XML Field', err, step, f, null);
@@ -319,7 +321,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                         } catch (e) {
                             foundField = true;
                             // if any of the fields does not get created, raise an exception in the console log
-                            let errMessage = getHelpfullError(e, alertMe, consoleLog);
+                            let errMessage = getHelpfullErrorV2(e, alertMe, consoleLog, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|') );
                             if (errMessage.indexOf('The formula refers to a column that does not exist.') > -1 || errMessage.indexOf('Check the formula') > -1 || errMessage.indexOf('circular reference') > -1 ) {
                                 let errField: any = f;
                                 let err = `Here's the formula you have for ${f.name} \n\n ${ errField.formula}`;

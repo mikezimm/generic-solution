@@ -16,6 +16,7 @@ define([], function() {
     "analyticsListRailsApply": "EasyContentsRailsApply",
     "analyticsListRailsGroups": "EasyContentsRailsGroups",
     "analyticsListPermissionsHistory": "PermissionsHistory",
+    "analyticsListErrors": "ErrorLog",
 
     "analyticsWeb": "/sites/Templates/Analytics/",
     "patternsWeb": "/sites/Patterns/", //Must end in slash :)

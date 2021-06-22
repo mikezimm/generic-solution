@@ -56,7 +56,7 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { IListInfo, IMyListInfo, IServiceLog, notify } from '@mikezimm/npmfunctions/dist/Lists/listTypes';
 
@@ -79,6 +79,8 @@ import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableIn
  *                                                                                                                                 
  *                                                                                                                                 
  */
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 import { IListLog } from '../../../../../services/listServices/listServices';
    
@@ -718,7 +720,9 @@ public constructor(props:IProvisionItemsProps){
                 console.log('validUserIds SiteUsers:', validUserIds );
                 this.setState({  validUserIds: validUserIds, });
             }).catch((e) => {
-                let errMessage = getHelpfullError(e, true, true);
+                let helpfulErrorEnd = [ '', '', null, null ].join('|');
+                let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'provisionItemsComponent ~ 724', helpfulErrorEnd ].join('|') );
+
                 console.log('Not able to get SiteUsers', errMessage);
             });
         }
@@ -755,7 +759,8 @@ public constructor(props:IProvisionItemsProps){
             this.updateStateLists(index, testLists, definedList);
 
         }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
+            let helpfulErrorEnd = [ testLists[index].webURL, testLists[index].title, index, testLists.length ].join('|');
+            let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'provisionItemsComponents ~ 763', helpfulErrorEnd ].join('|') );
             console.log('checkThisWeb', errMessage);
             this.updateStateLists(index, testLists, definedList);
 
@@ -933,7 +938,8 @@ public constructor(props:IProvisionItemsProps){
                 });
 
             } catch (e) {
-                let errMessage = getHelpfullError(e, true, true);
+                let helpfulErrorEnd = [ 'createGridDates?', '', i, totalItems ].join('|');
+                let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'provisionItemsComponents ~ 942', helpfulErrorEnd ].join('|') );
 
                 let missingColumn = false;
                 let userFieldMissingID = false;

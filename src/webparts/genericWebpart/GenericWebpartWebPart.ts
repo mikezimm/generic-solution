@@ -1,5 +1,8 @@
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
+
+import { sp } from '@pnp/sp';
+
 import { Version } from '@microsoft/sp-core-library';
 import {
   IPropertyPaneConfiguration,
@@ -16,10 +19,6 @@ import { PageContext } from '@microsoft/sp-page-context';
 
 import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../services/createAnalytics';
-
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-
-import { sp } from '@pnp/sp';
 
 import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
 

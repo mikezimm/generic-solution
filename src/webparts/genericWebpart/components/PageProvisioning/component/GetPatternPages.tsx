@@ -32,7 +32,7 @@ import { addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Serv
 
 import { makeTheTimeObject,  } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { IPickedWebBasic, IPickedList, IZBasicItemInfo,}  from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
@@ -59,7 +59,7 @@ import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, 
  *                                                                                                                                 
  *                                                                                                                                 
  */
-
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace'; 
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -141,7 +141,8 @@ export async function getAllItems( sitePages: ISitePagesList, addTheseItemsToSta
     try {
         sourceUserInfo = await ensureUserInfo( sitePages.webURL, sitePages.contextUserInfo.email );
     } catch (e) {
-        errMessage = getHelpfullError(e, false, true);
+        let helpfulErrorEnd = [ sitePages.webURL, '', null, null ].join('|');
+        errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'GetPatternPages EnsureUser ~ 145', helpfulErrorEnd ].join('|') );
     }
 
 
@@ -170,8 +171,13 @@ export async function getAllItems( sitePages: ISitePagesList, addTheseItemsToSta
         }
     } catch (e) {
         if ( e.message.indexOf( '[404]') > -1 ) {
-            errMessage = getHelpfullError(e, false, true);
-        } else { errMessage = getHelpfullError(e, true, true); }
+            let helpfulErrorEnd = [ sitePages.webURL, sitePages.title, null, null ].join('|');
+            errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'GetPatternPages getPages1 ~ 175', helpfulErrorEnd ].join('|') );
+        } else { 
+            let helpfulErrorEnd = [ sitePages.webURL, sitePages.title, null, null ].join('|');
+            errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'GetPatternPages getPages2 ~ 178', helpfulErrorEnd ].join('|') );
+
+         }
     }
 
     /**

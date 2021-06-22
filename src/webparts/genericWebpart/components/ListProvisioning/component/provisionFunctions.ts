@@ -1,6 +1,6 @@
 import { Web, Lists, List } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Import view arrays for Time list
@@ -8,6 +8,8 @@ import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Impor
 import { dropDownWidth } from './provisionListComponent';
 import { IMakeThisList } from './provisionWebPartList';
 import { fixTitleNameInViews  } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
 /**
    * Steps to add new list def:
@@ -218,6 +220,8 @@ export function checkThisWeb(index: number, testLists : IMakeThisList[], defined
   testLists[index].existingTemplate = null;
   testLists[index].sameTemplate = false;
 
+  let helpfulErrorEnd = [ testLists[index].webURL, testLists[index].title , '', index, testLists.length ].join('|');
+
   thisWeb.lists.get().then((response) => {
       testLists[index].webExists = true;
       //this.checkThisList(index, testLists, thisWeb, definedList);
@@ -236,7 +240,8 @@ export function checkThisWeb(index: number, testLists : IMakeThisList[], defined
       if ( updateStateLists ) { updateStateLists(index, testLists, definedList, ); }
 
   }).catch((e) => {
-      let errMessage = getHelpfullError(e, true, true);
+
+      let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'provisionFunctions ~ 244', helpfulErrorEnd ].join('|') );
       console.log('checkThisWeb', errMessage);
       if ( updateStateLists ) { updateStateLists(index, testLists, definedList, ); }
 

@@ -16,7 +16,9 @@ import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Ser
 
 import { buildMLineDiv } from '../../../../../services/stringFormatService';
 
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
 import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
@@ -91,7 +93,8 @@ export async function allSiteProps( webURL: string, propBuckets: ISitePropsBucke
         console.log( 'rootWeb:', actualReturnObj );
     
     } catch (e) {
-        errMessage = getHelpfullError(e, true, true);
+        let helpfulErrorEnd = [ webURL, '', null, null ].join('|');
+        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'thisSiteFunctions Get Site ~ 98', helpfulErrorEnd ].join('|') );
     }
 
     let allInfoKeys = actualReturnObj === null || actualReturnObj === undefined ? [] : Object.keys(actualReturnObj);

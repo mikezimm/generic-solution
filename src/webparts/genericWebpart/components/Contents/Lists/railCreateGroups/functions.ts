@@ -41,7 +41,7 @@ import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames }
 
 import { encodeDecodeString, getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
 
@@ -55,7 +55,7 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
  *                                                                                                                                 
  *                                                                                                                                 
  */
-
+import { BaseErrorTrace } from '../../../../../../services/BaseErrorTrace';
 
 
  /***
@@ -118,7 +118,8 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   try {
       thisWebInstance = Web( webUrl );
   } catch (e) {
-      errMessage = getHelpfullError(e, true, true);
+    let helpfulErrorEnd = [ theList.Title, '', null, null ].join('|');
+    errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions Create Group ~ 122', helpfulErrorEnd ].join('|') );
   }
 
 
@@ -129,7 +130,8 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   try {
     thisSiteInstance = Site( webUrl );
   } catch (e) {
-      errMessage = getHelpfullError(e, true, true);
+    let helpfulErrorEnd = [ theList.Title, '', null, null ].join('|');
+    errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions Create Group ~ 134', helpfulErrorEnd ].join('|') );
   }
 
   const { Id: siteId } = await thisSiteInstance.get();
@@ -150,7 +152,8 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
 
     } catch (e) {
-      errMessage = getHelpfullError(e, true, true);
+      let helpfulErrorEnd = [ theList.Title, '', null, null ].join('|');
+      errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions Break Inheritance ~ 156', helpfulErrorEnd ].join('|') );
       currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
     }
     updateState(newSteps, currentStep);
@@ -186,7 +189,10 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
     ownerGroup = await thisWebInstance.associatedOwnerGroup();
     newSteps = await giveGroupPermissions( newSteps, 'assignParentOwnerToList', listInstance, thisWebInstance, ownerGroup.Id , ownLevel, updateState, 'list' ) ;
     // updateState(newSteps, newSteps.assignParentOwnerToList );
-  } catch (e) { errMessage = getHelpfullError(e, true, true); }
+  } catch (e) { 
+    let helpfulErrorEnd = [ theList.Title, '', null, null ].join('|');
+    errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions AOwner Group Permissions ~ 194', helpfulErrorEnd ].join('|') );
+  }
 
 
   if ( memLevel !== null ) {
@@ -194,7 +200,10 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       memberGroup = await thisWebInstance.associatedMemberGroup();
       newSteps = await giveGroupPermissions( newSteps, 'assignParentMemberToList', listInstance, thisWebInstance, memberGroup.Id , memLevel, updateState, 'list' ) ;
       // updateState(newSteps, newSteps.assignParentMemberToList );
-    } catch (e) { errMessage = getHelpfullError(e, true, true); }
+    } catch (e) { 
+      let helpfulErrorEnd = [ theList.Title, '', null, null ].join('|');
+      errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions AMember Group Permissions ~ 194', helpfulErrorEnd ].join('|') );
+     }
   }
   
   if ( visLevel !== null ) {
@@ -202,7 +211,10 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       visitorGroup = await thisWebInstance.associatedVisitorGroup();
       newSteps = await giveGroupPermissions( newSteps, 'assignParentVisitorToList', listInstance, thisWebInstance, visitorGroup.Id , visLevel, updateState, 'list' ) ;
       // updateState(newSteps, newSteps.assignParentVisitorToList );
-    } catch (e) { errMessage = getHelpfullError(e, true, true); }
+    } catch (e) { 
+      let helpfulErrorEnd = [ theList.Title, '', null, null ].join('|');
+      errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions AVisitor Group Permissions ~ 216', helpfulErrorEnd ].join('|') );
+     }
   }
 
 
@@ -307,7 +319,8 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       }
 
     } catch (e) {
-      errMessage = getHelpfullError(e, false, true);
+      let helpfulErrorEnd = [ listInstance.title, '', null, null ].join('|');
+      errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'railFunctions Create Group ~ 323', helpfulErrorEnd ].join('|') );
       currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
 
     }
@@ -344,7 +357,8 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
     currentStep.value4 = ownerGroupId;
 
   } catch(e) {
-    errMessage = getHelpfullError(e, false, true);
+    let helpfulErrorEnd = [ title, '', null, null ].join('|');
+    errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'railFunctions Create Group ~ 361', helpfulErrorEnd ].join('|') );
     currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
     if ( errMessage.indexOf( 'The specified name is already in use' ) > -1 ) {
       currentStep.current.error = 'Group already exists!';
@@ -402,7 +416,9 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
     } else { pickedWeb = webbie; }
 
   } catch (e) {
-    errMessage = getHelpfullError(e, alertErrors, true );
+
+    let helpfulErrorEnd = [ webURL, , null, null ].join('|');
+    errMessage = getHelpfullErrorV2(e, alertErrors, true, [ BaseErrorTrace , 'Failed', 'railFunctions Get Site info ~ 421', helpfulErrorEnd ].join('|') );
     pickedWeb.error = errMessage;
  
   }
@@ -447,7 +463,8 @@ export async function fUpdateGroup ( httpClient: HttpClient, siteUrl: string, si
     try {
       result = await httpClient.post( endpoint, HttpClient.configurations.v1, request);
     } catch (e) {
-      errMessage = getHelpfullError(e, true, true );
+      let helpfulErrorEnd = [ siteUrl, , targetGroupId, ownerGroupID ].join('|');
+      errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions fUpdateGroup ~ 467', helpfulErrorEnd ].join('|') );
     }
 
     console.log( result );

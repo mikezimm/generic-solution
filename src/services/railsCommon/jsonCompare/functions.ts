@@ -38,7 +38,7 @@ import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames }
 
 import { encodeDecodeString, getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
 import { getKeyChanges,  } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
@@ -53,7 +53,7 @@ import { getKeyChanges,  } from '@mikezimm/npmfunctions/dist/Services/Arrays/che
  *                                                                                                                                 
  *                                                                                                                                 
  */
-
+import { BaseErrorTrace } from '../../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
 
  /***
@@ -103,7 +103,8 @@ import { getKeyChanges,  } from '@mikezimm/npmfunctions/dist/Services/Arrays/che
   try {
       thisWebInstance = Web( webUrl );
   } catch (e) {
-      errMessage = getHelpfullError(e, true, true);
+      let helpfulErrorEnd = [ theList.Title, theList.listURL, 'JSON Compare', null, null  ].join('|');
+      errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'get Web ~ 107', helpfulErrorEnd ].join('|') );
   }
 
   updateState( );

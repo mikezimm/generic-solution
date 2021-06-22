@@ -1,126 +1,19 @@
 import { sp } from '@pnp/sp';
 import { Web, Items, } from '@pnp/sp/presets/all';
 
-import { getHelpfullError } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, saveThisLogItem } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+
 import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, createFetchList, } from '@mikezimm/npmfunctions/dist/Lists/getFunctions';
 import { sortObjectArrayByStringKey } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 import { IRailAnalytics } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
+import { getBrowser, amIOnThisWeb, getWebUrlFromLink, getUrlVars,  } from '@mikezimm/npmfunctions/dist/Services/Logging/LogFunctions';
+import { getCurrentPageLink, makeListLink, makeSiteLink, } from '@mikezimm/npmfunctions/dist/Services/Logging/LogFunctions';
+
+import { BaseErrorTrace } from './BaseErrorTrace';
+
 import * as strings from 'GenericWebpartWebPartStrings';
-
-export function getBrowser(validTypes,changeSiteIcon){
-
-    let thisBrowser = "";
-    return thisBrowser;
-
-}
-
-export function amIOnThisWeb( webUrl: string ) {
-
-    let result = false;
-    let ImOnThisWeb = getWebUrlFromLink( null , 'abs' );
-    webUrl = getWebUrlFromLink( webUrl , 'abs' );
-
-    if ( ImOnThisWeb == webUrl ) {
-        result = true;
-    }
-
-    return result;
-
-}
-
-function getWebUrlFromLink( SiteLink: string, absoluteOrRelative: 'abs' | 'rel' ) {
-
-    if ( !SiteLink || SiteLink === '' ) {
-        SiteLink = window.location.pathname ; }
-    else { SiteLink = SiteLink + ''; }
-
-    //Remove all search parameters first
-    if ( SiteLink.toLowerCase().indexOf('?') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('?')  );  }
-
-    if ( SiteLink.toLowerCase().indexOf('/sitepages/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/sitepages/')  );  }
-    if ( SiteLink.toLowerCase().indexOf('/documents/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/documents/')  );  }
-    if ( SiteLink.toLowerCase().indexOf('/siteassets/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/siteassets/')  );  }
-    if ( SiteLink.toLowerCase().indexOf('/lists/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/lists/')  );  }
-    if ( SiteLink.toLowerCase().indexOf('/_layouts/') > 0 ) { SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/_layouts/')  );  }
-    if ( SiteLink.toLowerCase().indexOf('/forms/') > 0 ) { 
-        SiteLink = SiteLink.toLowerCase().substring(0, SiteLink.toLowerCase().indexOf('/forms/') );  
-        //Need to take up one more notch
-        SiteLink = SiteLink.substr( 0, SiteLink.lastIndexOf('/') );
-    }
-
-    if ( absoluteOrRelative === 'abs' ) {
-        if ( SiteLink.toLowerCase().indexOf('/sites/') === 0 ) { SiteLink = window.location.origin + SiteLink; } 
-
-    } else if ( absoluteOrRelative === 'rel' ) {
-        if ( SiteLink.toLowerCase().indexOf(window.location.origin) === 0 ) { SiteLink = SiteLink.substring( window.location.origin.length ); } 
-
-    } else {
-        alert('whoops.... unexpected paramter in getWebUrlFromLink: absoluteOrRelative = ' + absoluteOrRelative );
-    }
-    
-
-    return SiteLink;
-
-}
-
-function getUrlVars() {
-    let vars = {};
-    if ( !location.search || location.search.length === 0 ) { return [] ; }
-    vars = location.search
-    .slice(1)
-    .split('&')
-    .map(p => p.split('='))
-    .reduce((obj, pair) => {
-      const [key, value] = pair.map(decodeURIComponent);
-      return ({ ...obj, [key]: value }) ;
-    }, {});
-    let params = Object.keys(vars).map( k => { return k + '=' + vars[k] ; } );
-    return params;
-  }
-
-  function getCurrentPageLink ( ) {
-    let PageURL = window.location.href;
-    let PageTitle = PageURL;
-    if ( PageTitle.indexOf('?') > 0 ) { PageTitle = PageTitle.substring(0, PageTitle.indexOf('?') ) ; }  //2021-05-10:  Removed -1 because page title was missing last character.
-    let PageLink = {
-        'Url': PageURL,
-        'Description': PageTitle.substring(PageTitle.lastIndexOf("/") + 1) ,
-    };
-    return PageLink;
-  }
-
-  function makeListLink ( TargetList: string , webTitle: string ) {
-    let targetList = !TargetList ? null :{
-        'Url': TargetList.indexOf('http') === 0 ? TargetList : window.location.origin + TargetList,
-        'Description': TargetList.replace(window.location.origin,'').replace(webTitle,'').replace(webTitle.toLowerCase(),'').replace('/lists',''),
-    };
-    return targetList;
-
-  }
-
-  function makeSiteLink ( TargetSite: string, webTitle: string ) {
-
-    let targetSite = !TargetSite ? null : {
-        'Url':  TargetSite && TargetSite.indexOf('http') === 0 ? TargetSite : window.location.origin + TargetSite ,
-        'Description': webTitle ? webTitle : TargetSite.replace(window.location.origin,'') ,
-    };
-
-    return targetSite;
-  }
-
-  function saveThisItem ( web: string, list: string, saveItem: any ) {
-
-    let saveWeb = Web(web);
-    saveWeb.lists.getByTitle( list ).items.add( saveItem ).then((response) => {
-
-        }).catch((e) => {
-
-            console.log('e',getHelpfullError(e, true,true) );
-    });
-
-  }
 
 /**
  * Be sure to update your analyticsList and analyticsWeb in en-us.js strings file
@@ -175,7 +68,7 @@ export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, sa
 
     saveItem.PageLink = getCurrentPageLink();
 
-    saveThisItem( analyticsWeb, analyticsList, saveItem );
+    saveThisLogItem( analyticsWeb, analyticsList, saveItem );
 
 }
 
@@ -257,7 +150,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
     saveItem.TargetList = TargetList ? makeListLink( TargetList, webTitle ) : null;
 
-    saveThisItem( analyticsWeb, analyticsList, saveItem );
+    saveThisLogItem( analyticsWeb, analyticsList, saveItem );
 
 }
 
@@ -293,7 +186,7 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
         items = await web.lists.getByTitle(analyticsList).items.select(allColumns).expand(expColumns).filter( restFilter ).top(5000).orderBy('Id',false).get();
 
     } catch (e) {
-        console.log('e',getHelpfullError(e, true,true) );
+        console.log('e',getHelpfullErrorV2(e, true,true, [ BaseErrorTrace , 'Failed', 'Fetch Analytics', ].join('|') ) );
 
     }
 

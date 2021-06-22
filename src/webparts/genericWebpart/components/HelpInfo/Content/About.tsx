@@ -11,6 +11,8 @@ export function aboutTable() {
         rows: [],
     };
 
+    table.rows.push( ['2021-06-22', '1.1.14.4',    <span>Fix alert when clicking on OOTB Site Contents or other system pages.</span>,                ''] );
+
     table.rows.push( ['2021-06-18', '1.1.14.2',    <span>Add Apply Template History, other improvements.</span>,                ''] );
     table.rows.push( ['2021-06-15', '1.1.14.0',    <span>AddTemplate and general improvements and fixes to provisioning.</span>,                ''] );
     table.rows.push( ['2021-06-04', '1.1.13.9',    <span>Update tricks page.</span>,                ''] );

@@ -36,7 +36,7 @@ import { Panel, IPanelProps, IPanelStyleProps, IPanelStyles, PanelType } from 'o
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import { getSiteAdmins } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';   //groupUsers = await getSiteAdmins( webURL, false);
-import { getHelpfullError } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 
@@ -50,7 +50,7 @@ import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Use
  *                                                                                                                                 
  *                                                                                                                                 
  */
-
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -171,7 +171,9 @@ export function buildGroupProps( gName : string, description = '', styles = '', 
 
             
         } catch (e) {
-            errMessage = getHelpfullError(e, true, true);
+            //
+            let helpfulErrorEnd = [ webURL, '', null, null ].join('|');
+            errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'GroupFunctions All Available Groups ~ 176', helpfulErrorEnd ].join('|') );
     
         }
     
@@ -369,7 +371,8 @@ export function buildGroupProps( gName : string, description = '', styles = '', 
                 }
             }
         } catch (e) {
-            errMessage = getHelpfullError(e, true, true);
+            let helpfulErrorEnd = [ webURL, thisGroup, null, null ].join('|');
+            errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'Get Users from Groups ~ 375', helpfulErrorEnd ].join('|'));
         }
         return { users: users, errMessage: errMessage } ;
 

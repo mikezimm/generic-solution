@@ -43,7 +43,7 @@ import { queryValueCurrentUser, queryValueToday, IViewField } from '@mikezimm/np
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-import { getHelpfullError, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { cleanURL, cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { camelize } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
@@ -63,6 +63,8 @@ import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableIn
  *                                                                                                                                 
  *                                                                                                                                 
  */
+import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
+
 import { saveTheTime, getTheCurrentTime, saveAnalytics,  } from '../../../../../services/createAnalytics';
 
 import { fixTitleNameInViews  } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
@@ -604,7 +606,7 @@ public constructor(props:IProvisionListsProps){
     this.CreateThisList(mapThisList, 2 );
   }
 
-  private CreateThisList( mapThisList: IMakeThisList, listNo: number ): any {
+  private CreateThisList( mapThisList: IMakeThisList, listNo: number ) {
 
     this.setState({ currentList: mapThisList.listDefinition + ' list: ' + mapThisList.title, history: clearHistory(), listNo: listNo });
 
@@ -614,21 +616,22 @@ public constructor(props:IProvisionListsProps){
 
     if ( this.state.doMode === true ) {
         
+        let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
+        this.setState({
+            currentList: workingMessage + listName,
+            listNo: listNo,
+        });
+
         this.captureAnalytics('Update List', 'Updating', mapThisList);
 
         let listCreated = provisionTheList( mapThisList, readOnly, this.setProgress.bind(this), this.markComplete.bind(this) , this.state.doFields, this.state.doViews, this.state.doItems );
 
-        let stateLists = this.state.lists;
-        stateLists[listNo].listExists = true;
-
-        let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
-
-        if ( listCreated ) {
-            this.setState({
-                currentList: workingMessage + listName,
-                lists: stateLists,
-            });
-        }
+        // if ( listCreated ) {
+        //     this.setState({
+        //         currentList: workingMessage + listName,
+        //         listNo: listNo,
+        //     });
+        // }
     } else {
         console.log( 'listNo, mapThisList', listNo, mapThisList );
 
@@ -655,7 +658,11 @@ public constructor(props:IProvisionListsProps){
     return readOnly;
 
   }
-  private markComplete() {
+  private markComplete( mapThisList: IMakeThisList ) {
+
+    // if ( !listNo ) { listNo = this.state.listNo ; }
+    let stateLists = this.state.lists;
+    // stateLists[listNo].listExists = true;
 
     this.setState({
         currentList: 'Finished ' + this.state.currentList,
@@ -754,7 +761,8 @@ public constructor(props:IProvisionListsProps){
                 console.log('validUserIds SiteUsers:', validUserIds );
                 this.setState({  validUserIds: validUserIds, });
             }).catch((e) => {
-                let errMessage = getHelpfullError(e, true, true);
+                let helpfulErrorEnd = [ 'Get Site Users', '', null, null ].join('|');
+                let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'provisionListComponent ~ 765', helpfulErrorEnd ].join('|') );
                 console.log('Not able to get SiteUsers', errMessage);
             });
         }
