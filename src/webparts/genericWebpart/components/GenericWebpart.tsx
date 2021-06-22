@@ -737,7 +737,11 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
       } catch (e) {
         let helpfulErrorEnd = [ newValue, getMinProps, '', null, null ].join('|');
-        errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getWebbie ~ 740', helpfulErrorEnd ].join('|')  );
+        /**
+         * 2021-06-22:  Removed the last traceParemeter so that it does not log an error on every keystroke change while modifying the web url.
+         */
+        // errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getWebbie ~ 740', helpfulErrorEnd ].join('|')  );
+        errMessage = getHelpfullErrorV2(e, false, true, '' );
         stateError.push( <div style={{ padding: '15px', background: 'yellow' }}> <span style={{ fontSize: 'larger', fontWeight: 600 }}>Can't find the site</span> </div>);
         stateError.push( <div style={{ paddingLeft: '25px', paddingBottom: '30px', background: 'yellow' }}> <span style={{ fontSize: 'large', color: 'red'}}> { errMessage }</span> </div>);
         pickedWeb.error = errMessage;

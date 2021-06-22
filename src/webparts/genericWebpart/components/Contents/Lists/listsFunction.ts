@@ -182,7 +182,7 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
               } catch (e) {
         
                 let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
-                errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo GetLists With Filter ~ 182', helpfulErrorEnd ].join('|') );
+                errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo GetLists With Filter ~ 182', helpfulErrorEnd ].join('|') );
               }
 
         } else {
@@ -192,7 +192,7 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
               } catch (e) {
         
                 let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
-                errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo Get Lists No Filter ~ 192', helpfulErrorEnd ].join('|') );
+                errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo Get Lists No Filter ~ 192', helpfulErrorEnd ].join('|') );
               }
         }
         //console.log(allLists);
