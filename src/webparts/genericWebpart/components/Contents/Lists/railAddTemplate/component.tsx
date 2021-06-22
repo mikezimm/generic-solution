@@ -92,13 +92,15 @@ import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHi
   import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
   import { dropDownWidth } from '../../../ListProvisioning/component/provisionListComponent';  //IDefinedLists, availLists, definedLists,
+  
+ import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from '../../../ListProvisioning/component/provisionConstants';  
+
   import { IDefinedLists, availLists, definedLists, getTheseDefinedLists, availComponents } from '../../../ListProvisioning/component/provisionFunctions';
 
   import { provisionTheList, IValidTemplate } from '../../../ListProvisioning/component/provisionWebPartList';
   import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
   import { fixTitleNameInViews  } from '../../../../../../services/listServices/viewServices'; //Import view arrays for Time list
   import MyLogList from '../../../ListProvisioning/component/listView';
-
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -131,7 +133,6 @@ import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHi
  *                                                                                                                                               
  */
 
-
 export interface IMyAddListTemplateProps {
     theList: IContentsListInfo;
     user: IUser;
@@ -162,12 +163,6 @@ export interface IMyAddListTemplateProps {
     currentPage: string; //this.context.pageContext.web.absoluteUrl;
 
   }
-
-  export type IMainPivot = 'FullList' | 'Components' | 'History';
-
-  const pivotHeading1 : IMainPivot = 'FullList';  //Templates
-  const pivotHeading2 : IMainPivot = 'Components';  //Templates
-  const pivotHeading3 : IMainPivot = 'History';  //Templates
 
 export function buildMainPivotDescriptions() {
     let result : any = {};
@@ -371,6 +366,8 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             let historyStack = null;
             let listDefinitionJSON = null;
 
+            let theList : any = this.props.theList;
+
             if (  this.state.doMode === true || this.state.mainPivot === 'History' ) {
 
                 let whichProgress = this.state.mainPivot === 'History' ? null : this.state.progress;
@@ -378,7 +375,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 let mapThisList = this.state.mainPivot === 'History' ? null : this.state.lists[ this.state.listNo ];
 
                 historyStack = <ProvisionHistory
-                    theList = { this.props.theList }
+                    theList = { theList }
 
                     pickedWeb = { this.props.pickedWeb }
                 

@@ -108,6 +108,8 @@ import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
 import { DefStatusField, DefEffStatusField } from './provisionFunctions';
 
+import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from './provisionConstants';  
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
@@ -223,7 +225,7 @@ export interface IProvisionItemsState {
 
     priorProgress: IMyProgress;
     priorHistory: IMyHistory;
-    
+
     doMode: boolean;
     doItems: boolean;
     doEditMain: boolean;
@@ -254,6 +256,9 @@ export interface IProvisionItemsState {
     lists: IMakeThisList[];
     validUserIds: number[];
 
+    mainPivot: IMainPivot;
+    showMainWarning: boolean;
+    
 }
 
 export type IItemMode = 'Define' | 'Create' | typeof DefStatusField | 'History';
@@ -427,7 +432,8 @@ public constructor(props:IProvisionItemsProps){
         datesJSON: [],
         datesString: '',
         itemTitle: '',
-
+        mainPivot: pivotHeading1,
+        showMainWarning: true,
     };
 
     // because our event handler needs access to the component, bind

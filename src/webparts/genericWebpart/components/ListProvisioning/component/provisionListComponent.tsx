@@ -47,6 +47,8 @@ import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Loggin
 
 import { cleanURL, cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { camelize } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
+import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
@@ -70,6 +72,8 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics, ApplyTemplate_Rail_SaveT
 import { fixTitleNameInViews  } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
 import ProvisionHistory from '../../../../../services/railsCommon/ProvisionHistoryPane';
+
+import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from './provisionConstants';  
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -230,6 +234,9 @@ export interface IProvisionListsState {
     lists: IMakeThisList[];
 
     validUserIds: number[];
+    
+    mainPivot: IMainPivot;
+    showMainWarning: boolean;
 
 }
 
@@ -308,7 +315,7 @@ public constructor(props:IProvisionListsProps){
         alwaysReadOnly: alwaysReadOnly,
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
-        
+
         progress: null,
         history: clearHistory(),
 
@@ -341,6 +348,9 @@ public constructor(props:IProvisionListsProps){
         lists: theLists,
 
         validUserIds: [],
+
+        mainPivot: pivotHeading1,
+        showMainWarning: true,
 
     };
 
@@ -484,28 +494,60 @@ public constructor(props:IProvisionListsProps){
                     {  }
                 </Stack>;
 
-            let myProgress = this.state.progress == null ? null : <ProgressIndicator
-                label={this.state.progress.label}
-                description={this.state.progress.description}
-                percentComplete={this.state.progress.percentComplete}
-                progressHidden={this.state.progress.progressHidden}/>;
 
+            let doInputs = null;
+            let historyStack = null;
+            let listDefinitionJSON = null;
 
-            let errorList = <MyLogList
-                title={ 'Error'}           items={ this.state.history.errors }
-                descending={false}          titles={null}            ></MyLogList>;
+            let theList : any = this.state.makeThisList;
 
-            let fieldList = <MyLogList
-                title={ 'Column'}           items={ this.state.history.fields }
-                descending={false}          titles={null}            ></MyLogList>;
+            if (  this.state.doMode === true || this.state.mainPivot === 'History' ) {
 
-            let viewList = <MyLogList
-                title={ 'View'}           items={ this.state.history.views }
-                descending={false}          titles={null}            ></MyLogList>;
+                let whichProgress = this.state.mainPivot === 'History' ? null : this.state.progress;
+                let whichHistory = this.state.mainPivot === 'History' ? clearHistory() : this.state.history;
+                let mapThisList = this.state.mainPivot === 'History' ? null : this.state.lists[ this.state.listNo ];
 
-            let itemList = <MyLogList
-                title={ 'Item'}           items={ this.state.history.items }
-                descending={false}          titles={null}            ></MyLogList>;
+                historyStack = null;
+                    historyStack = <ProvisionHistory
+                    theList = { theList }
+
+                    pickedWeb = { this.props.pickedWeb }
+
+                    analyticsWeb = { strings.analyticsWeb }
+                    analyticsListRails = { strings.analyticsListRailsApply }
+
+                    progress = { whichProgress }
+                    history = { whichHistory }
+                    mapThisList = { mapThisList }
+
+                    fetchHistory = { this.state.mainPivot === 'History' ? true : false }
+
+                    refreshId = { makeid(6) }
+
+                ></ProvisionHistory>;
+            
+            } else { //this.state.doMode !== true
+
+                // if ( this.state.lists.length > 0) {
+                if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 ) {
+                    let listJSON = null; 
+                    let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] )) ;
+                    if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
+                    if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
+                    if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
+    
+                    listJSON = <div style={{ overflowY: 'auto' }}>
+                        <ReactJson src={ tempJSON } collapsed={ 1 } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                    </div>;
+    
+                    listDefinitionJSON =
+                     <div style={{display: '', marginBottom: '30px' }}>
+                            <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
+                        { listJSON }
+                    </div>;
+    
+                } 
+            }
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
@@ -519,27 +561,6 @@ public constructor(props:IProvisionListsProps){
                 </ul>
             </div>;
 
-            let listDetails = null;
-
-            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true ) {
-                let listJSON = null; 
-                       
-                let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] ));
-                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
-                if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
-                if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
-
-                listJSON = <div style={{ overflowY: 'auto' }}>
-                    <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                </div>;
-
-                listDetails = <div style={{display: '', marginBottom: '30px' }}>
-                         <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
-                        { listJSON }
-                    </div>;
-
-            } 
-
             const stackListTokens: IStackTokens = { childrenGap: 10 };
 
             thisPage = <div><div>{ disclaimers }</div>
@@ -549,22 +570,10 @@ public constructor(props:IProvisionListsProps){
                 <div> { provisionButtonRow } </div>
                 <div style={{ height:30} }> {  } </div>
 
-                <div style={{display: this.state.doMode === true ? '': 'none' }}>
-                        <div> { myProgress } </div>
-                        <div> {  } </div>
-                        <div> <h2>{ this.state.currentList }</h2> </div>
-                        <div>
-                        <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
-                            { errorList }
-                            { fieldList }
-                            { viewList }
-                            { itemList }
-                        </Stack>
-                        </div>
-                </div>
-                <div style={{display: this.state.doMode === true ? 'none': '' }}>
-                    { listDetails }
-                </div>
+                { historyStack }
+
+                { listDefinitionJSON }
+
             </div>;
 
 /***

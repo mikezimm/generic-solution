@@ -165,7 +165,6 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
 
     constructor(props: IProvisionHistoryProps) {
         super(props);
-        let listTitle = this.props.theList.Title;
 
         this.state = {
           history: this.props.history,

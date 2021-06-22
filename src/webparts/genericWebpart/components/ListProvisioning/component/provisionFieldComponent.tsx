@@ -61,6 +61,8 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../se
 
 import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
+import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from './provisionConstants';  
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88   88 88'     88      88  `8D 88'     88  `8D 88'  YP 
@@ -219,6 +221,9 @@ export interface IProvisionFieldsState {
     lists: IMakeThisList[];
     validUserIds: number[];
 
+    mainPivot: IMainPivot;
+    showMainWarning: boolean;
+
 }
 
 export default class ProvisionFields extends React.Component<IProvisionFieldsProps, IProvisionFieldsState> {
@@ -299,7 +304,7 @@ public constructor(props:IProvisionFieldsProps){
         alwaysReadOnly: alwaysReadOnly,
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
-        
+
         progress: null,
         history: clearHistory(),
 
@@ -335,7 +340,8 @@ public constructor(props:IProvisionFieldsProps){
         makeThisList: makeThisList,
 
         validUserIds: [],
-
+        mainPivot: pivotHeading1,
+        showMainWarning: true,
     };
 
     // because our event handler needs access to the component, bind
