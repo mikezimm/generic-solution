@@ -69,6 +69,7 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics, ApplyTemplate_Rail_SaveT
 
 import { fixTitleNameInViews  } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
+import ProvisionHistory from '../../../../../services/railsCommon/ProvisionHistoryPane';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -206,6 +207,9 @@ export interface IProvisionListsState {
     progress: IMyProgress;
     history: IMyHistory;
 
+    priorProgress: IMyProgress;
+    priorHistory: IMyHistory;
+
     doMode: boolean;
     doList: boolean;
     doFields: boolean;
@@ -304,8 +308,12 @@ public constructor(props:IProvisionListsProps){
         alwaysReadOnly: alwaysReadOnly,
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
+        
         progress: null,
         history: clearHistory(),
+
+        priorProgress: null,
+        priorHistory: clearHistory(),
 
         doMode: false,
         doList: true,

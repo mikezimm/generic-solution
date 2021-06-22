@@ -194,6 +194,9 @@ export interface IProvisionFieldsState {
     progress: IMyProgress;
     history: IMyHistory;
 
+    priorProgress: IMyProgress;
+    priorHistory: IMyHistory;
+
     doMode: boolean;
     doList: boolean;
     doFields: boolean;
@@ -296,8 +299,12 @@ public constructor(props:IProvisionFieldsProps){
         alwaysReadOnly: alwaysReadOnly,
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
+        
         progress: null,
         history: clearHistory(),
+
+        priorProgress: null,
+        priorHistory: clearHistory(),
 
         doMode: false,
         doList: doList,

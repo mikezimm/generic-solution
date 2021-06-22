@@ -221,6 +221,9 @@ export interface IProvisionItemsState {
     progress: IMyProgress;
     history: IMyHistory;
 
+    priorProgress: IMyProgress;
+    priorHistory: IMyHistory;
+    
     doMode: boolean;
     doItems: boolean;
     doEditMain: boolean;
@@ -384,8 +387,12 @@ public constructor(props:IProvisionItemsProps){
         alwaysReadOnly: alwaysReadOnly,
         currentList: '',
         allLoaded: this.props.allLoaded,
+
         progress: null,
         history: clearHistory(),
+
+        priorProgress: null,
+        priorHistory: clearHistory(),
 
         doMode: false,
         doItems: false,

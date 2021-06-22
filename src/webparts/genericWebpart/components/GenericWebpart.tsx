@@ -644,7 +644,6 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
           { this.props.urlVars['create'] ===  "true" ?
                 <PivotItem headerText="Create">
-
                     { contentsItems }  
                 </PivotItem>
           : null }
