@@ -137,7 +137,19 @@ export async function getSiteInfo( webUrl: string ) {
       errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 137', helpfulErrorEnd ].join('|') );
     }
   
-    const theSite = await thisSiteInstance.get();
+    let theSite = null;
+
+    try {
+        theSite = await thisSiteInstance.get();
+      } catch (e) {
+
+        let helpfulErrorEnd = [ webUrl, '', '', null, null ].join('|');
+
+        //Set alertMe = false because it was causing false positives when clicking to Site Contents from page with EasyContents on it.
+        console.log('---===>>>> getSiteInfo FAILED, NO Alert');
+        errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 148', helpfulErrorEnd ].join('|') );
+      }
+
  
     return theSite;
   
@@ -164,9 +176,24 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
         thisWebInstance = Web(webURL);
 
         if ( restFilter && restFilter.length > 0 ) {
-            allLists = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').filter( restFilter ).get();
+
+            try {
+                allLists = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').filter( restFilter ).get();
+              } catch (e) {
+        
+                let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
+                errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo GetLists With Filter ~ 182', helpfulErrorEnd ].join('|') );
+              }
+
         } else {
-            allLists = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').get();
+
+            try {
+                allLists = await thisWebInstance.lists.select('*,HasUniqueRoleAssignments').get();
+              } catch (e) {
+        
+                let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
+                errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo Get Lists No Filter ~ 192', helpfulErrorEnd ].join('|') );
+              }
         }
         //console.log(allLists);
 
@@ -226,8 +253,7 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
     } catch (e) {
             
         let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
-        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 229', helpfulErrorEnd ].join('|') );
-
+        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 252', helpfulErrorEnd ].join('|') );
 
         console.log('checkThisPage', errMessage);
         addTheseListsToState([], errMessage, theSite );
