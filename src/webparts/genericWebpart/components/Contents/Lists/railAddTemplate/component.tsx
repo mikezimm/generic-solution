@@ -73,7 +73,7 @@ import ReactJson from "react-json-view";
  *                                                                                                                                 
  */
 
-import { saveTheTime, getTheCurrentTime, saveAnalytics, AddTemplateSaveTitle, ProvisionListsSaveTitle } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, ApplyTemplate_Rail_SaveTitle, ProvisionListsSaveTitle } from '../../../../../../services/createAnalytics';
 
 import { createMainRailsWarningBar } from '../../../../../../services/railsCommon/RailsMainWarning';
 import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHistoryPane';
@@ -718,7 +718,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
     saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply , //analyticsWeb, analyticsList,
         ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
-        AddTemplateSaveTitle, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+        ApplyTemplate_Rail_SaveTitle, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
         this.props.theList.Title, null , 'Complete', //itemInfo1, itemInfo2, result, 
         mapThisList, this.props.railFunction, this.state.progress, this.state.history ); //richText, Setting, richText2, richText3
   }

@@ -17,7 +17,7 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 
 import { sp } from "@pnp/sp";
-import { Web, Lists, List } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, Lists, List, ISite } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import ReactJson from "react-json-view";
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
@@ -65,9 +65,10 @@ import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableIn
  */
 import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
-import { saveTheTime, getTheCurrentTime, saveAnalytics,  } from '../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, ApplyTemplate_Rail_SaveTitle } from '../../../../../services/createAnalytics';
 
 import { fixTitleNameInViews  } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
+
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -102,7 +103,9 @@ import { JSONEditorShort } from '../../HelpInfo/AllLinks';
  *                                                                                                                                               
  */
 //
+import * as strings from 'GenericWebpartWebPartStrings';
 
+import { IListRailFunction } from '../../Contents/Lists/listsComponent';
 import { provisionTheList, IValidTemplate } from './provisionWebPartList';
 
 import { getTheseDefinedLists, checkThisWeb } from './provisionFunctions';
@@ -189,6 +192,9 @@ export interface IProvisionListsProps {
 
     lists: IMakeThisList[];
 
+    theSite: ISite;
+    currentPage: string; //this.context.pageContext.web.absoluteUrl;
+
 }
 
 export interface IProvisionListsState {
@@ -240,7 +246,7 @@ export default class ProvisionLists extends React.Component<IProvisionListsProps
         return thisField;
     }
 
-    private captureAnalytics(itemInfo2, result, ActionJSON ){
+    private captureAnalytics(itemInfo2, result, RichText1 ){
         let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
 
         let TargetList = '';
@@ -257,11 +263,11 @@ export default class ProvisionLists extends React.Component<IProvisionListsProps
         }
 
         //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
-        saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
+        saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply, //analyticsWeb, analyticsList,
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionList', null, null ); //richText, Setting, richText2, richText3
+            RichText1, 'ProvisionList', null, null ); //richText, Setting, richText2, richText3
 
     }
 
@@ -668,6 +674,17 @@ public constructor(props:IProvisionListsProps){
         currentList: 'Finished ' + this.state.currentList,
     });
 
+    let theSite: any = this.props.theSite;
+    let ServerRelativeUrl = this.props.currentPage;
+    let pickedWeb = this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid + '|' + theSite.Url + '|' + theSite.Id ;
+
+    let railFunction : IListRailFunction = 'AddTemplate'; 
+    saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply , //analyticsWeb, analyticsList,
+        ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+        ApplyTemplate_Rail_SaveTitle, pickedWeb, mapThisList.listURL, //saveTitle, TargetSite, TargetList
+        mapThisList.title, null , 'Complete', //itemInfo1, itemInfo2, result, 
+        mapThisList, railFunction, this.state.progress, this.state.history ); //richText, Setting, richText2, richText3
+
   }
 
    /**
@@ -771,7 +788,9 @@ public constructor(props:IProvisionListsProps){
                 checkThisWeb(parseInt(i,10), testLists, definedList, this.updateStateLists.bind(this), getFullURLFromRelative( this.props.pickedWeb.url ) );
             }
         }
+
     }
+
 
     // private checkThisWeb(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ){
     //     const thisWeb = Web(testLists[index].webURL);

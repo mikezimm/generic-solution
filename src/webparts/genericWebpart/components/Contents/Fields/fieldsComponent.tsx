@@ -5,7 +5,7 @@ import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
 
 import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, Lists, ISite } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import { IFieldAddResult, FieldTypes, IFieldInfo, IField,
     ChoiceFieldFormatType,
@@ -116,6 +116,7 @@ export interface IInspectColumnsProps {
 
     pickedWeb? : IPickedWebBasic;
 
+    theSite: ISite;
     // 2 - Source and destination list information
 
 }

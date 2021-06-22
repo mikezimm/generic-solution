@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { sp, Views, IViews } from "@pnp/sp/presets/all";
+import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 
 // For Pivot VVVV
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
@@ -74,6 +74,7 @@ export interface IInspectContentsProps {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
     pickedWeb : IPickedWebBasic;
+    theSite: ISite;
 
     showPane: boolean;
     allLoaded: boolean;
@@ -224,6 +225,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allowOtherSites = { true }
                 allLoaded = { true }
                 pickedWeb = { this.props.pickedWeb }
+                theSite = { this.props.theSite }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
                 allowCrazyLink = { this.props.allowCrazyLink }
@@ -236,6 +238,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
         const webPage = validWeb !== true ? pickWebMessage : <div>
             <InspectThisSite 
                 siteOrWeb = { thisWebTab }
+                theSite = { this.props.theSite }
                 pageContext = { this.props.pageContext }
                 currentUser = { this.props.currentUser }
                 allowOtherSites = { true }
@@ -255,6 +258,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allowOtherSites = { true }
                 allLoaded = { true }
                 pickedWeb = { this.props.pickedWeb }
+                theSite = { this.props.theSite }
                 allowRailsOff = { this.state.allowRailsOff }
                 allowSettings = { this.state.allowSettings }
                 allowCrazyLink = { this.props.allowCrazyLink }
@@ -274,6 +278,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allowSettings = { this.state.allowSettings }
                 allowCrazyLink = { this.props.allowCrazyLink }
                 pickedWeb = { this.props.pickedWeb }
+                theSite = { this.props.theSite }
                 analyticsWeb= { this.props.analyticsWeb }
                 analyticsList= { this.props.analyticsList }
             ></InspectLists>
@@ -290,6 +295,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allowSettings = { this.state.allowSettings }
                 allowCrazyLink = { this.props.allowCrazyLink }
                 pickedWeb = { this.props.pickedWeb }
+                theSite = { this.props.theSite }
             ></InspectColumns>
         </div>;
 
@@ -301,6 +307,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allLoaded={false}
                 currentUser = {this.props.currentUser }
                 pickedWeb = { this.props.pickedWeb }
+                theSite = { this.props.theSite }
             ></InspectParts>
         </div>;
 
@@ -315,6 +322,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             allowSettings = { this.state.allowSettings }
             allowCrazyLink = { this.props.allowCrazyLink }
             pickedWeb = { this.props.pickedWeb }
+            theSite = { this.props.theSite }
         ></InspectViews>
     </div>;
 
@@ -328,6 +336,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 allowOtherSites={ false }
                 pageContext={ this.props.pageContext }
                 pickedWeb = { this.props.pickedWeb }
+                theSite = { this.props.theSite }
                 showPane={true}
                 allLoaded={false}
                 currentUser = {this.props.currentUser }
@@ -339,6 +348,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             allowOtherSites={ false }
             pageContext={ this.props.pageContext }
             pickedWeb = { this.props.pickedWeb }
+            theSite = { this.props.theSite }
             showPane={true}
             allLoaded={false}
             currentUser = {this.props.currentUser }
@@ -350,6 +360,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             allowOtherSites={ false }
             pageContext={ this.props.pageContext }
             pickedWeb = { this.props.pickedWeb }
+            theSite = { this.props.theSite }
             showPane={true}
             allLoaded={false}
             currentUser = {this.props.currentUser }

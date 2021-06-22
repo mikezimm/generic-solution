@@ -4,6 +4,8 @@ import { CompoundButton, Stack, IStackTokens, elementContains, initializeIcons }
 import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
 
+import { ISite } from "@pnp/sp/presets/all";
+
 import {  IViewInfo, } from "@pnp/sp/views/types";
 
 import "@pnp/sp/webs";
@@ -93,6 +95,7 @@ export interface IInspectViewsProps {
     
     pickedWeb? : IPickedWebBasic;
 
+    theSite: ISite;
     // 2 - Source and destination list information
 
 }

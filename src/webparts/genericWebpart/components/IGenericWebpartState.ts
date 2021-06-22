@@ -1,5 +1,7 @@
 import { IFormFields, IProjectFormFields } from './fields/fieldDefinitions';
 
+import { ISite } from "@pnp/sp/presets/all";
+
 import { ITheTime } from '@mikezimm/npmfunctions/dist/Services/Time/Interfaces';
 
 import { IChartSeries, ICharNote, } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCharts';
@@ -123,6 +125,8 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
     childListTitle: string;  // Static Name of list (for URL) - used for links and determined by first returned item
   
     pickedWeb : IPickedWebBasic;
+    theSite: ISite;
+
     isCurrentWeb: boolean;
 
     makeThisList: IMakeThisList;

@@ -88,6 +88,7 @@ export interface IInspectListsProps {
     allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
 
     pickedWeb : IPickedWebBasic;
+    theSite: ISite;
     analyticsWeb: string;
     analyticsList: string;
 
@@ -157,8 +158,6 @@ export interface IInspectListsState {
     lastCompare: string;
 
     applyTemplateError: string;
-
-    theSite: ISite;
 
   }
   
@@ -234,8 +233,6 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             secondJSON: null,
             compareError: '',
             lastCompare: null,
-            theSite: null,
-
             applyTemplateError: '',
 
         };
@@ -338,7 +335,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                             type = { this.state.panel.type }
                             analyticsWeb= { this.props.analyticsWeb }
                             analyticsList= { this.props.analyticsList }
-                            theSite={ this.state.theSite }
+                            theSite={ this.props.theSite }
                         ></CreateListPermissions>;
 
                 } else if ( this.state.railFunction === 'compareJSON' ) {
@@ -391,7 +388,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         currentPage= { this.props.pageContext.web.absoluteUrl }
                         analyticsWeb= { this.props.analyticsWeb }
                         analyticsList= { this.props.analyticsList }
-                        theSite={ this.state.theSite }
+                        theSite={ this.props.theSite }
                     ></MyAddListTemplate>;
                 } //
             }
@@ -605,7 +602,6 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             searchMeta: this.state.searchMeta,
             firstJSON: this.state.selectedEntity,
             secondJSON: allLists,
-            theSite: theSite ? theSite : this.state.theSite ,
         });
         return true;
     }

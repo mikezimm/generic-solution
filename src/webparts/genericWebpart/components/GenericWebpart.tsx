@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { sp, Views, IViews } from "@pnp/sp/presets/all";
+import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 
 // For Pivot VVVV
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
@@ -12,6 +12,8 @@ import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldSty
 import { Web, IWeb } from "@pnp/sp/presets/all";
 
 import { IconButton, IIconProps, IContextualMenuProps, Stack, Link } from 'office-ui-fabric-react';
+
+import { debounce } from "throttle-debounce";
 
 import styles from './GenericWebpart.module.scss';
 import { IGenericWebpartProps } from './IGenericWebpartProps';
@@ -67,6 +69,8 @@ import { cleanURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServic
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { BaseErrorTrace } from '../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
+
+import { getSiteInfo } from './Contents/Lists/listsFunction';
 
 const emptyString = (value: string | Date) : string => { return "";};
 
@@ -261,6 +265,8 @@ public constructor(props:IGenericWebpartProps){
         searchWhere: '',
 
         makeThisList: null,
+
+        theSite: null,
   
   };
 }
@@ -425,10 +431,14 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               lists = { [] }
 
               pickedWeb = { this.state.pickedWeb }
+              theSite = { this.state.theSite }
+              currentPage= { this.props.pageContext.web.absoluteUrl }
+
               isCurrentWeb = { this.state.isCurrentWeb }
               
               definedList = { availLists[0] }
               provisionListTitles = { [] }
+
 
             ></ProvisionLists>
           </div>;
@@ -447,6 +457,9 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           urlVars= { this.props.urlVars }
 
           pickedWeb = { this.state.pickedWeb }
+          theSite = { this.state.theSite }
+          currentPage= { this.props.pageContext.web.absoluteUrl }
+
           isCurrentWeb = { this.state.isCurrentWeb }
 
           allowOtherSites={ allowOtherSites }
@@ -549,6 +562,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           allLoaded={false}
           currentUser = {this.state.currentUser }
           pickedWeb = { this.state.pickedWeb }
+          theSite = { this.state.theSite }
           showSettings = { true }
           showRailsOff = { true }
           allowRailsOff = { this.props.allowRailsOff }
@@ -706,8 +720,11 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     );
   }
 
-  private async _onWebUrlChange(newValue: string){
+  private _onWebUrlChange(newValue: string){
+    debounce(250, this.debounce_onWebUrlChange( newValue ) );
+  }
 
+  private async debounce_onWebUrlChange(newValue: string){
       let errMessage = null;
       let stateError : any[] = [];
       const thisWebObject = Web( newValue );
@@ -748,9 +765,11 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
       }
 
+      let theSite: ISite = await getSiteInfo( newValue );
+
       let isCurrentWeb: boolean = false;
       if ( newValue.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
-      this.setState({ parentListWeb: newValue, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb });
+      this.setState({ parentListWeb: newValue, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite });
 
     return;
 

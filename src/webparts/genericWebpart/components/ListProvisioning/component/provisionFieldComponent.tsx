@@ -16,7 +16,7 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 
 import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, Lists, ISite } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import ReactJson from "react-json-view";
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
@@ -102,6 +102,8 @@ import { createBasicTextField, createMultiLineTextField } from  '../../fields/te
  *                                                                                                                                               
  */
 
+import * as strings from 'GenericWebpartWebPartStrings';
+
 import { provisionTheList, IValidTemplate } from './provisionWebPartList';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
@@ -177,6 +179,9 @@ export interface IProvisionFieldsProps {
     updateMakeThisList: any;
 
     lists: IMakeThisList[];
+
+    theSite: ISite;
+    currentPage: string; //this.context.pageContext.web.absoluteUrl;
 
 }
 

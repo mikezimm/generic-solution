@@ -77,7 +77,8 @@ export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, sa
  * @param theProps 
  * @param theState 
  */
-export const AddTemplateSaveTitle = 'Add Template';
+export const ApplyTemplate_Rail_SaveTitle = 'Apply Template Rail';
+export const ApplyTemplate_Page_SaveTitle = 'Apply Template Page';
 export const ProvisionListsSaveTitle = 'Provision Lists';
 export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, RichTextJSON1, Setting, RichTextJSON2, RichTextJSON3 ) {
 

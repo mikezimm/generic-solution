@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { sp, Views, IViews, IWebInfo, Web } from "@pnp/sp/presets/all";
+import { sp, Views, IViews, IWebInfo, Web, ISite } from "@pnp/sp/presets/all";
 
 // For Pivot VVVV
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
@@ -68,6 +68,7 @@ export interface IInspectThisSiteProps {
 
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
     pickedWeb? : IPickedWebBasic;
+    theSite: ISite;
     
     showPane?: boolean;
     allLoaded: boolean;
