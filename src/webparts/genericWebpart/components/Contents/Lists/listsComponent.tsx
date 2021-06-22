@@ -586,7 +586,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         let result : any = allAvailableLists( this.props.pickedWeb.url, null, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
     }
 
-    private addTheseListsToState( allLists , errMessage : string, theSite: ISite ) {
+    private addTheseListsToState( allLists , errMessage : string ) {
 
         let newFilteredItems : IContentsListInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allLists );
 

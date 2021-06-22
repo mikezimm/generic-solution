@@ -166,12 +166,8 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
     let scope = '';
     let errMessage = '';
     let allLists : IContentsListInfo[] = [];
-    let theSite: ISite = null;
-
 
     try {
-
-        theSite = await getSiteInfo( webURL );
 
         thisWebInstance = Web(webURL);
 
@@ -247,8 +243,8 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
 
         }
 
-        addTheseListsToState(allLists, errMessage, theSite);
-        return { allLists: allLists, errMessage: errMessage, theSite: theSite } ;
+        addTheseListsToState(allLists, errMessage);
+        return { allLists: allLists, errMessage: errMessage } ;
 
     } catch (e) {
             
@@ -256,8 +252,8 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
         errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 252', helpfulErrorEnd ].join('|') );
 
         console.log('checkThisPage', errMessage);
-        addTheseListsToState([], errMessage, theSite );
-        return { allLists: allLists, errMessage: errMessage, theSite: theSite } ;
+        addTheseListsToState([], errMessage );
+        return { allLists: allLists, errMessage: errMessage } ;
     }
 
 }
