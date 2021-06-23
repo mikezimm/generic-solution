@@ -42,6 +42,7 @@ import { getSiteAdmins } from '@mikezimm/npmfunctions/dist/Services/Users/userSe
 import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
 
 import { getPrincipalTypeString } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 
 /***
@@ -95,25 +96,11 @@ import { BaseErrorTrace } from '../../../../../../services/BaseErrorTrace';  //,
  export const ListSystemGroup = 'Limited Access System Group For List';
  export const WebSystemGroup = 'Limited Access System Group For Web';
 
-export function getFullURLFromRelative( relUrl : string ) {
-    let newURL = relUrl;
-
-    if ( relUrl.indexOf('/sites/') === 0 ) {
-        let domain = window.location.href.substr( 0, window.location.href.indexOf('/sites/') );
-        newURL = domain + relUrl;
-        console.log( 'updated Url to: ', newURL ) ;
-
-    } 
-
-    return newURL;
-
-}
-
 
 //export async function provisionTestPage( makeThisPage:  IContentsGroupInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
     export async function allAvailableRoleAssignments( webURL: string, listTitle: string, myPermissions: IMyPermissions, addThesePermissionsToState: any, setProgress: any, ) {
 
-        webURL = getFullURLFromRelative( webURL );
+        webURL = getFullUrlFromSlashSitesUrl( webURL );
 
         let webOrList = listTitle && listTitle.length > 0 && listTitle.toLowerCase() !== 'web' ? 'list' : 'web';
         let thisWebInstance = null;
@@ -497,7 +484,7 @@ export function getFullURLFromRelative( relUrl : string ) {
 
     export async function allWebLists( webURL: string, startPermissions: IPermissionLists, addTheseListsToState: any, setProgress: any, ) {
 
-        webURL = getFullURLFromRelative( webURL );
+        webURL = getFullUrlFromSlashSitesUrl( webURL );
         let thisWebInstance = null;
         let errMessage = '';
 

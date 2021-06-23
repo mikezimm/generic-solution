@@ -62,6 +62,10 @@ import ReactJson from "react-json-view";
 
  import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
+ import { cleanURL, cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { camelize } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -76,7 +80,10 @@ import ReactJson from "react-json-view";
 import { saveTheTime, getTheCurrentTime, saveAnalytics, ApplyTemplate_Rail_SaveTitle, ProvisionListsSaveTitle } from '../../../../../../services/createAnalytics';
 
 import { createMainRailsWarningBar } from '../../../../../../services/railsCommon/RailsMainWarning';
+import { getPageTogglesNew } from '../../../../../../services/railsCommon/TemplateToggles';
 import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHistoryPane';
+
+
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -95,7 +102,7 @@ import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHi
   
  import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from '../../../ListProvisioning/component/provisionConstants';  
 
-  import { getTheseDefinedLists, } from '../../../ListProvisioning/component/provisionFunctions';
+  import { getTheseDefinedLists, checkThisWeb } from '../../../ListProvisioning/component/provisionFunctions';
 
   import { provisionTheList, } from '../../../ListProvisioning/component/provisionWebPartList';
   import { fixTitleNameInViews  } from '../../../../../../services/listServices/viewServices'; //Import view arrays for Time list
@@ -106,6 +113,7 @@ import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHi
 
     import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../../services/railsCommon/ProvisionTypes';
 
+    import { createProvisionTitleBox, } from '../../../../../../services/railsCommon/updateListTitle';
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
@@ -195,6 +203,7 @@ export interface IMyAddListTemplateState {
     // 2 - Source and destination list information
     makeThisList: IMakeThisList;
     onCurrentSite: boolean;
+    provisionListTitle: string;
 
     progress: IMyProgress;
     history: IMyHistory;
@@ -203,6 +212,8 @@ export interface IMyAddListTemplateState {
     priorHistory: IMyHistory;
 
     lists: IMakeThisList[];
+
+    validUserIds: number[];
 
     definedList: IDefinedLists; 
     applyThisVersion: string; //should tell us what version of the defined list is picked.
@@ -288,6 +299,9 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             lists: theLists,
             definedList: definedList,
+
+            provisionListTitle: this.props.theList.Title,
+
             doMode: false,
             doList: doList,
             doFields: true,
@@ -295,6 +309,9 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             doItems: false,
             mainPivot: pivotHeading1,
             showMainWarning: true,
+
+            validUserIds: [],
+
         };
     }
         
@@ -372,7 +389,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             let historyStack = null;
             let listDefinitionJSON = null;
 
-            let theList : any = this.props.theList;
+            let theList : IContentsListInfo = this.props.theList;
 
             if (  this.state.doMode === true || this.state.mainPivot === 'History' ) {
 
@@ -425,9 +442,25 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 let listDropdown = this.state.mainPivot !== 'FullList' ? null : 
                     this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
     
+                let listTitle = createProvisionTitleBox( theList.Title, this.UpdateTitles, true, this.props.panelOrPage === 'panel' ? true : false  );
                 let createButton = <PrimaryButton text={ 'Apply Template' } onClick={ this.CreateList.bind(this) } allowDisabledFocus disabled={ this.state.doMode !== true ? true : false } checked={ false } />;
                 let cancelButton = <DefaultButton text={ 'Cancel' } onClick={ this.props._closePanel } allowDisabledFocus disabled={ false } checked={ false } />;
-                let toggles = <div style={ { display: 'inline-flex' , marginLeft: 0 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
+
+                let newToggles = getPageTogglesNew( 
+                    this.state.lists, 
+                    this.state.listNo,
+                    this.state.definedList, 
+                    'panel',
+                    this.state.doMode,
+                    null, //do not send doList because it needs the panel
+                    this.state.doFields,
+                    this.state.doViews,
+                    this.state.doItems,
+                    this.updateGenericToggle.bind(this), 
+                    null,
+                );
+
+                let toggles = <div style={ { display: 'inline-flex' , marginLeft: 0 }}> { newToggles } { createButton } { cancelButton } </div>;
     
                 let listDefinitionSelectPivot = 
                     <Pivot
@@ -472,6 +505,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 doInputs = <div>
                     <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '20px' }}>
                         <div style={{ float: 'left' }}> { listDropdown } </div>
+                        <div style={{ float: 'left' }}> { listTitle } </div>
                         <div style={{ paddingLeft: listDropdown === null ? '0px' : '60px' }}> { listDefinitionSelectPivot } </div>
                     </div>
 
@@ -605,6 +639,40 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         } 
 
     } 
+
+    private UpdateTitles( oldVal: any ) {
+
+        this.setState({ provisionListTitle: oldVal, });
+
+        let listName = cleanSPListURL(camelize(oldVal, true));
+
+        let definedList = this.state.definedList;
+
+        let provisionListTitles: string[] = [oldVal,oldVal,oldVal,oldVal,oldVal,oldVal];
+
+        let reDefinedLists = getTheseDefinedLists( definedList , false, provisionListTitles, this.state.validUserIds, this.props.pickedWeb.url, this.props.pageContext.web.absoluteUrl, this.state.doList, this.updateStateListsFromTitle.bind(this) );
+
+        reDefinedLists.map( theList => {
+            theList.name = listName;
+            theList.title = oldVal;
+            theList.desc = oldVal + ' list for this Webpart';
+            theList.template = this.state.doList === true ? 100 : 101 ;
+            theList.listURL =  ( this.props.pickedWeb.url ) + '/' + ( theList.template === 100 ? 'lists/' : '') + listName;
+        });
+
+        checkThisWeb(this.state.listNo, reDefinedLists, definedList, this.updateStateListsFromTitle.bind(this), getFullUrlFromSlashSitesUrl( this.props.pickedWeb.url ));
+
+      }
+
+      private updateStateListsFromTitle(index: number, testLists : IMakeThisList[], definedList: IDefinedLists) {
+        let stateLists = this.state.lists;
+        if (stateLists === undefined ) { stateLists = this.state.lists ; }
+        stateLists[index] = testLists[index];
+        this.setState({
+            lists: stateLists,
+            definedList: definedList,
+        });
+      }
 
     private async _selectedListDefIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
         //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));

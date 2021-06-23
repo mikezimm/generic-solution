@@ -1,7 +1,6 @@
+import * as React from 'react';
 
-
-import { IContentsToggles, makeToggles } from '../../webparts/genericWebpart/components/fields/toggleFieldBuilder';
-import { getTheseDefinedLists, } from '../../webparts/genericWebpart/components/ListProvisioning/component/provisionFunctions';
+import { IContentsToggles, IToggleItem, makeToggles } from '../../webparts/genericWebpart/components/fields/toggleFieldBuilder';
 
 import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../railsCommon/ProvisionTypes';
 
@@ -13,6 +12,7 @@ export function getPageTogglesNew(
   definedList: IDefinedLists, 
   panelOrPage: 'panel' | 'page',
   doMode: boolean,
+  doList: boolean,
   doFields: boolean,
   doViews: boolean,
   doItems: boolean,
@@ -22,7 +22,7 @@ export function getPageTogglesNew(
   ) {
 
     let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Mode</span>;
-    let togDoMode = {
+    let togDoMode: IToggleItem = {
         label: toggleLabel,
         disabled: definedList === availLists[0] ? true : false,
         key: 'togDoMode',
@@ -34,7 +34,18 @@ export function getPageTogglesNew(
         styles: '',
     };
 
-    let togDoFields = {
+    let togDoList: IToggleItem = {
+      label: doList === true ? 'Make List' : 'Make Library',
+      key: 'togDoList',
+      _onChange: updateTogggleDoList,
+      checked: doList,
+      onText: '-',
+      offText: '-',
+      className: '',
+      styles: '',
+    };
+
+    let togDoFields: IToggleItem = {
         label: `Fields (${lists.length > 0 ? lists[listNo].createTheseFields.length : 0 })`,
         key: 'togDoFields',
         _onChange: () => updateGenericToggle('togDoFields'),
@@ -45,7 +56,7 @@ export function getPageTogglesNew(
         styles: '',
     };
 
-    let togDoViews = {
+    let togDoViews: IToggleItem = {
         label: `Views (${lists.length > 0 ? lists[listNo].createTheseViews.length : 0 })`,
         key: 'togDoViews',
         _onChange: () => updateGenericToggle('togDoViews'),
@@ -56,10 +67,10 @@ export function getPageTogglesNew(
         styles: '',
     };
 
-    let togDoItems = {
+    let togDoItems: IToggleItem = {
         label: 'Items ' + ( lists && lists.length > 0 && listNo !== null? `(${lists[listNo].createTheseItems.length})` : '' ),
         key: 'togDoItems',
-        _onChange: () => this.updateGenericToggle('togDoItems'),
+        _onChange: () => updateGenericToggle('togDoItems'),
         checked: doItems,
         onText: 'Include',
         offText: 'Skip',
@@ -67,9 +78,14 @@ export function getPageTogglesNew(
         styles: '',
     };
 
-    let theseToggles = [togDoMode, togDoFields, togDoViews, ];
+    let theseToggles : IToggleItem[] = [ togDoMode ];
+    if ( doList !== null ) { theseToggles.push( togDoList ) ; }
+
+    theseToggles.push( togDoFields );
+    theseToggles.push( togDoViews );
+
     if ( panelOrPage === 'page' ) { theseToggles.push( togDoItems ) ; }
-    
+
     let pageToggles : IContentsToggles = {
         toggles: theseToggles,
         childGap: 20,
@@ -79,6 +95,8 @@ export function getPageTogglesNew(
         rootStyle: { width: 120, paddingTop: 0, paddingRight: 0, }, //This defines the styles on each toggle
     };
 
-    return pageToggles;
+    let toggleDiv = makeToggles( pageToggles );
+
+    return toggleDiv;
 
 }

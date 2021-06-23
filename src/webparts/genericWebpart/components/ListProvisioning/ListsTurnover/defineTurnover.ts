@@ -8,10 +8,8 @@ import { provisionTheList } from '../component/provisionWebPartList';
 
 import { TurnoverItems } from './ItemsWebPart';
 
-
 import { defineTheListMaster } from '../component/provisionWebPartList';
 import { getFieldNamesFromArray, getViewTitlesFromArray } from '../component/provisionFunctions';
-
 
 import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
 

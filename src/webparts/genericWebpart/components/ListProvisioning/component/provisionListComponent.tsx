@@ -52,6 +52,7 @@ import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServi
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import { getSiteUsers } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 
 import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
@@ -116,7 +117,7 @@ import { IListRailFunction } from '../../Contents/Lists/listsComponent';
 import { provisionTheList, } from './provisionWebPartList';
 
 import { getTheseDefinedLists, checkThisWeb } from './provisionFunctions';
-import { getFullURLFromRelative } from '../../Contents/Permissions/Services/Permissions';
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
@@ -288,7 +289,7 @@ public constructor(props:IProvisionListsProps){
 
     let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
 
-    let theLists = getTheseDefinedLists( definedList, true, this.props.provisionListTitles, [], this.props.pickedWeb.url, getFullURLFromRelative(this.props.pickedWeb.url), true, this.updateStateLists.bind(this) );
+    let theLists = getTheseDefinedLists( definedList, true, this.props.provisionListTitles, [], this.props.pickedWeb.url, getFullUrlFromSlashSitesUrl(this.props.pickedWeb.url), true, this.updateStateLists.bind(this) );
 
     let allowOtherSites = this.props.allowOtherSites === true ? true : false;
     let alwaysReadOnly = this.props.alwaysReadOnly === true ? true : false;
@@ -705,7 +706,7 @@ public constructor(props:IProvisionListsProps){
  *
  */
 
-    private _updateStateOnPropsChange(doThis: 'props' | 'state' ): void {
+    private async _updateStateOnPropsChange(doThis: 'props' | 'state' ) {
         console.log('_updateStateOnPropsChange:', doThis, this.props );
         let testLists : IMakeThisList[] = [];
         let definedList : IDefinedLists = null;
@@ -718,28 +719,19 @@ public constructor(props:IProvisionListsProps){
         }
 
         if ( this.state.validUserIds.length === 0 ) {
-            const thisWeb = Web( this.props.pickedWeb.url );
-            thisWeb.siteUsers.get().then((responseUsers) => {
-                let validUserIds : any[] = [];
-                responseUsers.map ( u => {
-                    if ( u.UserId !== null && u.UserPrincipalName !== null ) { validUserIds.push( u.Id ); }
-                });
-                console.log('validUserIds SiteUsers:', validUserIds );
-                this.setState({  validUserIds: validUserIds, });
-            }).catch((e) => {
-                let helpfulErrorEnd = [ 'Get Site Users', '', null, null ].join('|');
-                let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'provisionListComponent ~ 765', helpfulErrorEnd ].join('|') );
-                console.log('Not able to get SiteUsers', errMessage);
-            });
+
+            let validUsers = await getSiteUsers( this.props.pickedWeb.url, ['Id','Title','Name','Email'], true );
+
+            this.setState({  validUserIds: validUsers.Ids, });
+
         }
         if ( testLists.length > 0 ) {
             for ( let i in testLists ) {
-                checkThisWeb(parseInt(i,10), testLists, definedList, this.updateStateLists.bind(this), getFullURLFromRelative( this.props.pickedWeb.url ) );
+                checkThisWeb(parseInt(i,10), testLists, definedList, this.updateStateLists.bind(this), getFullUrlFromSlashSitesUrl( this.props.pickedWeb.url ) );
             }
         }
 
     }
-
 
     private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists) {
         let stateLists = this.state.lists;
@@ -835,7 +827,7 @@ public constructor(props:IProvisionListsProps){
             theList.listURL =  ( this.props.pickedWeb.url ) + '/' + ( theList.template === 100 ? 'lists/' : '') + listName;
         });
 
-        checkThisWeb(index, reDefinedLists, definedList, this.updateStateLists.bind(this), getFullURLFromRelative( this.props.pickedWeb.url ));
+        checkThisWeb(index, reDefinedLists, definedList, this.updateStateLists.bind(this), getFullUrlFromSlashSitesUrl( this.props.pickedWeb.url ));
 
       }
 

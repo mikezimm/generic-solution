@@ -37,8 +37,6 @@ import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListD
 
 import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
-
-
 export const IDescObject = {
     Components: {
         [ DefStatusField ]: '',
@@ -188,7 +186,14 @@ export function getTheseDefinedLists( defineThisList : IDefinedLists, justReturn
 
 }
 
-
+/**
+ * This function checks to see if all the lists in the testLists array exist on the site.
+ * @param index
+ * @param testLists 
+ * @param definedList 
+ * @param updateStateLists 
+ * @param webAbsoluteUrl 
+ */
 export function checkThisWeb(index: number, testLists : IMakeThisList[], definedList: IDefinedLists, updateStateLists: any, webAbsoluteUrl: string ){
   const thisWeb = Web(testLists[index].webURL);
   testLists[index].webExists = false;

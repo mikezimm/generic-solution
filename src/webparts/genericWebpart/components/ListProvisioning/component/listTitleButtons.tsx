@@ -75,6 +75,8 @@ import ProvisionHistory from '../../../../../services/railsCommon/ProvisionHisto
 
 import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from './provisionConstants';  
 
+import { createProvisionTitleBox, } from '../../../../../services/railsCommon/updateListTitle';
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88   88 88'     88      88  `8D 88'     88  `8D 88'  YP 
@@ -114,7 +116,7 @@ import { IListRailFunction } from '../../Contents/Lists/listsComponent';
 import { provisionTheList, } from './provisionWebPartList';
 
 import { getTheseDefinedLists, checkThisWeb } from './provisionFunctions';
-import { getFullURLFromRelative } from '../../Contents/Permissions/Services/Permissions';
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
@@ -215,9 +217,10 @@ export function createProvisionTitlesRow(
   //let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
 
   let provisionButtons = buttons.map ( ( theButton, index ) => {
-      let thisTitle = provisionListTitles[index];
-      let titleBox = createBasicTextField(createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], styles.listProvTextField1, index.toFixed() );
+
+      let titleBox = createProvisionTitleBox(provisionListTitles[index], lists[index], true, false );
       return <div style={{ paddingTop: '20px' }}><div> { titleBox }</div><ButtonCompound buttons={[theButton]} horizontal={true} /></div>;
+
   });
 
   let listLinks = lists.map( mapThisList => (
