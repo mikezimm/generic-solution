@@ -26,7 +26,7 @@ import { DueDateTMT, CompletedDateTMT, CompletedByTMT} from './columnsStatus';
 import { SortOrder, ActivityType, ActivityTMT, ActivtyURLCalc, OptionsTMT, OptionsTMTCalc,
 	ProjectEditOptions, HistoryTMT, TimeTarget, StepChecks} from './columnsAdvanced';
 
-import { DefStatusField, DefEffStatusField } from '../../ListProvisioning/component/provisionFunctions';
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 /***
  *     .d8b.  d8888b. d8888b.       d888b  d8888b.  .d88b.  db    db d8888b.      d8b   db  .d8b.  .88b  d88. d88888b 

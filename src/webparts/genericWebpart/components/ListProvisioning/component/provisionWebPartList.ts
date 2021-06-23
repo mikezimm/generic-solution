@@ -74,7 +74,9 @@ import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from './provi
  */
 
 
-import { IDefinedLists } from './provisionFunctions';
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -87,41 +89,6 @@ import { IDefinedLists } from './provisionFunctions';
  *                                                                                                                                               
  */
 
-export type IValidTemplate = 100 | 101;
-
-export interface IMakeThisList {
-
-    title: string;
-    name: string;
-    webURL: string;
-    listURL: string;
-    desc: string;
-    template: IValidTemplate;  // listURL, template
-    enableContentTypes: boolean;
-    additionalSettings: { 
-        EnableVersioning: boolean;
-        MajorVersionLimit: number;
-        OnQuickLaunch: boolean;
-     };
-    createTheseFields: IMyFieldTypes[];
-    createTheseViews: IMyView[];
-    createTheseItems: IAnyArray;
-    autoItemCreate: boolean;
-    alternateItemCreateMessage?: string;
-    confirmed: boolean;
-    onCurrentSite: boolean;
-    webExists: boolean;
-    listExists: boolean;
-    listExistedB4: boolean;
-    existingTemplate: number;
-    sameTemplate: boolean;
-    listDefinition: string;
-    definedList: IDefinedLists;
-    validUserIds?: number[];
-    templateDesc: any;
-    templateDetails: any;
-
-}
 export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean, requireAll: boolean = true ): Promise<IServiceLog[]>{
 
     let statusLog : IServiceLog[] = [];

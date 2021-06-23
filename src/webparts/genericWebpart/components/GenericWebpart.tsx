@@ -45,14 +45,14 @@ import ProvisionLists from './ListProvisioning/component/provisionListComponent'
 import ProvisionFields from './ListProvisioning/component/provisionFieldComponent';
 import ProvisionItems from './ListProvisioning/component/provisionItemsComponent';
 
-import { IDefinedLists, availLists, definedLists, } from './ListProvisioning/component/provisionFunctions';
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../services/railsCommon/ProvisionTypes';
 
 import InspectContents from './Contents/contentsComponent';
 
-import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
-
 import { createIconButton , defCommandIconStyles} from "./createButtons/IconButton";
-
 
 //These are for provisionPages
 import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/component/provisionPageComponent';

@@ -3,16 +3,16 @@ import { CustReqFields, } from './columnsCustReq'; //Import column arrays (one f
 
 import { CustReqViews,  } from './viewsCustReq';  //Import view arrays for Project list
 
-import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
+import { provisionTheList  } from '../component/provisionWebPartList';
 
 // definedList: 'PreConfig',
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 import { getFieldNamesFromArray, getViewTitlesFromArray } from '../component/provisionFunctions';
 
-export type IValidTemplate = 100 | 101;
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
 
-export type IListDefintionCustReq = 'Program' | 'SORInfo' ;
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionCustReq , webURL: string, currentUser:  number[], pageURL: string ) {

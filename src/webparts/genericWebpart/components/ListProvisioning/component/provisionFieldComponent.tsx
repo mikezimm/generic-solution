@@ -106,7 +106,7 @@ import { createBasicTextField, createMultiLineTextField } from  '../../fields/te
 
 import * as strings from 'GenericWebpartWebPartStrings';
 
-import { provisionTheList, IValidTemplate } from './provisionWebPartList';
+import { provisionTheList, } from './provisionWebPartList';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
@@ -114,7 +114,7 @@ import styles from './provisionList.module.scss';
 
 import MyLogList from './listView';
 
-import { IMakeThisList } from './provisionWebPartList';
+
 import { getTheseDefinedLists } from './provisionFunctions';
 
 import { JSONEditorShort } from '../../HelpInfo/AllLinks';
@@ -146,7 +146,10 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
  */
 
 import { dropDownWidth } from './provisionListComponent';
-import { IDefinedLists, availLists, definedLists, } from './provisionFunctions';
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 
 export interface IProvisionFieldsProps {

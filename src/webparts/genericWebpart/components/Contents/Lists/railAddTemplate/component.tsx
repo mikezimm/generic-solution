@@ -95,12 +95,16 @@ import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHi
   
  import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from '../../../ListProvisioning/component/provisionConstants';  
 
-  import { IDefinedLists, availLists, definedLists, getTheseDefinedLists, availComponents } from '../../../ListProvisioning/component/provisionFunctions';
+  import { getTheseDefinedLists, } from '../../../ListProvisioning/component/provisionFunctions';
 
-  import { provisionTheList, IValidTemplate } from '../../../ListProvisioning/component/provisionWebPartList';
-  import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
+  import { provisionTheList, } from '../../../ListProvisioning/component/provisionWebPartList';
   import { fixTitleNameInViews  } from '../../../../../../services/listServices/viewServices'; //Import view arrays for Time list
   import MyLogList from '../../../ListProvisioning/component/listView';
+
+    
+    import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../../services/railsCommon/ProvisionTypes';
+
+    import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../../services/railsCommon/ProvisionTypes';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -883,14 +887,24 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     //            let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
         private getPageToggles() {
+            
+            const lists = this.state.lists;
+            const listNo = this.state.listNo;
+            const definedList = this.state.definedList;
+            const panelOrPage = this.props.panelOrPage;
+
+            const doMode = this.state.doMode;
+            const doFields = this.state.doFields;
+            const doViews = this.state.doViews;
+            const doItems = this.state.doItems;
 
             let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Mode</span>;
             let togDoMode = {
                 label: toggleLabel,
-                disabled: this.state.definedList === availLists[0] ? true : false,
+                disabled: definedList === availLists[0] ? true : false,
                 key: 'togDoMode',
                 _onChange: () => this.updateGenericToggle('togDoMode'),
-                checked: this.state.doMode,
+                checked: doMode,
                 onText: 'Build',
                 offText: 'Design',
                 className: '',
@@ -898,10 +912,10 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             };
 
             let togDoFields = {
-                label: `Fields (${this.state.lists.length > 0 ? this.state.lists[this.state.listNo].createTheseFields.length : 0 })`,
+                label: `Fields (${lists.length > 0 ? lists[listNo].createTheseFields.length : 0 })`,
                 key: 'togDoFields',
                 _onChange: () => this.updateGenericToggle('togDoFields'),
-                checked: this.state.doFields,
+                checked: doFields,
                 onText: 'Include',
                 offText: 'Skip',
                 className: '',
@@ -909,30 +923,29 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             };
 
             let togDoViews = {
-                label: `Views (${this.state.lists.length > 0 ? this.state.lists[this.state.listNo].createTheseViews.length : 0 })`,
+                label: `Views (${lists.length > 0 ? lists[listNo].createTheseViews.length : 0 })`,
                 key: 'togDoViews',
                 _onChange: () => this.updateGenericToggle('togDoViews'),
-                checked: this.state.doViews,
+                checked: doViews,
                 onText: 'Include',
                 offText: 'Skip',
                 className: '',
                 styles: '',
             };
 
-            
-            // let togDoItems = {
-            //     label: 'Items ' + ( this.state.lists && this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseItems.length})` : '' ),
-            //     key: 'togDoItems',
-            //     _onChange: this.updateTogggleDoItems.bind(this),
-            //     checked: this.state.doItems,
-            //     onText: 'Include',
-            //     offText: 'Skip',
-            //     className: '',
-            //     styles: '',
-            // };
+            let togDoItems = {
+                label: 'Items ' + ( lists && lists.length > 0 && listNo !== null? `(${lists[listNo].createTheseItems.length})` : '' ),
+                key: 'togDoItems',
+                _onChange: () => this.updateGenericToggle('togDoItems'),
+                checked: doItems,
+                onText: 'Include',
+                offText: 'Skip',
+                className: '',
+                styles: '',
+            };
 
             let theseToggles = [togDoMode, togDoFields, togDoViews, ];
-
+            if ( panelOrPage === 'page' ) { theseToggles.push( togDoItems ) ; }
             let pageToggles : IContentsToggles = {
                 toggles: theseToggles,
                 childGap: 20,

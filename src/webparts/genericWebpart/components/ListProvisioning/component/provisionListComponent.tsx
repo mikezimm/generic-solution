@@ -113,7 +113,7 @@ import { createProvisionTitlesRow } from './listTitleButtons';
 import * as strings from 'GenericWebpartWebPartStrings';
 
 import { IListRailFunction } from '../../Contents/Lists/listsComponent';
-import { provisionTheList, IValidTemplate } from './provisionWebPartList';
+import { provisionTheList, } from './provisionWebPartList';
 
 import { getTheseDefinedLists, checkThisWeb } from './provisionFunctions';
 import { getFullURLFromRelative } from '../../Contents/Permissions/Services/Permissions';
@@ -125,7 +125,7 @@ import styles from './provisionList.module.scss';
 import MyLogList from './listView';
 
 
-import { IMakeThisList } from './provisionWebPartList';
+
 
 
 /***
@@ -159,7 +159,9 @@ import * as dReps from '../ListsReports/defineReports';
 //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
 import * as dPivT from '../PivotTiles/definePivotTiles';
 
-import { IDefinedLists, availLists, definedLists, } from './provisionFunctions';
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 export const dropDownWidth = 200;
 
@@ -409,12 +411,12 @@ public constructor(props:IProvisionListsProps){
             let thisPage = null;
             let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
 
-            let createButtonOnClicks = [
+            const createButtonOnClicks = [
                 this.CreateList_0.bind(this),
                 this.CreateList_1.bind(this),
                 this.CreateList_2.bind(this),
             ];
-            let updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
+            const updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
 
             let doInputs = createProvisionTitlesRow( 
                 this.state.provisionListTitles, 
@@ -568,6 +570,7 @@ public constructor(props:IProvisionListsProps){
 
     if ( this.state.doMode === true ) {
         
+        //Moved this above the provisionTheList because it was modifying mapThisList on the fly.
         let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
         this.setState({
             currentList: workingMessage + listName,
@@ -873,7 +876,7 @@ public constructor(props:IProvisionListsProps){
                 styles: '',
             };
 
-            let listNo = this.state.listNo; 
+            let listNo = this.state.listNo;
             let togDoFields = {
                 label: 'Fields ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseFields.length})` : '' ),
                 key: 'togDoFields',
@@ -895,7 +898,6 @@ public constructor(props:IProvisionListsProps){
                 className: '',
                 styles: '',
             };
-
             
             let togDoItems = {
                 label: 'Items ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseItems.length})` : '' ),

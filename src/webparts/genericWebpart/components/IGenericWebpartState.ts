@@ -14,7 +14,7 @@ import { IMyPivots, ILink} from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 
 import { ISelectedUser, } from './Charts/charts';
 
-import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
+import { IMakeThisList, } from '../../../services/railsCommon/ProvisionTypes';
 
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
 

@@ -106,9 +106,11 @@ import { createIconButton } from '../../createButtons/IconButton';
 
 import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
-import { DefStatusField, DefEffStatusField } from './provisionFunctions';
-
 import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from './provisionConstants';  
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -121,7 +123,7 @@ import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from './provi
  *                                                                                                                                               
  */
 
-import { provisionTheList, IValidTemplate } from './provisionWebPartList';
+import { provisionTheList, } from './provisionWebPartList';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
@@ -132,7 +134,7 @@ import { IPageProvisionPivots } from '../../PageProvisioning/component/provision
 
 import MyLogList from './listView';
 
-import { IMakeThisList } from './provisionWebPartList';
+
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -174,7 +176,7 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
  * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
  */
-import { IDefinedLists, availLists, definedLists, } from './provisionFunctions';
+
 import { dropDownWidth } from './provisionListComponent';
 
 export interface IProvisionItemsProps {
@@ -258,7 +260,7 @@ export interface IProvisionItemsState {
 
     mainPivot: IMainPivot;
     showMainWarning: boolean;
-    
+
 }
 
 export type IItemMode = 'Define' | 'Create' | typeof DefStatusField | 'History';

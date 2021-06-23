@@ -39,7 +39,10 @@ import {
     PhaseDateRequirementCReq , RequirementDatePhaseCReq
 } from './columnsCustReq';
 
-import { IListDefintionCustReq } from './defineCustReq';
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 export const stdViewFieldsProg = [ootbID, DocSubjectCReq, ProgramCReq, ProductItemCReq, MYCReq, ootbCreated, ootbVersion ];
 export const stdViewFieldsStat = [ootbID, DocSubjectCReq, ProgramCReq, ProductItemCReq, MYCReq, IssueDateCReq, QuotePhaseCReq, RequirementNoCReq, ootbVersion ];

@@ -111,7 +111,7 @@ import { JSONEditorShort } from '../../HelpInfo/AllLinks';
 import * as strings from 'GenericWebpartWebPartStrings';
 
 import { IListRailFunction } from '../../Contents/Lists/listsComponent';
-import { provisionTheList, IValidTemplate } from './provisionWebPartList';
+import { provisionTheList, } from './provisionWebPartList';
 
 import { getTheseDefinedLists, checkThisWeb } from './provisionFunctions';
 import { getFullURLFromRelative } from '../../Contents/Permissions/Services/Permissions';
@@ -122,8 +122,10 @@ import styles from './provisionList.module.scss';
 
 import MyLogList from './listView';
 
-import { IMakeThisList } from './provisionWebPartList';
-import { IDefinedLists, availLists, definedLists, } from './provisionFunctions';
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 export function createTitleField( title ) {
   let thisField : IFieldDef = {
@@ -159,7 +161,7 @@ export function createProvisionTitlesRow(
     provisionListTitles: string[], 
     lists: IMakeThisList[], 
     definedList: IDefinedLists, 
-    createButtonOnClicks: any[] , 
+    createButtonOnClicks: any[], 
     updateTitleFunctions: any[],
     alwaysReadOnly: boolean, isCurrentWeb: boolean, allowOtherSites: boolean
   ) {
@@ -214,7 +216,7 @@ export function createProvisionTitlesRow(
 
   let provisionButtons = buttons.map ( ( theButton, index ) => {
       let thisTitle = provisionListTitles[index];
-      let titleBox = createBasicTextField(createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], styles.listProvTextField1 );
+      let titleBox = createBasicTextField(createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], styles.listProvTextField1, index.toFixed() );
       return <div style={{ paddingTop: '20px' }}><div> { titleBox }</div><ButtonCompound buttons={[theButton]} horizontal={true} /></div>;
   });
 
