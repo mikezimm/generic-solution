@@ -370,6 +370,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                      * Just put "railsPanel = ".... and it fixed it :)
                      */
                     railsPanel = <MyAddListTemplate
+                        panelOrPage={ 'panel'}
                         wpContext={  this.props.wpContext }
                         pageContext={ this.props.pageContext }
                         allowOtherSites={ this.state.allowOtherSites }

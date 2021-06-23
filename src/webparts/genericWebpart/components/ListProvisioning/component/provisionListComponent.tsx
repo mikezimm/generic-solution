@@ -97,6 +97,8 @@ import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
 import { JSONEditorShort } from '../../HelpInfo/AllLinks';
 
+import { createProvisionTitlesRow } from './listTitleButtons';
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
@@ -241,21 +243,6 @@ export interface IProvisionListsState {
 }
 
 export default class ProvisionLists extends React.Component<IProvisionListsProps, IProvisionListsState> {
-
-    private createTitleField( title ) {
-        let thisField : IFieldDef = {
-            name: title,
-            title: null,
-            column: title,
-            type: 'String', //Smart, Text, Number, etc...
-            required: true,
-            disabled: false,
-            hidden: false,
-            blinkOnProject: null,
-            value: title,
-        };
-        return thisField;
-    }
 
     private captureAnalytics(itemInfo2, result, RichText1 ){
         let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
@@ -427,75 +414,17 @@ public constructor(props:IProvisionListsProps){
                 this.CreateList_1.bind(this),
                 this.CreateList_2.bind(this),
             ];
-
-            const buttons: ISingleButtonProps[] = this.state.lists.map (( thelist, index ) => {
-                let theLabel = null;
-                let isDisabled = !thelist.webExists;
-
-                if ( this.state.definedList === availLists[0] ) {
-                    isDisabled = true;
-                    theLabel = availLists[0];
-
-                } else if ( thelist.webExists ) {
-                    if ( thelist.title === '' ) {
-                        theLabel = "Update Title";
-                        isDisabled = true;
-
-                    } else if ( this.isListReadOnly(thelist) === false ) {
-
-                        if ( thelist.listExists === true ) {
-                            if ( thelist.sameTemplate === true ) {
-                                theLabel = "UPDATE to " + thelist.listDefinition;
-
-                            } else {
-                                theLabel = "Not a " + ( thelist.template === 100 ? "List" : "Library" );
-                                isDisabled = true;
-                            }
-
-                        } else {
-                            theLabel = "Create as " + thelist.listDefinition;
-                        }
-
-                    } else {
-                        if ( thelist.listExists === true ) {
-                            theLabel = "Verify as " + thelist.listDefinition;
-                            console.log('render theList:', thelist ) ;
-
-                        } else {
-                            theLabel = "Can't verify List";
-                            isDisabled = true;
-                        }
-                    }
-                } else {
-                    theLabel = thelist.title + ' web does not exist!';
-                }
-
-                return {     disabled: isDisabled,  checked: true, primary: false,
-                    label: theLabel, buttonOnClick: createButtonOnClicks[index], };
-            });
-
-            //let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
             let updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
-            let provisionButtons = buttons.map ( ( theButton, index ) => {
-                let thisTitle = this.state.provisionListTitles[index];
-                let titleBox = createBasicTextField(this.createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], styles.listProvTextField1 );
-                return <div style={{ paddingTop: '20px' }}><div> { titleBox }</div><ButtonCompound buttons={[theButton]} horizontal={true} /></div>;
-            });
 
+            let doInputs = createProvisionTitlesRow( 
+                this.state.provisionListTitles, 
+                this.state.lists, 
+                this.state.definedList, 
+                createButtonOnClicks , 
+                updateTitleFunctions,
+                this.state.alwaysReadOnly, this.props.isCurrentWeb, this.props.allowOtherSites,
+              );
 
-            let listLinks = this.state.lists.map( mapThisList => (
-                mapThisList.listExists ? links.createLink( mapThisList.listURL.replace('_layouts/15/undefined',''), '_none',  'Go to: ' + mapThisList.title ) : null ));
-
-            const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
-
-            let provisionButtonRow = <Stack horizontal={true} wrap={true} horizontalAlign={"start"} verticalAlign= {"center"} tokens={stackProvisionTokens}>{/* Stack for Buttons and Fields */}
-                    { provisionButtons }
-                    { listLinks }
-                    {  }
-                </Stack>;
-
-
-            let doInputs = null;
             let historyStack = null;
             let listDefinitionJSON = null;
 
@@ -567,7 +496,7 @@ public constructor(props:IProvisionListsProps){
 
                 <div style={{ float: 'left' }}> { listDropdown } </div>
                 <div> { toggles } </div>
-                <div> { provisionButtonRow } </div>
+                <div> { doInputs } </div>
                 <div style={{ height:30} }> {  } </div>
 
                 { historyStack }

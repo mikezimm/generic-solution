@@ -162,6 +162,8 @@ export interface IMyAddListTemplateProps {
     theSite: ISite;
     currentPage: string; //this.context.pageContext.web.absoluteUrl;
 
+    panelOrPage: 'panel' | 'page';
+
   }
 
 export function buildMainPivotDescriptions() {
@@ -550,42 +552,52 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             </div>;
 
             let panelHeader = this.headingDesc[ this.state.mainPivot ] ;
-            return (
-                <div><Panel
-                        isOpen={ this.props.showPanel }
-                        // this prop makes the panel non-modal
-                        isBlocking={true}
-                        onDismiss={ this.props._closePanel }
-                        closeButtonAriaLabel="Close"
-                        type = { this.props.type }
-                        isLightDismiss = { true }
-                        headerText = { panelHeader }
-                        >
-                        { panelContent }
 
-                    </Panel>
-                </div>
+            if ( this.props.panelOrPage === 'panel' ) {
+                return (
+                    <div><Panel
+                            isOpen={ this.props.showPanel }
+                            // this prop makes the panel non-modal
+                            isBlocking={true}
+                            onDismiss={ this.props._closePanel }
+                            closeButtonAriaLabel="Close"
+                            type = { this.props.type }
+                            isLightDismiss = { true }
+                            headerText = { panelHeader }
+                            >
+                            { panelContent }
+    
+                        </Panel>
+                    </div>
+    
+                );
+            } else {
+                return ( <div> { panelContent } </div>);
+            }
 
-            );
 
         } else { //No list was detected
 
-            // <div className={ styles.container }></div>
-            return ( <div className={ '' }>
-                    <Panel
-                        isOpen={ this.props.showPanel }
-                        // this prop makes the panel non-modal
-                        isBlocking={true}
-                        onDismiss={ this.props._closePanel }
-                        closeButtonAriaLabel="Close"
-                        type = { this.props.type }
-                        isLightDismiss = { true }
-                        headerText = { 'Ooops!' }
-                        >
-                            { 'OOPS!  We don\'t have a list to show you right now :(' }
+            if ( this.props.panelOrPage === 'panel' ) {
+                return ( <div className={ '' }>
+                        <Panel
+                            isOpen={ this.props.showPanel }
+                            // this prop makes the panel non-modal
+                            isBlocking={true}
+                            onDismiss={ this.props._closePanel }
+                            closeButtonAriaLabel="Close"
+                            type = { this.props.type }
+                            isLightDismiss = { true }
+                            headerText = { 'Ooops!' }
+                            >
+                                { 'OOPS!  We don\'t have a list to show you right now :(' }
 
-                        </Panel>
-                </div> );
+                            </Panel>
+                    </div> );
+
+            } else {
+                return ( <div> { 'OOPS!  We don\'t have a list to show you right now :(' } </div>);
+            }
         } 
 
     } 
