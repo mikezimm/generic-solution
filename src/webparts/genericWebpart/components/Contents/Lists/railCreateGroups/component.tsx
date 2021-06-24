@@ -578,10 +578,10 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
 
         if ( currentStep.label === 'Complete' ) {
             //Save to assist log
-            saveAssist( '/sites/SharePointAssist/', 'Assists' , //analyticsWeb, analyticsList,
+            saveAssist( strings.requestListSite, strings.requestListList , //analyticsWeb, analyticsList,
                 ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
                 'Created Library Permission Groups: ' + currentStep.value1, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
-                currentStep.value1, ['2. Permissions'], currentStep.current.key, //itemInfo1, itemInfo2, result, 
+                currentStep.value1, ['2. Permissions'], currentStep.current.key, //itemInfo1 ( Not used yet ), itemInfo2 ( Scope array ), result ( Not used yet ), 
                 JSON.stringify(currentStep), this.props.railFunction, null, null ); //richText, Setting, richText2, richText3
         }
         

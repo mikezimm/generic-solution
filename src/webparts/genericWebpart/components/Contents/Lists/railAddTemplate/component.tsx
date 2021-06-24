@@ -77,7 +77,7 @@ import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Service
  *                                                                                                                                 
  */
 
-import { saveTheTime, getTheCurrentTime, saveAnalytics, ApplyTemplate_Rail_SaveTitle, ProvisionListsSaveTitle } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, ApplyTemplate_Rail_SaveTitle, ProvisionListsSaveTitle, saveAssist } from '../../../../../../services/createAnalytics';
 
 import { createMainRailsWarningBar } from '../../../../../../services/railsCommon/RailsMainWarning';
 import { getPageTogglesNew } from '../../../../../../services/railsCommon/TemplateToggles';
@@ -802,6 +802,12 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
         ApplyTemplate_Rail_SaveTitle, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
         this.props.theList.Title, null , 'Complete', //itemInfo1, itemInfo2, result, 
         mapThisList, this.props.railFunction, this.state.progress, this.state.history ); //richText, Setting, richText2, richText3
+
+    saveAssist( strings.requestListSite, strings.requestListList , //analyticsWeb, analyticsList,
+        ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+        `Applied Template: ${mapThisList.definedList} to List: ${mapThisList.title}` , pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+        '', ['2. Provisioning'], '', //itemInfo1 ( Not used yet ), itemInfo2 ( Scope array ), result ( Not used yet ), 
+        null, this.props.railFunction, null, null ); //richText, Setting, richText2, richText3
   }
 
    /**

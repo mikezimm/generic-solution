@@ -203,6 +203,13 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
  * So it's only going to execute in certain tenanats.
  * If you see this and want to re-purpose it, update the function to suit your needs and adjust the window.location.origin check
  * 
+ * Best practice is just to update your site and list Url in strings:
+ *  Or just create the site:  SharePointAssist
+ *  And create the list:  Assists
+ *  And add the columns listed below in the save item
+    "requestListSite": "/sites/SharePointAssist",
+    "requestListList": "Assists",
+ * 
 */
 export function saveAssist ( analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2: string[], result, RichTextJSON1, Setting, RichTextJSON2, RichTextJSON3 ) {
 
@@ -221,15 +228,14 @@ export function saveAssist ( analyticsWeb, analyticsList, SiteLink, webTitle, sa
     let ScopeArray: string[] = itemInfo2;
     let saveItem: any ={
         Title: saveTitle,
-        // PageLink: getCurrentPageLink(),
         Scope:  { results: ScopeArray },  //Need to add scope back in as multi-select choice.
-        Status: '4. Completed',
-        Complexity: '0 Automation',
-        StatusComments: StatusComments,
-        StartDate: localTimeString,
-        EndDate: localTimeString,
-        TargetCompleteDate: localTimeString,
-        Location: location,
+        Status: '4. Completed', //Choice
+        Complexity: '0 Automation', //Choice
+        StatusComments: StatusComments, //Mulit-Line Text (plain text)
+        StartDate: localTimeString, //Date-Time
+        EndDate: localTimeString, //Date-Time
+        TargetCompleteDate: localTimeString, //Date-Time
+        Location: location, //Link
     };
 
     saveThisLogItem( analyticsWeb + '', analyticsList + '', saveItem );
