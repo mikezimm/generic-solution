@@ -218,7 +218,7 @@ export function createProvisionTitlesRow(
 
   let provisionButtons = buttons.map ( ( theButton, index ) => {
 
-      let titleBox = createProvisionTitleBox(provisionListTitles[index], lists[index], true, false );
+      let titleBox = createProvisionTitleBox(provisionListTitles[index], updateTitleFunctions[index], true, false );
       return <div style={{ paddingTop: '20px' }}><div> { titleBox }</div><ButtonCompound buttons={[theButton]} horizontal={true} /></div>;
 
   });
