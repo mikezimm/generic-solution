@@ -99,7 +99,7 @@ import { createMainRailsWarningBar } from '../../../../../../services/railsCommo
  *                                                                                                                                               
  *                                                                                                                                               
  */
-import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, saveAssist } from '../../../../../../services/createAnalytics';
 
 
 import { IListRailFunction } from '../listsComponent';
@@ -575,6 +575,15 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             currentStep.label, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
             currentStep.value1, value2, currentStep.current.key, //itemInfo1, itemInfo2, result, 
             JSON.stringify(currentStep), this.props.railFunction, null, null ); //richText, Setting, richText2, richText3
+
+        if ( currentStep.label === 'Complete' ) {
+            //Save to assist log
+            saveAssist( '/sites/SharePointAssist/', 'Assists' , //analyticsWeb, analyticsList,
+                ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+                'Created Library Permission Groups: ' + currentStep.value1, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+                currentStep.value1, ['2. Permissions'], currentStep.current.key, //itemInfo1, itemInfo2, result, 
+                JSON.stringify(currentStep), this.props.railFunction, null, null ); //richText, Setting, richText2, richText3
+        }
         
     }
 

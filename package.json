@@ -19,7 +19,7 @@
     "@microsoft/sp-webpart-base": "1.10.0",
     "@mikezimm/npmfunctions": "^1.0.89",
     "@pnp/graph": "^2.0.7",
-    "@pnp/sp": "^2.0.7",
+    "@pnp/sp": "^2.6.0",
     "@pnp/spfx-controls-react": "1.19.0",
     "@pnp/spfx-property-controls": "^1.19.0",
     "@types/es6-promise": "0.0.33",

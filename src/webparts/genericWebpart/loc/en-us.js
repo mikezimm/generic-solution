@@ -18,6 +18,9 @@ define([], function() {
     "analyticsListPermissionsHistory": "PermissionsHistory",
     "analyticsListErrors": "ErrorLog",
 
+    "requestListSite": "/sites/SharePointAssist",
+    "requestListList": "Assists",
+
     "analyticsWeb": "/sites/Templates/Analytics/",
     "patternsWeb": "/sites/Patterns/", //Must end in slash :)
     "minClickWeb": "",

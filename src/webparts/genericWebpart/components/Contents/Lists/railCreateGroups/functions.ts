@@ -163,7 +163,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
     try {
       // Gets the associated owners group of a web
-      const list: IList = listInstance.list
+      const list: IList = listInstance.list;
       let ras = await listInstance.roleAssignments();
       currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
       const ra = ras.find(v => true);
