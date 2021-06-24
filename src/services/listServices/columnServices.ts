@@ -165,7 +165,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                     console.log('checkIfFieldMatches ' + f.name, verifyField, f );
 
                     if ( verifyField === true ) {
-                        setProgress(false, "C", i, n , 'blueviolet', 'CheckMark', f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Looks ok ~ 160' );
+                        setProgress(false, "C", i, n , 'blueviolet', 'CheckMark', f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Looks ok ~ 160' + ' - NOT updating ' + verifyField );
                     } else {
                         setProgress(false, "E", i, n , 'darkorange', 'Warning12', f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Something Changed! ~ 162 ' + verifyField );
                     }
@@ -408,23 +408,23 @@ function checkIfFieldMatches( definition : IMyFieldTypes, actual : any ){
         }
     }
 
-    let indexed = checkValueOnFieldObject(definition, 'Indexed', actual.Indexed );
-    if ( indexed !== true ) { result = indexed === 'Not Found' && actual.Indexed === false ? result : result += `\nIndexed is ${actual.Indexed}, expected ${indexed}`; }
+    let indexed = getExpectedFieldProperty(definition, 'Indexed' );
+    if ( indexed !== actual.Indexed ) { result = indexed === 'Not Found' && actual.Indexed === false ? result : result += `\nIndexed is ${actual.Indexed}, expected ${indexed}`; }
 
-    let required = checkValueOnFieldObject(definition, 'Required', actual.Required );
-    if ( required !== true ) { result = required === 'Not Found' && actual.Required === false ? result : result += `\nRequired is ${actual.Required}, expected ${required}`; }
+    let required = getExpectedFieldProperty(definition, 'Required' );
+    if ( required !== actual.Required ) { result = required === 'Not Found' && actual.Required === false ? result : result += `\nRequired is ${actual.Required}, expected ${required}`; }
 
-    let hidden = checkValueOnFieldObject(definition, 'Hidden', actual.Hidden );
-    if ( hidden !== true ) { result = hidden === 'Not Found' && actual.Hidden === false ? result : result += `\nHidden is ${actual.Hidden}, expected ${hidden}`; }
+    let hidden = getExpectedFieldProperty(definition, 'Hidden' );
+    if ( hidden !== actual.Hidden ) { result = hidden === 'Not Found' && actual.Hidden === false ? result : result += `\nHidden is ${actual.Hidden}, expected ${hidden}`; }
 
-    let title = checkValueOnFieldObject(definition, 'Title', actual.Title );
-    if ( title !== true ) {
+    let title = getExpectedFieldProperty(definition, 'Title' );
+    if ( title !== actual.Title ) {
         if ( title === 'Not Found' && actual.Title !== actual.StaticName) {
             result += `\nTitle is ${actual.Title}, expected ${actual.StaticName}`;
         }
     }
 
-    let formula = checkValueOnFieldObject(definition, 'formula', actual.Formula );  //Note formula is lowerCase on object, ProperCase on actual field.
+    let formula = getExpectedFieldProperty(definition, 'formula' );  //Note formula is lowerCase on object, ProperCase on actual field.
     if ( formula !== true ) {
         if ( formula === 'Not Found' && actual.Formula ) {
             result += `\Formula is ${actual.Formula}, expected Nothing`;
@@ -450,12 +450,26 @@ function checkIfFieldMatches( definition : IMyFieldTypes, actual : any ){
 function checkValueOnFieldObject( definition : IMyFieldTypes, key: string, value: any) {
 
     if ( definition[key] !== undefined ) { return definition[key] === value ? true : definition[key] ;}
-    else if ( definition.onCreateProps !== undefined && definition.onCreateProps[key] !== undefined  ) { return definition.onCreateProps[key] === value ? true : definition.onCreateProps[key] ;}
-    else if ( definition.onCreateChanges !== undefined && definition.onCreateChanges[key] !== undefined  ) { return definition.onCreateChanges[key] === value ? true : definition.onCreateChanges[key] ;}
-    else if ( definition.changesFinal !== undefined && definition.changesFinal[key] !== undefined  ) { return definition.changesFinal[key] === value ? true : definition.changesFinal[key] ;}
-    else if ( definition.changes1 !== undefined && definition.changes1[key] !== undefined  ) { return definition.changes1[key] === value ? true : definition.changes1[key] ;}
-    else if ( definition.changes2 !== undefined && definition.changes2[key] !== undefined  ) { return definition.changes2[key] === value ? true : definition.changes2[key] ;}
-    else if ( definition.changes3 !== undefined && definition.changes3[key] !== undefined  ) { return definition.changes3[key] === value ? true : definition.changes3[key] ;}
+    else if ( definition.onCreateProps !== undefined && definition.onCreateProps[key] !== undefined  ) { return definition.onCreateProps[key] === value ? true : false ;}
+    else if ( definition.onCreateChanges !== undefined && definition.onCreateChanges[key] !== undefined  ) { return definition.onCreateChanges[key] === value ? true : false ;}
+    else if ( definition.changesFinal !== undefined && definition.changesFinal[key] !== undefined  ) { return definition.changesFinal[key] === value ? true : false ;}
+    else if ( definition.changes1 !== undefined && definition.changes1[key] !== undefined  ) { return definition.changes1[key] === value ? true : false ;}
+    else if ( definition.changes2 !== undefined && definition.changes2[key] !== undefined  ) { return definition.changes2[key] === value ? true : false ;}
+    else if ( definition.changes3 !== undefined && definition.changes3[key] !== undefined  ) { return definition.changes3[key] === value ? true : false ;}
+
+    return 'Not Found';
+
+}
+
+function getExpectedFieldProperty( definition : IMyFieldTypes, key: string ) {
+
+    if ( definition[key] !== undefined ) { return definition[key] ;}
+    else if ( definition.onCreateProps !== undefined && definition.onCreateProps[key] !== undefined  ) { return definition.onCreateProps[key] ;}
+    else if ( definition.onCreateChanges !== undefined && definition.onCreateChanges[key] !== undefined  ) { return definition.onCreateChanges[key] ;}
+    else if ( definition.changesFinal !== undefined && definition.changesFinal[key] !== undefined  ) { return definition.changesFinal[key] ;}
+    else if ( definition.changes1 !== undefined && definition.changes1[key] !== undefined  ) { return definition.changes1[key] ;}
+    else if ( definition.changes2 !== undefined && definition.changes2[key] !== undefined  ) { return definition.changes2[key] ;}
+    else if ( definition.changes3 !== undefined && definition.changes3[key] !== undefined  ) { return definition.changes3[key] ;}
 
     return 'Not Found';
 
