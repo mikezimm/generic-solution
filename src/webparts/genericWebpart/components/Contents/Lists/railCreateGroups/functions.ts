@@ -137,6 +137,10 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   const { Id: siteId } = await thisSiteInstance.get();
   const { Url: siteUrl } = await thisSiteInstance.get();
 
+    
+  const { Id: fullRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Full Control').get();
+  const { Id: contRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Contribute').get();
+  const { Id: readRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Read').get();
   // // let siteUrl = theSite.Url;
 
   // console.log('railSiteID:', siteId );
@@ -156,6 +160,21 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions Break Inheritance ~ 156', helpfulErrorEnd ].join('|') );
       currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
     }
+
+    try {
+      // Gets the associated owners group of a web
+      const list: IList = listInstance.list
+      let ras = await listInstance.roleAssignments();
+      currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
+      const ra = ras.find(v => true);
+      const r = await listInstance.roleAssignments.remove(ra.PrincipalId, fullRoleDefId);
+
+    } catch (e) {
+      let helpfulErrorEnd = [ theList.Title, '', null, null ].join('|');
+      errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions Clear all permissions ~ 169', helpfulErrorEnd ].join('|') );
+      currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
+    }
+
     updateState(newSteps, currentStep);
 
   }
@@ -167,10 +186,6 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   let ownerGroup : ISiteGroupInfo = null;
   let memberGroup : ISiteGroupInfo = null;
   let visitorGroup : ISiteGroupInfo = null;
-
-  const { Id: fullRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Full Control').get();
-  const { Id: contRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Contribute').get();
-  const { Id: readRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Read').get();
 
   function convertLetterToRole( role: string ) {
     if ( role === 'Full Control') { return fullRoleDefId ; }

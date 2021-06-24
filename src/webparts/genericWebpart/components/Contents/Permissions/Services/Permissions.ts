@@ -261,8 +261,6 @@ import { BaseErrorTrace } from '../../../../../../services/BaseErrorTrace';  //,
         known?:  IPermKnown;     //Added from pre-defined list of permis for priority
     }
 
-
-
     export interface IThisPermissionUser {
         Id: number;
         Title: string;
@@ -274,7 +272,6 @@ import { BaseErrorTrace } from '../../../../../../services/BaseErrorTrace';  //,
         UserPrincipalName: string;
     }
 
-        
     export interface IThisPermissionDelta {
         Id: number;
         Title: string;
@@ -578,8 +575,6 @@ import { BaseErrorTrace } from '../../../../../../services/BaseErrorTrace';  //,
     }
 
     export function createUserDelta( user : IAllUserPermission, parentOrChild: 'parent' | 'child' ) {
-
-
         let delta : IThisPermissionDelta = {
             Id: user.userId,
             Title: user.userInfo.Title,
