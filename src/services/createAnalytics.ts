@@ -22,7 +22,7 @@ import * as strings from 'GenericWebpartWebPartStrings';
  * @param theState 
  */
 
-export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, listory, fields, views, types, info, Setting ) {
+export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, listory, Setting, fields, views ) {
 
     //Do nothing if either of these strings is blank
     if (!analyticsList) { return ; }

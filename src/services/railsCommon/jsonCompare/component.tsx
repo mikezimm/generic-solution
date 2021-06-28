@@ -110,74 +110,9 @@ import styles from './jsonCompare.module.scss';
  *                                                                                                                                               
  */
 
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from './types';
+
 import stylesCompare from './jsonCompare.module.scss';
-
-
-/***
- *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
- *    88'     `8b  d8' 88  `8D .8P  Y8. 88  `8D `~~88~~'        `88'   888o  88 `~~88~~' 88'     88  `8D 88'     d8' `8b d8P  Y8 88'     88'  YP 
- *    88ooooo  `8bd8'  88oodD' 88    88 88oobY'    88            88    88V8o 88    88    88ooooo 88oobY' 88ooo   88ooo88 8P      88ooooo `8bo.   
- *    88~~~~~  .dPYb.  88~~~   88    88 88`8b      88            88    88 V8o88    88    88~~~~~ 88`8b   88~~~   88~~~88 8b      88~~~~~   `Y8b. 
- *    88.     .8P  Y8. 88      `8b  d8' 88 `88.    88           .88.   88  V888    88    88.     88 `88. 88      88   88 Y8b  d8 88.     db   8D 
- *    Y88888P YP    YP 88       `Y88P'  88   YD    YP         Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P `8888Y' 
- *                                                                                                                                               
- *                                                                                                                                               
- */
-
-
-export interface IMyJsonCompareProps {
-    theList: IContentsListInfo;
-    user: IUser;
-    wpContext: WebPartContext;
-    railFunction: string;
-    showPanel: boolean;
-    _closePanel: any;
-
-    type: PanelType;
-
-    json1: any;
-    json2?: any;
-
-    _fetchCompare: any; //Function that will get json2 from inputs in this component
-
-    pickedWeb : IPickedWebBasic;
-
-    analyticsWeb: string;
-    analyticsList: string;
-    errorMess: string;
-
-  }
-
-
-export interface IMyJsonCompareState {
-
-    disableDo: boolean;
-    finished: boolean;
-    refreshId: string;
-    errorMess: string;
-
-    showTab: string;
-    comparePivot: string;
-
-    otherWeb: string;
-    otherList: string;
-    otherProp: string;
-
-    ignoreKeys: string[];
-    includeOrIgnoreKeys: IIncludeOrIgnore;
-
-    ignoreItems: string[];
-    includeOrIgnoreItems: IIncludeOrIgnore;
-
-    comparedProps: any[];
-    summaryRows: any[];
-
-    compareResults: ICompareKeysResult;
-    compareArray: ICompareKeysResult[];
-    json1PropCount: number;
-    json2PropCount: number;
-
-}
 
 const pivotStyles = {
     root: {

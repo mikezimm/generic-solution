@@ -58,6 +58,8 @@ import * as ECFields from '../Fields/fieldsFunctions';
 
 import CreateListPermissions from './railCreateGroups/component';
 
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../../../services/railsCommon/jsonCompare/types';  //listory: IListory;
+
 export const pivCats = {
     visible: {title: 'Visible', desc: '', order: 1},
     hidden: {title: 'Hidden', desc: '', order: 100},
@@ -86,6 +88,7 @@ export interface IInspectListsProps {
     allowRailsOff?: boolean;
     allowSettings?: boolean;
     allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
+    listory: IListory;
 
     pickedWeb : IPickedWebBasic;
     theSite: ISite;
@@ -360,6 +363,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         type = { this.state.panel.type }
                         analyticsWeb= { this.props.analyticsWeb }
                         analyticsList= { this.props.analyticsList }
+                        listory = { this.props.listory }
 
                     ></MyJsonCompare>;
                 } else if ( this.state.railFunction === 'AddTemplate' ) {

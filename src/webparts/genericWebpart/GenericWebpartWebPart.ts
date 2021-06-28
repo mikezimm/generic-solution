@@ -14,7 +14,6 @@ import * as strings from 'GenericWebpartWebPartStrings';
 import GenericWebpart from './components/GenericWebpart';
 import { IGenericWebpartProps } from './components/IGenericWebpartProps';
 
-
 import { PageContext } from '@microsoft/sp-page-context';
 
 import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
@@ -30,6 +29,7 @@ import { IMyProgress, } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMy
 
 import { makeid, getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../services/railsCommon/jsonCompare/types';  //listory: IListory;
 
 export interface IGenericWebpartWebPartProps {
 
@@ -69,6 +69,7 @@ export interface IGenericWebpartWebPartProps {
   // 9 - Other web part options
   webPartScenario: string; //Choice used to create mutiple versions of the webpart.
   allowRailsOff: boolean;
+  listory: IListory;
 
   advancedPivotStyles: boolean;
   pivotSize: string;
@@ -213,6 +214,7 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
 
         allowRailsOff: allowRailsOff,
         allowCrazyLink: allowCrazyLink,
+        listory: this.properties.listory ? this.properties.listory : 2,
 
         // 3 - General how accurate do you want this to be
 

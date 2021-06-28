@@ -5,6 +5,8 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { IMyProgress, } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../services/railsCommon/jsonCompare/types';  //listory: IListory;
+
 export interface IGenericWebpartProps {
  
   // 0 - Context
@@ -48,7 +50,8 @@ export interface IGenericWebpartProps {
   webPartScenario: string; //Choice used to create mutiple versions of the webpart.
   allowRailsOff: boolean;
   allowCrazyLink: boolean;
-
+  listory: IListory;
+  
   pivotSize: string;
   pivotFormat: string;
   pivotOptions: string;

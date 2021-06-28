@@ -36,7 +36,6 @@ import InfoPages from './HelpInfo/Component/InfoPages';
 import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
 
 
-
 //These are for provisionLists
 import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/component/provisionListComponent';
 //import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
@@ -47,6 +46,8 @@ import ProvisionItems from './ListProvisioning/component/provisionItemsComponent
 
 
 import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../services/railsCommon/ProvisionTypes';
+
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../services/railsCommon/jsonCompare/types';  //listory: IListory;
 
 import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../services/railsCommon/ProvisionTypes';
 
@@ -575,6 +576,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
                   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
           uniqueId = { this.props.uniqueId }
+          listory = { this.props.listory }
 
         ></InspectContents>
       </div>;

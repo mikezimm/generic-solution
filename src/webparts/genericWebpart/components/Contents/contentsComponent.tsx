@@ -53,6 +53,8 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../services/createAnalytics';
 
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../../services/railsCommon/jsonCompare/types';  //listory: IListory;
+
 import { IGenericWebpartProps } from '../IGenericWebpartProps';
 import { IGenericWebpartState } from '../IGenericWebpartState';
 
@@ -84,6 +86,7 @@ export interface IInspectContentsProps {
     allowSettings: boolean;
     allowRailsOff: boolean;
     allowCrazyLink: boolean;
+    listory: IListory;
 
     showSettings: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
@@ -281,6 +284,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 theSite = { this.props.theSite }
                 analyticsWeb= { this.props.analyticsWeb }
                 analyticsList= { this.props.analyticsList }
+                listory = { this.props.listory }
             ></InspectLists>
         </div>;
 
