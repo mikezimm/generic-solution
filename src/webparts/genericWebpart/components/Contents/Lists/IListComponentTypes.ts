@@ -20,9 +20,9 @@ import { PageContext } from '@microsoft/sp-page-context';
 
 import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../../../services/railsCommon/jsonCompare/ICompareTypes';  //listory: IListory;
 
-// import { IRecentListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../../../../genericWebpart/components/Contents/Lists/types';
+// import { ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../../../../genericWebpart/components/Contents/Lists/types';
 
-export interface IRecentListId {
+export interface ICachedListId {
 
   webTitle: string;
   webUrl: string;
@@ -53,7 +53,9 @@ export interface IInspectListsProps {
     theSite: ISite;
     analyticsWeb: string;
     analyticsList: string;
-
+    cachedListIds: ICachedListId[]; //Used for analytics and error reporting to minimize calls to get this info.
+    updateCachedLists: any;
+    
     allLoaded: boolean;
 
     currentUser: IUser;
@@ -99,7 +101,7 @@ export interface IInspectListsState {
     allLists: IContentsListInfo[];
     meta: string[];
 
-    recentListIds: IRecentListId[]; //Used for analytics and error reporting to minimize calls to get this info.
+    cachedListIds: ICachedListId[]; //Used for analytics and error reporting to minimize calls to get this info.
 
     allowSettings: boolean;  //property that determines if the related toggle is visible or not
     allowRailsOff: boolean;  //property that determines if the related toggle is visible or not

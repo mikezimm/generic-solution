@@ -72,6 +72,7 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 import { BaseErrorTrace } from '../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
 import { getSiteInfo } from './Contents/Lists/listsFunction';
+import { ICachedListId } from './Contents/Lists/IListComponentTypes';
 
 const emptyString = (value: string | Date) : string => { return "";};
 
@@ -206,7 +207,10 @@ public constructor(props:IGenericWebpartProps){
         childListTitle: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
 
         pickedWeb: null,
+        webURLStatus: null,
         isCurrentWeb: false,
+
+        cachedListIds: [],
         // 3 - General how accurate do you want this to be
       
         // 4 - Info Options
@@ -274,7 +278,7 @@ public constructor(props:IGenericWebpartProps){
 
 
 public componentDidMount() {
-  this._onWebUrlChange(this.props.parentListWeb);
+  this._onWebUrlChange( this.props.parentListWeb );
   if ( this.props.allowRailsOff === true ) {
     this.getListDefinitions('state');
   }
@@ -395,14 +399,19 @@ public async getListDefinitions( doThis: 'props' | 'state') {
             defaultValue={ this.props.parentListWeb }
             label={ null }
             autoComplete='off'
-            onChanged={ this._onWebUrlChange.bind(this) }
+            // onChanged={ this._onWebUrlChange.bind(this) }
             onGetErrorMessage= { emptyString }
             validateOnFocusIn
             validateOnFocusOut
             multiline= { false }
             autoAdjustHeight= { true }
+            onKeyDown={(ev)=> { this.onWebUrlKeyDown( ev ) ; } }
 
-          /></div>;
+          />{ this.state.webURLStatus ? 
+            <span style={{ color: 'red', whiteSpace: 'nowrap', marginRight: '40px', fontSize: 'larger', fontWeight: 'bolder' }}>
+               { this.state.webURLStatus }
+            </span> : null }
+          </div>;
 
 
       /**
@@ -547,7 +556,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
             ></InfoPages>
           </div>;
 
-      const contentsPage = <div className= { defaultPageClass }>
+      const contentsPage = <div className= { defaultPageClass } style={{display : this.state.webURLStatus !== null ? 'none' : '' }}>
         <InspectContents
 
           wpContext={  this.props.wpContext }
@@ -563,6 +572,10 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           allLoaded={false}
           currentUser = {this.state.currentUser }
           pickedWeb = { this.state.pickedWeb }
+
+          cachedListIds = { this.state.cachedListIds }
+          updateCachedLists = { this.updateCachedLists.bind(this) }
+
           theSite = { this.state.theSite }
           showSettings = { true }
           showRailsOff = { true }
@@ -721,11 +734,47 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     );
   }
 
-  private _onWebUrlChange(newValue: string){
-    debounce(250, this.debounce_onWebUrlChange( newValue ) );
+  private updateCachedLists( cachedListIds: ICachedListId[] ) {
+    this.setState({ cachedListIds: cachedListIds });
+  }
+  
+  private onWebUrlKeyDown( ev: any ) {
+    let newVal = ev.nativeEvent.srcElement.value ;
+    let key = ev.key;
+    let webURLStatus : string = 'Press Enter to go to fetch new site';
+    console.log( 'onWebUrlKeyDown: key, newVal ~ 729', key, newVal );
+    if ( key === 'Enter' ) {
+      this._onWebUrlChange( newVal, null );
+
+    } else {  //stateError: stateError, pickedWeb: pickedWeb,
+      // let stateError: any[] = [];
+      // stateError.push( <div style={{ paddingLeft: '25px', paddingBottom: '30px', background: 'yellow' }}> <span style={{ fontSize: 'large', color: 'red'}}> { webURLStatus }</span> </div>);
+      let pickedWeb : IPickedWebBasic = {
+        ServerRelativeUrl: newVal,
+        guid: 'TBD',
+        title: 'TBD',
+        url: newVal,
+        siteIcon: 'TBD',
+        error: webURLStatus,
+        HasUniqueRoleAssignments: null,
+      };
+      this.setState({ 
+        webURLStatus: webURLStatus, 
+        // stateError: stateError, 
+        pickedWeb: pickedWeb, 
+      });
+    }
   }
 
-  private async debounce_onWebUrlChange(newValue: string){
+  private _onWebUrlChange( newValue?: string, webURLStatus: string = null){
+    // debounce(250, this.debounce_onWebUrlChange( newValue, webURLStatus ) );
+    this.debounce_onWebUrlChange( newValue, webURLStatus );
+  }
+
+  private async debounce_onWebUrlChange(newValue?: string, webURLStatus: string = null){
+    // let updateState = false;
+    // if ( event === null ) { updateState = true; } //This is for when the webpart initially loads with current web url.
+
       let errMessage = null;
       let stateError : any[] = [];
       const thisWebObject = Web( newValue );
@@ -770,7 +819,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
       let isCurrentWeb: boolean = false;
       if ( newValue.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
-      this.setState({ parentListWeb: newValue, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite });
+      this.setState({ parentListWeb: newValue, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, webURLStatus: webURLStatus });
 
     return;
 

@@ -59,7 +59,7 @@ import * as ECFields from '../Fields/fieldsFunctions';
 
 import CreateListPermissions from './railCreateGroups/component';
 
-import { IRecentListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from './IListComponentTypes';
+import { ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from './IListComponentTypes';
 
 import { pivCats } from './IListComponentConst';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
@@ -131,7 +131,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             lastCompare: null,
             applyTemplateError: '',
 
-            recentListIds: [],
+            cachedListIds: this.props.cachedListIds,
 
         };
 
@@ -192,8 +192,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
  *                                                                                     
  */
 
-            console.log('renderStateLists ~ 195', this.state.allLists );
-            console.log('recentListIds ~ 196', this.state.recentListIds );
+            // console.log('renderStateLists ~ 195', this.state.allLists );
+            // console.log('cachedListIds ~ 196', this.state.cachedListIds );
 
             let thisPage = null;
 
@@ -475,11 +475,11 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         // pickedWeb : IPickedWebBasic;
         // theSite: ISite;
 
-        let recentListIds = this.state.recentListIds;
+        let cachedListIds = this.state.cachedListIds;
         allLists.map( list => {
             let theSite: any = this.props.theSite;
-            let thisRecentList : IRecentListId = this.makeIContentsListInfoIntoRecentListId( this.props.pickedWeb, list, theSite );
-            recentListIds = this.addSimpleObjectToArrayIfNotExist( recentListIds, thisRecentList, ['webUrl','listTitle'] ) ;
+            let thisRecentList : ICachedListId = this.makeIContentsListInfoIntoRecentListId( this.props.pickedWeb, list, theSite );
+            cachedListIds = this.addSimpleObjectToArrayIfNotExist( cachedListIds, thisRecentList, ['webUrl','listTitle'] ) ;
         });
 
         this.setState({
@@ -492,14 +492,17 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             searchMeta: this.state.searchMeta,
             firstJSON: this.state.selectedEntity,
             secondJSON: allLists,
-            recentListIds: recentListIds,
+            cachedListIds: cachedListIds,
         });
+
+        this.props.updateCachedLists( cachedListIds );
+
         return true;
     }
 
     private makeIContentsListInfoIntoRecentListId ( pickedWeb: IPickedWebBasic, list: IContentsListInfo, theSite: any ) {
 
-        let thisRecentList : IRecentListId = {
+        let thisRecentList : ICachedListId = {
             siteId: theSite.Id,
             webTitle: pickedWeb.title,
             webUrl: getFullUrlFromSlashSitesUrl( pickedWeb.url ) ,  
@@ -547,12 +550,15 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
         } else if ( addToArray.length > 0 ) {
             let keysToMatch = primaryKeys.length > 0 ? primaryKeys : Object.keys(objToAdd);
-            let isMatch : any = true;
+            let isItemFound = false;
             addToArray.map( ( checkArrayObject, index )  => { //map through original array
-                keysToMatch.map( key => {
-                    if ( checkArrayObject[key] != objToAdd[key] ) { isMatch = false; }
-                });
-                if ( isMatch === true ) { matchIndex = index ; }
+                if ( isItemFound === false ) {
+                    let isThisAMatch : any = true;
+                    keysToMatch.map( key => {
+                        if ( checkArrayObject[key] != objToAdd[key] ) { isThisAMatch = false; }
+                    });
+                    if ( isThisAMatch === true ) { isItemFound = true ; matchIndex = index ; }
+                }
             });
 
         }

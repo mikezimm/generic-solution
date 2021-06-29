@@ -94,7 +94,7 @@ import { createMainRailsWarningBar } from '../../../../../../services/railsCommo
 import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, saveAssist } from '../../../../../../services/createAnalytics';
 
 
-import { IRecentListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../IListComponentTypes';
+import { ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../IListComponentTypes';
 import { createProcessSteps, IProcessSteps,  } from './setup';
 import {  IProcessStep, StatusIcons, StatusColors } from '../../../../../../services/railsCommon/railsSetup';
 import { doThisRailFunction } from './functions';

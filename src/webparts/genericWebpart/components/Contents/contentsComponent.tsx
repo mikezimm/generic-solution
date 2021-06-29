@@ -45,6 +45,8 @@ import InspectParts from './WParts/partsComponent';
 
 import InspectThisSite from './ThisSite/thisSiteComponent';
 
+import { ICachedListId } from './Lists/IListComponentTypes';
+
 import { Web } from "@pnp/sp/presets/all";
 
 import { pivotOptionsGroup, } from '../../../../services/propPane';
@@ -77,6 +79,9 @@ export interface IInspectContentsProps {
     allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
     pickedWeb : IPickedWebBasic;
     theSite: ISite;
+
+    cachedListIds: ICachedListId[]; //Used for analytics and error reporting to minimize calls to get this info.
+    updateCachedLists: any;
 
     showPane: boolean;
     allLoaded: boolean;
@@ -268,7 +273,9 @@ export default class InspectContents extends React.Component<IInspectContentsPro
             ></InspectWebs>
         </div>;
 
-        const listPage = validWeb !== true || this.state.tab !== 'Lists' ? null : <div>
+        let listsDisplay = validWeb !== true || this.state.tab !== 'Lists' || !this.props.pickedWeb || this.props.pickedWeb.error != null ? 'none' : '';
+
+        const listPage = validWeb !== true || this.state.tab !== 'Lists' ? null : <div style={{display : listsDisplay }}>
             <InspectLists 
                 wpContext={  this.props.wpContext }
                 pageContext = { this.props.pageContext }
@@ -285,6 +292,8 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 analyticsWeb= { this.props.analyticsWeb }
                 analyticsList= { this.props.analyticsList }
                 listory = { this.props.listory }
+                cachedListIds = { this.props.cachedListIds }
+                updateCachedLists = { this.props.updateCachedLists }
             ></InspectLists>
         </div>;
 

@@ -111,7 +111,7 @@ import { createProvisionTitlesRow } from './listTitleButtons';
 //
 import * as strings from 'GenericWebpartWebPartStrings';
 
-import { IRecentListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../../Contents/Lists/IListComponentTypes';
+import { ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../../Contents/Lists/IListComponentTypes';
 
 import { provisionTheList, } from './provisionWebPartList';
 
