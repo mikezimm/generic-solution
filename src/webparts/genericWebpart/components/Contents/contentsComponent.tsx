@@ -45,7 +45,7 @@ import InspectParts from './WParts/partsComponent';
 
 import InspectThisSite from './ThisSite/thisSiteComponent';
 
-import { ICachedListId } from './Lists/IListComponentTypes';
+import { ICachedWebIds } from './Lists/IListComponentTypes';
 
 import { Web } from "@pnp/sp/presets/all";
 
@@ -80,7 +80,7 @@ export interface IInspectContentsProps {
     pickedWeb : IPickedWebBasic;
     theSite: ISite;
 
-    cachedListIds: ICachedListId[]; //Used for analytics and error reporting to minimize calls to get this info.
+    cachedWebIds: ICachedWebIds; //Used for analytics and error reporting to minimize calls to get this info.
     updateCachedLists: any;
 
     showPane: boolean;
@@ -292,7 +292,7 @@ export default class InspectContents extends React.Component<IInspectContentsPro
                 analyticsWeb= { this.props.analyticsWeb }
                 analyticsList= { this.props.analyticsList }
                 listory = { this.props.listory }
-                cachedListIds = { this.props.cachedListIds }
+                cachedWebIds = { this.props.cachedWebIds }
                 updateCachedLists = { this.props.updateCachedLists }
             ></InspectLists>
         </div>;

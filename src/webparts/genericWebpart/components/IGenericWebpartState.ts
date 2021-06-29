@@ -17,7 +17,7 @@ import { ISelectedUser, } from './Charts/charts';
 import { IMakeThisList, } from '../../../services/railsCommon/ProvisionTypes';
 
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
-import { ICachedListId } from './Contents/Lists/IListComponentTypes';
+import { ICachedWebIds } from './Contents/Lists/IListComponentTypes';
 
   export interface IUserSummary { 
     title: string; 
@@ -128,7 +128,7 @@ import { ICachedListId } from './Contents/Lists/IListComponentTypes';
     webURLStatus: string;
     pickedWeb : IPickedWebBasic;
     theSite: ISite;
-    cachedListIds: ICachedListId[]; //Used for analytics and error reporting to minimize calls to get this info.
+    cachedWebIds: ICachedWebIds; //Used for analytics and error reporting to minimize calls to get this info.
 
     isCurrentWeb: boolean;
 

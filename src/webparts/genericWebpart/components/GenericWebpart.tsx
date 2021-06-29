@@ -72,7 +72,7 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 import { BaseErrorTrace } from '../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
 import { getSiteInfo } from './Contents/Lists/listsFunction';
-import { ICachedListId } from './Contents/Lists/IListComponentTypes';
+import { ICachedWebIds } from './Contents/Lists/IListComponentTypes';
 
 const emptyString = (value: string | Date) : string => { return "";};
 
@@ -210,7 +210,10 @@ public constructor(props:IGenericWebpartProps){
         webURLStatus: null,
         isCurrentWeb: false,
 
-        cachedListIds: [],
+        cachedWebIds: {
+          webCache: [],
+          webIds: [],
+        },
         // 3 - General how accurate do you want this to be
       
         // 4 - Info Options
@@ -573,7 +576,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           currentUser = {this.state.currentUser }
           pickedWeb = { this.state.pickedWeb }
 
-          cachedListIds = { this.state.cachedListIds }
+          cachedWebIds = { this.state.cachedWebIds }
           updateCachedLists = { this.updateCachedLists.bind(this) }
 
           theSite = { this.state.theSite }
@@ -734,10 +737,10 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     );
   }
 
-  private updateCachedLists( cachedListIds: ICachedListId[] ) {
-    this.setState({ cachedListIds: cachedListIds });
+  private updateCachedLists( cachedWebIds: ICachedWebIds ) {
+    this.setState({ cachedWebIds: cachedWebIds });
   }
-  
+
   private onWebUrlKeyDown( ev: any ) {
     let newVal = ev.nativeEvent.srcElement.value ;
     let key = ev.key;

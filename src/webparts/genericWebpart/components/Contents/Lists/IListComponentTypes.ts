@@ -22,6 +22,18 @@ import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../../
 
 // import { ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../../../../genericWebpart/components/Contents/Lists/types';
 
+export interface ICachedWebIds {
+  webCache: IWebCache[];
+  webIds: string[];
+}
+
+export interface IWebCache {
+  lists: ICachedListId[]; //Used for analytics and error reporting to minimize calls to get this info.
+  id: string;
+  title: string;
+  url: string;
+}
+
 export interface ICachedListId {
 
   webTitle: string;
@@ -32,6 +44,10 @@ export interface ICachedListId {
   listUrl: string;
   listId: string;
   siteId: string;
+
+  fields?: any[];  //For future use if needed
+  views?: any[];  //For future use if needed
+  props?: any;  //For future use if needed
 
 } 
 
@@ -53,9 +69,9 @@ export interface IInspectListsProps {
     theSite: ISite;
     analyticsWeb: string;
     analyticsList: string;
-    cachedListIds: ICachedListId[]; //Used for analytics and error reporting to minimize calls to get this info.
+    cachedWebIds: ICachedWebIds; //Used for analytics and error reporting to minimize calls to get this info.
     updateCachedLists: any;
-    
+
     allLoaded: boolean;
 
     currentUser: IUser;
@@ -101,7 +117,7 @@ export interface IInspectListsState {
     allLists: IContentsListInfo[];
     meta: string[];
 
-    cachedListIds: ICachedListId[]; //Used for analytics and error reporting to minimize calls to get this info.
+    cachedWebIds: ICachedWebIds; //Used for analytics and error reporting to minimize calls to get this info.
 
     allowSettings: boolean;  //property that determines if the related toggle is visible or not
     allowRailsOff: boolean;  //property that determines if the related toggle is visible or not

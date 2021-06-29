@@ -59,7 +59,7 @@ import * as ECFields from '../Fields/fieldsFunctions';
 
 import CreateListPermissions from './railCreateGroups/component';
 
-import { ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from './IListComponentTypes';
+import { IWebCache, ICachedWebIds, ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from './IListComponentTypes';
 
 import { pivCats } from './IListComponentConst';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
@@ -131,7 +131,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             lastCompare: null,
             applyTemplateError: '',
 
-            cachedListIds: this.props.cachedListIds,
+            cachedWebIds: this.props.cachedWebIds,
 
         };
 
@@ -192,8 +192,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
  *                                                                                     
  */
 
-            // console.log('renderStateLists ~ 195', this.state.allLists );
-            // console.log('cachedListIds ~ 196', this.state.cachedListIds );
+            console.log('allLists ~ 195', this.state.allLists );
+            console.log('props.cachedWebIds ~ 196', this.props.cachedWebIds );
+            console.log('state.cachedWebIds ~ 197', this.state.cachedWebIds );
 
             let thisPage = null;
 
@@ -475,12 +476,32 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         // pickedWeb : IPickedWebBasic;
         // theSite: ISite;
 
-        let cachedListIds = this.state.cachedListIds;
+        let cachedWebIds : ICachedWebIds = this.state.cachedWebIds;
+        let pickedWebGuid = this.props.pickedWeb.guid;
+        let cachedIndex = cachedWebIds.webIds.indexOf( pickedWebGuid );
+        let cachedLists : ICachedListId[] = [];
+
         allLists.map( list => {
             let theSite: any = this.props.theSite;
             let thisRecentList : ICachedListId = this.makeIContentsListInfoIntoRecentListId( this.props.pickedWeb, list, theSite );
-            cachedListIds = this.addSimpleObjectToArrayIfNotExist( cachedListIds, thisRecentList, ['webUrl','listTitle'] ) ;
+            // cachedLists = this.addSimpleObjectToArrayIfNotExist( cachedLists, thisRecentList, ['webUrl','listTitle'] ) ;
+            cachedLists.push( thisRecentList );
         });
+
+        let thisWebCache: IWebCache = {
+            id: this.props.pickedWeb.guid,
+            title: this.props.pickedWeb.title,
+            url: this.props.pickedWeb.url,
+            lists: cachedLists,
+        };
+
+        if ( cachedIndex  > - 1 ) {
+            cachedWebIds.webCache [ cachedIndex ] = thisWebCache ;
+
+        } else {
+            cachedWebIds.webCache.push( thisWebCache ) ;
+            cachedWebIds.webIds.push( this.props.pickedWeb.guid ) ;
+        }
 
         this.setState({
             allLists: allLists,
@@ -492,11 +513,10 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             searchMeta: this.state.searchMeta,
             firstJSON: this.state.selectedEntity,
             secondJSON: allLists,
-            cachedListIds: cachedListIds,
+            cachedWebIds: cachedWebIds,
         });
 
-        this.props.updateCachedLists( cachedListIds );
-
+        this.props.updateCachedLists( cachedWebIds );
         return true;
     }
 
