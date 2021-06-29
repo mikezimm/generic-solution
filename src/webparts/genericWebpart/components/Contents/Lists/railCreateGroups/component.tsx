@@ -77,17 +77,9 @@ import { createMainRailsWarningBar } from '../../../../../../services/railsCommo
 
  import { getSiteInfoIncludingUnique, fUpdateGroup } from './functions';
 
-  import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
-
   import RailsHistory from '../../../../../../services/railsCommon/RailsHistoryPane';
   import SelectedRails from '../../../../../../services/railsCommon/RailsSelectedPane';
 
-  import { createIconButton } from '../../../createButtons/IconButton';
-  
-  
-  import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
-  
-  import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -102,7 +94,7 @@ import { createMainRailsWarningBar } from '../../../../../../services/railsCommo
 import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, saveAssist } from '../../../../../../services/createAnalytics';
 
 
-import { IListRailFunction } from '../listsComponent';
+import { IRecentListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../IListComponentTypes';
 import { createProcessSteps, IProcessSteps,  } from './setup';
 import {  IProcessStep, StatusIcons, StatusColors } from '../../../../../../services/railsCommon/railsSetup';
 import { doThisRailFunction } from './functions';

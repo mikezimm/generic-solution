@@ -112,7 +112,7 @@ import { JSONEditorShort } from '../../HelpInfo/AllLinks';
 //
 import * as strings from 'GenericWebpartWebPartStrings';
 
-import { IListRailFunction } from '../../Contents/Lists/listsComponent';
+import { IRecentListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../../Contents/Lists/IListComponentTypes';
 import { provisionTheList, } from './provisionWebPartList';
 
 import { getTheseDefinedLists, checkThisWeb } from './provisionFunctions';

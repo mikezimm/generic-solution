@@ -43,6 +43,8 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
 
 import { getKeyChanges,  } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
+import { isGuid, makeid, } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -54,6 +56,8 @@ import { getKeyChanges,  } from '@mikezimm/npmfunctions/dist/Services/Arrays/che
  *                                                                                                                                 
  */
 import { BaseErrorTrace } from '../../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
+
+import { IContentsFieldInfo, IInspectColumnsProps, IInspectColumnsState, IFieldBucketInfo } from '../../../webparts/genericWebpart/components/Contents/Fields/IFieldComponentTypes';
 
 
  /***
@@ -89,6 +93,18 @@ import { BaseErrorTrace } from '../../BaseErrorTrace';  //, [ BaseErrorTrace , '
  *                                                                                                                                               
  *                                                                                                                                               
  */
+
+export async function saveListory ( altWeb: string, altListTitle: string, doThis: string, saveObject:  any ,scope: string, errMessage : string ) {
+
+    let isId = isGuid( altListTitle );
+
+    if ( isId !== true ) { //fetch list Id to save with analytics
+
+
+    }
+        
+
+}
 
  export async function doThisRailFunction( theList: IContentsListInfo, updateState: any ) {
 

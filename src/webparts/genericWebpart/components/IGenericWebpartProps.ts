@@ -5,7 +5,7 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 import { IMyProgress, } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
-import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../services/railsCommon/jsonCompare/types';  //listory: IListory;
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../services/railsCommon/jsonCompare/ICompareTypes';  //listory: IListory;
 
 export interface IGenericWebpartProps {
  
@@ -51,7 +51,7 @@ export interface IGenericWebpartProps {
   allowRailsOff: boolean;
   allowCrazyLink: boolean;
   listory: IListory;
-  
+
   pivotSize: string;
   pivotFormat: string;
   pivotOptions: string;

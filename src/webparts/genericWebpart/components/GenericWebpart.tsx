@@ -47,7 +47,7 @@ import ProvisionItems from './ListProvisioning/component/provisionItemsComponent
 
 import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../services/railsCommon/ProvisionTypes';
 
-import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../services/railsCommon/jsonCompare/types';  //listory: IListory;
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../services/railsCommon/jsonCompare/ICompareTypes';  //listory: IListory;
 
 import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../services/railsCommon/ProvisionTypes';
 

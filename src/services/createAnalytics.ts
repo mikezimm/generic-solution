@@ -32,6 +32,7 @@ export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, sa
     let saveItem: any ={
         Title: saveTitle,
         PageLink: getCurrentPageLink(),
+        ListTitle: itemInfo1,
     };
 
     let startTime = getTheCurrentTime();
@@ -211,6 +212,7 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
     "requestListList": "Assists",
  * 
 */
+
 export function saveAssist ( analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2: string[], result, RichTextJSON1, Setting, RichTextJSON2, RichTextJSON3 ) {
 
     if ( window.location.origin.indexOf( 'utoliv.sharepoint.com') < 0 && window.location.origin.indexOf( 'clickster.sharepoint')  < 0 ) { return ; }

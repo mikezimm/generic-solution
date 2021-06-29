@@ -59,15 +59,6 @@ import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Service
  *                                                                                                                                 
  */
 
-import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
-
-
-import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
-
-import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
-
-import { IAnyArray } from  '../../../../../services/listServices/listServices';
-
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -80,6 +71,8 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
  *                                                                                                                       
  */
 
+import { IRecentListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from './IListComponentTypes';
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
@@ -91,9 +84,9 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
  *                                                                                                                                               
  */
 
-import { pivCats, IListBucketInfo } from './listsComponent';
+import { pivCats, } from './IListComponentConst';
 
-import { IFieldBucketInfo, IContentsFieldInfo } from '../Fields/fieldsComponent';
+import { IContentsFieldInfo, IInspectColumnsProps, IInspectColumnsState, IFieldBucketInfo } from '../Fields/IFieldComponentTypes';
 import * as ECFields from '../Fields/fieldsFunctions';
 
 /***
@@ -332,6 +325,7 @@ function buildSearchStringFromList (newList : IContentsListInfo) {
     if ( newList.Title ) { result += 'Title=' + newList.Title + delim ; }
     if ( newList.EntityTypeName ) { result += 'Name=' + newList.EntityTypeName + delim ; }
     if ( newList.Id ) { result += 'Id=' + newList.Id + delim ; }
+    if ( newList.Created ) { result += 'Created=' + newList.Created + delim ; }
     if ( newList.meta.length > 0 ) { result += 'Meta=' + newList.meta.join(',') + delim ; }
 
     result += 'resindex=' + newList.responseIndex + delim ;

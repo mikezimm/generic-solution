@@ -37,8 +37,6 @@ import { PageContext } from '@microsoft/sp-page-context';
  */
 
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
-import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Import view arrays for Time list
-import { queryValueCurrentUser, queryValueToday, IViewField } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
 
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
@@ -113,20 +111,14 @@ import { createProvisionTitlesRow } from './listTitleButtons';
 //
 import * as strings from 'GenericWebpartWebPartStrings';
 
-import { IListRailFunction } from '../../Contents/Lists/listsComponent';
+import { IRecentListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../../Contents/Lists/IListComponentTypes';
+
 import { provisionTheList, } from './provisionWebPartList';
 
 import { getTheseDefinedLists, checkThisWeb } from './provisionFunctions';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
-import { IGenericWebpartProps } from '../../IGenericWebpartProps';
-import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionList.module.scss';
-
-import MyLogList from './listView';
-
-
-
 
 
 /***

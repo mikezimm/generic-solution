@@ -110,7 +110,7 @@ import styles from './jsonCompare.module.scss';
  *                                                                                                                                               
  */
 
-import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from './types';
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from './ICompareTypes';
 
 import stylesCompare from './jsonCompare.module.scss';
 

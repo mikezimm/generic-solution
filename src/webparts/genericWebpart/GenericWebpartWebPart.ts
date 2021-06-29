@@ -29,7 +29,7 @@ import { IMyProgress, } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMy
 
 import { makeid, getStringArrayFromString } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
 
-import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../services/railsCommon/jsonCompare/types';  //listory: IListory;
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../services/railsCommon/jsonCompare/ICompareTypes';  //listory: IListory;
 
 export interface IGenericWebpartWebPartProps {
 

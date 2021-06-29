@@ -53,7 +53,7 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
 
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../services/createAnalytics';
 
-import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../../services/railsCommon/jsonCompare/types';  //listory: IListory;
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../../services/railsCommon/jsonCompare/ICompareTypes';  //listory: IListory;
 
 import { IGenericWebpartProps } from '../IGenericWebpartProps';
 import { IGenericWebpartState } from '../IGenericWebpartState';

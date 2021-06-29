@@ -7,7 +7,7 @@ import "@pnp/sp/clientside-pages/web";
 import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
 import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
 
-import { IContentsFieldInfo, IFieldBucketInfo } from  './fieldsComponent';
+import { IContentsFieldInfo, IInspectColumnsProps, IInspectColumnsState, IFieldBucketInfo } from './IFieldComponentTypes';
 
 import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
@@ -20,7 +20,7 @@ import { isGuid, makeid, } from '@mikezimm/npmfunctions/dist/Services/Strings/st
 
 import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
-import { pivCats } from './fieldsComponent';
+import { pivCats } from './IFieldComponentConst';
 
 export type IValidTemplate = 100 | 101;
 
@@ -128,6 +128,9 @@ export async function allAvailableFields( webURL: string, listGUID: string, rest
     return { allFields: allFields, scope: scope, errMessage: errMessage } ;
 
 }
+
+
+
 
 function getFieldSort( theField: IContentsFieldInfo, fieldBuckets: IFieldBucketInfo[] ) {
 /*

@@ -16,6 +16,7 @@ define([], function() {
     "analyticsListRailsApply": "EasyContentsRailsApply",
     "analyticsListRailsGroups": "EasyContentsRailsGroups",
     "analyticsListPermissionsHistory": "PermissionsHistory",
+    "analyticsListory": "EasyContentsCompare",
     "analyticsListErrors": "ErrorLog",
 
     "requestListSite": "/sites/SharePointAssist",
