@@ -415,6 +415,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                             {/* { permissions } */}
                             <div style={{  display: 'flex' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >Web URL</div>
+                                {/* { this.makeWebField( 'Enter compare web URL', this.state.otherWeb , this._updateText1_Web.bind(this) , false, '0px 0px ' + '20px ' + '0px' )} */}
                                 { this.makeTextField( 'Enter compare web URL', this.state.otherWeb , this._updateText1_Web.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
                             </div>
                             <div style={{  display: 'flex' }}>
@@ -553,6 +554,35 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
              />
          </div>;
     }
+
+    private makeWebField( placeholder: string, def: string, onChanged: any, disabled: boolean, margin: any, width = panelWidth ) {
+        return <div style={{ width: width, margin: margin }}>
+             <TextField
+                 defaultValue={ def }
+                 placeholder={ placeholder }
+                 autoComplete='off'
+                //  onChanged={ onChanged }
+                 required={ true }
+                 disabled={ disabled }
+                 style={{ width: width }}
+                 onKeyDown={(ev)=> { this.onWebUrlKeyDown( ev ) ; } }
+             />
+         </div>;
+    }
+
+    private async onWebUrlKeyDown( ev: any ) {
+        let newVal = ev.nativeEvent.srcElement.value ;
+        let key = ev.key;
+        let webURLStatus : string = 'Press Enter to go to fetch new site';
+        console.log( 'onWebUrlKeyDown: key, newVal ~ 729', key, newVal );
+        if ( newVal === undefined || newVal === null || newVal.length === 0 ) { newVal = this.props.theList.ParentWebUrl ; }
+
+        if ( key === 'Enter' ) {
+            this.props._fetchCompare( newVal, this.state.otherList, this.state.otherProp );
+        } else {  //stateError: stateError, pickedWeb: pickedWeb,
+            this.setState({  otherWeb: newVal  }); 
+        }
+      }
 
     private async _updateText1_Web(oldVal: any): Promise<any> {  
         if ( oldVal === undefined || oldVal === null || oldVal.length === 0 ) { oldVal = this.props.theList.ParentWebUrl ; }
