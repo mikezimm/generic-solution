@@ -79,7 +79,7 @@ import { availLists, DefStatusField, DefEffStatusField, availComponents, defined
  *                                                                                                                       
  */
 
-//  import { getSiteInfoIncludingUnique } from './functions';
+//  import { getWebInfoIncludingUnique } from './functions';
 
 //   import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
 

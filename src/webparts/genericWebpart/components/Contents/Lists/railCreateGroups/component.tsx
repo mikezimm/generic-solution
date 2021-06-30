@@ -75,7 +75,7 @@ import { createMainRailsWarningBar } from '../../../../../../services/railsCommo
  *                                                                                                                       
  */
 
- import { getSiteInfoIncludingUnique, fUpdateGroup } from './functions';
+ import { getWebInfoIncludingUnique, } from '../listsFunction';
 
   import RailsHistory from '../../../../../../services/railsCommon/RailsHistoryPane';
   import SelectedRails from '../../../../../../services/railsCommon/RailsSelectedPane';
@@ -255,7 +255,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
     }
 
     private async _checkWebPerms() {
-        let currentWeb : any = await getSiteInfoIncludingUnique( this.props.theList.ParentWebUrl, 'min', true );
+        let currentWeb : any = await getWebInfoIncludingUnique( this.props.theList.ParentWebUrl, 'min', true, ' > ~ 258' );
         let HasUniqueRoleAssignments = currentWeb.error === '' ? currentWeb.HasUniqueRoleAssignments : null ;
 
         this.setState({

@@ -382,7 +382,7 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
  }
 
- export async function getSiteInfoIncludingUnique( webURL : string , minOrAllProps: 'min' | 'all', alertErrors: boolean ) {
+ export async function getWebInfoIncludingUnique( webURL : string , minOrAllProps: 'min' | 'all', alertErrors: boolean ) {
 
   webURL = getFullUrlFromSlashSitesUrl( webURL );
   let errMessage = '';

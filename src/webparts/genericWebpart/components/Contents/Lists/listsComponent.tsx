@@ -59,6 +59,8 @@ import * as ECFields from '../Fields/fieldsFunctions';
 
 import CreateListPermissions from './railCreateGroups/component';
 
+import { getWebInfoIncludingUnique , getSiteInfo } from './listsFunction';
+
 import { IWebCache, ICachedWebIds, ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from './IListComponentTypes';
 
 import { pivCats } from './IListComponentConst';
@@ -192,9 +194,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
  *                                                                                     
  */
 
-            console.log('allLists ~ 195', this.state.allLists );
-            console.log('props.cachedWebIds ~ 196', this.props.cachedWebIds );
-            console.log('state.cachedWebIds ~ 197', this.state.cachedWebIds );
+            // console.log('render allLists ~ 195', this.state.allLists );
+            // console.log('render props.cachedWebIds ~ 196', this.props.cachedWebIds );
+            console.log('render state.cachedWebIds ~ 197', this.state.cachedWebIds );
 
             let thisPage = null;
 
@@ -387,17 +389,58 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     }   //End Public Render
 
-    private async _fetchCompare( altWeb: string, altListTitle: string, doThis: string ) {
+    private async _fetchCompare( altWeb: string, altListTitle: string, doThis: string, updateWebCache: boolean = false ) {
         if ( doThis === 'Lists' ) {
             let secondJSON = null;
             let compareError = '';
+            let cachedWebIds = this.state.cachedWebIds;
+            let updateCache = false;
+            console.log('_fetchCompare updateWebCache ~ 396 is', updateWebCache );
+
+            if ( altWeb === this.state.selectedEntity.ParentWebUrl ) {
+
+            } 
+
 
             if ( altListTitle === this.state.selectedEntity.Title && altWeb === this.state.selectedEntity.ParentWebUrl ) {
                 secondJSON = this.state.selectedEntity ;
+
             } else {
                 let restFilter = `Title eq '${ altListTitle }'`;
-                let result = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
-                secondJSON = result.allLists[0];
+                // let result = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
+                let result = await allAvailableLists( altWeb, null, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
+                let listIndex = -1;
+
+                if ( result.errMessage && result.errMessage.length > 0 ) {
+                    //There was an error... 
+                    
+                } else { 
+                    let isSameWeb = altWeb === this.state.selectedEntity.ParentWebUrl ? true : false;
+                    let cachedWeb = null;
+                    let theSite = null;
+                    if ( isSameWeb === true ) {
+                        cachedWeb = this.props.pickedWeb;
+                        theSite = this.props.theSite;
+
+                    } else {
+                        cachedWeb = await getWebInfoIncludingUnique( altWeb, 'min', false, null );
+                        theSite = await getSiteInfo( altWeb, false, false );
+                    }
+
+                    listIndex = doesObjectExistInArrayInt( result.allLists , 'Title',altListTitle, true ); 
+                    cachedWebIds = this.updateWebCacheObject( result.allLists, this.state.cachedWebIds, cachedWeb, theSite );
+                    console.log('_fetchCompare updateCache ~ 413 is', updateCache );
+                    updateCache = updateWebCache === true ? true : updateCache ;
+
+                }
+
+                if ( listIndex > -1 ) {
+                    secondJSON = result.allLists[listIndex];
+                } else {
+                    secondJSON = null;
+                    if ( result.errMessage === '' ) { result.errMessage = 'Unable to find the list you mentioned :(' ; } 
+                }
+
                 compareError= result.errMessage;
             }
 
@@ -406,7 +449,10 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                 secondJSON: secondJSON,
                 compareError: compareError, 
                 lastCompare: doThis,
+                cachedWebIds: cachedWebIds,
             });
+
+            if ( updateCache === true ) { this.props.updateCachedLists( cachedWebIds ); }
 
         } else if ( doThis === 'Fields' ) {
             let firstJSON = [];
@@ -475,33 +521,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         // listURL: string;
         // pickedWeb : IPickedWebBasic;
         // theSite: ISite;
-
-        let cachedWebIds : ICachedWebIds = this.state.cachedWebIds;
-        let pickedWebGuid = this.props.pickedWeb.guid;
-        let cachedIndex = cachedWebIds.webIds.indexOf( pickedWebGuid );
-        let cachedLists : ICachedListId[] = [];
-
-        allLists.map( list => {
-            let theSite: any = this.props.theSite;
-            let thisRecentList : ICachedListId = this.makeIContentsListInfoIntoRecentListId( this.props.pickedWeb, list, theSite );
-            // cachedLists = this.addSimpleObjectToArrayIfNotExist( cachedLists, thisRecentList, ['webUrl','listTitle'] ) ;
-            cachedLists.push( thisRecentList );
-        });
-
-        let thisWebCache: IWebCache = {
-            id: this.props.pickedWeb.guid,
-            title: this.props.pickedWeb.title,
-            url: this.props.pickedWeb.url,
-            lists: cachedLists,
-        };
-
-        if ( cachedIndex  > - 1 ) {
-            cachedWebIds.webCache [ cachedIndex ] = thisWebCache ;
-
-        } else {
-            cachedWebIds.webCache.push( thisWebCache ) ;
-            cachedWebIds.webIds.push( this.props.pickedWeb.guid ) ;
-        }
+        let cachedWebIds = this.updateWebCacheObject( allLists, this.state.cachedWebIds, this.props.pickedWeb, this.props.theSite );
 
         this.setState({
             allLists: allLists,
@@ -518,6 +538,39 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
         this.props.updateCachedLists( cachedWebIds );
         return true;
+    }
+
+    private updateWebCacheObject ( allLists:  IContentsListInfo[], cachedWebIds : ICachedWebIds, pickedWeb: IPickedWebBasic, theSite: ISite ) {
+        
+        // let cachedWebIds : ICachedWebIds = this.state.cachedWebIds;
+        let pickedWebGuid = pickedWeb.guid;
+        let cachedIndex = cachedWebIds.webIds.indexOf( pickedWebGuid );
+        let cachedLists : ICachedListId[] = [];
+
+        allLists.map( list => {
+            // let theSite: any = this.props.theSite;
+            let thisRecentList : ICachedListId = this.makeIContentsListInfoIntoRecentListId( pickedWeb, list, theSite );
+            // cachedLists = this.addSimpleObjectToArrayIfNotExist( cachedLists, thisRecentList, ['webUrl','listTitle'] ) ;
+            cachedLists.push( thisRecentList );
+        });
+
+        let thisWebCache: IWebCache = {
+            id: pickedWeb.guid,
+            title: pickedWeb.title,
+            url: pickedWeb.url,
+            lists: cachedLists,
+        };
+
+        if ( cachedIndex  > - 1 ) {
+            cachedWebIds.webCache [ cachedIndex ] = thisWebCache ;
+
+        } else {
+            cachedWebIds.webCache.push( thisWebCache ) ;
+            cachedWebIds.webIds.push( pickedWeb.guid ) ;
+        }
+
+        return cachedWebIds;
+
     }
 
     private makeIContentsListInfoIntoRecentListId ( pickedWeb: IPickedWebBasic, list: IContentsListInfo, theSite: any ) {

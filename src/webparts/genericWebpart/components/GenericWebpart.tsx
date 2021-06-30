@@ -818,7 +818,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
       }
 
-      let theSite: ISite = await getSiteInfo( newValue );
+      let theSite: ISite = await getSiteInfo( newValue, false, false );
 
       let isCurrentWeb: boolean = false;
       if ( newValue.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }

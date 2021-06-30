@@ -578,7 +578,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         if ( newVal === undefined || newVal === null || newVal.length === 0 ) { newVal = this.props.theList.ParentWebUrl ; }
 
         if ( key === 'Enter' ) {
-            this.props._fetchCompare( newVal, this.state.otherList, this.state.otherProp );
+            this.props._fetchCompare( newVal, this.state.otherList, this.state.otherProp, true );
         } else {  //stateError: stateError, pickedWeb: pickedWeb,
             this.setState({  otherWeb: newVal  }); 
         }
@@ -587,7 +587,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
     private async _updateText1_Web(oldVal: any): Promise<any> {  
         if ( oldVal === undefined || oldVal === null || oldVal.length === 0 ) { oldVal = this.props.theList.ParentWebUrl ; }
         await this.setState({  otherWeb: oldVal  }); 
-        this.props._fetchCompare( oldVal, this.state.otherList, this.state.otherProp );
+        this.props._fetchCompare( oldVal, this.state.otherList, this.state.otherProp, true );
     }
 
     private async _updateText2_List(oldVal: any):  Promise<any> {  

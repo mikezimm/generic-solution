@@ -75,7 +75,7 @@ import { shouldDoThisStepBasedOnDependant } from './railsSetup';
  *                                                                                                                       
  */
 
-//  import { getSiteInfoIncludingUnique } from './functions';
+//  import { getWebInfoIncludingUnique } from './functions';
 
 //   import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
 

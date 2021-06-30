@@ -73,7 +73,7 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  *                                                                                                                       
  */
 
-//  import { getSiteInfoIncludingUnique } from './functions';
+//  import { getWebInfoIncludingUnique } from './functions';
 
 //   import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
 
