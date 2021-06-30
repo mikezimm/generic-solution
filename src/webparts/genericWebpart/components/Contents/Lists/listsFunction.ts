@@ -182,7 +182,7 @@ export async function getSiteInfo( webUrl: string, alertErrors: boolean, logErro
       thisSiteInstance = await Site( webUrl );
     } catch (e) {
         let helpfulErrorEnd = [ webUrl, '', '', null, null ].join('|') ;
-        let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 137' + logErrors, helpfulErrorEnd ].join('|') : '';
+        let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 137 ' + logErrors, helpfulErrorEnd ].join('|') : '';
         errMessage = getHelpfullErrorV2(e, alertErrors, true, errorTrace );
     }
   
@@ -193,7 +193,7 @@ export async function getSiteInfo( webUrl: string, alertErrors: boolean, logErro
       } catch (e) {
 
         let helpfulErrorEnd = [ webUrl, '', '', null, null ].join('|');
-        let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 148' + logErrors, helpfulErrorEnd ].join('|') : '';
+        let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 148 ' + logErrors, helpfulErrorEnd ].join('|') : '';
 
         //Set alertMe = false because it was causing false positives when clicking to Site Contents from page with EasyContents on it.
         console.log('---===>>>> getSiteInfo FAILED, NO Alert');
@@ -206,7 +206,7 @@ export async function getSiteInfo( webUrl: string, alertErrors: boolean, logErro
   }
 
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableLists( webURL: string, restFilter: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[] | any >{
+export async function allAvailableLists( webURL: string, restFilter: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any, logErrors: boolean | string = false ): Promise<IContentsListInfo[] | any >{
 
     webURL = getFullUrlFromSlashSitesUrl( webURL );
 
@@ -228,7 +228,9 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
               } catch (e) {
         
                 let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
-                errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo GetLists With Filter ~ 182', helpfulErrorEnd ].join('|') );
+                let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo GetLists With Filter ~ 182 ' + logErrors, helpfulErrorEnd ].join('|') : '';
+
+                errMessage = getHelpfullErrorV2(e, false, true, errorTrace );
               }
 
         } else {
@@ -238,7 +240,8 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
               } catch (e) {
         
                 let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
-                errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo Get Lists No Filter ~ 192', helpfulErrorEnd ].join('|') );
+                let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo GetLists With Filter ~ 192 ' + logErrors, helpfulErrorEnd ].join('|') : '';
+                errMessage = getHelpfullErrorV2(e, false, true, errorTrace );
               }
         }
         //console.log(allLists);
@@ -299,7 +302,9 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
     } catch (e) {
             
         let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
-        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 252', helpfulErrorEnd ].join('|') );
+        let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 252 ' + logErrors, helpfulErrorEnd ].join('|') : '';
+
+        errMessage = getHelpfullErrorV2(e, true, true, errorTrace );
 
         console.log('checkThisPage', errMessage);
         addTheseListsToState([], errMessage );

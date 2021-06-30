@@ -408,7 +408,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             } else {
                 let restFilter = `Title eq '${ altListTitle }'`;
                 // let result = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
-                let result = await allAvailableLists( altWeb, null, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
+                let result = await allAvailableLists( altWeb, null, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null, false );
                 let listIndex = -1;
 
                 if ( result.errMessage && result.errMessage.length > 0 ) {
@@ -494,7 +494,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     }
 
     private getListDefs() {
-        let result : any = allAvailableLists( this.props.pickedWeb.url, null, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableLists( this.props.pickedWeb.url, null, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this), ' ~ 497' );
     }
 
     private addTheseListsToState( allLists , errMessage : string ) {
