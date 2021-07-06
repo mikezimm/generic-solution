@@ -171,6 +171,10 @@ const hardSpacer = <div id="spacerX" style={{ height: '20px'}}></div>;
 
 export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, IMyJsonCompareState> {
 
+    private sentWebUrl: string = '';
+    private lastWebUrl : string = '';
+    private typeGetTime: number[] = [];
+    private typeDelay: number[] = [];
 
     /***
  *          .o88b.  .d88b.  d8b   db .d8888. d888888b d8888b. db    db  .o88b. d888888b  .d88b.  d8888b. 
@@ -416,7 +420,8 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                             <div style={{  display: 'flex' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >Web URL</div>
                                 {/* { this.makeWebField( 'Enter compare web URL', this.state.otherWeb , this._updateText1_Web.bind(this) , false, '0px 0px ' + '20px ' + '0px' )} */}
-                                { this.makeTextField( 'Enter compare web URL', this.state.otherWeb , this._updateText1_Web.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
+                                {/* { this.makeTextField( 'Enter compare web URL', this.state.otherWeb , this._updateText1_Web.bind(this) , false, '0px 0px ' + '20px ' + '0px' )} */}
+                                { this.makeTextField( 'Enter compare web URL', this.state.otherWeb , this.delayOnWebUrlChange.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
                             </div>
                             <div style={{  display: 'flex' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >List Title</div>
@@ -583,6 +588,33 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             this.setState({  otherWeb: newVal  }); 
         }
       }
+
+      
+  /**
+   * Source:  https://github.com/pnp/sp-dev-fx-webparts/issues/1944
+   * 
+   * @param NewValue 
+   *   
+  private sentWebUrl: string = '';
+  private lastWebUrl : string = '';
+  private typeGetTime: number[] = [];
+  private typeDelay: number[] = [];
+   */
+  private delayOnWebUrlChange(NewValue: string): void {
+    //Track the url change and also record timings for testing.
+    this.lastWebUrl = NewValue;
+    this.typeGetTime.push( ( new Date()).getTime() );
+    this.typeDelay.push( this.typeGetTime.length === 0 ? 0 : this.typeGetTime[ this.typeGetTime.length -1] - this.typeGetTime[ this.typeGetTime.length -2]  );
+
+    setTimeout(() => {
+      if (this.lastWebUrl === NewValue ) {
+        this.sentWebUrl = this.lastWebUrl;
+        this._updateText1_Web(this.sentWebUrl);
+      } else {
+
+      }
+    }, 1000);
+  }
 
     private async _updateText1_Web(oldVal: any): Promise<any> {  
         if ( oldVal === undefined || oldVal === null || oldVal.length === 0 ) { oldVal = this.props.theList.ParentWebUrl ; }

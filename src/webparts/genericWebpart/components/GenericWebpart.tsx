@@ -13,8 +13,6 @@ import { Web, IWeb } from "@pnp/sp/presets/all";
 
 import { IconButton, IIconProps, IContextualMenuProps, Stack, Link } from 'office-ui-fabric-react';
 
-import { debounce } from "throttle-debounce";
-
 import styles from './GenericWebpart.module.scss';
 import { IGenericWebpartProps } from './IGenericWebpartProps';
 import { IGenericWebpartState } from './IGenericWebpartState';
@@ -24,7 +22,6 @@ import { escape } from '@microsoft/sp-lodash-subset';
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 import { IMyPivots,  } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
-
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
@@ -77,6 +74,14 @@ import { ICachedWebIds } from './Contents/Lists/IListComponentTypes';
 const emptyString = (value: string | Date) : string => { return "";};
 
 export default class GenericWebpart extends React.Component<IGenericWebpartProps, IGenericWebpartState> {
+
+  private sentWebUrl: string = '';
+  private lastWebUrl : string = '';
+  private typeGetTime: number[] = [];
+  private typeDelay: number[] = [];
+  // private sentCount: number = 0;
+  // private lastCount: number = 0;
+  // private debounceCount: number = 0;
 
   // private buildEarlyAccessButton( title: string, icon: string, onClick: any, ) {
   //   defCommandIconStyles.icon.fontWeight = '600' ;
@@ -403,12 +408,13 @@ public async getListDefinitions( doThis: 'props' | 'state') {
             label={ null }
             autoComplete='off'
             // onChanged={ this._onWebUrlChange.bind(this) }
+            onChanged={ this.delayOnWebUrlChange.bind(this) }
             onGetErrorMessage= { emptyString }
             validateOnFocusIn
             validateOnFocusOut
             multiline= { false }
             autoAdjustHeight= { true }
-            onKeyDown={(ev)=> { this.onWebUrlKeyDown( ev ) ; } }
+            // onKeyDown={(ev)=> { this.onWebUrlKeyDown( ev ) ; } }
 
           />{ this.state.webURLStatus ? 
             <span style={{ color: 'red', whiteSpace: 'nowrap', marginRight: '40px', fontSize: 'larger', fontWeight: 'bolder' }}>
@@ -769,14 +775,44 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     }
   }
 
-  private _onWebUrlChange( newValue?: string, webURLStatus: string = null){
-    // debounce(250, this.debounce_onWebUrlChange( newValue, webURLStatus ) );
-    this.debounce_onWebUrlChange( newValue, webURLStatus );
+  /**
+   * Source:  https://github.com/pnp/sp-dev-fx-webparts/issues/1944
+   * 
+   * @param NewValue 
+   *   
+  private sentWebUrl: string = '';
+  private lastWebUrl : string = '';
+  private typeGetTime: number[] = [];
+  private typeDelay: number[] = [];
+   */
+  private delayOnWebUrlChange(NewValue: string): void {
+    //Track the url change and also record timings for testing.
+    this.lastWebUrl = NewValue;
+    this.typeGetTime.push( ( new Date()).getTime() );
+    this.typeDelay.push( this.typeGetTime.length === 0 ? 0 : this.typeGetTime[ this.typeGetTime.length -1] - this.typeGetTime[ this.typeGetTime.length -2]  );
+
+    setTimeout(() => {
+      if (this.lastWebUrl === NewValue ) {
+        this.sentWebUrl = this.lastWebUrl;
+        this._onWebUrlChange(this.sentWebUrl, null);
+      } else {
+
+      }
+    }, 1000);
   }
 
-  private async debounce_onWebUrlChange(newValue?: string, webURLStatus: string = null){
+  // private _onWebUrlChange( newValue?: string, webURLStatus: string = null){
+  //   // debounce(250, this._onWebUrlChange( newValue, webURLStatus ) );
+  //   this._onWebUrlChange( newValue, webURLStatus );
+  // }
+
+  private async _onWebUrlChange(newValue?: string, webURLStatus: string = null){
     // let updateState = false;
     // if ( event === null ) { updateState = true; } //This is for when the webpart initially loads with current web url.
+    console.log('_onWebUrlChange Fetchitng Lists ====>>>>> :', newValue );
+    // console.log('_onWebUrlChange GetTime ====>>>>> :', this.typeGetTime );
+    // console.log('_onWebUrlChange Delays ====>>>>> :', this.typeDelay );
+    // console.log('_onWebUrlChange After Delay ====>>>>> :', this.typeDelay[this.typeDelay.length - 1] );
 
       let errMessage = null;
       let stateError : any[] = [];
