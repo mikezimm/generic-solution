@@ -103,13 +103,13 @@ import { JSONEditorShort } from '../../../HelpInfo/AllLinks';
  */
 
 
-import { provisionTheList, IValidTemplate } from '../../../ListProvisioning/component/provisionWebPartList';
+import { provisionTheList } from '../../../ListProvisioning/component/provisionWebPartList';
 
 import styles from '../../../ListProvisioning/component/provisionList.module.scss';
 
 import MyLogList from '../../../ListProvisioning/component/listView';
 
-import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
+import { IMakeThisList } from '../../../../../../services/railsCommon/ProvisionTypes';
 
 
 
@@ -270,7 +270,7 @@ export default class ProvisionLists extends React.Component<IProvisionListsProps
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionList', null ); //richText, Setting, richText2
+            ActionJSON, 'ProvisionList', null, null ); //richText, Setting, richText2
 
     }
 
@@ -334,6 +334,7 @@ public constructor(props:IProvisionListsProps){
         lists: theLists,
 
         validUserIds: [],
+        applyThisVersion: '',
 
     };
 
@@ -941,6 +942,7 @@ public constructor(props:IProvisionListsProps){
         return theLists;
     }
 
+    //
     private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
         const dropdownStyles: Partial<IDropdownStyles> = {
             dropdown: { width: dropDownWidth }

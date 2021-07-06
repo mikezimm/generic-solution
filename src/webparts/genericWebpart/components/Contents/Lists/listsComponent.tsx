@@ -27,6 +27,8 @@ import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IM
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { doesObjectExistInArrayInt } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
+import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
+
 import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
@@ -263,6 +265,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         analyticsWeb= { this.props.analyticsWeb }
                         analyticsList= { this.props.analyticsList }
                         listory = { this.props.listory }
+                        cachedWebIds = { this.state.cachedWebIds }
 
                     ></MyJsonCompare>;
                 } else if ( this.state.railFunction === 'AddTemplate' ) {
@@ -575,6 +578,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     private makeIContentsListInfoIntoRecentListId ( pickedWeb: IPickedWebBasic, list: IContentsListInfo, theSite: any ) {
 
+        let isSystem = SystemLists.indexOf(list.EntityTypeName) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1 ? true : false;
+
         let thisRecentList : ICachedListId = {
             siteId: theSite.Id,
             webTitle: pickedWeb.title,
@@ -583,6 +588,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             listId: list.Id,
             listTitle: list.Title,
             listUrl: getFullUrlFromSlashSitesUrl( list.listURL ),
+            hidden: list.Hidden,
+            system: isSystem,
+            entityName: list.EntityTypeName,
         };
 
         return thisRecentList;

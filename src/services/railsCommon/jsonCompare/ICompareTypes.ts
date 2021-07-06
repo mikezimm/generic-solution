@@ -72,6 +72,7 @@ import { ICompareObject, IComparePair, IIncludeOrIgnore, ICompareKeysResult, }
  */
 //import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../services/railsCommon/jsonCompare/types';
 
+import { ICachedWebIds } from '../../../webparts/genericWebpart/components/Contents/Lists/IListComponentTypes';
 export type IListory = 0 | 1 | 2;  // 0 = no saving; 1 = only list compare was selected on; 2 = both the original and compare list
 
 export interface IMyJsonCompareProps {
@@ -90,6 +91,8 @@ export interface IMyJsonCompareProps {
     _fetchCompare: any; //Function that will get json2 from inputs in this component
 
     pickedWeb : IPickedWebBasic;
+
+    cachedWebIds: ICachedWebIds; //Used for analytics and error reporting to minimize calls to get this info.
 
     analyticsWeb: string;
     analyticsList: string;
@@ -113,6 +116,7 @@ export interface IMyJsonCompareState {
     otherWeb: string;
     otherList: string;
     otherProp: string;
+    otherListIndex: number;  //Currently not in use
 
     ignoreKeys: string[];
     includeOrIgnoreKeys: IIncludeOrIgnore;

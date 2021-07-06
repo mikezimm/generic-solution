@@ -45,6 +45,10 @@ export interface ICachedListId {
   listId: string;
   siteId: string;
 
+  hidden: boolean;
+  system: boolean;
+  entityName: string;
+
   fields?: any[];  //For future use if needed
   views?: any[];  //For future use if needed
   props?: any;  //For future use if needed

@@ -22,7 +22,7 @@ import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { Spinner, SpinnerSize, } from 'office-ui-fabric-react/lib/Spinner';
 import { Pivot, PivotItem, IPivotItemProps, PivotLinkFormat, PivotLinkSize,} from 'office-ui-fabric-react/lib/Pivot';
 import { Image, IImageProps, ImageFit, ImageCoverStyle } from 'office-ui-fabric-react/lib/Image';
-import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { MessageBar, MessageBarType } from 'office-ui-fabric-react/lib/MessageBar';
 import { SearchBox, } from 'office-ui-fabric-react/lib/SearchBox';
 
@@ -109,7 +109,7 @@ import styles from './jsonCompare.module.scss';
  *                                                                                                                                               
  *                                                                                                                                               
  */
-
+import { ICachedWebIds } from '../../../webparts/genericWebpart/components/Contents/Lists/IListComponentTypes';
 import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from './ICompareTypes';
 
 import stylesCompare from './jsonCompare.module.scss';
@@ -205,6 +205,8 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
         let json1PropCount = this.props.json1 === null ? 0 : this.props.json1.length;
         let json2PropCount = this.props.json2 === null ? 0 : this.props.json2.length;
 
+        let otherListIndex = null; //Currently not in use
+
         this.state = {
             disableDo: false,
             refreshId: refreshId,
@@ -212,6 +214,7 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             errorMess: '',
             otherWeb: this.props.theList.ParentWebUrl,
             otherList: this.props.theList.Title,
+            otherListIndex: otherListIndex, //Currently not in use
             otherProp: 'Lists',
             showTab: pivotHeading1,
             comparePivot: comparePivot9,
@@ -386,6 +389,9 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             let isSameEntity = isSameList === true && isSameWeb === true ? true : false;
             let actualPivotHeading3 = isSameEntity === true || this.state.errorMess !== '' || this.props.errorMess !== '' ? null : pivotHeading3;
 
+            let choices = this._getWebListsFromCache( this.state.otherWeb, this.props.cachedWebIds, this.props.theList );
+            let listDropdown = this._createDropdownField( null , choices  , this._updateListDropdownChange.bind(this) , '0px 0px ' + '20px ' + '0px' );
+
             let errorImageStyle = isSameEntity === false || this.state.showTab !== pivotHeading2 ? {
                     display: 'none',
                     transition:'all 0.3s ease',
@@ -425,7 +431,8 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
                             </div>
                             <div style={{  display: 'flex' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >List Title</div>
-                                { this.makeTextField( 'Enter compare List Title', this.state.otherList , this._updateText2_List.bind(this) , false, '0px 0px ' + '20px ' + '0px' )}
+                                { listDropdown }
+                                {/* { this.makeTextField( 'Enter compare List Title', this.state.otherList , this._updateText2_List.bind(this) , false, '0px 0px ' + '20px ' + '0px' )} */}
                             </div>
                             <div style={{  display: 'flex', marginBottom: '20px' }}>
                                 <div style={{ fontSize: 'larger', fontWeight: 'bolder', width: '100px'}} >Do this</div>
@@ -588,7 +595,6 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
             this.setState({  otherWeb: newVal  }); 
         }
       }
-
       
   /**
    * Source:  https://github.com/pnp/sp-dev-fx-webparts/issues/1944
@@ -615,6 +621,82 @@ export default class MyJsonCompare extends React.Component<IMyJsonCompareProps, 
       }
     }, 1000);
   }
+
+  private _getWebListsFromCache( webUrl: string, cachedWebIds : ICachedWebIds, currentList: IContentsListInfo ) {
+
+    let checkSystem = currentList.meta.indexOf('9') > -1 ? true : false;
+    let checkHidden = currentList.meta.indexOf('Hidden') > -1 ? true : false;
+    let listTitles : string[] = [];
+    let lcWeb = webUrl.toLowerCase();
+    let foundWeb = false;
+    cachedWebIds.webCache.map( cache => {
+        if ( cache.url.toLowerCase().indexOf( lcWeb ) > - 1 ) {
+            foundWeb = true;
+            cache.lists.map( list => {
+                if ( list.hidden === checkHidden && list.system === checkSystem ) {
+                    listTitles.push( list.listTitle ) ;
+                }
+            });
+        }
+    });
+
+    if ( foundWeb === false ) { listTitles = ['Enter valid Web URL'] ; }
+    return listTitles;
+
+  }
+
+    // let listDropdown = this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
+    private _createDropdownField( label: string, choices: string[], _onChange: any, margin : string, width = panelWidth) {
+        const dropdownStyles: Partial<IDropdownStyles> = {
+            root: { width: panelWidth }
+          };
+
+          let sOptions: IDropdownOption[] = choices == null ? null : 
+            choices.map(val => {
+                  return {
+                      //key: getChoiceKey(val),
+                      key: val,
+                      text: val,
+                  };
+              });
+
+          let keyVal = this.state.otherList;
+
+          let selectedFilter = this.props.theList.meta.indexOf('Hidden') > -1 ? 'Hidden, ' : 'Visible, ';
+          selectedFilter += this.props.theList.meta.indexOf('9') > -1 ? 'System' : 'Non-System';
+
+          let selectedIndex: any = choices.indexOf( this.state.otherList );
+          selectedIndex = selectedIndex > -1 ? selectedIndex + 1 : 'none';
+          let selectedText = `Selected: ${ selectedIndex } of ${ choices.length } similar ${ selectedFilter } lists` ;
+          let thisDropdown = sOptions == null ? null : <div
+              style={{  margin: margin, width: width,
+                    display:'inline-flex', flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center',
+                }}
+                ><Dropdown 
+                label={ label }
+                //selectedKey={ getChoiceKey(keyVal) }
+                selectedKey={ keyVal }
+                onChange={ _onChange }
+                options={ sOptions } 
+                styles={ dropdownStyles }
+              /><span style={{paddingLeft: '25px', whiteSpace: 'nowrap' }}> { selectedText } </span>
+            </div>;
+
+        return thisDropdown;
+
+    }
+
+    private async _updateListDropdownChange (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): Promise<any> {
+        let oldVal = item.text;
+
+        console.log(`_updateStatusChange: ${item.text} ${item.selected ? 'selected' : 'unselected'}`);
+
+        if ( oldVal === undefined || oldVal === null || oldVal.length === 0 ) { oldVal = this.props.theList.Title ; }
+        await this.setState({  otherList: oldVal  }); 
+        this.props._fetchCompare( this.state.otherWeb, oldVal, this.state.otherProp );
+
+    }
+
 
     private async _updateText1_Web(oldVal: any): Promise<any> {  
         if ( oldVal === undefined || oldVal === null || oldVal.length === 0 ) { oldVal = this.props.theList.ParentWebUrl ; }
