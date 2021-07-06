@@ -70,7 +70,6 @@ import { createStep, IProcessStep } from '../../../../../../services/railsCommon
  */
 
 
-
 export interface IProcessSteps {
   checkListPerms: IProcessStep;
   breakListPerms: IProcessStep;

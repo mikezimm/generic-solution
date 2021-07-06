@@ -36,7 +36,6 @@ import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Ser
 import { encodeDecodeString, getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
 
 /***
@@ -382,56 +381,6 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
  }
 
- export async function getWebInfoIncludingUnique( webURL : string , minOrAllProps: 'min' | 'all', alertErrors: boolean ) {
-
-  webURL = getFullUrlFromSlashSitesUrl( webURL );
-  let errMessage = '';
-
-  const thisWebObject = Web( webURL );
-  let getMinProps = 'Title,Id,Url,ServerRelativeUrl,SiteLogoUrl,Description,HasUniqueRoleAssignments';
-  if ( minOrAllProps === 'all' ) { getMinProps = '*,' + getMinProps ; }
-  let pickedWeb = null;
-
-  try {
-    const webbie = await thisWebObject.select(getMinProps).get();
-
-    if ( minOrAllProps === 'min' ) {
-      let pickedWebMin : IPickedWebBasic = {
-        ServerRelativeUrl: 'Site ServerRelativeUrl',
-        guid: 'Site Guid',
-        title: 'Site Title',
-        url: 'siteURL',
-        siteIcon: 'Site Icon',
-        error: '',
-        HasUniqueRoleAssignments: null,
-      };
-  
-      pickedWebMin = {
-          ServerRelativeUrl: webbie.ServerRelativeUrl,
-          guid: webbie.Id,
-          title: webbie.Title,
-          url: webbie.Url,
-          siteIcon: webbie.SiteLogoUrl,
-          error: '',
-          HasUniqueRoleAssignments: webbie['HasUniqueRoleAssignments'],
-      };
-
-      pickedWeb = pickedWebMin;
-
-    } else { pickedWeb = webbie; }
-
-  } catch (e) {
-
-    let helpfulErrorEnd = [ webURL, , null, null ].join('|');
-    errMessage = getHelpfullErrorV2(e, alertErrors, true, [ BaseErrorTrace , 'Failed', 'railFunctions Get Site info ~ 421', helpfulErrorEnd ].join('|') );
-    pickedWeb.error = errMessage;
- 
-  }
-
-  return pickedWeb;
-
- }
- 
 
  
 const APISiteGetEndPoint : string = '_api/site';
