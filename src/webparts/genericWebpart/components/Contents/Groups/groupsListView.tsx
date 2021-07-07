@@ -197,7 +197,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
 
           const CreateGroupsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='GetUsers' data-groupTitle={ Grp.Title } onClick={ this.openGroupPanel.bind(this) }> { fpsAppIcons.CreateGroups } </div>;
 
-          let userCount = <div style={{ display: 'inline-block'}}>
+          let userCount = <div style={{ display: 'inline-flex', flexWrap: 'nowrap', alignItems: 'center' }}>
             <div>{ Grp.userCount }</div>
             { CreateGroupsIcon }
           </div>;
