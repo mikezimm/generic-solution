@@ -206,7 +206,7 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
             return <tr>
                 <td className={ '' }> { '' }</td> 
                 <td className={ '' }> { Grp.Id }</td> 
-                <td className={ styleTitle } style={ titleStyle } title={ groupTitle }> {  groupTitle }</td>
+                <td className={ styleTitle } style={ titleStyle } title={ groupTitle }> {  groupLink }</td>
 
                 <td className= { styleAdvanced }> { groupLink }</td>
 

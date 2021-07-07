@@ -23,7 +23,9 @@
 
     "properties": {
       "description": "For power users and site owners",
-      "allowRailsOff": false
+      "allowRailsOff": false,
+      "fpsPageStyle": "this.section.maxWidth=2200px",
+      "fpsContainerMaxWidth": ""
     }
   }]
 }

@@ -36,6 +36,7 @@ export class IntroPage {
       displayGroupsAsAccordion: true,
       groups: [
         WebPartInfoGroup( links.gitRepoEasyContnets, 'Swiss Army Knife of tiles' ),
+        FPSOptionsGroup( false, true, true, true ), // this group
 
         ]}; // Groups
   } // getPropertyPanePage()

@@ -17,6 +17,10 @@ import { IGenericWebpartProps } from './components/IGenericWebpartProps';
 import { PageContext } from '@microsoft/sp-page-context';
 
 import { makeTheTimeObject } from '@mikezimm/npmfunctions/dist/Services/Time/timeObject';
+
+import { setPageFormatting, IFPSPage } from '@mikezimm/npmfunctions/dist/Services/DOM/FPSFormatFunctions';
+import { minimizeQuickLaunch } from '@mikezimm/npmfunctions/dist/Services/DOM/quickLaunch'; //For FPS Options
+
 import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../services/createAnalytics';
 
 import { propertyPaneBuilder } from '../../services/propPane/PropPaneBuilder';
@@ -77,6 +81,12 @@ export interface IGenericWebpartWebPartProps {
   pivotOptions: string;
   pivotTab: string;
 
+  //General settings for FPS Options group
+  searchShow: boolean;
+  fpsPageStyle: string;
+  fpsContainerMaxWidth: string;
+  quickLaunchHide: boolean;
+
   uniqueId: string;
   
 }
@@ -84,7 +94,9 @@ export interface IGenericWebpartWebPartProps {
 
 export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGenericWebpartWebPartProps>  {
 
-
+  private fpsPageDone: boolean = false;
+  private fpsPageArray: any[] = null;
+  private minQuickLaunch: boolean = false;
 
 /***
  *          .d88b.  d8b   db d888888b d8b   db d888888b d888888b 
@@ -146,6 +158,9 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
     let progress = this.properties.progress;
     console.log('this.properties.progress:',this.properties.progress);
 
+    //For FPS Options
+    this.setThisPageFormatting( this.properties.fpsPageStyle );
+    this.setQuickLaunch( this.properties.quickLaunchHide );
 
     //Be sure to always pass down an actual URL if the webpart prop is empty at this point.
     //If it's undefined, null or '', get current page context value
@@ -324,6 +339,36 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
 
     }
     this.render();
+  }
+
+  
+  /**
+   * Used with FPS Functions
+   * @param quickLaunchHide 
+   */
+  private setQuickLaunch( quickLaunchHide: boolean ) {
+
+    if ( quickLaunchHide === true && this.minQuickLaunch === false ) {
+      minimizeQuickLaunch( document , quickLaunchHide );
+      this.minQuickLaunch = true;
+    }
+
+  }
+
+  /**
+   * Used with FPS Functions
+   * @param fpsPageStyle 
+   */
+  private setThisPageFormatting( fpsPageStyle: string ) {
+    let fpsPage: IFPSPage = {
+      Done: this.fpsPageDone,
+      Style: fpsPageStyle,
+      Array: this.fpsPageArray,
+    };
+
+    fpsPage = setPageFormatting( this.domElement, fpsPage );
+    this.fpsPageArray = fpsPage.Array;
+    this.fpsPageDone = fpsPage.Done;
   }
 
 
