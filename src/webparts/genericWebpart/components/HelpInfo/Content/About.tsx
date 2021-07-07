@@ -11,7 +11,7 @@ export function aboutTable() {
         rows: [],
     };
 
-    table.rows.push( ['2021-07-06', '1.1.14.5',    <span>Improve logging and add web and list cache, list dropdown to list Compare.</span>,                ''] );
+    table.rows.push( ['2021-07-06', '1.1.14.5',    <span>Improve logging and add web and list cache, list dropdown to list Compare. List History toggle</span>,                ''] );
     table.rows.push( ['2021-06-22', '1.1.14.4',    <span>Fix alert when clicking on OOTB Site Contents or other system pages.</span>,                ''] );
 
     table.rows.push( ['2021-06-18', '1.1.14.2',    <span>Add Apply Template History, other improvements.</span>,                ''] );
