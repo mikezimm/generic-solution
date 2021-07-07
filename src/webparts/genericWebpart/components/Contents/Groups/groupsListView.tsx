@@ -201,16 +201,16 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
             <div>{ Grp.userCount }</div>
             { CreateGroupsIcon }
           </div>;
-
+            let titleStyle : React.CSSProperties = { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '350px', paddingTop: '5px' } ;
             //columnsToVisible
             return <tr>
                 <td className={ '' }> { '' }</td> 
                 <td className={ '' }> { Grp.Id }</td> 
-                <td className={ styleTitle }> {  groupTitle }</td>
+                <td className={ styleTitle } style={ titleStyle } title={ groupTitle }> {  groupTitle }</td>
 
                 <td className= { styleAdvanced }> { groupLink }</td>
 
-                <td className={ '' }> { Grp.OwnerTitle }</td> 
+                <td className={ '' } style={ titleStyle } title={ Grp.OwnerTitle }> { Grp.OwnerTitle }</td>
                 <td className={ styleDesc }> { Grp.Description != null ? Grp.Description.slice(0,this.state.maxChars) + '...' : Grp.Description } </td>
 
                 <td className={ styleSpecial }> { /*this.getWebSpecialValue( F ) */ '' } </td>
