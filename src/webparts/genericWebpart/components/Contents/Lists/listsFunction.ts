@@ -248,13 +248,15 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
 
         for (let i in allLists ) {
 
-            let lastModified = makeSmallTimeObject(allLists[i].LastItemModifiedDate);
+            let lastSettingModified = makeSmallTimeObject(allLists[i].LastItemModifiedDate);
+            let lastUserModified = makeSmallTimeObject(allLists[i].LastItemModifiedDate);
             let created = makeSmallTimeObject(allLists[i].Created);
+            let deleted = makeSmallTimeObject(allLists[i].LastItemDeletedDate);
 
             allLists[i].Created = makeSmallTimeObject(allLists[i].Created).dayYYYYMMDD;
 
-            allLists[i].LastItemModifiedDate = lastModified.daysAgo.toString() + ' days';
-            allLists[i].modifiedAge = lastModified.daysAgo;
+            // allLists[i].LastItemModifiedDate = lastSettingModified.daysAgo.toString() + ' days';
+            allLists[i].modifiedAge = lastSettingModified.daysAgo;
             allLists[i].createdAge = created.daysAgo;
 
             let urlEntityName = encodeDecodeString( allLists[i].EntityTypeName , 'decode');

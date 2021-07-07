@@ -116,7 +116,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             showDesc: false,
             showSettings: false,
+            showHistory: false,
             showRailsOff: false,
+
 
             searchMeta: pivCats.visible.title,
             searchText: '',
@@ -207,6 +209,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                 this.state.listBuckets.map( bucket => {
                     return <MyLogList 
                         showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
+                        showHistory = { this.state.showHistory }
                         title={ ''}           items={ bucket }
                         showDesc = { this.state.showDesc } 
                         webURL = { this.props.pickedWeb.url }
@@ -1020,6 +1023,18 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             styles: '',
         };
 
+        let togHist = {
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>History</span>,
+            key: 'togggleHistory',
+            _onChange: this.updateTogggleHistory.bind(this),
+            checked: this.state.showHistory,
+            onText: '-',
+            offText: '-',
+            className: '',
+            styles: '',
+        };
+
         let railsLabel = <span style={{ color: 'red', fontWeight: 700}}>Rails Off!</span>;
         let togRails = {
             label: railsLabel,
@@ -1032,7 +1047,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             styles: '',
         };
 
-        let theseToggles = [togDesc, togSet ];
+        let theseToggles = [togDesc, togSet, togHist ];
         if ( this.props.allowRailsOff === true ) { theseToggles.push( togRails ); }
 
         let pageToggles : IContentsToggles = {
@@ -1051,6 +1066,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     private updateTogggleDesc() {
         this.setState({
             showDesc: !this.state.showDesc,
+            showSettings: !this.state.showDesc === true ? false : this.state.showSettings,  //Turn off desc if turning on History
         });
     }
 
@@ -1060,9 +1076,19 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         });
     }
 
+    private updateTogggleHistory() {
+        this.setState({
+            showHistory: !this.state.showHistory,
+            showSettings: !this.state.showHistory === true ? false : this.state.showSettings,  //Turn off desc if turning on History
+            showDesc: !this.state.showHistory === true ? false : this.state.showDesc,  //Turn off desc if turning on History
+            showRailsOff: !this.state.showHistory === true ? false : this.state.showRailsOff,  //Turn off desc if turning on History
+        });
+    }
+
     private updateTogggleRailsOff() {
         this.setState({
             showRailsOff: !this.state.showRailsOff,
+            showSettings: !this.state.showRailsOff === true ? false : this.state.showSettings,  //Turn off desc if turning on History
         });
     }
 

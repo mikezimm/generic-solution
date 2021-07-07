@@ -128,8 +128,9 @@ export interface IInspectListsState {
 
     showDesc: boolean;      //property set by toggle to actually show or hide this content
     showSettings: boolean;  //property set by toggle to actually show or hide this content
+    showHistory: boolean;  //property set by toggle to actually show or hide this content
     showRailsOff: boolean;  //property set by toggle to actually show or hide this content
-
+  
     errMessage: string | JSX.Element;
 
     showPanel: boolean;
