@@ -256,8 +256,10 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
             allLists[i].Created = makeSmallTimeObject(allLists[i].Created).dayYYYYMMDD;
 
             // allLists[i].LastItemModifiedDate = lastSettingModified.daysAgo.toString() + ' days';
-            allLists[i].modifiedAge = lastSettingModified.daysAgo;
+            allLists[i].modifiedSettingAge = lastSettingModified.daysAgo;
+            allLists[i].modifiedUserAge = lastUserModified.daysAgo;
             allLists[i].createdAge = created.daysAgo;
+            allLists[i].deletedAge = deleted.daysAgo;
 
             let urlEntityName = encodeDecodeString( allLists[i].EntityTypeName , 'decode');
             allLists[i].EntityTypeName = urlEntityName + '';
@@ -355,7 +357,7 @@ function buildMetaFromList( theList: IContentsListInfo ) {
     meta = addItemToArrayIfItDoesNotExist(meta, !theList.EnableVersioning ? pivCats.noVersions.title:'');
 
     meta = addItemToArrayIfItDoesNotExist(meta, theList.MajorVersionLimit > 100 ? pivCats.versions.title:'');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.modifiedAge > 180 ? pivCats.old.title:'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.modifiedSettingAge > 180 ? pivCats.old.title:'');
 
     meta = addItemToArrayIfItDoesNotExist(meta, theList.sort );
 
