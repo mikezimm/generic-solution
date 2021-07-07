@@ -128,10 +128,16 @@ export default class GenericWebpartWebPart extends BaseClientSideWebPart <IGener
           }
         } 
 
+        /**
+         * Set default page with using FPS Options for existing installed webparts
+         */
+        if ( this.properties.fpsPageStyle && this.properties.fpsPageStyle.length > 0 ) {} else { 
+          this.properties.fpsPageStyle = "this.section.maxWidth=2200px" ;
+        }
+        
         if ( this.properties.uniqueId && this.properties.uniqueId.length > 0 ) {} else { 
           this.properties.uniqueId = makeid( 7 ) ;
         }
-
         //console.log('window.location',window.location);
         sp.setup({
           spfxContext: this.context
