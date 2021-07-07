@@ -6,7 +6,7 @@ import { buildPropsHoverCard } from '../../../../../services/hoverCardService';
 
 import { buildMLineDiv } from '../../../../../services/stringFormatService';
 
-import { IContentsFieldInfo, IFieldBucketInfo} from './fieldsComponent';
+import { IContentsFieldInfo, IInspectColumnsProps, IInspectColumnsState, IFieldBucketInfo } from './IFieldComponentTypes';
 
 import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
 import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-react';

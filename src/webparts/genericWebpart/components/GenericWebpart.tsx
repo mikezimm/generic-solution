@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { sp, Views, IViews } from "@pnp/sp/presets/all";
+import { sp, Views, IViews, ISite } from "@pnp/sp/presets/all";
 
 // For Pivot VVVV
 import { Label, ILabelStyles } from 'office-ui-fabric-react/lib/Label';
@@ -23,7 +23,6 @@ import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/
 import { IMyPivots,  } from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 
-
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import  EarlyAccess from './HelpInfo/EarlyAccess';
@@ -34,7 +33,6 @@ import InfoPages from './HelpInfo/Component/InfoPages';
 import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/LinksRepos';
 
 
-
 //These are for provisionLists
 import { IProvisionListsProps, IProvisionListsState} from './ListProvisioning/component/provisionListComponent';
 //import { defineTheList } from './ListProvisioning/ListsTMT/defineThisList';
@@ -43,14 +41,16 @@ import ProvisionLists from './ListProvisioning/component/provisionListComponent'
 import ProvisionFields from './ListProvisioning/component/provisionFieldComponent';
 import ProvisionItems from './ListProvisioning/component/provisionItemsComponent';
 
-import { IDefinedLists, availLists, definedLists, } from './ListProvisioning/component/provisionFunctions';
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../services/railsCommon/ProvisionTypes';
+
+import { IListory, IMyJsonCompareProps, IMyJsonCompareState } from '../../../services/railsCommon/jsonCompare/ICompareTypes';  //listory: IListory;
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../services/railsCommon/ProvisionTypes';
 
 import InspectContents from './Contents/contentsComponent';
 
-import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
-
 import { createIconButton , defCommandIconStyles} from "./createButtons/IconButton";
-
 
 //These are for provisionPages
 import { IProvisionPagesProps, IProvisionPagesState} from './PageProvisioning/component/provisionPageComponent';
@@ -68,9 +68,20 @@ import { getHelpfullErrorV2 } from '@mikezimm/npmfunctions/dist/Services/Logging
 
 import { BaseErrorTrace } from '../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
+import { getSiteInfo } from './Contents/Lists/listsFunction';
+import { ICachedWebIds } from './Contents/Lists/IListComponentTypes';
+
 const emptyString = (value: string | Date) : string => { return "";};
 
 export default class GenericWebpart extends React.Component<IGenericWebpartProps, IGenericWebpartState> {
+
+  private sentWebUrl: string = '';
+  private lastWebUrl : string = '';
+  private typeGetTime: number[] = [];
+  private typeDelay: number[] = [];
+  // private sentCount: number = 0;
+  // private lastCount: number = 0;
+  // private debounceCount: number = 0;
 
   // private buildEarlyAccessButton( title: string, icon: string, onClick: any, ) {
   //   defCommandIconStyles.icon.fontWeight = '600' ;
@@ -201,7 +212,13 @@ public constructor(props:IGenericWebpartProps){
         childListTitle: this.props.childListTitle,  // Static Name of list (for URL) - used for links and determined by first returned item
 
         pickedWeb: null,
+        webURLStatus: null,
         isCurrentWeb: false,
+
+        cachedWebIds: {
+          webCache: [],
+          webIds: [],
+        },
         // 3 - General how accurate do you want this to be
       
         // 4 - Info Options
@@ -261,13 +278,15 @@ public constructor(props:IGenericWebpartProps){
         searchWhere: '',
 
         makeThisList: null,
+
+        theSite: null,
   
   };
 }
 
 
 public componentDidMount() {
-  this._onWebUrlChange(this.props.parentListWeb);
+  this._onWebUrlChange( this.props.parentListWeb );
   if ( this.props.allowRailsOff === true ) {
     this.getListDefinitions('state');
   }
@@ -388,14 +407,20 @@ public async getListDefinitions( doThis: 'props' | 'state') {
             defaultValue={ this.props.parentListWeb }
             label={ null }
             autoComplete='off'
-            onChanged={ this._onWebUrlChange.bind(this) }
+            // onChanged={ this._onWebUrlChange.bind(this) }
+            onChanged={ this.delayOnWebUrlChange.bind(this) }
             onGetErrorMessage= { emptyString }
             validateOnFocusIn
             validateOnFocusOut
             multiline= { false }
             autoAdjustHeight= { true }
+            // onKeyDown={(ev)=> { this.onWebUrlKeyDown( ev ) ; } }
 
-          /></div>;
+          />{ this.state.webURLStatus ? 
+            <span style={{ color: 'red', whiteSpace: 'nowrap', marginRight: '40px', fontSize: 'larger', fontWeight: 'bolder' }}>
+               { this.state.webURLStatus }
+            </span> : null }
+          </div>;
 
 
       /**
@@ -425,10 +450,14 @@ public async getListDefinitions( doThis: 'props' | 'state') {
               lists = { [] }
 
               pickedWeb = { this.state.pickedWeb }
+              theSite = { this.state.theSite }
+              currentPage= { this.props.pageContext.web.absoluteUrl }
+
               isCurrentWeb = { this.state.isCurrentWeb }
               
               definedList = { availLists[0] }
               provisionListTitles = { [] }
+
 
             ></ProvisionLists>
           </div>;
@@ -447,6 +476,9 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           urlVars= { this.props.urlVars }
 
           pickedWeb = { this.state.pickedWeb }
+          theSite = { this.state.theSite }
+          currentPage= { this.props.pageContext.web.absoluteUrl }
+
           isCurrentWeb = { this.state.isCurrentWeb }
 
           allowOtherSites={ allowOtherSites }
@@ -533,7 +565,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
             ></InfoPages>
           </div>;
 
-      const contentsPage = <div className= { defaultPageClass }>
+      const contentsPage = <div className= { defaultPageClass } style={{display : this.state.webURLStatus !== null ? 'none' : '' }}>
         <InspectContents
 
           wpContext={  this.props.wpContext }
@@ -549,6 +581,11 @@ public async getListDefinitions( doThis: 'props' | 'state') {
           allLoaded={false}
           currentUser = {this.state.currentUser }
           pickedWeb = { this.state.pickedWeb }
+
+          cachedWebIds = { this.state.cachedWebIds }
+          updateCachedLists = { this.updateCachedLists.bind(this) }
+
+          theSite = { this.state.theSite }
           showSettings = { true }
           showRailsOff = { true }
           allowRailsOff = { this.props.allowRailsOff }
@@ -561,6 +598,7 @@ public async getListDefinitions( doThis: 'props' | 'state') {
                   //Size courtesy of https://www.netwoven.com/2018/11/13/resizing-of-spfx-react-web-parts-in-different-scenarios/
 
           uniqueId = { this.props.uniqueId }
+          listory = { this.props.listory }
 
         ></InspectContents>
       </div>;
@@ -630,7 +668,6 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
           { this.props.urlVars['create'] ===  "true" ?
                 <PivotItem headerText="Create">
-
                     { contentsItems }  
                 </PivotItem>
           : null }
@@ -706,7 +743,76 @@ public async getListDefinitions( doThis: 'props' | 'state') {
     );
   }
 
-  private async _onWebUrlChange(newValue: string){
+  private updateCachedLists( cachedWebIds: ICachedWebIds ) {
+    this.setState({ cachedWebIds: cachedWebIds });
+  }
+
+  private onWebUrlKeyDown( ev: any ) {
+    let newVal = ev.nativeEvent.srcElement.value ;
+    let key = ev.key;
+    let webURLStatus : string = 'Press Enter to go to fetch new site';
+    console.log( 'onWebUrlKeyDown: key, newVal ~ 729', key, newVal );
+    if ( key === 'Enter' ) {
+      this._onWebUrlChange( newVal, null );
+
+    } else {  //stateError: stateError, pickedWeb: pickedWeb,
+      // let stateError: any[] = [];
+      // stateError.push( <div style={{ paddingLeft: '25px', paddingBottom: '30px', background: 'yellow' }}> <span style={{ fontSize: 'large', color: 'red'}}> { webURLStatus }</span> </div>);
+      let pickedWeb : IPickedWebBasic = {
+        ServerRelativeUrl: newVal,
+        guid: 'TBD',
+        title: 'TBD',
+        url: newVal,
+        siteIcon: 'TBD',
+        error: webURLStatus,
+        HasUniqueRoleAssignments: null,
+      };
+      this.setState({ 
+        webURLStatus: webURLStatus, 
+        // stateError: stateError, 
+        pickedWeb: pickedWeb, 
+      });
+    }
+  }
+
+  /**
+   * Source:  https://github.com/pnp/sp-dev-fx-webparts/issues/1944
+   * 
+   * @param NewValue 
+   *   
+  private sentWebUrl: string = '';
+  private lastWebUrl : string = '';
+  private typeGetTime: number[] = [];
+  private typeDelay: number[] = [];
+   */
+  private delayOnWebUrlChange(NewValue: string): void {
+    //Track the url change and also record timings for testing.
+    this.lastWebUrl = NewValue;
+    this.typeGetTime.push( ( new Date()).getTime() );
+    this.typeDelay.push( this.typeGetTime.length === 0 ? 0 : this.typeGetTime[ this.typeGetTime.length -1] - this.typeGetTime[ this.typeGetTime.length -2]  );
+
+    setTimeout(() => {
+      if (this.lastWebUrl === NewValue ) {
+        this.sentWebUrl = this.lastWebUrl;
+        this._onWebUrlChange(this.sentWebUrl, null);
+      } else {
+
+      }
+    }, 1000);
+  }
+
+  // private _onWebUrlChange( newValue?: string, webURLStatus: string = null){
+  //   // debounce(250, this._onWebUrlChange( newValue, webURLStatus ) );
+  //   this._onWebUrlChange( newValue, webURLStatus );
+  // }
+
+  private async _onWebUrlChange(newValue?: string, webURLStatus: string = null){
+    // let updateState = false;
+    // if ( event === null ) { updateState = true; } //This is for when the webpart initially loads with current web url.
+    console.log('_onWebUrlChange Fetchitng Lists ====>>>>> :', newValue );
+    // console.log('_onWebUrlChange GetTime ====>>>>> :', this.typeGetTime );
+    // console.log('_onWebUrlChange Delays ====>>>>> :', this.typeDelay );
+    // console.log('_onWebUrlChange After Delay ====>>>>> :', this.typeDelay[this.typeDelay.length - 1] );
 
       let errMessage = null;
       let stateError : any[] = [];
@@ -748,9 +854,11 @@ public async getListDefinitions( doThis: 'props' | 'state') {
 
       }
 
+      let theSite: ISite = await getSiteInfo( newValue, false, false );
+
       let isCurrentWeb: boolean = false;
       if ( newValue.toLowerCase().indexOf( this.props.pageContext.web.serverRelativeUrl.toLowerCase() ) > -1 ) { isCurrentWeb = true ; }
-      this.setState({ parentListWeb: newValue, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb });
+      this.setState({ parentListWeb: newValue, stateError: stateError, pickedWeb: pickedWeb, isCurrentWeb: isCurrentWeb, theSite: theSite, webURLStatus: webURLStatus });
 
     return;
 

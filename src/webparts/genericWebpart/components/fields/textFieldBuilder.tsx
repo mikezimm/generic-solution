@@ -47,7 +47,7 @@ import {
    }
 
 
- export function createBasicTextField(field: IFieldDef, currentValue, updateField, blinkOnProjectClassName){
+ export function createBasicTextField(field: IFieldDef, currentValue, updateField, blinkOnProjectClassName, data = 'noData'){
    // it is possible to have an option to hide labels in lue of placeholder text for more compressed look
 
    let placeHolder = 'Enter ' + field.title;
@@ -66,6 +66,7 @@ import {
       autoComplete='off'
       onChanged={ updateField }
       required={ field.required }
+      data={ `data-${field.title}|${data}` }
     />;
     
     return textField;

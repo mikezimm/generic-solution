@@ -1,5 +1,7 @@
 import { IFormFields, IProjectFormFields } from './fields/fieldDefinitions';
 
+import { ISite } from "@pnp/sp/presets/all";
+
 import { ITheTime } from '@mikezimm/npmfunctions/dist/Services/Time/Interfaces';
 
 import { IChartSeries, ICharNote, } from '@mikezimm/npmfunctions/dist/CSSCharts/ICSSCharts';
@@ -12,9 +14,10 @@ import { IMyPivots, ILink} from '@mikezimm/npmfunctions/dist/Pivots/IzPivots';
 
 import { ISelectedUser, } from './Charts/charts';
 
-import { IMakeThisList } from './ListProvisioning/component/provisionWebPartList';
+import { IMakeThisList, } from '../../../services/railsCommon/ProvisionTypes';
 
 import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPages';
+import { ICachedWebIds } from './Contents/Lists/IListComponentTypes';
 
   export interface IUserSummary { 
     title: string; 
@@ -122,7 +125,11 @@ import { IMakeThisPage } from './PageProvisioning/component/provisionWebPartPage
     parentListTitle: string;  // Static Name of list (for URL) - used for links and determined by first returned item
     childListTitle: string;  // Static Name of list (for URL) - used for links and determined by first returned item
   
+    webURLStatus: string;
     pickedWeb : IPickedWebBasic;
+    theSite: ISite;
+    cachedWebIds: ICachedWebIds; //Used for analytics and error reporting to minimize calls to get this info.
+
     isCurrentWeb: boolean;
 
     makeThisList: IMakeThisList;

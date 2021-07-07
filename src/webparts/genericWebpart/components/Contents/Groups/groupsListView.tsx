@@ -197,20 +197,20 @@ export default class MyLogGroup extends React.Component<IMyLogGroupProps, IMyLog
 
           const CreateGroupsIcon: JSX.Element = <div id={ index.toString() } data-railFunction='GetUsers' data-groupTitle={ Grp.Title } onClick={ this.openGroupPanel.bind(this) }> { fpsAppIcons.CreateGroups } </div>;
 
-          let userCount = <div style={{ display: 'inline-block'}}>
+          let userCount = <div style={{ display: 'inline-flex', flexWrap: 'nowrap', alignItems: 'center' }}>
             <div>{ Grp.userCount }</div>
             { CreateGroupsIcon }
           </div>;
-
+            let titleStyle : React.CSSProperties = { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '350px', paddingTop: '5px' } ;
             //columnsToVisible
             return <tr>
                 <td className={ '' }> { '' }</td> 
                 <td className={ '' }> { Grp.Id }</td> 
-                <td className={ styleTitle }> {  groupTitle }</td>
+                <td className={ styleTitle } style={ titleStyle } title={ groupTitle }> {  groupLink }</td>
 
                 <td className= { styleAdvanced }> { groupLink }</td>
 
-                <td className={ '' }> { Grp.OwnerTitle }</td> 
+                <td className={ '' } style={ titleStyle } title={ Grp.OwnerTitle }> { Grp.OwnerTitle }</td>
                 <td className={ styleDesc }> { Grp.Description != null ? Grp.Description.slice(0,this.state.maxChars) + '...' : Grp.Description } </td>
 
                 <td className={ styleSpecial }> { /*this.getWebSpecialValue( F ) */ '' } </td>

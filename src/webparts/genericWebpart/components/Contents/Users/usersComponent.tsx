@@ -6,6 +6,7 @@ import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Piv
 
 import { sp } from "@pnp/sp";
 import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, ISiteUserProps, ISiteUser, SiteUsers, SiteUser } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { ISite } from "@pnp/sp/presets/all";
 
 import "@pnp/sp/site-users";
 import { ISiteUserInfo } from '@pnp/sp/site-users/types';
@@ -93,7 +94,7 @@ export interface IInspectUsersProps {
     currentUser: IUser;
 
     pickedWeb? : IPickedWebBasic;
-
+    theSite: ISite;
     // 2 - Source and destination list information
 
 }

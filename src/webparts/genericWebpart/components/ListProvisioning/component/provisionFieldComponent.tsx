@@ -16,7 +16,7 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 
 import { sp } from "@pnp/sp";
-import { Web, Lists } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, Lists, ISite } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import ReactJson from "react-json-view";
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
@@ -61,6 +61,8 @@ import { saveTheTime, getTheCurrentTime, saveAnalytics } from '../../../../../se
 
 import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
+import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from './provisionConstants';  
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88   88 88'     88      88  `8D 88'     88  `8D 88'  YP 
@@ -102,7 +104,9 @@ import { createBasicTextField, createMultiLineTextField } from  '../../fields/te
  *                                                                                                                                               
  */
 
-import { provisionTheList, IValidTemplate } from './provisionWebPartList';
+import * as strings from 'GenericWebpartWebPartStrings';
+
+import { provisionTheList, } from './provisionWebPartList';
 
 import { IGenericWebpartProps } from '../../IGenericWebpartProps';
 import { IGenericWebpartState } from '../../IGenericWebpartState';
@@ -110,7 +114,7 @@ import styles from './provisionList.module.scss';
 
 import MyLogList from './listView';
 
-import { IMakeThisList } from './provisionWebPartList';
+
 import { getTheseDefinedLists } from './provisionFunctions';
 
 import { JSONEditorShort } from '../../HelpInfo/AllLinks';
@@ -142,7 +146,10 @@ import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arr
  */
 
 import { dropDownWidth } from './provisionListComponent';
-import { IDefinedLists, availLists, definedLists, } from './provisionFunctions';
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 
 export interface IProvisionFieldsProps {
@@ -178,6 +185,9 @@ export interface IProvisionFieldsProps {
 
     lists: IMakeThisList[];
 
+    theSite: ISite;
+    currentPage: string; //this.context.pageContext.web.absoluteUrl;
+
 }
 
 export interface IProvisionFieldsState {
@@ -188,6 +198,9 @@ export interface IProvisionFieldsState {
 
     progress: IMyProgress;
     history: IMyHistory;
+
+    priorProgress: IMyProgress;
+    priorHistory: IMyHistory;
 
     doMode: boolean;
     doList: boolean;
@@ -210,6 +223,9 @@ export interface IProvisionFieldsState {
 
     lists: IMakeThisList[];
     validUserIds: number[];
+
+    mainPivot: IMainPivot;
+    showMainWarning: boolean;
 
 }
 
@@ -291,8 +307,12 @@ public constructor(props:IProvisionFieldsProps){
         alwaysReadOnly: alwaysReadOnly,
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
+
         progress: null,
         history: clearHistory(),
+
+        priorProgress: null,
+        priorHistory: clearHistory(),
 
         doMode: false,
         doList: doList,
@@ -323,7 +343,8 @@ public constructor(props:IProvisionFieldsProps){
         makeThisList: makeThisList,
 
         validUserIds: [],
-
+        mainPivot: pivotHeading1,
+        showMainWarning: true,
     };
 
     // because our event handler needs access to the component, bind

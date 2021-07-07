@@ -75,19 +75,11 @@ import { createMainRailsWarningBar } from '../../../../../../services/railsCommo
  *                                                                                                                       
  */
 
- import { getSiteInfoIncludingUnique, fUpdateGroup } from './functions';
-
-  import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
+ import { getWebInfoIncludingUnique, } from '../listsFunction';
 
   import RailsHistory from '../../../../../../services/railsCommon/RailsHistoryPane';
   import SelectedRails from '../../../../../../services/railsCommon/RailsSelectedPane';
 
-  import { createIconButton } from '../../../createButtons/IconButton';
-  
-  
-  import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
-  
-  import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
@@ -99,10 +91,10 @@ import { createMainRailsWarningBar } from '../../../../../../services/railsCommo
  *                                                                                                                                               
  *                                                                                                                                               
  */
-import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, fetchAnalytics, saveAssist } from '../../../../../../services/createAnalytics';
 
 
-import { IListRailFunction } from '../listsComponent';
+import { ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../IListComponentTypes';
 import { createProcessSteps, IProcessSteps,  } from './setup';
 import {  IProcessStep, StatusIcons, StatusColors } from '../../../../../../services/railsCommon/railsSetup';
 import { doThisRailFunction } from './functions';
@@ -263,7 +255,7 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
     }
 
     private async _checkWebPerms() {
-        let currentWeb : any = await getSiteInfoIncludingUnique( this.props.theList.ParentWebUrl, 'min', true );
+        let currentWeb : any = await getWebInfoIncludingUnique( this.props.theList.ParentWebUrl, 'min', true, ' > ~ 258' );
         let HasUniqueRoleAssignments = currentWeb.error === '' ? currentWeb.HasUniqueRoleAssignments : null ;
 
         this.setState({
@@ -575,6 +567,15 @@ export default class MyCreateListPermissions extends React.Component<IMyCreateLi
             currentStep.label, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
             currentStep.value1, value2, currentStep.current.key, //itemInfo1, itemInfo2, result, 
             JSON.stringify(currentStep), this.props.railFunction, null, null ); //richText, Setting, richText2, richText3
+
+        if ( currentStep.label === 'Complete' ) {
+            //Save to assist log
+            saveAssist( strings.requestListSite, strings.requestListList , //analyticsWeb, analyticsList,
+                ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+                'Created Library Permission Groups: ' + currentStep.value1, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+                currentStep.value1, ['2. Permissions'], currentStep.current.key, //itemInfo1 ( Not used yet ), itemInfo2 ( Scope array ), result ( Not used yet ), 
+                JSON.stringify(currentStep), this.props.railFunction, null, null ); //richText, Setting, richText2, richText3
+        }
         
     }
 

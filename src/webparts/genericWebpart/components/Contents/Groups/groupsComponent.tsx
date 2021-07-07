@@ -5,7 +5,7 @@ import { SearchBox } from 'office-ui-fabric-react/lib/SearchBox';
 import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Pivot';
 
 import { sp } from "@pnp/sp";
-import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, ISiteUserProps, ISiteUser, } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, SiteGroups, SiteGroup, ISiteGroups, ISiteGroup, ISiteGroupInfo, ISiteUserProps, ISiteUser, ISite, } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import "@pnp/sp/site-users";
 import { ISiteUserInfo } from '@pnp/sp/site-users/types';
@@ -99,7 +99,8 @@ export interface IInspectGroupsProps {
     currentUser: IUser;
 
     pickedWeb? : IPickedWebBasic;
-
+    theSite: ISite;
+    
     // 2 - Source and destination list information
 
 }

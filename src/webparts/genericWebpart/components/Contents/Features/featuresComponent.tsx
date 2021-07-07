@@ -6,6 +6,8 @@ import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Piv
 
 import { IFeatures, Features, IFeatureInfo } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
+import { ISite } from "@pnp/sp/presets/all";
+
 import "@pnp/sp/site-users";
 
 import "@pnp/sp/webs";
@@ -82,6 +84,8 @@ export interface IInspectFeaturesProps {
     currentUser: IUser;
 
     pickedWeb? : IPickedWebBasic;
+    
+    theSite: ISite;
 
     // 2 - Source and destination list information
 

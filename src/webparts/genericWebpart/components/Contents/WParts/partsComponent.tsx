@@ -6,6 +6,8 @@ import { Pivot, PivotItem, IPivotItemProps} from 'office-ui-fabric-react/lib/Piv
 
 import { IValidTemplate, allAvailableWebParts } from './partsFunction';
 
+import { ISite } from "@pnp/sp/presets/all";
+
 import styles from '../contents.module.scss';
 
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
@@ -64,6 +66,8 @@ export interface IInspectPartsProps {
     currentUser: IUser;
 
     pickedWeb? : IPickedWebBasic;
+
+    theSite: ISite;
 
     // 2 - Source and destination list information
 

@@ -16,7 +16,11 @@ define([], function() {
     "analyticsListRailsApply": "EasyContentsRailsApply",
     "analyticsListRailsGroups": "EasyContentsRailsGroups",
     "analyticsListPermissionsHistory": "PermissionsHistory",
+    "analyticsListory": "EasyContentsCompare",
     "analyticsListErrors": "ErrorLog",
+
+    "requestListSite": "/sites/SharePointAssist",
+    "requestListList": "Assists",
 
     "analyticsWeb": "/sites/Templates/Analytics/",
     "patternsWeb": "/sites/Patterns/", //Must end in slash :)

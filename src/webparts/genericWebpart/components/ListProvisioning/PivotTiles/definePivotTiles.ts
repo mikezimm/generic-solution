@@ -3,14 +3,15 @@ import { PivotTilesFields } from './columnsPivotTiles'; //Import column arrays (
 
 import { pivotViews} from './viewsPivotTiles';  //Import view arrays for Project list
 
-import { IMakeThisList, provisionTheList,  } from '../component/provisionWebPartList';
-
-export type IValidTemplate = 100 | 101;
+import { provisionTheList,  } from '../component/provisionWebPartList';
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 import { getFieldNamesFromArray, getViewTitlesFromArray } from '../component/provisionFunctions';
 
-export type IListDefintionPivot = 'OurTiles' | 'PivotTiles';
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listTitle : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionPivot , webURL: string, currentUser:  number[], pageURL: string ) {

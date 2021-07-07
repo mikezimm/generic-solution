@@ -6,7 +6,6 @@ import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IM
 import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Import view arrays for Time list
 
 import { dropDownWidth } from './provisionListComponent';
-import { IMakeThisList } from './provisionWebPartList';
 import { fixTitleNameInViews  } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
 
 import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
@@ -32,36 +31,11 @@ import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ 
   //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
   import * as dPivT from '../PivotTiles/definePivotTiles';
 
-
-
-  import { IDefinedComponent } from '../DefinedComponents/defineComponents';
-  import { IListDefintionHarmonie } from '../Harmonie/defineHarmonie';
-  import { IListDefintionCustReq } from '../ListsCustReq/defineCustReq';
-  import { IListDefintionFinTasks } from '../ListsFinTasks/defineFinTasks';
-  import { IListDefintionReports } from '../ListsReports/defineReports';
-  import { IListDefintionTMT } from '../ListsTMT/defineThisList';
-  import { IListDefintionTurnOver } from '../ListsTurnover/defineTurnover';
-  import { IListDefintionPivot } from '../PivotTiles/definePivotTiles';
-  import { IListDefintionPreConfig } from '../PreConfig/definePreConfig';
 import { IMyFieldTypes } from "@mikezimm/npmfunctions/dist/Lists/columnTypes";
 
-/**
- * NOTE:  'Pick list Type' ( availLists[0] ) is hard coded in numerous places.  If you change the text, be sure to change it everywhere.
- * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
- * 
- */
-export type IDefinedLists = 'Pick list Type' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Finance Tasks' |  'Reports' |  'Turnover' |  'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | 'Components';
-export type IDefinedChoice = 'Pick component Type' | IListDefintionTMT | IListDefintionHarmonie | IListDefintionCustReq | IListDefintionFinTasks |  IListDefintionReports |  IListDefintionTurnOver | IListDefintionPivot | IListDefintionPreConfig | '';
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
 
-//Add here to make available in dropdown (but does not work unless they are in the definedLists array )
-export const availLists : IDefinedLists[] =  ['Pick list Type', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Finance Tasks' ,  'Reports' ,  'Turnover' , 'PivotTiles' , 'PreConfig'];
-export const DefStatusField = 'Status';
-export const DefEffStatusField = 'Effective Status';
-
-export const availComponents : IDefinedComponent[] =  [ DefStatusField , DefEffStatusField, 'Year-Period' , 'Steps Done' ]; 
-
-//Currently Not beeing used
-export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Customer Requirements','Finance Tasks', 'Reports', 'Turnover', 'Socialiis', 'PivotTiles', 'PreConfig' ];
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 export const IDescObject = {
     Components: {
@@ -212,7 +186,14 @@ export function getTheseDefinedLists( defineThisList : IDefinedLists, justReturn
 
 }
 
-
+/**
+ * This function checks to see if all the lists in the testLists array exist on the site.
+ * @param index
+ * @param testLists 
+ * @param definedList 
+ * @param updateStateLists 
+ * @param webAbsoluteUrl 
+ */
 export function checkThisWeb(index: number, testLists : IMakeThisList[], definedList: IDefinedLists, updateStateLists: any, webAbsoluteUrl: string ){
   const thisWeb = Web(testLists[index].webURL);
   testLists[index].webExists = false;

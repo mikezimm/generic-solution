@@ -24,7 +24,10 @@ import "@pnp/sp/lists";
 import "@pnp/sp/fields";
 import "@pnp/sp/views";
 import "@pnp/sp/fields/list";
-import { IMakeThisList } from '../../webparts/genericWebpart/components/ListProvisioning/component/provisionWebPartList';
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../railsCommon/ProvisionTypes';
 
 export interface IViewLog extends IServiceLog {
     view?: string;

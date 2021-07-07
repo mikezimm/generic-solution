@@ -27,6 +27,8 @@ import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IM
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
 import { doesObjectExistInArrayInt } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 
+import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
+
 import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
@@ -53,121 +55,18 @@ import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Loggin
 
 import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
 
-import { IFieldBucketInfo, IContentsFieldInfo } from '../Fields/fieldsComponent';
+import { IContentsFieldInfo, IInspectColumnsProps, IInspectColumnsState, IFieldBucketInfo } from '../Fields/IFieldComponentTypes';
+
 import * as ECFields from '../Fields/fieldsFunctions';
 
 import CreateListPermissions from './railCreateGroups/component';
 
-export const pivCats = {
-    visible: {title: 'Visible', desc: '', order: 1},
-    hidden: {title: 'Hidden', desc: '', order: 100},
-    old: {title: 'Old', desc: '', order: 1},
-    empty: {title: 'Empty', desc: '', order: 1},
-    notEmpty: {title: 'NotEmpty', desc: '', order: 1},
-    lots: {title: 'Lots', desc: '', order: 1},
-    max: {title: 'Max', desc: '', order: 1},
-    checkout: {title: 'CheckOut', desc: '', order: 1},
-    versions: {title: 'Versioning', desc: '', order: 1},
-    noVersions: {title: 'NoVersions', desc: '', order: 1},      
-    noSearch: {title: 'NoSearch' , desc: '', order: 1},
-    lists:  {title: 'Lists' , desc: '', order: 1},
-    libraries:  {title: 'Libraries' , desc: '', order: 1},
-};
+import { getWebInfoIncludingUnique , getSiteInfo } from './listsFunction';
 
-export type IListRailFunction = 'ListPermissions' | 'compareJSON' | 'AddTemplate' | '';
+import { IWebCache, ICachedWebIds, ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from './IListComponentTypes';
 
-export interface IInspectListsProps {
-    // 0 - Context
-    wpContext: WebPartContext;
-    pageContext: PageContext;
-
-    allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-
-    allowRailsOff?: boolean;
-    allowSettings?: boolean;
-    allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
-
-    pickedWeb : IPickedWebBasic;
-    analyticsWeb: string;
-    analyticsList: string;
-
-    allLoaded: boolean;
-
-    currentUser: IUser;
-
-    pickedList? : IPickedList;
-
-    pickThisList : any;
-
-    // 2 - Source and destination list information
-
-}
-
-export interface IListBucketInfo {
-    lists: IContentsListInfo[];
-    count: number;
-    sort: string;
-    bucketCategory: string;
-    bucketLabel: string;
-
-}
-
-export interface IInspectListsState {
-
-    allowOtherSites?: boolean; //default is local only.  Set to false to allow provisioning parts on other sites.
-
-    allLoaded: boolean;
-
-    progress: IMyProgress;
-    history: IMyHistory;
-
-    currentPage: string;
-    searchCount: number;
-
-    searchText: string;
-    searchMeta: string;
-
-    searchedItems: IContentsListInfo[];
-    first20searchedItems: IContentsListInfo[];
-
-    listBuckets: IListBucketInfo[];
-
-    // 2 - Source and destination list information
-    allLists: IContentsListInfo[];
-    meta: string[];
-
-    allowSettings: boolean;  //property that determines if the related toggle is visible or not
-    allowRailsOff: boolean;  //property that determines if the related toggle is visible or not
-
-    showDesc: boolean;      //property set by toggle to actually show or hide this content
-    showSettings: boolean;  //property set by toggle to actually show or hide this content
-    showRailsOff: boolean;  //property set by toggle to actually show or hide this content
-
-    errMessage: string | JSX.Element;
-
-    showPanel: boolean;
-    panel: IRailsOffPanel;
-    railFunction: IListRailFunction;
-    selectedIndex: any;
-    selectedEntity: IContentsListInfo;
-
-    firstJSON: any;
-    secondJSON: any;
-    compareError: string;
-    lastCompare: string;
-
-    applyTemplateError: string;
-
-    theSite: ISite;
-
-  }
-  
-  export interface IRailsOffPanel {
-    // groups: IMyGroupsProps;
-    type: PanelType;
-    width?: number;
-    content?: any;
-  }
+import { pivCats } from './IListComponentConst';
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 export default class InspectLists extends React.Component<IInspectListsProps, IInspectListsState> {
 
@@ -217,7 +116,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
             showDesc: false,
             showSettings: false,
+            showHistory: false,
             showRailsOff: false,
+
 
             searchMeta: pivCats.visible.title,
             searchText: '',
@@ -234,9 +135,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             secondJSON: null,
             compareError: '',
             lastCompare: null,
-            theSite: null,
-
             applyTemplateError: '',
+
+            cachedWebIds: this.props.cachedWebIds,
 
         };
 
@@ -297,7 +198,9 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
  *                                                                                     
  */
 
-            console.log('renderStateLists', this.state.allLists );
+            // console.log('render allLists ~ 195', this.state.allLists );
+            // console.log('render props.cachedWebIds ~ 196', this.props.cachedWebIds );
+            console.log('render state.cachedWebIds ~ 197', this.state.cachedWebIds );
 
             let thisPage = null;
 
@@ -306,6 +209,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                 this.state.listBuckets.map( bucket => {
                     return <MyLogList 
                         showSettings = { this.state.showSettings } railsOff= { this.state.showRailsOff }
+                        showHistory = { this.state.showHistory }
                         title={ ''}           items={ bucket }
                         showDesc = { this.state.showDesc } 
                         webURL = { this.props.pickedWeb.url }
@@ -338,7 +242,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                             type = { this.state.panel.type }
                             analyticsWeb= { this.props.analyticsWeb }
                             analyticsList= { this.props.analyticsList }
-                            theSite={ this.state.theSite }
+                            theSite={ this.props.theSite }
                         ></CreateListPermissions>;
 
                 } else if ( this.state.railFunction === 'compareJSON' ) {
@@ -363,6 +267,8 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         type = { this.state.panel.type }
                         analyticsWeb= { this.props.analyticsWeb }
                         analyticsList= { this.props.analyticsList }
+                        listory = { this.props.listory }
+                        cachedWebIds = { this.state.cachedWebIds }
 
                     ></MyJsonCompare>;
                 } else if ( this.state.railFunction === 'AddTemplate' ) {
@@ -373,6 +279,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                      * Just put "railsPanel = ".... and it fixed it :)
                      */
                     railsPanel = <MyAddListTemplate
+                        panelOrPage={ 'panel'}
                         wpContext={  this.props.wpContext }
                         pageContext={ this.props.pageContext }
                         allowOtherSites={ this.state.allowOtherSites }
@@ -391,7 +298,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                         currentPage= { this.props.pageContext.web.absoluteUrl }
                         analyticsWeb= { this.props.analyticsWeb }
                         analyticsList= { this.props.analyticsList }
-                        theSite={ this.state.theSite }
+                        theSite={ this.props.theSite }
                     ></MyAddListTemplate>;
                 } //
             }
@@ -488,17 +395,58 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     }   //End Public Render
 
-    private async _fetchCompare( altWeb: string, altListTitle: string, doThis: string ) {
+    private async _fetchCompare( altWeb: string, altListTitle: string, doThis: string, updateWebCache: boolean = false ) {
         if ( doThis === 'Lists' ) {
             let secondJSON = null;
             let compareError = '';
+            let cachedWebIds = this.state.cachedWebIds;
+            let updateCache = false;
+            console.log('_fetchCompare updateWebCache ~ 396 is', updateWebCache );
+
+            if ( altWeb === this.state.selectedEntity.ParentWebUrl ) {
+
+            } 
+
 
             if ( altListTitle === this.state.selectedEntity.Title && altWeb === this.state.selectedEntity.ParentWebUrl ) {
                 secondJSON = this.state.selectedEntity ;
+
             } else {
                 let restFilter = `Title eq '${ altListTitle }'`;
-                let result = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
-                secondJSON = result.allLists[0];
+                // let result = await allAvailableLists( altWeb, restFilter, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null );
+                let result = await allAvailableLists( altWeb, null, this.createSearchBuckets(),this.addCompareListToState.bind(this), null, null, false );
+                let listIndex = -1;
+
+                if ( result.errMessage && result.errMessage.length > 0 ) {
+                    //There was an error... 
+                    
+                } else { 
+                    let isSameWeb = altWeb === this.state.selectedEntity.ParentWebUrl ? true : false;
+                    let cachedWeb = null;
+                    let theSite = null;
+                    if ( isSameWeb === true ) {
+                        cachedWeb = this.props.pickedWeb;
+                        theSite = this.props.theSite;
+
+                    } else {
+                        cachedWeb = await getWebInfoIncludingUnique( altWeb, 'min', false, null );
+                        theSite = await getSiteInfo( altWeb, false, false );
+                    }
+
+                    listIndex = doesObjectExistInArrayInt( result.allLists , 'Title',altListTitle, true ); 
+                    cachedWebIds = this.updateWebCacheObject( result.allLists, this.state.cachedWebIds, cachedWeb, theSite );
+                    console.log('_fetchCompare updateCache ~ 413 is', updateCache );
+                    updateCache = updateWebCache === true ? true : updateCache ;
+
+                }
+
+                if ( listIndex > -1 ) {
+                    secondJSON = result.allLists[listIndex];
+                } else {
+                    secondJSON = null;
+                    if ( result.errMessage === '' ) { result.errMessage = 'Unable to find the list you mentioned :(' ; } 
+                }
+
                 compareError= result.errMessage;
             }
 
@@ -507,7 +455,10 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                 secondJSON: secondJSON,
                 compareError: compareError, 
                 lastCompare: doThis,
+                cachedWebIds: cachedWebIds,
             });
+
+            if ( updateCache === true ) { this.props.updateCachedLists( cachedWebIds ); }
 
         } else if ( doThis === 'Fields' ) {
             let firstJSON = [];
@@ -531,52 +482,15 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
                 compareError: compareError, 
                 lastCompare: doThis,
             });
-            // private getFieldDefs() {
-            //     let listGuid = '';
-            //     if ( this.props.pickedList && this.props.pickedList.guid ) { listGuid = this.props.pickedList.guid; }
-            //     let result : any = allAvailableFields( this.props.pickedWeb.url, listGuid, createSearchBuckets(), this.addTheseFieldsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
-
-            // }
-
-            // private addTheseFieldsToState( allFields, scope : 'List' | 'Web' , errMessage : string ) {
-
-            //     let newFilteredItems : IContentsFieldInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allFields );
-
-            //     let fieldBuckets  : IFieldBucketInfo[] = this.bucketFields( newFilteredItems, createSearchBuckets() );
-                
-            //     this.setState({
-            //         allFields: allFields,
-            //         searchedItems: newFilteredItems,
-            //         searchCount: newFilteredItems.length,
-            //         errMessage: errMessage,
-            //         fieldBuckets: fieldBuckets,
-            //         searchText: '',
-            //         searchMeta: this.state.searchMeta,
-            //     });
-            //     return true;
-            // }
 
         } 
 
     }
 
+
     private addCompareFieldToState( allFields:  IContentsFieldInfo[] ,scope: string, errMessage : string ) {
+
         return ;
-
-        let thisIsPrimaryList: any = false;
-        allFields.map( field => {
-            if ( field['odata.editLink'].indexOf( this.state.selectedEntity.Id ) > -1 ) {
-                thisIsPrimaryList = true;
-            }
-        });
-
-        this.setState({ 
-            firstJSON: thisIsPrimaryList === true ? allFields : this.state.firstJSON,
-            secondJSON: thisIsPrimaryList === true ? [] : allFields,
-            compareError: errMessage, 
-            lastCompare: 'Fields',
-         });
-
     }
 
     private addCompareListToState( allLists:  IContentsListInfo[] ,  errMessage : string ) {
@@ -586,14 +500,34 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     }
 
     private getListDefs() {
-        let result : any = allAvailableLists( this.props.pickedWeb.url, null, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this) );
+        let result : any = allAvailableLists( this.props.pickedWeb.url, null, this.createSearchBuckets(),  this.addTheseListsToState.bind(this), this.setProgress.bind(this), this.markComplete.bind(this), ' ~ 497' );
     }
 
-    private addTheseListsToState( allLists , errMessage : string, theSite: ISite ) {
+    private addTheseListsToState( allLists , errMessage : string ) {
 
         let newFilteredItems : IContentsListInfo[] = this.getNewFilteredItems( '', this.state.searchMeta, allLists );
 
         let listBuckets  : IListBucketInfo[] = this.bucketLists( newFilteredItems, this.createSearchBuckets() );
+
+        // EntityTypeName: string;
+        // Title: string;
+        // Hidden: boolean;
+        // Id: string;
+        // Description: string;
+        // ItemCount: number;
+        // Created: string;
+        // HasUniqueRoleAssignments: boolean;
+        // LastItemDeletedDate: string;
+        // LastItemModifiedDate: string;
+        // LastItemUserModifiedDate: string;
+        // ParentWebPath: {
+        //     DecodedUrl: string;
+        // };
+        // ParentWebUrl: string;
+        // listURL: string;
+        // pickedWeb : IPickedWebBasic;
+        // theSite: ISite;
+        let cachedWebIds = this.updateWebCacheObject( allLists, this.state.cachedWebIds, this.props.pickedWeb, this.props.theSite );
 
         this.setState({
             allLists: allLists,
@@ -605,10 +539,116 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             searchMeta: this.state.searchMeta,
             firstJSON: this.state.selectedEntity,
             secondJSON: allLists,
-            theSite: theSite ? theSite : this.state.theSite ,
+            cachedWebIds: cachedWebIds,
         });
+
+        this.props.updateCachedLists( cachedWebIds );
         return true;
     }
+
+    private updateWebCacheObject ( allLists:  IContentsListInfo[], cachedWebIds : ICachedWebIds, pickedWeb: IPickedWebBasic, theSite: ISite ) {
+        
+        // let cachedWebIds : ICachedWebIds = this.state.cachedWebIds;
+        let pickedWebGuid = pickedWeb.guid;
+        let cachedIndex = cachedWebIds.webIds.indexOf( pickedWebGuid );
+        let cachedLists : ICachedListId[] = [];
+
+        allLists.map( list => {
+            // let theSite: any = this.props.theSite;
+            let thisRecentList : ICachedListId = this.makeIContentsListInfoIntoRecentListId( pickedWeb, list, theSite );
+            // cachedLists = this.addSimpleObjectToArrayIfNotExist( cachedLists, thisRecentList, ['webUrl','listTitle'] ) ;
+            cachedLists.push( thisRecentList );
+        });
+
+        let thisWebCache: IWebCache = {
+            id: pickedWeb.guid,
+            title: pickedWeb.title,
+            url: pickedWeb.url,
+            lists: cachedLists,
+        };
+
+        if ( cachedIndex  > - 1 ) {
+            cachedWebIds.webCache [ cachedIndex ] = thisWebCache ;
+
+        } else {
+            cachedWebIds.webCache.push( thisWebCache ) ;
+            cachedWebIds.webIds.push( pickedWeb.guid ) ;
+        }
+
+        return cachedWebIds;
+
+    }
+
+    private makeIContentsListInfoIntoRecentListId ( pickedWeb: IPickedWebBasic, list: IContentsListInfo, theSite: any ) {
+
+        let isSystem = SystemLists.indexOf(list.EntityTypeName) > -1 || EntityMapsNames.indexOf(list.EntityTypeName) > -1 ? true : false;
+
+        let thisRecentList : ICachedListId = {
+            siteId: theSite.Id,
+            webTitle: pickedWeb.title,
+            webUrl: getFullUrlFromSlashSitesUrl( pickedWeb.url ) ,  
+            webId: pickedWeb.guid,
+            listId: list.Id,
+            listTitle: list.Title,
+            listUrl: getFullUrlFromSlashSitesUrl( list.listURL ),
+            hidden: list.Hidden,
+            system: isSystem,
+            entityName: list.EntityTypeName,
+        };
+
+        return thisRecentList;
+
+    }
+
+    /**
+     * This is intended for simple flat objects, not complex
+     * @param addToArray
+     * @param objToAdd 
+     * @param primaryKeys //This will only compare these sepcific keys if they are included.  
+     *       If no primaryKeys are provided, it defaults to keys of the objToAdd.
+     * @param stringifyOnPush //converts objToAdd to string and reparses before adding so it's not a direct copy of the original.
+     */
+
+    private addSimpleObjectToArrayIfNotExist( addToArray: any[] , objToAdd: any, primaryKeys: string[], stringifyOnPush: boolean = true ) {
+
+        let isMatch = this.doesObjectExistInArrayPrimeKeys( addToArray, objToAdd, primaryKeys );
+        if ( isMatch < 0 ) {
+            if ( stringifyOnPush === true ) { objToAdd = JSON.parse(JSON.stringify( objToAdd )) ; }
+            addToArray.push( objToAdd );
+        }
+        return addToArray;
+    }
+
+    /**
+     * This is intended for simple flat objects, not complex
+     * @param addToArray
+     * @param objToAdd 
+     * @param primaryKeys //This will only compare these sepcific keys if they are included.  
+     *       If no primaryKeys are provided, it defaults to keys of the objToAdd.
+     * @param stringifyOnPush //converts objToAdd to string and reparses before adding so it's not a direct copy of the original.
+     */
+    private doesObjectExistInArrayPrimeKeys( addToArray: any[] , objToAdd: any, primaryKeys: string[] ) {
+
+        let matchIndex : any = -1 ;
+        if ( addToArray.length === 0 ) {
+
+        } else if ( addToArray.length > 0 ) {
+            let keysToMatch = primaryKeys.length > 0 ? primaryKeys : Object.keys(objToAdd);
+            let isItemFound = false;
+            addToArray.map( ( checkArrayObject, index )  => { //map through original array
+                if ( isItemFound === false ) {
+                    let isThisAMatch : any = true;
+                    keysToMatch.map( key => {
+                        if ( checkArrayObject[key] != objToAdd[key] ) { isThisAMatch = false; }
+                    });
+                    if ( isThisAMatch === true ) { isItemFound = true ; matchIndex = index ; }
+                }
+            });
+
+        }
+        return matchIndex;
+    }  
+
 
     private bucketLists( allLists : IContentsListInfo[], listBuckets : IListBucketInfo[] ) {
 
@@ -616,7 +656,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             listBuckets[allLists[i].bucketIdx].lists.push( allLists[i] );
             listBuckets[allLists[i].bucketIdx].count ++;
         }
-        console.log('bucketLists:  listBuckets', listBuckets);
+        console.log('bucketLists:  listBuckets ~ 557', listBuckets);
 
         return listBuckets;
     }
@@ -758,7 +798,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
   public _onSearchForMeta = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     let e: any = event;
-    console.log('searchForItems: e',e);
+    console.log('searchForItems: e ~ 699',e);
     console.log('searchForItems: item', item);
     console.log('searchForItems: this', this);
 
@@ -769,7 +809,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
   public _searchForItems = (item): void => {
     //This sends back the correct pivot category which matches the category on the tile.
     let e: any = event;
-    console.log('searchForItems: e',e);
+    console.log('searchForItems: e ~ 710 ',e);
     console.log('searchForItems: item', item);
     console.log('searchForItems: this', this);
 
@@ -808,7 +848,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
 
     listBuckets  = this.bucketLists( newFilteredItems, listBuckets );
 
-    console.log('Searched for:' + text);
+    console.log('Searched for ~ 749:' + text);
     console.log('List Meta:' + meta);
     console.log('and found these lists:', newFilteredItems);
     searchCount = newFilteredItems.length;
@@ -983,6 +1023,18 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             styles: '',
         };
 
+        let togHist = {
+            //label: <span style={{ color: 'red', fontWeight: 900}}>Rails Off!</span>,
+            label: <span>History</span>,
+            key: 'togggleHistory',
+            _onChange: this.updateTogggleHistory.bind(this),
+            checked: this.state.showHistory,
+            onText: '-',
+            offText: '-',
+            className: '',
+            styles: '',
+        };
+
         let railsLabel = <span style={{ color: 'red', fontWeight: 700}}>Rails Off!</span>;
         let togRails = {
             label: railsLabel,
@@ -995,7 +1047,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
             styles: '',
         };
 
-        let theseToggles = [togDesc, togSet ];
+        let theseToggles = [togDesc, togSet, togHist ];
         if ( this.props.allowRailsOff === true ) { theseToggles.push( togRails ); }
 
         let pageToggles : IContentsToggles = {
@@ -1014,6 +1066,7 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
     private updateTogggleDesc() {
         this.setState({
             showDesc: !this.state.showDesc,
+            showSettings: !this.state.showDesc === true ? false : this.state.showSettings,  //Turn off desc if turning on History
         });
     }
 
@@ -1023,9 +1076,19 @@ export default class InspectLists extends React.Component<IInspectListsProps, II
         });
     }
 
+    private updateTogggleHistory() {
+        this.setState({
+            showHistory: !this.state.showHistory,
+            showSettings: !this.state.showHistory === true ? false : this.state.showSettings,  //Turn off desc if turning on History
+            showDesc: !this.state.showHistory === true ? false : this.state.showDesc,  //Turn off desc if turning on History
+            showRailsOff: !this.state.showHistory === true ? false : this.state.showRailsOff,  //Turn off desc if turning on History
+        });
+    }
+
     private updateTogggleRailsOff() {
         this.setState({
             showRailsOff: !this.state.showRailsOff,
+            showSettings: !this.state.showRailsOff === true ? false : this.state.showSettings,  //Turn off desc if turning on History
         });
     }
 

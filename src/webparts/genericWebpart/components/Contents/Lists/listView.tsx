@@ -15,7 +15,7 @@ import { Fabric, Stack, IStackTokens, initializeIcons } from 'office-ui-fabric-r
 
 import { createLink } from '@mikezimm/npmfunctions/dist/HelpInfo/Links/CreateLinks';
 
-import { IListBucketInfo } from './listsComponent';
+import { ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from './IListComponentTypes';
 
 import styles from '../listView.module.scss';
 import stylesInfo from '../../HelpInfo/InfoPane.module.scss';
@@ -37,6 +37,7 @@ export interface IMyLogListProps {
     webURL: string;
     items: IListBucketInfo;
     showSettings: boolean;
+    showHistory: boolean;
     railsOff: boolean;  //Should only be used by people who know what they are doing.  Can cause destructive functions very quickly
     allowCrazyLink: boolean; //property that determines if some links not intended for public are visible, like permissions of SharePoint system lists
     descending: boolean;
@@ -132,6 +133,8 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
       let styleRails = this.props.railsOff  ? styles.showMe : styles.hideMe;
       let styleRailsRev = this.props.railsOff ? styles.hideMe : null;
+      let displayHistory = this.props.showHistory === true ? '' : 'none';
+      let hideOnHistory = this.props.showHistory === false ? '' : 'none';
 
       if ( this.props.items.lists != null && this.props.items.count > 0 ) { 
 
@@ -140,8 +143,6 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
         let styleAdvanced = this.props.showSettings ? styles.showMe : styles.hideMe;
 
         let styleDesc = this.props.showDesc ? styles.showMe : styles.hideMe;
-
-
 
         let itemRows = logItems.length === 0 ? null : logItems.map( ( Lst, index)  => { 
 
@@ -286,6 +287,13 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
 
           let rails = <div style={{ display: 'inline-flex', backgroundColor: 'white', padding: 0 }}> { CreateGroupsIcon } { ApplyTemplateIcon } </div>;
 
+          let modifiedSettingDate = this.props.showHistory === true ? ( new Date(Lst.LastItemModifiedDate) ).toLocaleString() : ( new Date(Lst.LastItemModifiedDate) ).toLocaleDateString();
+          let modifiedUserDate = ( new Date(Lst.LastItemModifiedDate) ).toLocaleString();
+          let created = new Date(Lst.Created);
+          let deletedItemDate = ( new Date(Lst.LastItemDeletedDate) ).toLocaleString();
+          let dateHistoryStyle: React.CSSProperties = { display: displayHistory, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '125px' };
+          let dateStyle: React.CSSProperties = { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '125px' };
+
           return <tr>
             <td className={ styles.nowWrapping }> { listTitleRUL } </td>
             <td className={ styles.nowWrapping }> { listSettingsURL }</td>
@@ -293,12 +301,15 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
             <td> { Lst.ItemCount } </td>
 
             <td className={ [styles.nowWrapping, styleRailsRev].join(' ') }> { Lst.Created } </td>
-            <td className={ styleRailsRev }> { Lst.LastItemModifiedDate } </td>
-            <td> { listVersionURL } </td>
-            <td> { listPermissionURL } </td>
-            <td className={ styleRailsRev }> { Lst.NoCrawl } </td>
-            <td className={ styleRailsRev }> { listAdvancedCT } </td>
-            <td className={ styleRailsRev }> { listAdvancedURL } </td>
+            <td className={ styleRailsRev } style={ dateStyle } title={modifiedSettingDate}> { modifiedSettingDate } </td>
+            <td className={ '' } style={ dateHistoryStyle } title={modifiedUserDate}> { modifiedUserDate } </td>
+            <td className={ '' } style={ dateHistoryStyle } title={deletedItemDate}> { deletedItemDate } </td>
+
+            <td style={{display: hideOnHistory} } > { listVersionURL } </td>
+            <td style={{display: hideOnHistory} } > { listPermissionURL } </td>
+            <td className={ styleRailsRev } style={{display: hideOnHistory} } > { Lst.NoCrawl } </td>
+            <td className={ styleRailsRev } style={{display: hideOnHistory} } > { listAdvancedCT } </td>
+            <td className={ styleRailsRev } style={{display: hideOnHistory} } > { listAdvancedURL } </td>
             <td className={ '' }> { Lst.BaseTemplate } </td>
             <td className={ styleRails }> { rails }</td>
             <td style={{ backgroundColor: 'white' }} className={ [styles.listButtons].join(' ') }> { other } </td>
@@ -328,13 +339,15 @@ export default class MyLogList extends React.Component<IMyLogListProps, IMyLogLi
               <th>Name</th>
               <th className={ styleDesc }>Description</th>
               <th>Items</th>
-              <th className={ [styles.nowWrapping, styleRailsRev].join(' ') }>Created</th>
-              <th className={ styleRailsRev }>Updated</th>
-              <th>Vers</th>
-              <th>Perms</th>
-              <th className={ styleRailsRev }>Search</th>
-              <th className={ styleRailsRev }>CT</th>  
-              <th className={ styleRailsRev }>Exceptions</th>
+              <th className={ [styles.nowWrapping, styleRailsRev].join(' ') } title={ 'List Created' }>Created</th>
+              <th className={ styleRailsRev } title={'Settings updated'}>{ this.props.showHistory === false ? 'Updated' : 'Settings updated' }</th>
+              <th className={ '' } style={{display: displayHistory} }  title={ 'Item Modified' }>{ this.props.showHistory === false ? 'Modified' : 'Item Modified' }</th>
+              <th className={ '' } style={{display: displayHistory} }  title={ 'Last Item deleted'}>{ this.props.showHistory === false ? 'Delete' : 'Item Deleted' }</th>
+              <th style={{display: hideOnHistory} } >Vers</th>
+              <th style={{display: hideOnHistory} } >Perms</th>
+              <th className={ styleRailsRev } style={{display: hideOnHistory} } >Search</th>
+              <th className={ styleRailsRev } style={{display: hideOnHistory} } >CT</th>  
+              <th className={ styleRailsRev } style={{display: hideOnHistory} } >Exceptions</th>
               <th className={ '' }>Base</th>
               <th className={ styleRails }>RailsOff</th>
               <th className={ '' }>Other</th>

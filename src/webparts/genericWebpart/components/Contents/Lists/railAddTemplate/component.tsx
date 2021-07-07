@@ -62,6 +62,10 @@ import ReactJson from "react-json-view";
 
  import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
+ import { cleanURL, cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { camelize } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -73,10 +77,13 @@ import ReactJson from "react-json-view";
  *                                                                                                                                 
  */
 
-import { saveTheTime, getTheCurrentTime, saveAnalytics, AddTemplateSaveTitle, ProvisionListsSaveTitle } from '../../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, ApplyTemplate_Rail_SaveTitle, ProvisionListsSaveTitle, saveAssist } from '../../../../../../services/createAnalytics';
 
 import { createMainRailsWarningBar } from '../../../../../../services/railsCommon/RailsMainWarning';
+import { getPageTogglesNew } from '../../../../../../services/railsCommon/TemplateToggles';
 import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHistoryPane';
+
+
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -92,14 +99,21 @@ import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHi
   import { IContentsToggles, makeToggles } from '../../../fields/toggleFieldBuilder';
   import { Stack, IStackTokens, Alignment } from 'office-ui-fabric-react/lib/Stack';
   import { dropDownWidth } from '../../../ListProvisioning/component/provisionListComponent';  //IDefinedLists, availLists, definedLists,
-  import { IDefinedLists, availLists, definedLists, getTheseDefinedLists, availComponents } from '../../../ListProvisioning/component/provisionFunctions';
+  
+ import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from '../../../ListProvisioning/component/provisionConstants';  
 
-  import { provisionTheList, IValidTemplate } from '../../../ListProvisioning/component/provisionWebPartList';
-  import { IMakeThisList } from '../../../ListProvisioning/component/provisionWebPartList';
+  import { getTheseDefinedLists, checkThisWeb } from '../../../ListProvisioning/component/provisionFunctions';
+
+  import { provisionTheList, } from '../../../ListProvisioning/component/provisionWebPartList';
   import { fixTitleNameInViews  } from '../../../../../../services/listServices/viewServices'; //Import view arrays for Time list
   import MyLogList from '../../../ListProvisioning/component/listView';
 
+    
+    import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../../services/railsCommon/ProvisionTypes';
 
+    import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../../services/railsCommon/ProvisionTypes';
+
+    import { createProvisionTitleBox, } from '../../../../../../services/railsCommon/updateListTitle';
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
@@ -131,7 +145,6 @@ import ProvisionHistory from '../../../../../../services/railsCommon/ProvisionHi
  *                                                                                                                                               
  */
 
-
 export interface IMyAddListTemplateProps {
     theList: IContentsListInfo;
     user: IUser;
@@ -161,13 +174,9 @@ export interface IMyAddListTemplateProps {
     theSite: ISite;
     currentPage: string; //this.context.pageContext.web.absoluteUrl;
 
+    panelOrPage: 'panel' | 'page';
+
   }
-
-  export type IMainPivot = 'FullList' | 'Components' | 'History';
-
-  const pivotHeading1 : IMainPivot = 'FullList';  //Templates
-  const pivotHeading2 : IMainPivot = 'Components';  //Templates
-  const pivotHeading3 : IMainPivot = 'History';  //Templates
 
 export function buildMainPivotDescriptions() {
     let result : any = {};
@@ -194,6 +203,7 @@ export interface IMyAddListTemplateState {
     // 2 - Source and destination list information
     makeThisList: IMakeThisList;
     onCurrentSite: boolean;
+    provisionListTitle: string;
 
     progress: IMyProgress;
     history: IMyHistory;
@@ -202,6 +212,8 @@ export interface IMyAddListTemplateState {
     priorHistory: IMyHistory;
 
     lists: IMakeThisList[];
+
+    validUserIds: number[];
 
     definedList: IDefinedLists; 
     applyThisVersion: string; //should tell us what version of the defined list is picked.
@@ -287,6 +299,9 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
             lists: theLists,
             definedList: definedList,
+
+            provisionListTitle: this.props.theList.Title,
+
             doMode: false,
             doList: doList,
             doFields: true,
@@ -294,6 +309,9 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             doItems: false,
             mainPivot: pivotHeading1,
             showMainWarning: true,
+
+            validUserIds: [],
+
         };
     }
         
@@ -371,6 +389,8 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             let historyStack = null;
             let listDefinitionJSON = null;
 
+            let theList : IContentsListInfo = this.props.theList;
+
             if (  this.state.doMode === true || this.state.mainPivot === 'History' ) {
 
                 let whichProgress = this.state.mainPivot === 'History' ? null : this.state.progress;
@@ -378,7 +398,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 let mapThisList = this.state.mainPivot === 'History' ? null : this.state.lists[ this.state.listNo ];
 
                 historyStack = <ProvisionHistory
-                    theList = { this.props.theList }
+                    theList = { theList }
 
                     pickedWeb = { this.props.pickedWeb }
                 
@@ -422,9 +442,25 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 let listDropdown = this.state.mainPivot !== 'FullList' ? null : 
                     this._createDropdownField( 'Pick your list type' , availLists , this._updateListDropdownChange.bind(this) , null );
     
+                let listTitle = createProvisionTitleBox( theList.Title, this.UpdateTitles, true, this.props.panelOrPage === 'panel' ? true : false  );
                 let createButton = <PrimaryButton text={ 'Apply Template' } onClick={ this.CreateList.bind(this) } allowDisabledFocus disabled={ this.state.doMode !== true ? true : false } checked={ false } />;
                 let cancelButton = <DefaultButton text={ 'Cancel' } onClick={ this.props._closePanel } allowDisabledFocus disabled={ false } checked={ false } />;
-                let toggles = <div style={ { display: 'inline-flex' , marginLeft: 0 }}> { makeToggles(this.getPageToggles()) } { createButton } { cancelButton } </div>;
+
+                let newToggles = getPageTogglesNew( 
+                    this.state.lists, 
+                    this.state.listNo,
+                    this.state.definedList, 
+                    'panel',
+                    this.state.doMode,
+                    null, //do not send doList because it needs the panel
+                    this.state.doFields,
+                    this.state.doViews,
+                    this.state.doItems,
+                    this.updateGenericToggle.bind(this), 
+                    null,
+                );
+
+                let toggles = <div style={ { display: 'inline-flex' , marginLeft: 0 }}> { newToggles } { createButton } { cancelButton } </div>;
     
                 let listDefinitionSelectPivot = 
                     <Pivot
@@ -469,6 +505,7 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
                 doInputs = <div>
                     <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '20px' }}>
                         <div style={{ float: 'left' }}> { listDropdown } </div>
+                        <div style={{ float: 'left' }}> { listTitle } </div>
                         <div style={{ paddingLeft: listDropdown === null ? '0px' : '60px' }}> { listDefinitionSelectPivot } </div>
                     </div>
 
@@ -553,45 +590,89 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             </div>;
 
             let panelHeader = this.headingDesc[ this.state.mainPivot ] ;
-            return (
-                <div><Panel
-                        isOpen={ this.props.showPanel }
-                        // this prop makes the panel non-modal
-                        isBlocking={true}
-                        onDismiss={ this.props._closePanel }
-                        closeButtonAriaLabel="Close"
-                        type = { this.props.type }
-                        isLightDismiss = { true }
-                        headerText = { panelHeader }
-                        >
-                        { panelContent }
 
-                    </Panel>
-                </div>
+            if ( this.props.panelOrPage === 'panel' ) {
+                return (
+                    <div><Panel
+                            isOpen={ this.props.showPanel }
+                            // this prop makes the panel non-modal
+                            isBlocking={true}
+                            onDismiss={ this.props._closePanel }
+                            closeButtonAriaLabel="Close"
+                            type = { this.props.type }
+                            isLightDismiss = { true }
+                            headerText = { panelHeader }
+                            >
+                            { panelContent }
+    
+                        </Panel>
+                    </div>
+    
+                );
+            } else {
+                return ( <div> { panelContent } </div>);
+            }
 
-            );
 
         } else { //No list was detected
 
-            // <div className={ styles.container }></div>
-            return ( <div className={ '' }>
-                    <Panel
-                        isOpen={ this.props.showPanel }
-                        // this prop makes the panel non-modal
-                        isBlocking={true}
-                        onDismiss={ this.props._closePanel }
-                        closeButtonAriaLabel="Close"
-                        type = { this.props.type }
-                        isLightDismiss = { true }
-                        headerText = { 'Ooops!' }
-                        >
-                            { 'OOPS!  We don\'t have a list to show you right now :(' }
+            if ( this.props.panelOrPage === 'panel' ) {
+                return ( <div className={ '' }>
+                        <Panel
+                            isOpen={ this.props.showPanel }
+                            // this prop makes the panel non-modal
+                            isBlocking={true}
+                            onDismiss={ this.props._closePanel }
+                            closeButtonAriaLabel="Close"
+                            type = { this.props.type }
+                            isLightDismiss = { true }
+                            headerText = { 'Ooops!' }
+                            >
+                                { 'OOPS!  We don\'t have a list to show you right now :(' }
 
-                        </Panel>
-                </div> );
+                            </Panel>
+                    </div> );
+
+            } else {
+                return ( <div> { 'OOPS!  We don\'t have a list to show you right now :(' } </div>);
+            }
         } 
 
     } 
+
+    private UpdateTitles( oldVal: any ) {
+
+        this.setState({ provisionListTitle: oldVal, });
+
+        let listName = cleanSPListURL(camelize(oldVal, true));
+
+        let definedList = this.state.definedList;
+
+        let provisionListTitles: string[] = [oldVal,oldVal,oldVal,oldVal,oldVal,oldVal];
+
+        let reDefinedLists = getTheseDefinedLists( definedList , false, provisionListTitles, this.state.validUserIds, this.props.pickedWeb.url, this.props.pageContext.web.absoluteUrl, this.state.doList, this.updateStateListsFromTitle.bind(this) );
+
+        reDefinedLists.map( theList => {
+            theList.name = listName;
+            theList.title = oldVal;
+            theList.desc = oldVal + ' list for this Webpart';
+            theList.template = this.state.doList === true ? 100 : 101 ;
+            theList.listURL =  ( this.props.pickedWeb.url ) + '/' + ( theList.template === 100 ? 'lists/' : '') + listName;
+        });
+
+        checkThisWeb(this.state.listNo, reDefinedLists, definedList, this.updateStateListsFromTitle.bind(this), getFullUrlFromSlashSitesUrl( this.props.pickedWeb.url ));
+
+      }
+
+      private updateStateListsFromTitle(index: number, testLists : IMakeThisList[], definedList: IDefinedLists) {
+        let stateLists = this.state.lists;
+        if (stateLists === undefined ) { stateLists = this.state.lists ; }
+        stateLists[index] = testLists[index];
+        this.setState({
+            lists: stateLists,
+            definedList: definedList,
+        });
+      }
 
     private async _selectedListDefIndex(item?: PivotItem, ev?: React.MouseEvent<HTMLElement>) {
         //this.setState({ searchText: "" }, () => this._searchUsers(item.props.itemKey));
@@ -718,9 +799,15 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
 
     saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply , //analyticsWeb, analyticsList,
         ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
-        AddTemplateSaveTitle, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+        ApplyTemplate_Rail_SaveTitle, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
         this.props.theList.Title, null , 'Complete', //itemInfo1, itemInfo2, result, 
         mapThisList, this.props.railFunction, this.state.progress, this.state.history ); //richText, Setting, richText2, richText3
+
+    saveAssist( strings.requestListSite, strings.requestListList , //analyticsWeb, analyticsList,
+        ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+        `Applied Template: ${mapThisList.definedList} to List: ${mapThisList.title}` , pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+        '', ['2. Provisioning'], '', //itemInfo1 ( Not used yet ), itemInfo2 ( Scope array ), result ( Not used yet ), 
+        null, this.props.railFunction, null, null ); //richText, Setting, richText2, richText3
   }
 
    /**
@@ -874,14 +961,24 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
     //            let toggles = <div style={{ float: 'right' }}> { makeToggles(this.getPageToggles()) } </div>;
 
         private getPageToggles() {
+            
+            const lists = this.state.lists;
+            const listNo = this.state.listNo;
+            const definedList = this.state.definedList;
+            const panelOrPage = this.props.panelOrPage;
+
+            const doMode = this.state.doMode;
+            const doFields = this.state.doFields;
+            const doViews = this.state.doViews;
+            const doItems = this.state.doItems;
 
             let toggleLabel = <span style={{ color: '', fontWeight: 700}}>Mode</span>;
             let togDoMode = {
                 label: toggleLabel,
-                disabled: this.state.definedList === availLists[0] ? true : false,
+                disabled: definedList === availLists[0] ? true : false,
                 key: 'togDoMode',
                 _onChange: () => this.updateGenericToggle('togDoMode'),
-                checked: this.state.doMode,
+                checked: doMode,
                 onText: 'Build',
                 offText: 'Design',
                 className: '',
@@ -889,10 +986,10 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             };
 
             let togDoFields = {
-                label: `Fields (${this.state.lists.length > 0 ? this.state.lists[this.state.listNo].createTheseFields.length : 0 })`,
+                label: `Fields (${lists.length > 0 ? lists[listNo].createTheseFields.length : 0 })`,
                 key: 'togDoFields',
                 _onChange: () => this.updateGenericToggle('togDoFields'),
-                checked: this.state.doFields,
+                checked: doFields,
                 onText: 'Include',
                 offText: 'Skip',
                 className: '',
@@ -900,30 +997,29 @@ export default class MyAddListTemplate extends React.Component<IMyAddListTemplat
             };
 
             let togDoViews = {
-                label: `Views (${this.state.lists.length > 0 ? this.state.lists[this.state.listNo].createTheseViews.length : 0 })`,
+                label: `Views (${lists.length > 0 ? lists[listNo].createTheseViews.length : 0 })`,
                 key: 'togDoViews',
                 _onChange: () => this.updateGenericToggle('togDoViews'),
-                checked: this.state.doViews,
+                checked: doViews,
                 onText: 'Include',
                 offText: 'Skip',
                 className: '',
                 styles: '',
             };
 
-            
-            // let togDoItems = {
-            //     label: 'Items ' + ( this.state.lists && this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseItems.length})` : '' ),
-            //     key: 'togDoItems',
-            //     _onChange: this.updateTogggleDoItems.bind(this),
-            //     checked: this.state.doItems,
-            //     onText: 'Include',
-            //     offText: 'Skip',
-            //     className: '',
-            //     styles: '',
-            // };
+            let togDoItems = {
+                label: 'Items ' + ( lists && lists.length > 0 && listNo !== null? `(${lists[listNo].createTheseItems.length})` : '' ),
+                key: 'togDoItems',
+                _onChange: () => this.updateGenericToggle('togDoItems'),
+                checked: doItems,
+                onText: 'Include',
+                offText: 'Skip',
+                className: '',
+                styles: '',
+            };
 
             let theseToggles = [togDoMode, togDoFields, togDoViews, ];
-
+            if ( panelOrPage === 'page' ) { theseToggles.push( togDoItems ) ; }
             let pageToggles : IContentsToggles = {
                 toggles: theseToggles,
                 childGap: 20,

@@ -3,18 +3,15 @@ import { ComponentFields } from './columnsComponents'; //Import column arrays (o
 
 import { createStatusViews, createYearPeriodViews, createStepsDoneViews } from './viewsComponents';  //Import view arrays for Project list
 
-import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
-
-// definedList: 'PreConfig',
-
-export type IValidTemplate = 100 | 101;
+import { provisionTheList  } from '../component/provisionWebPartList';
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 import { getFieldNamesFromArray, getViewTitlesFromArray } from '../component/provisionFunctions';
 
-import { DefStatusField, DefEffStatusField } from '../../ListProvisioning/component/provisionFunctions';
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
 
-export type IDefinedComponent = 'Pick component Type' | typeof DefStatusField | typeof DefEffStatusField | 'Year-Period' | 'Steps Done' | '';
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
+
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IDefinedComponent , webURL: string, currentUser: number[], pageURL: string ) {

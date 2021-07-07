@@ -14,10 +14,6 @@ import "@pnp/sp/clientside-pages/web";
 
 import { Web, IList, sp, SiteGroups, SiteGroup, ISiteGroupInfo, Site, ISite } from "@pnp/sp/presets/all";
 
-import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
-import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
-import { mergeAriaAttributeValues } from "office-ui-fabric-react";
-
 import { HttpClient, HttpClientResponse } from "@microsoft/sp-http";
 
 
@@ -37,12 +33,9 @@ import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists,  } from '@
 import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
 import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
 
-import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
-
 import { encodeDecodeString, getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
 import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
 
 
 /***
@@ -80,14 +73,10 @@ import { BaseErrorTrace } from '../../../../../../services/BaseErrorTrace';
  *                                                                                                                                               
  */
 
-import { pivCats, IListBucketInfo } from '../listsComponent';
 
 import { IProcessSteps, } from './setup';
 
 import { IProcessStatus, IStepPC, IProcessStep, shouldDoThisStepBasedOnDependant } from '../../../../../../services/railsCommon/railsSetup';
-
-import { IContentsGroupInfo, IGroupBucketInfo } from  '../../Groups/groupsComponent';
-import { BodyFin } from "../../../ListProvisioning/ListsFinTasks/columnsFinTasks";
 
 /***
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
@@ -137,6 +126,10 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   const { Id: siteId } = await thisSiteInstance.get();
   const { Url: siteUrl } = await thisSiteInstance.get();
 
+    
+  const { Id: fullRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Full Control').get();
+  const { Id: contRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Contribute').get();
+  const { Id: readRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Read').get();
   // // let siteUrl = theSite.Url;
 
   // console.log('railSiteID:', siteId );
@@ -156,6 +149,21 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
       errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions Break Inheritance ~ 156', helpfulErrorEnd ].join('|') );
       currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
     }
+
+    try {
+      // Gets the associated owners group of a web
+      const list: IList = listInstance.list;
+      let ras = await listInstance.roleAssignments();
+      currentStep.current = JSON.parse(JSON.stringify( currentStep.complete ));
+      const ra = ras.find(v => true);
+      const r = await listInstance.roleAssignments.remove(ra.PrincipalId, fullRoleDefId);
+
+    } catch (e) {
+      let helpfulErrorEnd = [ theList.Title, '', null, null ].join('|');
+      errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'railFunctions Clear all permissions ~ 169', helpfulErrorEnd ].join('|') );
+      currentStep.current = JSON.parse(JSON.stringify( currentStep.error ));
+    }
+
     updateState(newSteps, currentStep);
 
   }
@@ -167,10 +175,6 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
   let ownerGroup : ISiteGroupInfo = null;
   let memberGroup : ISiteGroupInfo = null;
   let visitorGroup : ISiteGroupInfo = null;
-
-  const { Id: fullRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Full Control').get();
-  const { Id: contRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Contribute').get();
-  const { Id: readRoleDefId } = await thisWebInstance.roleDefinitions.getByName('Read').get();
 
   function convertLetterToRole( role: string ) {
     if ( role === 'Full Control') { return fullRoleDefId ; }
@@ -377,56 +381,6 @@ export type IRoleDefs = 'Read' | 'Contribute' | 'Full control';
 
  }
 
- export async function getSiteInfoIncludingUnique( webURL : string , minOrAllProps: 'min' | 'all', alertErrors: boolean ) {
-
-  webURL = getFullUrlFromSlashSitesUrl( webURL );
-  let errMessage = '';
-
-  const thisWebObject = Web( webURL );
-  let getMinProps = 'Title,Id,Url,ServerRelativeUrl,SiteLogoUrl,Description,HasUniqueRoleAssignments';
-  if ( minOrAllProps === 'all' ) { getMinProps = '*,' + getMinProps ; }
-  let pickedWeb = null;
-
-  try {
-    const webbie = await thisWebObject.select(getMinProps).get();
-
-    if ( minOrAllProps === 'min' ) {
-      let pickedWebMin : IPickedWebBasic = {
-        ServerRelativeUrl: 'Site ServerRelativeUrl',
-        guid: 'Site Guid',
-        title: 'Site Title',
-        url: 'siteURL',
-        siteIcon: 'Site Icon',
-        error: '',
-        HasUniqueRoleAssignments: null,
-      };
-  
-      pickedWebMin = {
-          ServerRelativeUrl: webbie.ServerRelativeUrl,
-          guid: webbie.Id,
-          title: webbie.Title,
-          url: webbie.Url,
-          siteIcon: webbie.SiteLogoUrl,
-          error: '',
-          HasUniqueRoleAssignments: webbie['HasUniqueRoleAssignments'],
-      };
-
-      pickedWeb = pickedWebMin;
-
-    } else { pickedWeb = webbie; }
-
-  } catch (e) {
-
-    let helpfulErrorEnd = [ webURL, , null, null ].join('|');
-    errMessage = getHelpfullErrorV2(e, alertErrors, true, [ BaseErrorTrace , 'Failed', 'railFunctions Get Site info ~ 421', helpfulErrorEnd ].join('|') );
-    pickedWeb.error = errMessage;
- 
-  }
-
-  return pickedWeb;
-
- }
- 
 
  
 const APISiteGetEndPoint : string = '_api/site';

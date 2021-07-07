@@ -1,4 +1,3 @@
-
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .d88b.  d88888b d88888b d888888b  .o88b. d888888b  .d8b.  db      
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      .8P  Y8. 88'     88'       `88'   d8P  Y8   `88'   d8' `8b 88      
@@ -9,14 +8,9 @@
  *                                                                                                                                  
  *                                                                                                                                  
  */
-import "@pnp/sp/webs";
-import "@pnp/sp/clientside-pages/web";
 
-import { Web, IList, sp, SiteGroups, SiteGroup, ISiteGroupInfo } from "@pnp/sp/presets/all";
 
-import { ClientsideWebpart } from "@pnp/sp/clientside-pages";
-import { CreateClientsidePage, PromotedState, ClientsidePageLayoutType, ClientsideText,  } from "@pnp/sp/clientside-pages";
-import { mergeAriaAttributeValues } from "office-ui-fabric-react";
+import * as React from 'react';
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
@@ -29,22 +23,6 @@ import { mergeAriaAttributeValues } from "office-ui-fabric-react";
  *                                                                                                                                                                              
  */
 
-import { IContentsListInfo, IMyListInfo, IServiceLog, IContentsLists,  } from '@mikezimm/npmfunctions/dist/Lists/listTypes'; //Import view arrays for Time list
-
-import { doesObjectExistInArray, } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
-import {  addItemToArrayIfItDoesNotExist } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
-
-import { SystemLists, TempSysLists, TempContLists, entityMaps, EntityMapsNames } from '@mikezimm/npmfunctions/dist/Lists/Constants';
-
-import { encodeDecodeString, getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
-
-import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
-import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
-
-import { getKeyChanges,  } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
-
-import { isGuid, makeid, } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
-
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -55,10 +33,7 @@ import { isGuid, makeid, } from '@mikezimm/npmfunctions/dist/Services/Strings/st
  *                                                                                                                                 
  *                                                                                                                                 
  */
-import { BaseErrorTrace } from '../../BaseErrorTrace';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
-
-import { IContentsFieldInfo, IInspectColumnsProps, IInspectColumnsState, IFieldBucketInfo } from '../../../webparts/genericWebpart/components/Contents/Fields/IFieldComponentTypes';
-
+ 
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -71,6 +46,10 @@ import { IContentsFieldInfo, IInspectColumnsProps, IInspectColumnsState, IFieldB
  *                                                                                                                       
  */
 
+import { IFieldDef } from '../../webparts/genericWebpart/components/fields/fieldDefinitions';
+import { createBasicTextField } from  '../../webparts/genericWebpart/components/fields/textFieldBuilder';
+
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
@@ -81,49 +60,49 @@ import { IContentsFieldInfo, IInspectColumnsProps, IInspectColumnsState, IFieldB
  *                                                                                                                                               
  *                                                                                                                                               
  */
+//
 
+import styles from '../../webparts/genericWebpart/components/ListProvisioning/component/provisionList.module.scss';
 
-/***
- *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b      d888888b d8b   db d888888b d88888b d8888b. d88888b  .d8b.   .o88b. d88888b .d8888. 
- *    88'     `8b  d8' 88  `8D .8P  Y8. 88  `8D `~~88~~'        `88'   888o  88 `~~88~~' 88'     88  `8D 88'     d8' `8b d8P  Y8 88'     88'  YP 
- *    88ooooo  `8bd8'  88oodD' 88    88 88oobY'    88            88    88V8o 88    88    88ooooo 88oobY' 88ooo   88ooo88 8P      88ooooo `8bo.   
- *    88~~~~~  .dPYb.  88~~~   88    88 88`8b      88            88    88 V8o88    88    88~~~~~ 88`8b   88~~~   88~~~88 8b      88~~~~~   `Y8b. 
- *    88.     .8P  Y8. 88      `8b  d8' 88 `88.    88           .88.   88  V888    88    88.     88 `88. 88      88   88 Y8b  d8 88.     db   8D 
- *    Y88888P YP    YP 88       `Y88P'  88   YD    YP         Y888888P VP   V8P    YP    Y88888P 88   YD YP      YP   YP  `Y88P' Y88888P `8888Y' 
- *                                                                                                                                               
- *                                                                                                                                               
- */
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from './ProvisionTypes';
 
-export async function saveListory ( altWeb: string, altListTitle: string, doThis: string, saveObject:  any ,scope: string, errMessage : string ) {
+export function isListReadOnly (mapThisList: IMakeThisList, alwaysReadOnly: boolean, isCurrentWeb: boolean, allowOtherSites: boolean ) {
 
-    let isId = isGuid( altListTitle );
+  let readOnly = true;
+  if ( alwaysReadOnly === false ) {                //First test, only allow updates if the state is explicitly set so alwaysReadOnly === false
+      if (mapThisList.onCurrentSite === true ) {
+          readOnly = false;                                   //If list is on current site, then allow writing (readonly = false)
+      } else if ( isCurrentWeb === true || allowOtherSites === true ) {
+          readOnly = false;                                   //Else If you explicitly tell it to allowOtherSites, then allow writing (readonly = false)
+      }
+  }
 
-    if ( isId !== true ) { //fetch list Id to save with analytics
-
-
-    }
-        
+  return readOnly;
 
 }
 
- export async function doThisRailFunction( theList: IContentsListInfo, updateState: any ) {
+export function createProvisionTitleBox( 
+    provisionListTitle: string,
+    updateTitleFunction: any,
+    required: boolean,
+    disabled: boolean,
+  ) {
 
-  let currentStep = null;
-  let listOrLib = theList.BaseType === 0 ? 'List' : 'Library' ;
-  let thisWebInstance = null;
-  let listInstance = null;
-  let webUrl: string = theList['odata.id'];
-  webUrl = webUrl.substr( 0, webUrl.indexOf('_api'));
-  let errMessage = '';
+      let thisField : IFieldDef = {
+        name: provisionListTitle,
+        title: null,
+        column: provisionListTitle,
+        type: 'String', //Smart, Text, Number, etc...
+        required: required,
+        disabled: disabled,
+        hidden: false,
+        blinkOnProject: null,
+        value: provisionListTitle,
+      };
 
-  try {
-      thisWebInstance = Web( webUrl );
-  } catch (e) {
-      let helpfulErrorEnd = [ theList.Title, theList.listURL, 'JSON Compare', null, null  ].join('|');
-      errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'get Web ~ 107', helpfulErrorEnd ].join('|') );
-  }
+      let titleBox = createBasicTextField( thisField, provisionListTitle, updateTitleFunction, styles.listProvTextField1, 'noDataInfo' );
+      let titleElement = <div style={{ paddingTop: '20px' }}><div> { titleBox }</div></div>;
 
-  updateState( );
+    return titleElement;
 
- }
-
+}

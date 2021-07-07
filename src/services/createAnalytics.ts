@@ -7,6 +7,7 @@ import { getExpandColumns, getSelectColumns, IZBasicList, IPerformanceSettings, 
 import { sortObjectArrayByStringKey } from '@mikezimm/npmfunctions/dist/Services/Arrays/sorting';
 import { IRailAnalytics } from '@mikezimm/npmfunctions/dist/Services/Arrays/grouping';
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
+import { makeSmallTimeObject } from '@mikezimm/npmfunctions/dist/Services/Time/smallTimeObject';
 
 import { getBrowser, amIOnThisWeb, getWebUrlFromLink, getUrlVars,  } from '@mikezimm/npmfunctions/dist/Services/Logging/LogFunctions';
 import { getCurrentPageLink, makeListLink, makeSiteLink, } from '@mikezimm/npmfunctions/dist/Services/Logging/LogFunctions';
@@ -21,7 +22,7 @@ import * as strings from 'GenericWebpartWebPartStrings';
  * @param theState 
  */
 
-export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, listory, fields, views, types, info, Setting ) {
+export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, listory, Setting, fields, views ) {
 
     //Do nothing if either of these strings is blank
     if (!analyticsList) { return ; }
@@ -31,6 +32,7 @@ export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, sa
     let saveItem: any ={
         Title: saveTitle,
         PageLink: getCurrentPageLink(),
+        ListTitle: itemInfo1,
     };
 
     let startTime = getTheCurrentTime();
@@ -77,7 +79,8 @@ export function saveListory (analyticsWeb, analyticsList, SiteLink, webTitle, sa
  * @param theProps 
  * @param theState 
  */
-export const AddTemplateSaveTitle = 'Add Template';
+export const ApplyTemplate_Rail_SaveTitle = 'Apply Template Rail';
+export const ApplyTemplate_Page_SaveTitle = 'Apply Template Page';
 export const ProvisionListsSaveTitle = 'Provision Lists';
 export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, RichTextJSON1, Setting, RichTextJSON2, RichTextJSON3 ) {
 
@@ -98,7 +101,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
     saveItem.getParams = getUrlVars().join(' & ');
     saveItem.Setting = Setting;
 
-    console.log('saveAnalytics StringifyActionJson: ', RichTextJSON1, RichTextJSON2, RichTextJSON3 );
+    // console.log('saveAnalytics StringifyActionJson: ', RichTextJSON1, RichTextJSON2, RichTextJSON3 );
     saveItem.zzzRichText1 = RichTextJSON1 ? JSON.stringify(RichTextJSON1) : null;
     saveItem.zzzRichText2 = RichTextJSON2 ? JSON.stringify(RichTextJSON2) : null;
     saveItem.zzzRichText3 = RichTextJSON3 ? JSON.stringify(RichTextJSON3) : null;
@@ -150,7 +153,7 @@ export function saveAnalytics (analyticsWeb, analyticsList, SiteLink, webTitle, 
 
     saveItem.TargetList = TargetList ? makeListLink( TargetList, webTitle ) : null;
 
-    saveThisLogItem( analyticsWeb, analyticsList, saveItem );
+    saveThisLogItem( analyticsWeb + '', analyticsList + '', saveItem );
 
 }
 
@@ -191,6 +194,53 @@ export async function fetchAnalytics( analyticsWeb: string, analyticsList: strin
     }
 
     return items ;
+
+}
+
+/**
+ * This function is for automatically creating a item in our Teams' request list in SharePoint.
+ * Initially it's fired upon completing rail functions to auto-document support incidents.
+ * 
+ * So it's only going to execute in certain tenanats.
+ * If you see this and want to re-purpose it, update the function to suit your needs and adjust the window.location.origin check
+ * 
+ * Best practice is just to update your site and list Url in strings:
+ *  Or just create the site:  SharePointAssist
+ *  And create the list:  Assists
+ *  And add the columns listed below in the save item
+    "requestListSite": "/sites/SharePointAssist",
+    "requestListList": "Assists",
+ * 
+*/
+
+export function saveAssist ( analyticsWeb, analyticsList, SiteLink, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2: string[], result, RichTextJSON1, Setting, RichTextJSON2, RichTextJSON3 ) {
+
+    if ( window.location.origin.indexOf( 'utoliv.sharepoint.com') < 0 && window.location.origin.indexOf( 'clickster.sharepoint')  < 0 ) { return ; }
+
+    if (!analyticsList) { return ; }
+    if (!analyticsWeb) { return ; }
+
+    SiteLink = getWebUrlFromLink( SiteLink, 'abs' );
+
+    let location = makeListLink( TargetList, webTitle );
+
+    let startTime = makeSmallTimeObject( null );
+    let localTimeString = startTime.theTime;
+    let StatusComments = RichTextJSON1 ? JSON.stringify(RichTextJSON1).replace('\"','') : null;
+    let ScopeArray: string[] = itemInfo2;
+    let saveItem: any ={
+        Title: saveTitle,
+        Scope:  { results: ScopeArray },  //Need to add scope back in as multi-select choice.
+        Status: '4. Completed', //Choice
+        Complexity: '0 Automation', //Choice
+        StatusComments: StatusComments, //Mulit-Line Text (plain text)
+        StartDate: localTimeString, //Date-Time
+        EndDate: localTimeString, //Date-Time
+        TargetCompleteDate: localTimeString, //Date-Time
+        Location: location, //Link
+    };
+
+    saveThisLogItem( analyticsWeb + '', analyticsList + '', saveItem );
 
 }
 

@@ -17,7 +17,9 @@ import { cBool, cCalcN, cCalcT, cChoice, cMChoice, cCurr, cDate, cLocal, cLook, 
 //Imported but not used so that intellisense can prevent duplicate named columns.
 import { ootbID, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
-import { IDefinedComponent } from './defineComponents';
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 import {
     YearRep , PeriodRep, ScopeRep, YearPerRepCalc,
@@ -46,9 +48,9 @@ const colPrefix = '';
  *
  *
  */
-import { DefStatusField, DefEffStatusField } from '../../ListProvisioning/component/provisionFunctions';
 
 /***
+ * 
  *    d88888b db    db d8888b.  .d88b.  d8888b. d888888b
  *    88'     `8b  d8' 88  `8D .8P  Y8. 88  `8D `~~88~~'
  *    88ooooo  `8bd8'  88oodD' 88    88 88oobY'    88

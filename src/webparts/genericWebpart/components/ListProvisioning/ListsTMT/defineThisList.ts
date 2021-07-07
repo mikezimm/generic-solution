@@ -7,16 +7,17 @@ import { timeViewsFull } from './viewsChildList'; //Import view arrays for Time 
 
 import { TMTDefaultProjectItems, TMTTestTimeItems, } from './ItemsWebPart'; // Import items to create in the list
 
-import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
+import { provisionTheList  } from '../component/provisionWebPartList';
+
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 // definedList: 'PreConfig',
 
 import { defineTheListMaster } from '../component/provisionWebPartList';
 import { getFieldNamesFromArray, getViewTitlesFromArray } from '../component/provisionFunctions';
-
-export type IValidTemplate = 100 | 101;
-
-export type IListDefintionTMT = 'Projects' | 'TrackMyTime';
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionTMT , webURL: string, currentUser: number[], pageURL: string ) {

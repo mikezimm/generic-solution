@@ -17,7 +17,7 @@ import { Dropdown, DropdownMenuItemType, IDropdownStyles, IDropdownOption } from
 import { TextField,  IStyleFunctionOrObject, ITextFieldStyleProps, ITextFieldStyles } from "office-ui-fabric-react";
 
 import { sp } from "@pnp/sp";
-import { Web, Lists, List } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
+import { Web, Lists, List, ISite } from "@pnp/sp/presets/all"; //const projectWeb = Web(useProjectWeb);
 
 import ReactJson from "react-json-view";
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
@@ -37,8 +37,6 @@ import { PageContext } from '@microsoft/sp-page-context';
  */
 
 import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
-import { IMyView,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes'; //Import view arrays for Time list
-import { queryValueCurrentUser, queryValueToday, IViewField } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
 
 import { IMyProgress,  } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 import { IUser } from '@mikezimm/npmfunctions/dist/Services/Users/IUserInterfaces';
@@ -47,9 +45,12 @@ import { getHelpfullErrorV2, } from '@mikezimm/npmfunctions/dist/Services/Loggin
 
 import { cleanURL, cleanSPListURL } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 import { camelize } from '@mikezimm/npmfunctions/dist/Services/Strings/stringCase';
+import { makeid } from '@mikezimm/npmfunctions/dist/Services/Strings/stringServices';
+
 import { getChoiceKey, getChoiceText } from '@mikezimm/npmfunctions/dist/Services/Strings/choiceKeys';
 
 import { doesObjectExistInArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/checks';
+import { getSiteUsers } from '@mikezimm/npmfunctions/dist/Services/Users/userServices';
 
 import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableInterfaces/IMyInterfaces';
 
@@ -65,9 +66,13 @@ import { IMyHistory, clearHistory } from '@mikezimm/npmfunctions/dist/ReusableIn
  */
 import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';
 
-import { saveTheTime, getTheCurrentTime, saveAnalytics,  } from '../../../../../services/createAnalytics';
+import { saveTheTime, getTheCurrentTime, saveAnalytics, ApplyTemplate_Rail_SaveTitle } from '../../../../../services/createAnalytics';
 
 import { fixTitleNameInViews  } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
+
+import ProvisionHistory from '../../../../../services/railsCommon/ProvisionHistoryPane';
+
+import { IMainPivot, pivotHeading1, pivotHeading2, pivotHeading3 } from './provisionConstants';  
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -91,6 +96,8 @@ import * as links from '@mikezimm/npmfunctions/dist/HelpInfo/Links/AllLinks';
 
 import { JSONEditorShort } from '../../HelpInfo/AllLinks';
 
+import { createProvisionTitlesRow } from './listTitleButtons';
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
@@ -102,20 +109,16 @@ import { JSONEditorShort } from '../../HelpInfo/AllLinks';
  *                                                                                                                                               
  */
 //
+import * as strings from 'GenericWebpartWebPartStrings';
 
-import { provisionTheList, IValidTemplate } from './provisionWebPartList';
+import { ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from '../../Contents/Lists/IListComponentTypes';
+
+import { provisionTheList, } from './provisionWebPartList';
 
 import { getTheseDefinedLists, checkThisWeb } from './provisionFunctions';
-import { getFullURLFromRelative } from '../../Contents/Permissions/Services/Permissions';
+import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';
 
-import { IGenericWebpartProps } from '../../IGenericWebpartProps';
-import { IGenericWebpartState } from '../../IGenericWebpartState';
 import styles from './provisionList.module.scss';
-
-import MyLogList from './listView';
-
-
-import { IMakeThisList } from './provisionWebPartList';
 
 
 /***
@@ -149,7 +152,9 @@ import * as dReps from '../ListsReports/defineReports';
 //import * as dSoci from '../ListsSocialiiS/defineSocialiiS';
 import * as dPivT from '../PivotTiles/definePivotTiles';
 
-import { IDefinedLists, availLists, definedLists, } from './provisionFunctions';
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 
 export const dropDownWidth = 200;
 
@@ -189,6 +194,9 @@ export interface IProvisionListsProps {
 
     lists: IMakeThisList[];
 
+    theSite: ISite;
+    currentPage: string; //this.context.pageContext.web.absoluteUrl;
+
 }
 
 export interface IProvisionListsState {
@@ -199,6 +207,9 @@ export interface IProvisionListsState {
 
     progress: IMyProgress;
     history: IMyHistory;
+
+    priorProgress: IMyProgress;
+    priorHistory: IMyHistory;
 
     doMode: boolean;
     doList: boolean;
@@ -220,27 +231,15 @@ export interface IProvisionListsState {
     lists: IMakeThisList[];
 
     validUserIds: number[];
+    
+    mainPivot: IMainPivot;
+    showMainWarning: boolean;
 
 }
 
 export default class ProvisionLists extends React.Component<IProvisionListsProps, IProvisionListsState> {
 
-    private createTitleField( title ) {
-        let thisField : IFieldDef = {
-            name: title,
-            title: null,
-            column: title,
-            type: 'String', //Smart, Text, Number, etc...
-            required: true,
-            disabled: false,
-            hidden: false,
-            blinkOnProject: null,
-            value: title,
-        };
-        return thisField;
-    }
-
-    private captureAnalytics(itemInfo2, result, ActionJSON ){
+    private captureAnalytics(itemInfo2, result, RichText1 ){
         let currentSiteURL = this.props.pageContext.web.serverRelativeUrl;
 
         let TargetList = '';
@@ -257,11 +256,11 @@ export default class ProvisionLists extends React.Component<IProvisionListsProps
         }
 
         //saveAnalytics (analyticsWeb, analyticsList, serverRelativeUrl, webTitle, saveTitle, TargetSite, TargetList, itemInfo1, itemInfo2, result, richText ) {
-        saveAnalytics( this.props.analyticsWeb, this.props.analyticsList, //analyticsWeb, analyticsList,
+        saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply, //analyticsWeb, analyticsList,
             currentSiteURL, currentSiteURL,//serverRelativeUrl, webTitle, PageURL,
             'Provision Lists', TargetSite, TargetList, //saveTitle, TargetSite, TargetList
             'Lists', itemInfo2, result, //itemInfo1, itemInfo2, result, 
-            ActionJSON, 'ProvisionList', null, null ); //richText, Setting, richText2, richText3
+            RichText1, 'ProvisionList', null, null ); //richText, Setting, richText2, richText3
 
     }
 
@@ -282,7 +281,7 @@ public constructor(props:IProvisionListsProps){
 
     let definedList = this.props.definedList && this.props.definedList.length > 0 ? this.props.definedList : availLists[0];
 
-    let theLists = getTheseDefinedLists( definedList, true, this.props.provisionListTitles, [], this.props.pickedWeb.url, getFullURLFromRelative(this.props.pickedWeb.url), true, this.updateStateLists.bind(this) );
+    let theLists = getTheseDefinedLists( definedList, true, this.props.provisionListTitles, [], this.props.pickedWeb.url, getFullUrlFromSlashSitesUrl(this.props.pickedWeb.url), true, this.updateStateLists.bind(this) );
 
     let allowOtherSites = this.props.allowOtherSites === true ? true : false;
     let alwaysReadOnly = this.props.alwaysReadOnly === true ? true : false;
@@ -298,8 +297,12 @@ public constructor(props:IProvisionListsProps){
         alwaysReadOnly: alwaysReadOnly,
         currentList: 'Click Button to start',
         allLoaded: this.props.allLoaded,
+
         progress: null,
         history: clearHistory(),
+
+        priorProgress: null,
+        priorHistory: clearHistory(),
 
         doMode: false,
         doList: true,
@@ -327,6 +330,9 @@ public constructor(props:IProvisionListsProps){
         lists: theLists,
 
         validUserIds: [],
+
+        mainPivot: pivotHeading1,
+        showMainWarning: true,
 
     };
 
@@ -398,100 +404,74 @@ public constructor(props:IProvisionListsProps){
             let thisPage = null;
             let stringsError = <tr><td>  </td><td>  </td><td>  </td></tr>;
 
-            let createButtonOnClicks = [
+            const createButtonOnClicks = [
                 this.CreateList_0.bind(this),
                 this.CreateList_1.bind(this),
                 this.CreateList_2.bind(this),
             ];
+            const updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
 
-            const buttons: ISingleButtonProps[] = this.state.lists.map (( thelist, index ) => {
-                let theLabel = null;
-                let isDisabled = !thelist.webExists;
+            let doInputs = createProvisionTitlesRow( 
+                this.state.provisionListTitles, 
+                this.state.lists, 
+                this.state.definedList, 
+                createButtonOnClicks , 
+                updateTitleFunctions,
+                this.state.alwaysReadOnly, this.props.isCurrentWeb, this.props.allowOtherSites,
+              );
 
-                if ( this.state.definedList === availLists[0] ) {
-                    isDisabled = true;
-                    theLabel = availLists[0];
+            let historyStack = null;
+            let listDefinitionJSON = null;
 
-                } else if ( thelist.webExists ) {
-                    if ( thelist.title === '' ) {
-                        theLabel = "Update Title";
-                        isDisabled = true;
+            let theList : any = this.state.makeThisList;
 
-                    } else if ( this.isListReadOnly(thelist) === false ) {
+            if (  this.state.doMode === true || this.state.mainPivot === 'History' ) {
 
-                        if ( thelist.listExists === true ) {
-                            if ( thelist.sameTemplate === true ) {
-                                theLabel = "UPDATE to " + thelist.listDefinition;
+                let whichProgress = this.state.mainPivot === 'History' ? null : this.state.progress;
+                let whichHistory = this.state.mainPivot === 'History' ? clearHistory() : this.state.history;
+                let mapThisList = this.state.mainPivot === 'History' ? null : this.state.lists[ this.state.listNo ];
 
-                            } else {
-                                theLabel = "Not a " + ( thelist.template === 100 ? "List" : "Library" );
-                                isDisabled = true;
-                            }
+                historyStack = null;
+                    historyStack = <ProvisionHistory
+                    theList = { theList }
 
-                        } else {
-                            theLabel = "Create as " + thelist.listDefinition;
-                        }
+                    pickedWeb = { this.props.pickedWeb }
 
-                    } else {
-                        if ( thelist.listExists === true ) {
-                            theLabel = "Verify as " + thelist.listDefinition;
-                            console.log('render theList:', thelist ) ;
+                    analyticsWeb = { strings.analyticsWeb }
+                    analyticsListRails = { strings.analyticsListRailsApply }
 
-                        } else {
-                            theLabel = "Can't verify List";
-                            isDisabled = true;
-                        }
-                    }
-                } else {
-                    theLabel = thelist.title + ' web does not exist!';
-                }
+                    progress = { whichProgress }
+                    history = { whichHistory }
+                    mapThisList = { mapThisList }
 
-                return {     disabled: isDisabled,  checked: true, primary: false,
-                    label: theLabel, buttonOnClick: createButtonOnClicks[index], };
-            });
+                    fetchHistory = { this.state.mainPivot === 'History' ? true : false }
 
-            //let provisionButtons = <div style={{ paddingTop: '20px' }}><ButtonCompound buttons={buttons} horizontal={true}/></div>;
-            let updateTitleFunctions = [this.UpdateTitle_0.bind(this), this.UpdateTitle_1.bind(this), this.UpdateTitle_2.bind(this)];
-            let provisionButtons = buttons.map ( ( theButton, index ) => {
-                let thisTitle = this.state.provisionListTitles[index];
-                let titleBox = createBasicTextField(this.createTitleField(thisTitle), thisTitle, updateTitleFunctions[index], styles.listProvTextField1 );
-                return <div style={{ paddingTop: '20px' }}><div> { titleBox }</div><ButtonCompound buttons={[theButton]} horizontal={true} /></div>;
-            });
+                    refreshId = { makeid(6) }
 
+                ></ProvisionHistory>;
+            
+            } else { //this.state.doMode !== true
 
-            let listLinks = this.state.lists.map( mapThisList => (
-                mapThisList.listExists ? links.createLink( mapThisList.listURL.replace('_layouts/15/undefined',''), '_none',  'Go to: ' + mapThisList.title ) : null ));
-
-            const stackProvisionTokens: IStackTokens = { childrenGap: 70 };
-
-            let provisionButtonRow = <Stack horizontal={true} wrap={true} horizontalAlign={"start"} verticalAlign= {"center"} tokens={stackProvisionTokens}>{/* Stack for Buttons and Fields */}
-                    { provisionButtons }
-                    { listLinks }
-                    {  }
-                </Stack>;
-
-            let myProgress = this.state.progress == null ? null : <ProgressIndicator
-                label={this.state.progress.label}
-                description={this.state.progress.description}
-                percentComplete={this.state.progress.percentComplete}
-                progressHidden={this.state.progress.progressHidden}/>;
-
-
-            let errorList = <MyLogList
-                title={ 'Error'}           items={ this.state.history.errors }
-                descending={false}          titles={null}            ></MyLogList>;
-
-            let fieldList = <MyLogList
-                title={ 'Column'}           items={ this.state.history.fields }
-                descending={false}          titles={null}            ></MyLogList>;
-
-            let viewList = <MyLogList
-                title={ 'View'}           items={ this.state.history.views }
-                descending={false}          titles={null}            ></MyLogList>;
-
-            let itemList = <MyLogList
-                title={ 'Item'}           items={ this.state.history.items }
-                descending={false}          titles={null}            ></MyLogList>;
+                // if ( this.state.lists.length > 0) {
+                if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 ) {
+                    let listJSON = null; 
+                    let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] )) ;
+                    if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
+                    if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
+                    if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
+    
+                    listJSON = <div style={{ overflowY: 'auto' }}>
+                        <ReactJson src={ tempJSON } collapsed={ 1 } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
+                    </div>;
+    
+                    listDefinitionJSON =
+                     <div style={{display: '', marginBottom: '30px' }}>
+                            <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
+                        { listJSON }
+                    </div>;
+    
+                } 
+            }
 
             let disclaimers = <div>
                 <h2>Disclaimers.... still need to work on</h2>
@@ -505,52 +485,19 @@ public constructor(props:IProvisionListsProps){
                 </ul>
             </div>;
 
-            let listDetails = null;
-
-            if ( this.state.listNo !== null && this.state.lists && this.state.lists.length > 0 && this.state.doMode !== true ) {
-                let listJSON = null; 
-                       
-                let tempJSON = JSON.parse(JSON.stringify( this.state.lists[ this.state.listNo ] ));
-                if ( this.state.doFields !== true ) { tempJSON.createTheseFields = []; }
-                if ( this.state.doViews !== true ) { tempJSON.createTheseViews = []; }
-                if ( this.state.doItems !== true ) { tempJSON.createTheseItems = []; }
-
-                listJSON = <div style={{ overflowY: 'auto' }}>
-                    <ReactJson src={ tempJSON } collapsed={ true } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } />
-                </div>;
-
-                listDetails = <div style={{display: '', marginBottom: '30px' }}>
-                         <div><h2>Details for list:{ this.state.lists[ this.state.listNo ].listDefinition } <span style={{fontSize: 'small', paddingLeft: '50px'}}> { JSONEditorShort } </span></h2></div>
-                        { listJSON }
-                    </div>;
-
-            } 
-
             const stackListTokens: IStackTokens = { childrenGap: 10 };
 
             thisPage = <div><div>{ disclaimers }</div>
 
                 <div style={{ float: 'left' }}> { listDropdown } </div>
                 <div> { toggles } </div>
-                <div> { provisionButtonRow } </div>
+                <div> { doInputs } </div>
                 <div style={{ height:30} }> {  } </div>
 
-                <div style={{display: this.state.doMode === true ? '': 'none' }}>
-                        <div> { myProgress } </div>
-                        <div> {  } </div>
-                        <div> <h2>{ this.state.currentList }</h2> </div>
-                        <div>
-                        <Stack horizontal={true} wrap={true} horizontalAlign={"center"} tokens={stackListTokens}>{/* Stack for Buttons and Fields */}
-                            { errorList }
-                            { fieldList }
-                            { viewList }
-                            { itemList }
-                        </Stack>
-                        </div>
-                </div>
-                <div style={{display: this.state.doMode === true ? 'none': '' }}>
-                    { listDetails }
-                </div>
+                { historyStack }
+
+                { listDefinitionJSON }
+
             </div>;
 
 /***
@@ -616,6 +563,7 @@ public constructor(props:IProvisionListsProps){
 
     if ( this.state.doMode === true ) {
         
+        //Moved this above the provisionTheList because it was modifying mapThisList on the fly.
         let workingMessage = readOnly === true ? 'Verifying list: ': 'Building list: ' ;
         this.setState({
             currentList: workingMessage + listName,
@@ -667,6 +615,17 @@ public constructor(props:IProvisionListsProps){
     this.setState({
         currentList: 'Finished ' + this.state.currentList,
     });
+
+    let theSite: any = this.props.theSite;
+    let ServerRelativeUrl = this.props.currentPage;
+    let pickedWeb = this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid + '|' + theSite.Url + '|' + theSite.Id ;
+
+    let railFunction : IListRailFunction = 'AddTemplate'; 
+    saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply , //analyticsWeb, analyticsList,
+        ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+        ApplyTemplate_Rail_SaveTitle, pickedWeb, mapThisList.listURL, //saveTitle, TargetSite, TargetList
+        mapThisList.title, null , 'Complete', //itemInfo1, itemInfo2, result, 
+        mapThisList, railFunction, this.state.progress, this.state.history ); //richText, Setting, richText2, richText3
 
   }
 
@@ -739,7 +698,7 @@ public constructor(props:IProvisionListsProps){
  *
  */
 
-    private _updateStateOnPropsChange(doThis: 'props' | 'state' ): void {
+    private async _updateStateOnPropsChange(doThis: 'props' | 'state' ) {
         console.log('_updateStateOnPropsChange:', doThis, this.props );
         let testLists : IMakeThisList[] = [];
         let definedList : IDefinedLists = null;
@@ -752,73 +711,19 @@ public constructor(props:IProvisionListsProps){
         }
 
         if ( this.state.validUserIds.length === 0 ) {
-            const thisWeb = Web( this.props.pickedWeb.url );
-            thisWeb.siteUsers.get().then((responseUsers) => {
-                let validUserIds : any[] = [];
-                responseUsers.map ( u => {
-                    if ( u.UserId !== null && u.UserPrincipalName !== null ) { validUserIds.push( u.Id ); }
-                });
-                console.log('validUserIds SiteUsers:', validUserIds );
-                this.setState({  validUserIds: validUserIds, });
-            }).catch((e) => {
-                let helpfulErrorEnd = [ 'Get Site Users', '', null, null ].join('|');
-                let errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'provisionListComponent ~ 765', helpfulErrorEnd ].join('|') );
-                console.log('Not able to get SiteUsers', errMessage);
-            });
+
+            let validUsers = await getSiteUsers( this.props.pickedWeb.url, ['Id','Title','Name','Email'], true );
+
+            this.setState({  validUserIds: validUsers.Ids, });
+
         }
         if ( testLists.length > 0 ) {
             for ( let i in testLists ) {
-                checkThisWeb(parseInt(i,10), testLists, definedList, this.updateStateLists.bind(this), getFullURLFromRelative( this.props.pickedWeb.url ) );
+                checkThisWeb(parseInt(i,10), testLists, definedList, this.updateStateLists.bind(this), getFullUrlFromSlashSitesUrl( this.props.pickedWeb.url ) );
             }
         }
+
     }
-
-    // private checkThisWeb(index: number, testLists : IMakeThisList[], definedList: IDefinedLists ){
-    //     const thisWeb = Web(testLists[index].webURL);
-    //     testLists[index].webExists = false;
-    //     testLists[index].listExists = false;
-    //     testLists[index].existingTemplate = null;
-    //     testLists[index].sameTemplate = false;
-
-    //     thisWeb.lists.get().then((response) => {
-    //         testLists[index].webExists = true;
-    //         //this.checkThisList(index, testLists, thisWeb, definedList);
-    //         let responseIdx = doesObjectExistInArray(response, 'Title', testLists[index].title ); //Check existing lists for the new list
-
-    //         if ( responseIdx === false ) {
-
-    //         } else {
-    //             testLists[index].listExists = true;     //Copied in from checkThisList
-    //             testLists[index].listExistedB4 = true;  //Copied in from checkThisList
-    //             testLists[index].existingTemplate = response[responseIdx].BaseTemplate;
-    //             testLists[index].sameTemplate = testLists[index].existingTemplate === testLists[index].template ? true : false;    
-    //             testLists[index].onCurrentSite = testLists[index].webURL.toLowerCase() === this.props.pageContext.web.absoluteUrl.toLowerCase() + '/' ? true : false; 
-    //         }
-
-    //         this.updateStateLists.bind(this)(index, testLists, definedList, );
-
-    //     }).catch((e) => {
-    //         let errMessage = getHelpfullError(e, true, true);
-    //         console.log('checkThisWeb', errMessage);
-    //         this.updateStateLists.bind(this)(index, testLists, definedList, );
-
-    //     });
-    // }
-/*
-    private checkThisList(index: number, testLists : IMakeThisList[], thisWeb: any, definedList: IDefinedLists ){
-        //const thisWeb = Web(testLists[index].webURL);
-        thisWeb.lists.getByTitle(testLists[index].title).get().then((response) => {
-            testLists[index].listExists = true;
-            testLists[index].listExistedB4 = true;
-            this.updateStateLists.bind(this)(index, testLists, definedList);
-
-        }).catch((e) => {
-            let errMessage = getHelpfullError(e, true, true);
-            console.log('checkThisList', errMessage);
-            this.updateStateLists.bind(this)(index, testLists, definedList);
-        });
-    }
-*/
 
     private updateStateLists(index: number, testLists : IMakeThisList[], definedList: IDefinedLists) {
         let stateLists = this.state.lists;
@@ -828,149 +733,6 @@ public constructor(props:IProvisionListsProps){
             lists: stateLists,
             definedList: definedList,
         });
-    }
-
-    private getDefinedLists( defineThisList : IDefinedLists, justReturnLists : boolean ) {
-        console.log( 'getDefinedLists' );
-        let theLists : IMakeThisList[] = [];
-    
-        let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
-    
-        if ( justReturnLists === false ) { provisionListTitles = [] ; }
-    
-        if ( defineThisList !== availLists[0] ) { //Update to get available lists to build
-            theLists = getTheseDefinedLists( defineThisList, true, [ this.state.makeThisList.title ], [], this.state.makeThisList.webURL, this.state.makeThisList.webURL, this.state.doList, this.updateStateLists.bind(this) );
-    
-            // //Go through and re-map props that might not get set correctly
-            // theLists.map( list => {
-            //     list.name = this.props.theList.EntityTypeName;
-            //     list.title = this.props.theList.Title;
-            //     list.title = this.props.theList.Title;
-            //     list.desc = this.props.theList.Description;
-            //     list.listURL = this.props.theList.listURL;
-            //     list.listExists = true;
-            //     list.listExistedB4 = true;
-            //     list.webExists = true;
-            //     list.existingTemplate = this.props.theList.BaseTemplate;
-            //     list.onCurrentSite = this.state.onCurrentSite;
-            //     list.autoItemCreate = false;
-            // });
-        }
-    
-        //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-        this.setState({
-            lists: theLists,
-            definedList: defineThisList,
-        });
-    
-    }
-
-    private getDefinedListsOrig( defineThisList : IDefinedLists, justReturnLists : boolean ) {
-
-        let theLists : IMakeThisList[] = [];
-
-        let provisionListTitles =  this.state ? this.state.provisionListTitles : this.props.provisionListTitles;
-
-        if ( justReturnLists === false ) { provisionListTitles = [] ; }
-
-        if ( defineThisList === availLists[0] ) {
-            //let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.props.currentUser, this.props.pageContext.web.absoluteUrl );
-            this.setState({
-                lists: theLists,
-                definedList: defineThisList,
-            });
-        } else if ( defineThisList === 'TrackMyTime' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Projects');  provisionListTitles.push('TrackMyTime');  }
-
-            let parentList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[0], 'Projects' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let childList : IMakeThisList = dTMT.defineTheList( 100 , provisionListTitles[1], 'TrackMyTime' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-
-            if ( parentList ) { theLists.push( parentList ); }
-            if ( childList ) { theLists.push( childList ); }
-
-        } else if ( defineThisList === 'Harmon.ie' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('BUEmails');  provisionListTitles.push('Emails');  }
-
-            let buEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[0], 'BUEmails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let justEmails : IMakeThisList = dHarm.defineTheList( 101 , provisionListTitles[1], 'Emails' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-
-            if ( buEmails ) { theLists.push( buEmails ); }
-            if ( justEmails ) { theLists.push( justEmails ); }
-
-        } else if ( defineThisList === 'PreConfig' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Drilldown');  provisionListTitles.push('CarrotCharts');  provisionListTitles.push('GridCharts');}
-
-            let drillDown : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[0], 'Drilldown' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let carrotCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[1], 'CarrotCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let gridCharts : IMakeThisList = dPCP.defineTheList( 100 , provisionListTitles[2], 'GridCharts' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-
-            if ( drillDown ) { theLists.push( drillDown ); }
-            if ( carrotCharts ) { theLists.push( carrotCharts ); }
-            if ( gridCharts ) { theLists.push( gridCharts ); }
-
-        } else if ( defineThisList === 'Customer Requirements' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Program');  provisionListTitles.push('SORInfo');  }
-
-            let progCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[0], 'Program' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let sorCustRequire : IMakeThisList = dCust.defineTheList( 101 , provisionListTitles[1], 'SORInfo' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-
-            if ( progCustRequire ) { theLists.push( progCustRequire ); }
-            if ( sorCustRequire ) { theLists.push( sorCustRequire ); }
-
-        } else if ( defineThisList === 'PivotTiles' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('PivotTiles');  provisionListTitles.push('OurTiles');  }
-
-            let pivotTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[0], 'PivotTiles' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let ourTiles : IMakeThisList = dPivT.defineTheList( 100 , provisionListTitles[1], 'OurTiles' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( pivotTiles ) { theLists.push( pivotTiles ); }
-            if ( ourTiles ) { theLists.push( ourTiles ); }
-
-        } else if ( defineThisList === 'Reports' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Reports1');  provisionListTitles.push('Reports2');  }
-
-            let reports1 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[0], 'Reports1' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let reports2 : IMakeThisList = dReps.defineTheList( 101 , provisionListTitles[1], 'Reports2' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( reports1 ) { theLists.push( reports1 ); }
-            if ( reports2 ) { theLists.push( reports2 ); }
-
-        } else if ( defineThisList === 'Finance Tasks' ) {
-
-            if ( justReturnLists === false ) {  provisionListTitles.push('Finance Tasks');  provisionListTitles.push('OurTasks');  }
-
-            let finTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[0], 'Finance Tasks' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-            let ourTasks : IMakeThisList = dFinT.defineTheList( 100 , provisionListTitles[1], 'OurTasks' , this.props.pickedWeb.url, this.state.validUserIds, this.props.pageContext.web.absoluteUrl );
-        
-            if ( finTasks ) { theLists.push( finTasks ); }
-            if ( ourTasks ) { theLists.push( ourTasks ); }
-
-        } 
-
-        /**
-         * Fix Title vs Name fields depending on list or library
-         */
-         theLists.map( list => {
-            list = fixTitleNameInViews( this.state.doList , list );
-         });
-
-        //'Finance Tasks' |  'Reports' |  'Turnover' |  'OurGroups' |  'Socialiis' | 'PreConfig' |  dFinT
-
-        if ( justReturnLists === true ) {
-            return theLists;
-
-        } else {
-            for ( let i in theLists ) {
-                checkThisWeb(parseInt(i,10), theLists, defineThisList, this.updateStateLists.bind(this), getFullURLFromRelative( this.props.pickedWeb.url )  );
-            }
-        }
-        return theLists;
     }
 
     private _createDropdownField( label: string, choices: string[], _onChange: any, getStyles : IStyleFunctionOrObject<ITextFieldStyleProps, ITextFieldStyles>) {
@@ -1057,7 +819,7 @@ public constructor(props:IProvisionListsProps){
             theList.listURL =  ( this.props.pickedWeb.url ) + '/' + ( theList.template === 100 ? 'lists/' : '') + listName;
         });
 
-        checkThisWeb(index, reDefinedLists, definedList, this.updateStateLists.bind(this), getFullURLFromRelative( this.props.pickedWeb.url ));
+        checkThisWeb(index, reDefinedLists, definedList, this.updateStateLists.bind(this), getFullUrlFromSlashSitesUrl( this.props.pickedWeb.url ));
 
       }
 
@@ -1098,7 +860,7 @@ public constructor(props:IProvisionListsProps){
                 styles: '',
             };
 
-            let listNo = this.state.listNo; 
+            let listNo = this.state.listNo;
             let togDoFields = {
                 label: 'Fields ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseFields.length})` : '' ),
                 key: 'togDoFields',
@@ -1120,7 +882,6 @@ public constructor(props:IProvisionListsProps){
                 className: '',
                 styles: '',
             };
-
             
             let togDoItems = {
                 label: 'Items ' + ( this.state.lists.length > 0 && listNo !== null? `(${this.state.lists[listNo].createTheseItems.length})` : '' ),

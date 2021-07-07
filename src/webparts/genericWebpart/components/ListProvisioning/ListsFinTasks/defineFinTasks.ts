@@ -3,18 +3,18 @@ import { FinTasksFields, } from './columnsFinTasks'; //Import column arrays (one
 
 import { FinTasksViews,  } from './viewsFinTasks';  //Import view arrays for Project list
 
-import { IMakeThisList, provisionTheList  } from '../component/provisionWebPartList';
+import { provisionTheList  } from '../component/provisionWebPartList';
 
 import { FinanceTaskItems } from './ItemsWebPart';
 import { getFieldNamesFromArray, getViewTitlesFromArray } from '../component/provisionFunctions';
 
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from '../../../../../services/railsCommon/ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from '../../../../../services/railsCommon/ProvisionTypes';
 // definedList: 'PreConfig',
 
-export type IValidTemplate = 100 | 101;
-
 import { defineTheListMaster } from '../component/provisionWebPartList';
-
-export type IListDefintionFinTasks = 'Finance Tasks' | 'OurTasks' ;
 
 //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
 export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionFinTasks , webURL: string, currentUser: number[], pageURL: string ) {

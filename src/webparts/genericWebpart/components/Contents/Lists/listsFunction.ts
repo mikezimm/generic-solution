@@ -48,6 +48,8 @@ import { BaseErrorTrace } from '../../../../../services/BaseErrorTrace';  //, [ 
 
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Services/Strings/urlServices';  //    webURL = getFullUrlFromSlashSitesUrl( webURL );
 
+import { IPickedWebBasic, IPickedList } from '@mikezimm/npmfunctions/dist/Lists/IListInterfaces';
+
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      .d8888. d88888b d8888b. db    db d888888b  .o88b. d88888b .d8888. 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      88'  YP 88'     88  `8D 88    88   `88'   d8P  Y8 88'     88'  YP 
@@ -58,15 +60,6 @@ import { getFullUrlFromSlashSitesUrl } from '@mikezimm/npmfunctions/dist/Service
  *                                                                                                                                 
  *                                                                                                                                 
  */
-
-import { addTheseItemsToList, addTheseItemsToListInBatch } from '../../../../../services/listServices/listServices';
-
-
-import { IFieldLog, addTheseFields } from '../../../../../services/listServices/columnServices'; //Import view arrays for Time list
-
-import { IViewLog, addTheseViews } from '../../../../../services/listServices/viewServices'; //Import view arrays for Time list
-
-import { IAnyArray } from  '../../../../../services/listServices/listServices';
 
 
  /***
@@ -80,6 +73,8 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
  *                                                                                                                       
  */
 
+import { ICachedListId, IListRailFunction, IInspectListsProps, IInspectListsState, IListBucketInfo, IRailsOffPanel } from './IListComponentTypes';
+
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b       .o88b.  .d88b.  .88b  d88. d8888b.  .d88b.  d8b   db d88888b d8b   db d888888b 
  *      `88'   88'YbdP`88 88  `8D .8P  Y8. 88  `8D `~~88~~'      d8P  Y8 .8P  Y8. 88'YbdP`88 88  `8D .8P  Y8. 888o  88 88'     888o  88 `~~88~~' 
@@ -91,9 +86,9 @@ import { IAnyArray } from  '../../../../../services/listServices/listServices';
  *                                                                                                                                               
  */
 
-import { pivCats, IListBucketInfo } from './listsComponent';
+import { pivCats, } from './IListComponentConst';
 
-import { IFieldBucketInfo, IContentsFieldInfo } from '../Fields/fieldsComponent';
+import { IContentsFieldInfo, IInspectColumnsProps, IInspectColumnsState, IFieldBucketInfo } from '../Fields/IFieldComponentTypes';
 import * as ECFields from '../Fields/fieldsFunctions';
 
 /***
@@ -121,7 +116,61 @@ export async function allFieldsCompare( webURL: string, listTitleOrId: string, f
 }
 
 
-export async function getSiteInfo( webUrl: string ) {
+export async function getWebInfoIncludingUnique( webURL : string , minOrAllProps: 'min' | 'all', alertErrors: boolean, logErrors: boolean | string ) {
+
+    webURL = getFullUrlFromSlashSitesUrl( webURL );
+    let errMessage = '';
+  
+    const thisWebObject = Web( webURL );
+    let getMinProps = 'Title,Id,Url,ServerRelativeUrl,SiteLogoUrl,Description,HasUniqueRoleAssignments';
+    if ( minOrAllProps === 'all' ) { getMinProps = '*,' + getMinProps ; }
+    let pickedWeb = null;
+  
+    let pickedWebMin : IPickedWebBasic = {
+        ServerRelativeUrl: 'Site ServerRelativeUrl',
+        guid: 'Site Guid',
+        title: 'Site Title',
+        url: 'siteURL',
+        siteIcon: 'Site Icon',
+        error: '',
+        HasUniqueRoleAssignments: null,
+    };
+
+    try {
+      const webbie = await thisWebObject.select(getMinProps).get();
+  
+      if ( minOrAllProps === 'min' ) {
+
+        pickedWebMin = {
+            ServerRelativeUrl: webbie.ServerRelativeUrl,
+            guid: webbie.Id,
+            title: webbie.Title,
+            url: webbie.Url,
+            siteIcon: webbie.SiteLogoUrl,
+            error: '',
+            HasUniqueRoleAssignments: webbie['HasUniqueRoleAssignments'],
+        };
+  
+        pickedWeb = pickedWebMin;
+  
+      } else { pickedWeb = webbie; }
+  
+    } catch (e) {
+  
+      let helpfulErrorEnd = [ webURL, , null, null ].join('|') ;
+      let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getWebInfoIncludingUnique ~ 160 ' + logErrors, helpfulErrorEnd ].join('|') : '';
+      errMessage = getHelpfullErrorV2(e, alertErrors, true, errorTrace );
+      pickedWeb = pickedWebMin;
+      pickedWeb.error = errMessage;
+   
+    }
+  
+    return pickedWeb;
+  
+   }
+ 
+   
+export async function getSiteInfo( webUrl: string, alertErrors: boolean, logErrors: boolean | string   ) {
   
     webUrl = getFullUrlFromSlashSitesUrl( webUrl );
 
@@ -132,9 +181,9 @@ export async function getSiteInfo( webUrl: string ) {
     try {
       thisSiteInstance = await Site( webUrl );
     } catch (e) {
-    
-      let helpfulErrorEnd = [ webUrl, '', '', null, null ].join('|');
-      errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 137', helpfulErrorEnd ].join('|') );
+        let helpfulErrorEnd = [ webUrl, '', '', null, null ].join('|') ;
+        let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 137 ' + logErrors, helpfulErrorEnd ].join('|') : '';
+        errMessage = getHelpfullErrorV2(e, alertErrors, true, errorTrace );
     }
   
     let theSite = null;
@@ -144,10 +193,11 @@ export async function getSiteInfo( webUrl: string ) {
       } catch (e) {
 
         let helpfulErrorEnd = [ webUrl, '', '', null, null ].join('|');
+        let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 148 ' + logErrors, helpfulErrorEnd ].join('|') : '';
 
         //Set alertMe = false because it was causing false positives when clicking to Site Contents from page with EasyContents on it.
         console.log('---===>>>> getSiteInfo FAILED, NO Alert');
-        errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 148', helpfulErrorEnd ].join('|') );
+        errMessage = getHelpfullErrorV2(e, false, true, errorTrace );
       }
 
  
@@ -156,7 +206,7 @@ export async function getSiteInfo( webUrl: string ) {
   }
 
 //export async function provisionTestPage( makeThisPage:  IContentsListInfo, readOnly: boolean, setProgress: any, markComplete: any ): Promise<IServiceLog[]>{
-export async function allAvailableLists( webURL: string, restFilter: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any ): Promise<IContentsListInfo[] | any >{
+export async function allAvailableLists( webURL: string, restFilter: string, listBuckets: IListBucketInfo[], addTheseListsToState: any, setProgress: any, markComplete: any, logErrors: boolean | string = false ): Promise<IContentsListInfo[] | any >{
 
     webURL = getFullUrlFromSlashSitesUrl( webURL );
 
@@ -166,12 +216,8 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
     let scope = '';
     let errMessage = '';
     let allLists : IContentsListInfo[] = [];
-    let theSite: ISite = null;
-
 
     try {
-
-        theSite = await getSiteInfo( webURL );
 
         thisWebInstance = Web(webURL);
 
@@ -182,7 +228,9 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
               } catch (e) {
         
                 let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
-                errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo GetLists With Filter ~ 182', helpfulErrorEnd ].join('|') );
+                let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo GetLists With Filter ~ 182 ' + logErrors, helpfulErrorEnd ].join('|') : '';
+
+                errMessage = getHelpfullErrorV2(e, false, true, errorTrace );
               }
 
         } else {
@@ -192,21 +240,26 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
               } catch (e) {
         
                 let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
-                errMessage = getHelpfullErrorV2(e, false, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo Get Lists No Filter ~ 192', helpfulErrorEnd ].join('|') );
+                let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo GetLists With Filter ~ 192 ' + logErrors, helpfulErrorEnd ].join('|') : '';
+                errMessage = getHelpfullErrorV2(e, false, true, errorTrace );
               }
         }
         //console.log(allLists);
 
         for (let i in allLists ) {
 
-            let lastModified = makeSmallTimeObject(allLists[i].LastItemModifiedDate);
+            let lastSettingModified = makeSmallTimeObject(allLists[i].LastItemModifiedDate);
+            let lastUserModified = makeSmallTimeObject(allLists[i].LastItemModifiedDate);
             let created = makeSmallTimeObject(allLists[i].Created);
+            let deleted = makeSmallTimeObject(allLists[i].LastItemDeletedDate);
 
             allLists[i].Created = makeSmallTimeObject(allLists[i].Created).dayYYYYMMDD;
 
-            allLists[i].LastItemModifiedDate = lastModified.daysAgo.toString() + ' days';
-            allLists[i].modifiedAge = lastModified.daysAgo;
+            // allLists[i].LastItemModifiedDate = lastSettingModified.daysAgo.toString() + ' days';
+            allLists[i].modifiedSettingAge = lastSettingModified.daysAgo;
+            allLists[i].modifiedUserAge = lastUserModified.daysAgo;
             allLists[i].createdAge = created.daysAgo;
+            allLists[i].deletedAge = deleted.daysAgo;
 
             let urlEntityName = encodeDecodeString( allLists[i].EntityTypeName , 'decode');
             allLists[i].EntityTypeName = urlEntityName + '';
@@ -247,17 +300,19 @@ export async function allAvailableLists( webURL: string, restFilter: string, lis
 
         }
 
-        addTheseListsToState(allLists, errMessage, theSite);
-        return { allLists: allLists, errMessage: errMessage, theSite: theSite } ;
+        addTheseListsToState(allLists, errMessage);
+        return { allLists: allLists, errMessage: errMessage } ;
 
     } catch (e) {
             
         let helpfulErrorEnd = [ webURL, '', '', null, null ].join('|');
-        errMessage = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 252', helpfulErrorEnd ].join('|') );
+        let errorTrace = logErrors !== false ? [ BaseErrorTrace , 'Failed', 'getSiteInfo ~ 252 ' + logErrors, helpfulErrorEnd ].join('|') : '';
+
+        errMessage = getHelpfullErrorV2(e, true, true, errorTrace );
 
         console.log('checkThisPage', errMessage);
-        addTheseListsToState([], errMessage, theSite );
-        return { allLists: allLists, errMessage: errMessage, theSite: theSite } ;
+        addTheseListsToState([], errMessage );
+        return { allLists: allLists, errMessage: errMessage } ;
     }
 
 }
@@ -302,7 +357,7 @@ function buildMetaFromList( theList: IContentsListInfo ) {
     meta = addItemToArrayIfItDoesNotExist(meta, !theList.EnableVersioning ? pivCats.noVersions.title:'');
 
     meta = addItemToArrayIfItDoesNotExist(meta, theList.MajorVersionLimit > 100 ? pivCats.versions.title:'');
-    meta = addItemToArrayIfItDoesNotExist(meta, theList.modifiedAge > 180 ? pivCats.old.title:'');
+    meta = addItemToArrayIfItDoesNotExist(meta, theList.modifiedSettingAge > 180 ? pivCats.old.title:'');
 
     meta = addItemToArrayIfItDoesNotExist(meta, theList.sort );
 
@@ -336,6 +391,7 @@ function buildSearchStringFromList (newList : IContentsListInfo) {
     if ( newList.Title ) { result += 'Title=' + newList.Title + delim ; }
     if ( newList.EntityTypeName ) { result += 'Name=' + newList.EntityTypeName + delim ; }
     if ( newList.Id ) { result += 'Id=' + newList.Id + delim ; }
+    if ( newList.Created ) { result += 'Created=' + newList.Created + delim ; }
     if ( newList.meta.length > 0 ) { result += 'Meta=' + newList.meta.join(',') + delim ; }
 
     result += 'resindex=' + newList.responseIndex + delim ;

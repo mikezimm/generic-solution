@@ -63,7 +63,10 @@ import { mergeStyles } from 'office-ui-fabric-react/lib/Styling';
  */
 
 import MyLogList from '../../webparts/genericWebpart/components/ListProvisioning/component/listView';
-import { IMakeThisList } from '../../webparts/genericWebpart/components/ListProvisioning/component/provisionWebPartList';
+
+import { IValidTemplate, IMakeThisList, IDefinedLists, IDefinedComponent, IListDefintionReports, IListDefintionHarmonie, IListDefintionCustReq, IListDefintionFinTasks, IListDefintionTMT, IListDefintionTurnOver, IListDefintionPivot, IListDefintionPreConfig } from './ProvisionTypes';
+
+import { availLists, DefStatusField, DefEffStatusField, availComponents, definedLists, } from './ProvisionTypes';
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -76,7 +79,7 @@ import { IMakeThisList } from '../../webparts/genericWebpart/components/ListProv
  *                                                                                                                       
  */
 
-//  import { getSiteInfoIncludingUnique } from './functions';
+//  import { getWebInfoIncludingUnique } from './functions';
 
 //   import { buildPropsHoverCard } from '../../../../../../services/hoverCardService';
 
@@ -165,7 +168,6 @@ export default class ProvisionHistory extends React.Component<IProvisionHistoryP
 
     constructor(props: IProvisionHistoryProps) {
         super(props);
-        let listTitle = this.props.theList.Title;
 
         this.state = {
           history: this.props.history,

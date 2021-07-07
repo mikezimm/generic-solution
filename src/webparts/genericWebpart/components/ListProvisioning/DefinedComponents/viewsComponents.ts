@@ -30,7 +30,7 @@ import {
 //Standard Queries
 import { queryValueCurrentUser, queryValueToday } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
 
-import { DefStatusField, DefEffStatusField } from '../../ListProvisioning/component/provisionFunctions';
+import { DefStatusField, DefEffStatusField, IDefinedComponent } from '../../../../../services/railsCommon/ProvisionTypes';
 
 import { testAlertsView, createRecentUpdatesView } from '../../../../../services/listServices/viewsGeneric';
 
@@ -41,7 +41,6 @@ import { testAlertsView, createRecentUpdatesView } from '../../../../../services
 //Imported but not used so that intellisense can prevent duplicate named columns.
 import { ootbID, ootbVersion, ootbTitle, ootbEditor, ootbAuthor, ootbCreated, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
 
-import { IDefinedComponent,  } from './defineComponents';
 import { DefaultStatusChoices, StepsDone, DaysToStepCalc, StepsDoneCalc, StepChecks, createEffectiveStatus } from './columnsComponents';
 
 //Harmonie columns
